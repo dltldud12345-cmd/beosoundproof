@@ -141,7 +141,7 @@
   .hr{height:1px;background:var(--line);border:0;margin:0}
 
   /* ============ hero ============ */
-  .hero{position:relative;color:#fff;display:flex;align-items:flex-end;overflow:hidden;background:#0E1113}
+  .hero{position:relative;color:#fff;display:flex;align-items:flex-end;overflow:hidden;background:#0E1113;min-height:calc(100vh - 74px);min-height:calc(100svh - 74px)}
   /* hero crossfade slides */
   .hero-slides{position:absolute;inset:0;z-index:0;overflow:hidden;background:#0E1113}
   .hero-slide{
@@ -155,13 +155,14 @@
   .hero-slide:nth-child(2) img{object-position:52% 46%}
   .hero-slide:nth-child(3) img{object-position:50% 42%}
   .hero-slide:nth-child(4) img{object-position:50% 52%}
+  /* 사진을 가리지 않도록 하단 25%에만 은은하게 까는 그라데이션 */
   .hero::after{
-    content:"";position:absolute;inset:0;z-index:1;
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:
-      linear-gradient(90deg,rgba(9,11,13,.9) 0%,rgba(9,11,13,.76) 38%,rgba(9,11,13,.42) 66%,rgba(9,11,13,.56) 100%),
-      linear-gradient(180deg,rgba(9,11,13,.4) 0%,rgba(9,11,13,.05) 32%,rgba(9,11,13,.5) 100%);
+      radial-gradient(78% 62% at 0% 100%,rgba(9,11,13,.4) 0%,rgba(9,11,13,.12) 46%,rgba(9,11,13,0) 72%),
+      linear-gradient(180deg,rgba(9,11,13,0) 0%,rgba(9,11,13,0) 58%,rgba(9,11,13,.12) 70%,rgba(9,11,13,.34) 81%,rgba(9,11,13,.58) 90%,rgba(9,11,13,.78) 100%);
   }
-  .hero-dots{position:absolute;left:0;right:0;bottom:clamp(13px,2.2vw,22px);z-index:3;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 var(--gut)}
+  .hero-dots{position:absolute;left:0;right:0;bottom:clamp(18px,2.4vw,28px);z-index:3;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 var(--gut)}
   .hero-dot{
     position:relative;width:8px;height:8px;padding:0;border:0;border-radius:999px;
     background:rgba(255,255,255,.42);cursor:pointer;-webkit-appearance:none;appearance:none;
@@ -171,20 +172,42 @@
   .hero-dot:hover{background:rgba(255,255,255,.72)}
   .hero-dot.is-active{width:26px;background:#8CDFCB}
   .hero-dot:focus-visible{outline:2px solid #8CDFCB;outline-offset:5px}
-  .hero .wrap{position:relative;z-index:3;padding-top:clamp(96px,20vh,200px);padding-bottom:clamp(44px,7vw,86px)}
-  .hero .eyebrow{color:#8CDFCB}
-  .hero h1{margin-top:22px;font-size:clamp(34px,5.2vw,64px);line-height:1.14;letter-spacing:-.04em}
-  .hero h1 em{font-style:normal;color:#8FE0CD}
-  .hero .lead{margin-top:24px;max-width:34em;color:#D3D8DB;font-size:clamp(15px,1.35vw,17px);line-height:1.8}
-  .hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:38px}
-  .hero .note{margin-top:26px;font-size:13px;color:#9AA3A8;letter-spacing:.01em;display:flex;align-items:center;gap:10px}
-  .hero .note::before{content:"";width:22px;height:1px;background:#8CDFCB;flex:none}
-  .hero-min{min-height:clamp(540px,80vh,760px)}
+  /* 히어로 위 텍스트는 하단 좌측 한 줄 슬로건만 */
+  .hero-cap{position:absolute;left:var(--gut);bottom:clamp(74px,9vh,104px);z-index:3;isolation:isolate;max-width:min(560px,46vw);text-shadow:0 1px 3px rgba(0,0,0,.6),0 4px 26px rgba(0,0,0,.5)}
+  .hero-cap::before{content:"";position:absolute;left:calc(var(--gut) * -1);right:-180px;top:-38px;bottom:-34px;z-index:-1;pointer-events:none;border-radius:60px;background:linear-gradient(90deg,rgba(9,11,13,.5) 0%,rgba(9,11,13,.3) 48%,rgba(9,11,13,.12) 72%,rgba(9,11,13,0) 100%);filter:blur(20px)}
+  .hero-cap-brand{display:block;font-size:10.5px;font-weight:700;letter-spacing:.36em;text-transform:uppercase;color:rgba(255,255,255,.86)}
+  .hero-cap-line{margin-top:12px;font-size:clamp(15px,1.35vw,18px);font-weight:600;line-height:1.55;letter-spacing:-.01em;color:#fff}
+  /* 하단 중앙 은은한 스크롤 유도 */
+  .hero-scroll{position:absolute;left:50%;bottom:clamp(64px,8vh,90px);z-index:3;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:11px;color:rgba(255,255,255,.72);transition:color .25s}
+  .hero-scroll span{font-size:9.5px;font-weight:700;letter-spacing:.34em;text-transform:uppercase}
+  .hero-scroll i{display:block;width:1px;height:40px;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 100%);transform-origin:top;animation:heroCue 2.8s cubic-bezier(.4,0,.2,1) infinite}
+  .hero-scroll:hover{color:#fff}
+  @keyframes heroCue{0%{transform:scaleY(.3);opacity:.15}45%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
+  @media (max-width:1100px){.hero-scroll{display:none}}
   @media (prefers-reduced-motion:reduce){
     .hero-slide{transition:none;transform:none}
     .hero-slide.is-active{transform:none}
     .hero-dot{transition:background .3s}
+    .hero-scroll i{animation:none}
   }
+
+  /* ============ intro (에디토리얼 인트로) ============ */
+  .intro{position:relative;background:var(--paper);padding:clamp(88px,12vw,152px) 0 clamp(58px,8.5vw,104px)}
+  .intro::before{content:"";position:absolute;left:var(--gut);right:var(--gut);top:0;height:1px;background:var(--line)}
+  .intro-in{max-width:940px}
+  .intro .eyebrow{color:var(--accent-dark);letter-spacing:.3em}
+  .intro h1{margin-top:26px;font-size:clamp(29px,4.6vw,54px);line-height:1.22;letter-spacing:-.045em;font-weight:800;text-wrap:balance}
+  .intro h1 em{font-style:normal;color:var(--accent-dark)}
+  .intro-lead{margin-top:clamp(22px,2.6vw,30px);max-width:32em;color:var(--body);font-size:clamp(15.5px,1.45vw,17.5px);line-height:1.9;text-wrap:balance}
+  .intro-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:clamp(34px,4.4vw,48px)}
+  .intro-note{margin-top:clamp(30px,3.6vw,40px);display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13.5px;line-height:1.7;letter-spacing:.01em}
+  .intro-note::before{content:"";width:26px;height:1px;background:var(--accent);opacity:.75;flex:none}
+
+  /* 순차 등장 (delay는 --d) */
+  .rise{opacity:0;transform:translateY(26px);transition:opacity .95s cubic-bezier(.22,1,.36,1) var(--d,0s),transform .95s cubic-bezier(.22,1,.36,1) var(--d,0s)}
+  .rise.in{opacity:1;transform:none}
+  .rise.instant{transition:none}
+  @media (prefers-reduced-motion:reduce){.rise{opacity:1;transform:none;transition:none}}
 
   /* ============ portfolio cards ============ */
   .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
@@ -459,7 +482,7 @@
   .mbar{display:none}
 
   /* ============ reveal ============ */
-  .rv{opacity:0;transform:translateY(16px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+  .rv{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
   .rv.in{opacity:1;transform:none}
   .rv.instant{transition:none}
   @media (prefers-reduced-motion:reduce){
@@ -468,6 +491,7 @@
   }
   @media print{
     .rv{opacity:1 !important;transform:none !important}
+    .rise{opacity:1 !important;transform:none !important}
     .page.is-active{animation:none !important}
   }
 
@@ -531,6 +555,7 @@
     .nav,.head-cta{display:none}
     .burger{display:flex}
     .site-head .inner{height:64px}
+    .hero{min-height:calc(100vh - 64px);min-height:calc(100svh - 64px)}
     .grid-3,.gallery{grid-template-columns:1fr 1fr}
     .stats div{padding:22px 16px 24px}
     .feat-media img{max-height:380px}
@@ -538,16 +563,16 @@
   @media (max-width:640px){
     body{font-size:16px;line-height:1.8}
     section.band{padding:clamp(54px,11vw,72px) 0}
-    .hero .wrap{padding-top:clamp(80px,22vh,150px);padding-bottom:46px}
-    .hero-slide:nth-child(1) img{object-position:56% 50%}
-    .hero-slide:nth-child(2) img{object-position:56% 50%}
-    .hero-slide:nth-child(3) img{object-position:50% 44%}
-    .hero-slide:nth-child(4) img{object-position:50% 50%}
-    .hero-min{min-height:clamp(500px,78vh,620px)}
-    .hero .lead{font-size:15px}
-    .hero .cta{gap:10px;margin-top:30px}
-    .hero .cta .btn{flex:1 1 100%}
-    .hero .note{font-size:12.5px}
+    .hero{min-height:calc(100svh - 64px)}
+    .hero-slide:nth-child(1) img{object-position:60% 50%}
+    .hero-slide:nth-child(2) img{object-position:28% 50%}
+    .hero-slide:nth-child(3) img{object-position:50% 55%}
+    .hero-slide:nth-child(4) img{object-position:50% 52%}
+    .hero-cap{bottom:calc(118px + env(safe-area-inset-bottom));max-width:calc(100% - var(--gut) * 2)}
+    .hero-cap-line{font-size:15px}
+    .hero-dots{bottom:calc(86px + env(safe-area-inset-bottom))}
+    .intro h1{line-height:1.26}
+    .intro-cta .btn{flex:1 1 100%}
     .sm-hide{display:none}
     .grid-3,.gallery{grid-template-columns:1fr;gap:18px}
     .grid-4{grid-template-columns:1fr}
@@ -621,7 +646,7 @@
   <!-- ============================ HOME ============================ -->
   <div class="page" id="page-home" data-page="home">
 
-    <section class="hero hero-min">
+    <section class="hero">
       <div class="hero-slides">
         <figure class="hero-slide is-active">
           <img src="assets/hero-main.jpg" alt="거실 창가에 맞춰 세운 베오방음 부스. 문을 열면 우드 슬랫 포인트 벽과 아트보드 내부가 보인다." fetchpriority="high" decoding="async">
@@ -637,22 +662,37 @@
         </figure>
       </div>
 
-      <div class="wrap">
-        <span class="eyebrow">BEO SOUNDPROOF · 맞춤 방음부스</span>
-        <h1>방 크기에 맞춰 짓는<br><em>조용한 작업실</em></h1>
-        <p class="lead">기성 부스를 놓는 대신, 방의 치수를 재서 그 자리에 맞게 만듭니다. 신규 설치부터 타사 부스 이전·재설치까지, 시공한 팀이 직접 끝까지 맡습니다.</p>
-        <div class="cta">
-          <a class="btn btn-primary btn-lg" href="#contact">무료 견적 상담</a>
-          <a class="btn btn-ghost-dark btn-lg" href="#products">맞춤 부스 보기</a>
-        </div>
-        <p class="note">사진 세 장이면 견적이 나옵니다<span class="sm-hide"> · 수도권 전역 · 지방 출장 가능</span></p>
+      <div class="hero-cap">
+        <span class="hero-cap-brand">BEO SOUNDPROOF</span>
+        <p class="hero-cap-line">조용함과 디자인을 함께 설계합니다.</p>
       </div>
+
+      <a class="hero-scroll" href="#intro" aria-label="아래 내용으로 스크롤">
+        <span>SCROLL</span>
+        <i aria-hidden="true"></i>
+      </a>
 
       <div class="hero-dots" aria-label="히어로 사진 선택">
         <button class="hero-dot is-active" type="button" aria-label="1번째 사진 보기" aria-current="true"></button>
         <button class="hero-dot" type="button" aria-label="2번째 사진 보기"></button>
         <button class="hero-dot" type="button" aria-label="3번째 사진 보기"></button>
         <button class="hero-dot" type="button" aria-label="4번째 사진 보기"></button>
+      </div>
+    </section>
+
+    <!-- 인트로: 스크롤하면 제목 → 부제 → 버튼 순서로 천천히 등장 -->
+    <section class="intro" id="intro">
+      <div class="wrap">
+        <div class="intro-in">
+          <span class="eyebrow rise" style="--d:0s">BEO SOUNDPROOF</span>
+          <h1 class="rise" style="--d:.14s">공간과 소리에 맞춘<br><em>맞춤 방음부스</em></h1>
+          <p class="intro-lead rise" style="--d:.34s">신규 시공부터 타사 이전·재설치까지, 11년의 현장 기술로 직접 시공합니다</p>
+          <div class="intro-cta rise" style="--d:.52s">
+            <a class="btn btn-primary btn-lg" href="#contact">무료 견적 상담</a>
+            <a class="btn btn-line btn-lg" href="#products">제품 라인업 보기</a>
+          </div>
+          <p class="intro-note rise" style="--d:.68s">사진 세 장이면 견적이 나옵니다 · 수도권 전역 · 지방 출장 가능</p>
+        </div>
       </div>
     </section>
 
@@ -1510,7 +1550,7 @@
   function revealAll(){
     var active = document.querySelector(".page.is-active");
     if (!active) return;
-    var items = active.querySelectorAll(".rv");
+    var items = active.querySelectorAll(".rv,.rise");
     var vh = window.innerHeight || document.documentElement.clientHeight;
     items.forEach(function(el){
       el.classList.remove("in","instant");
