@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>베오방음 | 맞춤 방음부스 신규 설치 · 이전·재설치 (수도권 전역)</title>
+<meta name="description" content="방의 치수를 재서 만드는 맞춤 방음부스. PB 액자틀에 고밀도 흡음을 두 겹으로 채우고 벽체 사이를 실링으로 막은 뒤, 내부는 1면 라인타공·3면 아트보드, 외부는 백색 알판으로 마감합니다. 기본 6가지 포함. 타사 부스도 해체·운반·재설치까지. 수도권 전역 직접 시공.">
+<meta property="og:title" content="베오방음 | 맞춤 방음부스 신규 설치 · 이전 설치">
+<meta property="og:description" content="방 치수에 맞춰 재단하는 맞춤 방음부스. 2중 고밀도 흡음 충진 · 벽체 간 실링 · 백색 알판 마감 · 기본 6가지 포함 · 타사 부스 이전 가능.">
+<meta property="og:image" content="assets/exterior-home.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314171A'/%3E%3Cg fill='%232E9C86'%3E%3Crect x='15' y='26' width='6' height='12' rx='3'/%3E%3Crect x='29' y='17' width='6' height='30' rx='3'/%3E%3Crect x='43' y='23' width='6' height='18' rx='3'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  /* ============ tokens ============ */
+  :root{
+    --ink:#14171A;
+    --ink-2:#2E353B;
+    --body:#4F585F;
+    --muted:#7B8389;
+    --line:#E5DFD4;
+    --line-soft:#EFEAE1;
+    --paper:#FCFAF6;
+    --cream:#F4F0E7;
+    --cream-2:#EAE4D8;
+    --accent:#2E9C86;
+    --accent-dark:#1F7A69;
+    --accent-tint:#E8F1EE;
+    --max:1120px;
+    --gut:clamp(20px,5vw,40px);
+    --r:18px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    font-size:16.5px;line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+  }
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3,h4{margin:0;line-height:1.3;letter-spacing:-.035em;font-weight:800}
+  p{margin:0}
+  ul,ol{margin:0;padding:0;list-style:none}
+  dl,dd,dt{margin:0}
+  button{font:inherit;color:inherit}
+  .wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+  .skip{position:absolute;left:-9999px}
+  .skip:focus{left:16px;top:16px;background:#fff;padding:10px 16px;border-radius:8px;z-index:300}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* ============ header ============ */
+  .site-head{
+    position:sticky;top:0;z-index:100;
+    background:rgba(252,250,246,.82);
+    -webkit-backdrop-filter:saturate(150%) blur(12px);backdrop-filter:saturate(150%) blur(12px);
+    border-bottom:1px solid var(--line);
+    transition:background .3s ease,box-shadow .3s ease,border-color .3s ease;
+  }
+  .site-head.is-scrolled{
+    background:rgba(252,250,246,.7);
+    border-bottom-color:rgba(20,23,26,.1);
+    box-shadow:0 1px 0 rgba(20,23,26,.03),0 14px 34px -22px rgba(20,23,26,.35);
+  }
+  .site-head .inner{display:flex;align-items:center;justify-content:space-between;gap:24px;height:74px}
+  .brand img{height:30px;width:auto}
+  .brand:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+  .nav{display:flex;align-items:center;gap:clamp(18px,2.4vw,34px);font-size:14.5px;font-weight:600;color:var(--ink-2)}
+  .nav a{position:relative;padding:8px 0;transition:color .2s}
+  .nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:center;transition:transform .3s var(--ease)}
+  .nav a:hover{color:var(--ink)}
+  .nav a:hover::after{transform:scaleX(1)}
+  .nav a[aria-current]{color:var(--ink)}
+  .nav a[aria-current]::after{transform:scaleX(1)}
+  .head-cta{display:inline-flex}
+
+  .burger{
+    display:none;width:46px;height:46px;padding:0;border:1px solid var(--line);
+    background:#fff;border-radius:12px;align-items:center;justify-content:center;
+    flex-direction:column;gap:5px;cursor:pointer;
+  }
+  .burger span{display:block;width:18px;height:1.6px;background:var(--ink);transition:transform .25s var(--ease),opacity .2s}
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6.6px) rotate(45deg)}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.6px) rotate(-45deg)}
+
+  .drawer{
+    display:none;position:absolute;left:0;right:0;top:100%;
+    background:var(--paper);border-bottom:1px solid var(--line);
+    box-shadow:0 24px 40px rgba(20,23,26,.08);
+    padding:8px var(--gut) 22px;
+  }
+  .drawer.open{display:block}
+  .drawer a{display:block;padding:15px 2px;font-size:16px;font-weight:600;border-bottom:1px solid var(--line-soft)}
+  .drawer a:last-of-type{border-bottom:0}
+  .drawer .drawer-cta{margin-top:14px;width:100%;border-bottom:0}
+
+  /* ============ buttons ============ */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:14px 26px;border-radius:999px;border:1px solid transparent;
+    font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.3;
+    transition:transform .2s var(--ease),background .2s,color .2s,border-color .2s;
+    cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-dark)}
+  .btn-ink{background:var(--ink);color:#fff}
+  .btn-ink:hover{background:#000}
+  .btn-line{border-color:rgba(20,23,26,.2);color:var(--ink)}
+  .btn-line:hover{border-color:var(--ink);background:rgba(20,23,26,.03)}
+  .btn-ghost-dark{border-color:rgba(255,255,255,.32);color:#fff}
+  .btn-ghost-dark:hover{background:rgba(255,255,255,.1)}
+  .btn-lg{padding:16px 30px;font-size:15.5px}
+
+  /* ============ shared section ============ */
+  .page{display:none}
+  .page.is-active{display:block;animation:pageIn .28s cubic-bezier(.22,1,.36,1) both}
+  @keyframes pageIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.page.is-active{animation:none}}
+  section.band{padding:clamp(68px,8.5vw,124px) 0}
+  .band-cream{background:var(--cream)}
+  .eyebrow{
+    display:inline-block;font-size:11px;font-weight:700;
+    letter-spacing:.26em;text-transform:uppercase;color:var(--accent-dark);
+  }
+  .sec-head{max-width:660px}
+  .sec-head h2{margin-top:18px;font-size:clamp(27px,3.3vw,42px);line-height:1.24}
+  .sec-head p{margin-top:18px;color:var(--muted);color:var(--body);font-size:16px;line-height:1.85}
+  .sec-head.center{margin-inline:auto;text-align:center}
+  .sec-top{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;flex-wrap:wrap}
+  .more{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:4px;transition:color .2s,border-color .2s}
+  .more:hover{color:var(--accent-dark);border-color:var(--accent-dark)}
+  .more span{transition:transform .2s var(--ease)}
+  .more:hover span{transform:translateX(3px)}
+  .hr{height:1px;background:var(--line);border:0;margin:0}
+
+  /* ============ hero ============ */
+  .hero{position:relative;color:#fff;display:flex;align-items:flex-end;overflow:hidden;background:#0E1113}
+  /* hero crossfade slides */
+  .hero-slides{position:absolute;inset:0;z-index:0;overflow:hidden;background:#0E1113}
+  .hero-slide{
+    margin:0;position:absolute;inset:0;opacity:0;z-index:1;
+    transform:scale(1.04);transform-origin:50% 50%;
+    transition:opacity 1.4s ease-in-out,transform 6s ease-out;
+  }
+  .hero-slide.is-active{opacity:1;transform:scale(1);z-index:2}
+  .hero-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+  .hero-slide:nth-child(1) img{object-position:62% 50%}
+  .hero-slide:nth-child(2) img{object-position:52% 46%}
+  .hero-slide:nth-child(3) img{object-position:50% 42%}
+  .hero-slide:nth-child(4) img{object-position:50% 52%}
+  .hero::after{
+    content:"";position:absolute;inset:0;z-index:1;
+    background:
+      linear-gradient(90deg,rgba(9,11,13,.9) 0%,rgba(9,11,13,.76) 38%,rgba(9,11,13,.42) 66%,rgba(9,11,13,.56) 100%),
+      linear-gradient(180deg,rgba(9,11,13,.4) 0%,rgba(9,11,13,.05) 32%,rgba(9,11,13,.5) 100%);
+  }
+  .hero-dots{position:absolute;left:0;right:0;bottom:clamp(13px,2.2vw,22px);z-index:3;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 var(--gut)}
+  .hero-dot{
+    position:relative;width:8px;height:8px;padding:0;border:0;border-radius:999px;
+    background:rgba(255,255,255,.42);cursor:pointer;-webkit-appearance:none;appearance:none;
+    transition:width .45s var(--ease),background .3s;
+  }
+  .hero-dot::after{content:"";position:absolute;inset:-12px -7px;border-radius:999px}
+  .hero-dot:hover{background:rgba(255,255,255,.72)}
+  .hero-dot.is-active{width:26px;background:#8CDFCB}
+  .hero-dot:focus-visible{outline:2px solid #8CDFCB;outline-offset:5px}
+  .hero .wrap{position:relative;z-index:3;padding-top:clamp(96px,20vh,200px);padding-bottom:clamp(44px,7vw,86px)}
+  .hero .eyebrow{color:#8CDFCB}
+  .hero h1{margin-top:22px;font-size:clamp(34px,5.2vw,64px);line-height:1.14;letter-spacing:-.04em}
+  .hero h1 em{font-style:normal;color:#8FE0CD}
+  .hero .lead{margin-top:24px;max-width:34em;color:#D3D8DB;font-size:clamp(15px,1.35vw,17px);line-height:1.8}
+  .hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:38px}
+  .hero .note{margin-top:26px;font-size:13px;color:#9AA3A8;letter-spacing:.01em;display:flex;align-items:center;gap:10px}
+  .hero .note::before{content:"";width:22px;height:1px;background:#8CDFCB;flex:none}
+  .hero-min{min-height:clamp(540px,80vh,760px)}
+  @media (prefers-reduced-motion:reduce){
+    .hero-slide{transition:none;transform:none}
+    .hero-slide.is-active{transform:none}
+    .hero-dot{transition:background .3s}
+  }
+
+  /* ============ portfolio cards ============ */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
+  .shot{margin:0}
+  .shot .ph{position:relative;overflow:hidden;border-radius:var(--r);background:var(--cream-2);aspect-ratio:4/3;cursor:zoom-in}
+  .shot .ph img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
+  .shot:hover .ph img{transform:scale(1.03)}
+  .shot:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:var(--r)}
+  .shot .badge{
+    position:absolute;left:12px;top:12px;z-index:2;
+    background:rgba(252,250,246,.94);color:var(--ink);
+    font-size:11px;font-weight:700;letter-spacing:.08em;
+    padding:6px 11px;border-radius:999px;
+  }
+  .shot .badge.move{background:rgba(20,23,26,.86);color:#fff}
+  .shot .badge.clinic{background:var(--accent-dark);color:#fff}
+  .shot figcaption{padding:15px 2px 0}
+  .shot b{display:block;font-size:15.5px;font-weight:700;letter-spacing:-.02em}
+  .shot span{display:block;margin-top:5px;font-size:13px;line-height:1.65;color:var(--muted)}
+
+  /* ============ product cards ============ */
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,1.6vw,18px)}
+  .p-card{
+    display:flex;flex-direction:column;min-height:100%;
+    background:#fff;border:1px solid var(--line);border-radius:var(--r);
+    padding:26px 24px 22px;
+    transition:border-color .25s,transform .25s var(--ease),box-shadow .25s;
+  }
+  .p-card:hover{transform:translateY(-3px);border-color:rgba(46,156,134,.45);box-shadow:0 18px 40px rgba(20,23,26,.07)}
+  .p-card .kicker{font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--accent-dark)}
+  .p-card h3{margin-top:12px;font-size:23px;letter-spacing:-.03em}
+  .p-card .desc{margin-top:10px;font-size:13.5px;line-height:1.7;color:var(--body);min-height:3.4em}
+  .p-card dl{margin-top:18px;display:grid;gap:0;border-top:1px solid var(--line-soft)}
+  .p-card dl div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:13px}
+  .p-card dt{color:var(--muted);flex:none}
+  .p-card dd{text-align:right;color:var(--ink-2)}
+  .p-card .foot{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:var(--accent-dark)}
+  .p-card.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+  .p-card.dark .kicker{color:#8CDFCB}
+  .p-card.dark .desc{color:#B7BFC4}
+  .p-card.dark dl{border-color:rgba(255,255,255,.14)}
+  .p-card.dark dl div{border-color:rgba(255,255,255,.12)}
+  .p-card.dark dt{color:#8A949A}
+  .p-card.dark dd{color:#E6EAEC}
+  .p-card.dark .foot{color:#8CDFCB}
+  .p-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+  /* ============ faq ============ */
+  .faq-list{margin-top:38px;border-top:1px solid var(--line);max-width:900px}
+  .faq-list details{border-bottom:1px solid var(--line)}
+  .faq-list summary{
+    list-style:none;cursor:pointer;position:relative;
+    padding:26px 48px 26px 2px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;
+    transition:color .2s;
+  }
+  .faq-list summary::-webkit-details-marker{display:none}
+  .faq-list summary:hover{color:var(--accent-dark)}
+  .faq-list summary::after{
+    content:"";position:absolute;right:8px;top:50%;width:12px;height:12px;
+    border-right:1.6px solid var(--accent);border-bottom:1.6px solid var(--accent);
+    transform:translateY(-70%) rotate(45deg);transition:transform .25s var(--ease);
+  }
+  .faq-list details[open] summary::after{transform:translateY(-30%) rotate(225deg)}
+  .faq-list .a{padding:0 48px 26px 2px;color:var(--body);font-size:15px;line-height:1.85;max-width:60em}
+  .faq-more{margin-top:34px}
+
+  /* ============ about ============ */
+  .about-intro{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(32px,5vw,72px);align-items:start}
+  .about-intro h1{font-size:clamp(30px,3.8vw,48px);line-height:1.22}
+  .about-intro p{margin-top:20px;color:var(--body);font-size:16px}
+  .about-intro p+p{margin-top:16px}
+  .hl{background:var(--accent-tint);box-shadow:0 0 0 4px var(--accent-tint);border-radius:3px;font-weight:700;color:var(--accent-dark)}
+  .quote-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:30px 30px 26px}
+  .quote-card+.quote-card{margin-top:14px}
+  .quote-card .q{font-size:16.5px;line-height:1.78;font-weight:600;letter-spacing:-.02em;color:var(--ink-2)}
+  .quote-card .who{margin-top:14px;font-size:12.5px;color:var(--muted)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);margin:clamp(38px,5vw,58px) 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stats div{padding:26px 24px 28px;border-left:1px solid var(--line)}
+  .stats div:first-child{border-left:0;padding-left:0}
+  .stats b{display:block;font-size:clamp(26px,3.2vw,36px);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .stats span{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+  .trust{
+    display:flex;gap:14px;align-items:flex-start;
+    margin-top:clamp(28px,4vw,40px);padding:22px 24px;
+    background:var(--accent-tint);border-radius:14px;
+    font-size:14.5px;line-height:1.75;color:var(--ink-2);
+  }
+  .trust::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:10px}
+
+  .clinic-note{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4.5vw,60px);align-items:center;margin-top:clamp(44px,6vw,76px);padding-top:clamp(38px,5vw,58px);border-top:1px solid var(--line)}
+  .clinic-note .media{border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--cream-2)}
+  .clinic-note .media img{width:100%;height:100%;max-height:420px;object-fit:cover}
+  .clinic-note h3{margin-top:14px;font-size:clamp(21px,2.4vw,28px);line-height:1.34}
+  .clinic-note p{margin-top:14px;color:var(--body);font-size:15.5px}
+  .clinic-note ul{margin-top:18px;display:grid;gap:8px}
+  .clinic-note li{position:relative;padding-left:18px;font-size:14.5px;color:var(--body);line-height:1.7}
+  .clinic-note li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:2px;background:var(--accent);opacity:.8}
+
+  .feat{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4.5vw,64px);align-items:center;padding:clamp(38px,5vw,60px) 0;border-top:1px solid var(--line)}
+  .feat:first-of-type{border-top:0;padding-top:0}
+  .feat.flip .feat-media{order:2}
+  .feat-media{border-radius:var(--r);overflow:hidden;background:#fff;border:1px solid var(--line)}
+  .feat-media img{width:100%;height:100%;max-height:440px;object-fit:cover}
+  .feat-media.contain{background:#F6F2EA;padding:0}
+  .feat-media.contain img{object-fit:contain;max-height:none;height:auto}
+  .feat .num{font-size:12px;font-weight:800;letter-spacing:.22em;color:var(--accent-dark)}
+  .feat h3{margin-top:12px;font-size:clamp(21px,2.4vw,29px);line-height:1.32}
+  .feat p{margin-top:16px;color:var(--body);font-size:15.5px;line-height:1.85}
+  .feat ul{margin-top:18px;display:grid;gap:9px}
+  .feat li{position:relative;padding-left:18px;font-size:14.5px;line-height:1.7;color:var(--body)}
+  .feat li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:2px;background:var(--accent);opacity:.8}
+  .feat .note{margin-top:20px;font-size:13.5px;font-weight:700;color:var(--accent-dark)}
+  .callout{
+    margin-top:clamp(34px,5vw,56px);padding:clamp(28px,4vw,44px);
+    background:#fff;border:1px solid var(--line);border-radius:22px;
+    display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(26px,4vw,48px);align-items:start;
+  }
+  .callout h3{margin-top:12px;font-size:clamp(21px,2.4vw,28px)}
+  .callout p{margin-top:15px;color:var(--body);font-size:15.5px}
+  .callout ul{margin-top:18px;display:grid;gap:9px}
+  .callout li{position:relative;padding-left:18px;font-size:14.5px;color:var(--body);line-height:1.7}
+  .callout li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:2px;background:var(--accent);opacity:.8}
+  .side-box{background:var(--cream);border-radius:16px;padding:24px 26px}
+  .side-box b{display:block;font-size:13.5px;color:var(--accent-dark);letter-spacing:.02em}
+  .side-box ul{margin-top:12px;display:grid;gap:7px;font-size:14px;color:var(--ink-2)}
+  .side-box li{position:relative;padding-left:14px}
+  .side-box li::before{content:"";position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+  .side-box .note{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+
+  /* ============ portfolio page ============ */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:34px 0 30px}
+  .chip{
+    padding:9px 18px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:var(--ink-2);font-size:14px;font-weight:600;cursor:pointer;
+    transition:.2s;
+  }
+  .chip:hover{border-color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
+  .gallery .shot[hidden]{display:none}
+
+  /* ============ products page ============ */
+  .lineup{margin-top:clamp(34px,4vw,48px)}
+  .blocks{margin-top:clamp(54px,7vw,86px);display:grid;gap:0}
+  .block{padding:clamp(38px,5vw,60px) 0;border-top:1px solid var(--line)}
+  .block:first-child{border-top:0;padding-top:0}
+  .block-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4.5vw,64px);align-items:center}
+  .block h3{font-size:clamp(22px,2.6vw,30px)}
+  .block h4{margin-top:0;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dark);font-weight:800}
+  .block p{margin-top:16px;color:var(--body);font-size:15.5px}
+  .spec-list{margin-top:24px;border-top:1px solid var(--line)}
+  .spec-list div{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px}
+  .spec-list dt{color:var(--muted);font-weight:600}
+  .spec-list dd{color:var(--ink-2)}
+  .included-img{border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#F6F2EA}
+  .included-img img{width:100%}
+  .chips6{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chips6 li{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 15px;border-radius:999px;background:#fff;border:1px solid var(--line);
+    font-size:13.5px;font-weight:600;color:var(--ink-2);
+  }
+  .chips6 li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
+  .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,22px);margin-top:28px}
+  .opt-grid.three{grid-template-columns:repeat(3,1fr)}
+  .option-feature{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(24px,4vw,46px);align-items:center;margin-top:30px;padding:clamp(18px,2.6vw,26px);background:#fff;border:1px solid var(--line);border-radius:20px}
+  .option-media{display:grid;gap:8px}
+  .option-media>img{border-radius:12px;width:100%;aspect-ratio:4/3;object-fit:cover}
+  .option-media-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .option-media-pair img{border-radius:12px;width:100%;aspect-ratio:4/3;object-fit:cover}
+  .opt-label{font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--accent-dark)}
+  .opt-points{margin-top:16px;display:grid;gap:8px}
+  .opt-points li{position:relative;padding-left:16px;font-size:14px;line-height:1.7;color:var(--body)}
+  .opt-points li::before{content:"";position:absolute;left:0;top:10px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .opt{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 24px 22px}
+  .opt b{display:block;font-size:16px;letter-spacing:-.02em}
+  .opt span{display:block;margin-top:8px;font-size:13.8px;line-height:1.75;color:var(--body)}
+  .opt em{display:block;margin-top:auto;padding-top:14px;font-style:normal;font-size:12px;font-weight:700;color:var(--accent-dark);letter-spacing:.02em}
+  .fine{margin-top:22px;font-size:13px;line-height:1.8;color:var(--muted)}
+
+  /* ============ reviews ============ */
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.2vw,24px);margin-top:38px}
+  .rev{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .rev .ph{aspect-ratio:16/10;overflow:hidden;background:var(--cream-2)}
+  .rev .ph img{width:100%;height:100%;object-fit:cover}
+  .rev .body{padding:24px 26px 26px;display:flex;flex-direction:column;gap:12px;flex:1}
+  .rev .stars{font-size:11.5px;letter-spacing:.22em;color:var(--accent)}
+  .rev p{font-size:15.5px;line-height:1.8;color:var(--ink-2);letter-spacing:-.01em}
+  .rev .meta{margin-top:auto;font-size:12.5px;color:var(--muted)}
+  .rev-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:clamp(32px,4vw,48px);padding:24px 26px;border:1px solid var(--line);border-radius:16px;background:#fff}
+  .rev-cta p{font-size:15px;color:var(--ink-2);font-weight:600;letter-spacing:-.01em}
+  .rev-note{margin-top:20px;font-size:12.5px;color:var(--muted);line-height:1.75}
+
+  /* ============ contact ============ */
+  .contact-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(32px,5vw,64px);align-items:start}
+  .steps{margin-top:34px;display:grid;gap:22px}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+  .step .n{
+    width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;
+    display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none;margin-top:2px;
+  }
+  .step b{display:block;font-size:16px;letter-spacing:-.02em}
+  .step span{display:block;margin-top:4px;font-size:14px;line-height:1.7;color:var(--body)}
+  .cta-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:clamp(26px,3.4vw,38px)}
+  .cta-card h3{font-size:22px}
+  .cta-card>p{margin-top:12px;font-size:14.5px;color:var(--body)}
+  .tel-btn{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:22px;padding:18px 22px;border-radius:16px;background:var(--ink);color:#fff;transition:background .2s}
+  .tel-btn:hover{background:#000}
+  .tel-btn .tel-text{display:flex;flex-direction:column;gap:2px}
+  .tel-btn .tel-text span{font-size:12px;letter-spacing:.14em;color:#9EB3AE;font-weight:700}
+  .tel-btn b{font-size:22px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+  .tel-btn svg{width:22px;height:22px;flex:none;color:#8CDFCB}
+  .cta-card .btn{width:100%;margin-top:10px}
+  .chan{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .chan a{
+    display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+    padding:13px 15px;border:1px solid var(--line);border-radius:12px;
+    font-size:13.5px;font-weight:600;color:var(--ink-2);transition:.2s;
+  }
+  .chan a:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-tint)}
+  .chan em{font-style:normal;font-size:12px;color:var(--muted)}
+  .move-box{margin-top:clamp(46px,6vw,72px);padding:clamp(28px,4vw,44px);background:var(--ink);color:#fff;border-radius:22px}
+  .move-box .eyebrow{color:#8CDFCB}
+  .move-box h3{margin-top:14px;font-size:clamp(22px,2.6vw,30px)}
+  .move-box>p{margin-top:14px;font-size:15px;line-height:1.85;color:#BDC5CA;max-width:52em}
+  .move-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,48px);margin-top:28px}
+  .move-cols ul{display:grid;gap:10px}
+  .move-cols li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.75;color:#C8D0D4}
+  .move-cols li::before{content:"";position:absolute;left:0;top:8px;width:11px;height:11px;border-radius:50%;border:1.6px solid var(--accent);box-sizing:border-box}
+  .move-box .fine{color:#8B969C}
+  .policy{margin-top:clamp(34px,4vw,48px);display:grid;gap:14px}
+  .policy div{padding-left:18px;border-left:2px solid var(--line);font-size:14px;line-height:1.8;color:var(--body)}
+  .policy b{color:var(--ink)}
+
+  /* ============ footer ============ */
+  .site-foot{background:var(--ink);color:#98A2A8;font-size:13.5px;padding:clamp(48px,6vw,66px) 0 40px}
+  .foot-top{display:flex;justify-content:space-between;gap:36px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .site-foot .brand img{height:26px}
+  .foot-links{display:flex;gap:20px;flex-wrap:wrap;font-weight:600;color:#C3CBCF;font-size:13.5px}
+  .foot-links a:hover{color:#fff}
+  .foot-info{margin-top:26px;display:grid;gap:7px;font-size:12.5px;line-height:1.7}
+  .foot-info b{color:#C3CBCF;font-weight:600}
+  .foot-call{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .foot-call a{font-size:18px;font-weight:800;color:#fff;letter-spacing:.02em;font-variant-numeric:tabular-nums;transition:color .2s}
+  .foot-call a:hover{color:#8CDFCB}
+  .copy{margin-top:24px;font-size:12px;color:#6C767C;line-height:1.7}
+
+  /* ============ floating channels ============ */
+  .float{position:fixed;right:20px;bottom:24px;z-index:90;display:flex;flex-direction:column;gap:9px}
+  .float a,.float button{
+    position:relative;width:50px;height:50px;border-radius:50%;
+    display:grid;place-items:center;padding:0;
+    background:#fff;border:1px solid var(--line);color:var(--ink);
+    box-shadow:0 10px 26px rgba(20,23,26,.13);cursor:pointer;
+    transition:transform .22s var(--ease),background .2s,color .2s,border-color .2s;
+  }
+  .float a:hover,.float button:hover{transform:translateY(-2px);background:var(--ink);color:#fff;border-color:var(--ink)}
+  .float a.tel{background:var(--accent);border-color:var(--accent);color:#fff}
+  .float a.tel:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+  .float svg{width:20px;height:20px}
+  .float .tip{
+    position:absolute;right:62px;top:50%;transform:translateY(-50%) translateX(4px);
+    background:var(--ink);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.02em;
+    padding:6px 10px;border-radius:8px;white-space:nowrap;
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  }
+  .float a:hover .tip,.float button:hover .tip{opacity:1;transform:translateY(-50%) translateX(0)}
+  .float .up{opacity:0;pointer-events:none;transition:opacity .25s}
+  .float .up.show{opacity:1;pointer-events:auto}
+
+  /* ============ mobile bar ============ */
+  .mbar{display:none}
+
+  /* ============ reveal ============ */
+  .rv{opacity:0;transform:translateY(16px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+  .rv.in{opacity:1;transform:none}
+  .rv.instant{transition:none}
+  @media (prefers-reduced-motion:reduce){
+    .rv{opacity:1;transform:none;transition:none}
+    .shot .ph img,.p-card,.more span{transition:none}
+  }
+  @media print{
+    .rv{opacity:1 !important;transform:none !important}
+    .page.is-active{animation:none !important}
+  }
+
+  /* ============ lightbox ============ */
+  html.lbox-open{overflow:hidden}
+  .lbox{
+    position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;
+    padding:clamp(18px,3.4vw,44px);
+    background:rgba(8,10,12,.94);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    opacity:0;transition:opacity .28s var(--ease);
+  }
+  .lbox[hidden]{display:none}
+  .lbox.is-open{opacity:1}
+  .lbox-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:100%;max-height:100%}
+  .lbox-fig img{
+    width:auto;height:auto;max-width:100%;max-height:min(76vh,860px);
+    border-radius:12px;background:#0E1113;
+    box-shadow:0 28px 70px rgba(0,0,0,.55);
+    transform:scale(.985);transition:transform .3s var(--ease);
+  }
+  .lbox.is-open .lbox-fig img{transform:none}
+  .lbox-fig figcaption{max-width:52ch;text-align:center;color:#B9C2C7;font-size:13px;line-height:1.7}
+  .lbox-fig figcaption b{display:block;color:#fff;font-size:14.5px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+  .lbox-fig figcaption span:empty{display:none}
+  .lbox-close{
+    position:absolute;top:clamp(14px,2.2vw,26px);right:clamp(14px,2.2vw,26px);
+    width:46px;height:46px;border-radius:999px;display:grid;place-items:center;
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.26);color:#fff;
+    cursor:pointer;transition:background .2s,border-color .2s,transform .2s var(--ease);
+  }
+  .lbox-close:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.42)}
+  .lbox-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:46px;height:46px;border-radius:999px;display:grid;place-items:center;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);color:#fff;
+    cursor:pointer;transition:background .2s,border-color .2s;
+  }
+  .lbox-arrow:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4)}
+  .lbox-arrow[hidden]{display:none}
+  .lbox-arrow.prev{left:clamp(10px,2vw,26px)}
+  .lbox-arrow.next{right:clamp(10px,2vw,26px)}
+  .lbox button:focus-visible{outline:2px solid #8CDFCB;outline-offset:3px}
+  .lbox svg{width:20px;height:20px}
+
+  /* ============ responsive ============ */
+  @media (max-width:1020px){
+    .grid-4{grid-template-columns:1fr 1fr}
+    .about-intro{grid-template-columns:1fr;gap:34px}
+    .feat,.feat.flip{grid-template-columns:1fr;gap:26px}
+    .feat.flip .feat-media{order:0}
+    .callout{grid-template-columns:1fr;gap:26px}
+    .clinic-note{grid-template-columns:1fr;gap:26px}
+    .block-2{grid-template-columns:1fr;gap:30px}
+    .option-feature{grid-template-columns:1fr;gap:24px}
+    .opt-grid.three{grid-template-columns:1fr 1fr}
+    .contact-grid{grid-template-columns:1fr;gap:36px}
+    .move-cols{grid-template-columns:1fr;gap:24px}
+  }
+  @media (max-width:880px){
+    .nav,.head-cta{display:none}
+    .burger{display:flex}
+    .site-head .inner{height:64px}
+    .grid-3,.gallery{grid-template-columns:1fr 1fr}
+    .stats div{padding:22px 16px 24px}
+    .feat-media img{max-height:380px}
+  }
+  @media (max-width:640px){
+    body{font-size:16px;line-height:1.8}
+    section.band{padding:clamp(54px,11vw,72px) 0}
+    .hero .wrap{padding-top:clamp(80px,22vh,150px);padding-bottom:46px}
+    .hero-slide:nth-child(1) img{object-position:56% 50%}
+    .hero-slide:nth-child(2) img{object-position:56% 50%}
+    .hero-slide:nth-child(3) img{object-position:50% 44%}
+    .hero-slide:nth-child(4) img{object-position:50% 50%}
+    .hero-min{min-height:clamp(500px,78vh,620px)}
+    .hero .lead{font-size:15px}
+    .hero .cta{gap:10px;margin-top:30px}
+    .hero .cta .btn{flex:1 1 100%}
+    .hero .note{font-size:12.5px}
+    .sm-hide{display:none}
+    .grid-3,.gallery{grid-template-columns:1fr;gap:18px}
+    .grid-4{grid-template-columns:1fr}
+    .shot .ph{aspect-ratio:4/3}
+    .rev-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr;border-bottom:0}
+    .stats div{border-left:0;border-top:1px solid var(--line);padding:18px 0}
+    .stats div:first-child{border-top:0;padding-top:0}
+    .stats b{font-size:27px}
+    .spec-list div{grid-template-columns:110px 1fr;gap:12px;font-size:14px}
+    .opt-grid{grid-template-columns:1fr}
+    .opt-grid.three{grid-template-columns:1fr}
+    .chan{grid-template-columns:1fr}
+    .faq-list summary{padding:22px 40px 22px 0;font-size:16px}
+    .faq-list .a{padding:0 16px 22px 0;font-size:14.5px}
+    .sec-head p{font-size:15px}
+    .float{display:none}
+    .mbar{
+      display:flex;position:fixed;left:0;right:0;bottom:0;z-index:95;
+      gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+      background:rgba(252,250,246,.96);
+      -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+      border-top:1px solid var(--line);
+    }
+    .mbar a{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      padding:7px 2px;border-radius:12px;font-size:10.5px;font-weight:600;color:var(--ink-2);
+    }
+    .mbar a svg{width:19px;height:19px}
+    .mbar a.primary{flex:1.5;background:var(--accent);color:#fff}
+    .site-foot{padding-bottom:100px}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 바로 가기</a>
+
+<header class="site-head">
+  <div class="wrap inner">
+    <a class="brand" href="#home" aria-label="베오방음 홈으로">
+      <img src="assets/logo-horizontal.png" alt="베오방음 BEO SOUNDPROOF">
+    </a>
+
+    <nav class="nav" id="nav" aria-label="주요 메뉴">
+      <a href="#about">회사소개</a>
+      <a href="#portfolio">시공사례</a>
+      <a href="#products">제품안내</a>
+      <a href="#reviews">사용후기</a>
+      <a href="#contact">상담문의</a>
+    </nav>
+
+    <a class="btn btn-primary head-cta" href="#contact">무료 견적 상담</a>
+
+    <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <a href="#about">회사소개</a>
+    <a href="#portfolio">시공사례</a>
+    <a href="#products">제품안내</a>
+    <a href="#reviews">사용후기</a>
+    <a href="#contact">상담문의</a>
+    <a class="btn btn-primary drawer-cta" href="tel:01030015906">전화 상담 010-3001-5906</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============================ HOME ============================ -->
+  <div class="page" id="page-home" data-page="home">
+
+    <section class="hero hero-min">
+      <div class="hero-slides">
+        <figure class="hero-slide is-active">
+          <img src="assets/hero-main.jpg" alt="거실 창가에 맞춰 세운 베오방음 부스. 문을 열면 우드 슬랫 포인트 벽과 아트보드 내부가 보인다." fetchpriority="high" decoding="async">
+        </figure>
+        <figure class="hero-slide" aria-hidden="true">
+          <img src="assets/clinic-exterior.jpg" alt="보청기 전문 센터 청력검사실 부스 외관. 검사시창과 시스템도어가 있는 백색 알판 마감." loading="lazy" decoding="async">
+        </figure>
+        <figure class="hero-slide" aria-hidden="true">
+          <img src="assets/project-window-main.jpg" alt="천장에 개폐형 프로젝트창을 설치한 부스 내부. 차콜 아트보드 벽과 화이트 라인타공 한 면." loading="lazy" decoding="async">
+        </figure>
+        <figure class="hero-slide" aria-hidden="true">
+          <img src="assets/interior-academy.jpg" alt="수원 세류동 신규 설치 부스 내부. 우드 라인타공 한 면과 아트보드 세 면, 창과 천장 조명." loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <div class="wrap">
+        <span class="eyebrow">BEO SOUNDPROOF · 맞춤 방음부스</span>
+        <h1>방 크기에 맞춰 짓는<br><em>조용한 작업실</em></h1>
+        <p class="lead">기성 부스를 놓는 대신, 방의 치수를 재서 그 자리에 맞게 만듭니다. 신규 설치부터 타사 부스 이전·재설치까지, 시공한 팀이 직접 끝까지 맡습니다.</p>
+        <div class="cta">
+          <a class="btn btn-primary btn-lg" href="#contact">무료 견적 상담</a>
+          <a class="btn btn-ghost-dark btn-lg" href="#products">맞춤 부스 보기</a>
+        </div>
+        <p class="note">사진 세 장이면 견적이 나옵니다<span class="sm-hide"> · 수도권 전역 · 지방 출장 가능</span></p>
+      </div>
+
+      <div class="hero-dots" aria-label="히어로 사진 선택">
+        <button class="hero-dot is-active" type="button" aria-label="1번째 사진 보기" aria-current="true"></button>
+        <button class="hero-dot" type="button" aria-label="2번째 사진 보기"></button>
+        <button class="hero-dot" type="button" aria-label="3번째 사진 보기"></button>
+        <button class="hero-dot" type="button" aria-label="4번째 사진 보기"></button>
+      </div>
+    </section>
+
+    <section class="band" id="home-portfolio">
+      <div class="wrap">
+        <div class="sec-top rv">
+          <div class="sec-head">
+            <span class="eyebrow">Portfolio</span>
+            <h2>대표 시공사례</h2>
+            <p>용도도 평수도 제각각인 현장을, 그 자리 치수에 맞춰 마감했습니다.</p>
+          </div>
+          <a class="more" href="#portfolio">전체 시공사례 보기 <span>→</span></a>
+        </div>
+
+        <div class="grid-3" style="margin-top:clamp(30px,4vw,44px)">
+          <figure class="shot rv">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-door.jpg" alt="천안 아파트 방송용 부스 내부. 세 면은 차콜 아트보드, 한 면은 흰 라인타공, 매립 조명." loading="lazy"></div>
+            <figcaption><b>천안 아파트 · 방송용</b><span>세 면은 차콜 아트보드, 한 면은 흰 라인타공. 조명을 켜면 대비가 살아납니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/exterior-complete.jpg" alt="수원 세류동 보컬학원 부스 외관. 백색 알판 코너와 시스템도어, 열린 문 너머 내부." loading="lazy"></div>
+            <figcaption><b>수원 세류동 · 보컬학원</b><span>백색 알판 외관. 문 너머로 내부 마감이 그대로 이어집니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-slat.jpg" alt="우드 톤 라인타공 한 면과 아트보드 세 면으로 마감한 부스 내부. 세로 2구 콘센트." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 거주 공간</b><span>우드 톤 라인타공 한 면과 아트보드 세 면. 세로 2구 콘센트는 기본입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv">
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/relocation-complete.jpg" alt="파주 운정 이전 설치 완료 부스. 화이트 세로 루버 외관과 유리 도어, 열린 문 너머 내부." loading="lazy"></div>
+            <figcaption><b>고양 킨텍스 → 파주 운정</b><span>해체·운반·재설치까지 마친 대형 부스. 문 위치까지 새 집에 맞췄습니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-lab.jpg" alt="인천 연수구 연구실 부스 내부. 우드 슬랫 포인트 벽과 아트보드, 매립 조명." loading="lazy"></div>
+            <figcaption><b>인천 연수구 · 연구실</b><span>좁은 공간에 맞춰 재단한 부스. 우드 슬랫 한 면이 포인트입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv">
+            <div class="ph"><span class="badge clinic">청력검사실</span><img src="assets/clinic-exterior.jpg" alt="보청기 전문 센터 청력검사실 부스 외관. 검사시창과 시스템도어가 있는 백색 알판 마감." loading="lazy"></div>
+            <figcaption><b>보청기 전문 센터 · 청력검사실</b><span>검사시창과 시스템도어. 소리를 재는 공간이라 마감과 기밀을 더 꼼꼼히 봤습니다.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-cream" id="home-products">
+      <div class="wrap">
+        <div class="sec-top rv">
+          <div class="sec-head">
+            <span class="eyebrow">Products</span>
+            <h2>용도에 맞는 네 가지</h2>
+            <p>치수는 표준 예시입니다. 실제로는 방 치수에 맞춰 조정하고, 금액은 사진과 정보를 받은 뒤 견적서로 먼저 보여드립니다.</p>
+          </div>
+          <a class="more" href="#products">제품 상세 보기 <span>→</span></a>
+        </div>
+
+        <div class="grid-4" style="margin-top:clamp(30px,4vw,44px)">
+          <a class="p-card rv" href="#products">
+            <span class="kicker">MAIN</span>
+            <h3>슈퍼싱글</h3>
+            <p class="desc">피아노 · 1인 방송 · 녹음. 가장 많이 선택하는 주력 모델입니다.</p>
+            <dl>
+              <div><dt>크기(예시)</dt><dd>1,900×1,400 내외</dd></div>
+              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+            </dl>
+            <span class="foot">상세 보기 <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a class="p-card rv" href="#products">
+            <span class="kicker">PLUS</span>
+            <h3>슈퍼싱글 플러스</h3>
+            <p class="desc">보컬 · 악기 · 방송. 주력 슈퍼싱글에서 차음 성능을 한 단계 더 높인 상위 모델입니다.</p>
+            <dl>
+              <div><dt>크기(예시)</dt><dd>슈퍼싱글과 같은 치수</dd></div>
+              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+            </dl>
+            <span class="foot">상세 보기 <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a class="p-card rv" href="#products">
+            <span class="kicker">DOUBLE</span>
+            <h3>더블</h3>
+            <p class="desc">2인 합주 · 레슨. 두 사람이 마주 앉아도 여유가 남는 크기입니다.</p>
+            <dl>
+              <div><dt>크기(예시)</dt><dd>2,000×2,000 이상</dd></div>
+              <div><dt>시공 기간</dt><dd>2~4일</dd></div>
+            </dl>
+            <span class="foot">상세 보기 <span aria-hidden="true">→</span></span>
+          </a>
+
+          <a class="p-card dark rv" href="#contact">
+            <span class="kicker">MOVE</span>
+            <h3>이전 · 해체</h3>
+            <p class="desc">보유한 부스를 새 집으로. 타사 제품도 해체·운반·재설치까지 맡습니다.</p>
+            <dl>
+              <div><dt>크기</dt><dd>부스 정보 확인 후</dd></div>
+              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+            </dl>
+            <span class="foot">이전 안내 보기 <span aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="home-faq">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">FAQ</span>
+          <h2>상담 전에 많이 묻는 것</h2>
+        </div>
+
+        <div class="faq-list">
+          <details class="rv">
+            <summary>방이 좁은데 들어갈까요?</summary>
+            <div class="a">폭 1m 남짓한 방부터 가능합니다. 문이 열리는 공간과 콘센트 위치까지 봐야 해서 사진으로 먼저 확인해 드립니다. 치수를 정확히 알면 생각보다 여유가 생기는 경우가 많습니다.</div>
+          </details>
+          <details class="rv">
+            <summary>에어컨이 안 되는 방인데 설치할 수 있나요?</summary>
+            <div class="a">복도식 아파트의 복도 쪽 방이나 실외기 자리가 없는 신축 아파트도 냉매관·배수 라인을 벽체 안으로 넣어 시공합니다. 필요하시면 에어컨 설치 전문 협력업체 연계도 가능합니다. 천장에 시스템에어컨이 있는 집은 천장 개폐형 프로젝트창으로 시공해, 창을 열면 방 천장의 에어컨 바람을 부스 안에서 그대로 쐴 수 있습니다.</div>
+          </details>
+          <details class="rv">
+            <summary>층간소음도 잡히나요?</summary>
+            <div class="a">부스 안에서 나는 소리가 밖으로 새는 것을 줄이는 구조입니다. 드럼이나 피아노처럼 진동이 큰 악기는 바닥을 타고 전달될 수 있어 바닥 상태를 함께 봅니다. 100% 차단을 보장하는 제품은 없고, 그 부분까지 솔직하게 말씀드립니다.</div>
+          </details>
+          <details class="rv">
+            <summary>이사 가면 다시 쓸 수 있나요?</summary>
+            <div class="a">네. 해체·운반·재설치가 가능합니다. 새 집 천장 높이와 문 위치는 사진으로 확인하고 계획을 세웁니다. 드림디자인·조용한청년들·탐소리큐브 등 다양한 타사 브랜드 부스도 옮겨 왔습니다.</div>
+          </details>
+          <details class="rv">
+            <summary>설치할 때 소음이 심한가요?</summary>
+            <div class="a">전동공구를 쓰는 시간은 보통 반나절입니다. 아파트라면 이웃에 미리 양해를 구해두시길 권하고, 작업 시간대는 협의해서 정합니다. 보양 매트를 깔고 작업하며, 남은 자재와 포장은 저희가 치우고 나갑니다.</div>
+          </details>
+          <details class="rv">
+            <summary>견적은 어떻게 받나요?</summary>
+            <div class="a">현장 사진과 부스 정보, 설치 위치(지역·층수)를 보내주시면 바로 견적을 안내드립니다. 신규 설치는 수도권에 한해 무료 방문 실측도 가능합니다. 견적서에 없는 비용을 나중에 청구하지 않습니다.</div>
+          </details>
+        </div>
+
+        <div class="faq-more">
+          <a class="btn btn-ink" href="#contact">상담하기 <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================ ABOUT ============================ -->
+  <div class="page" id="page-about" data-page="about">
+    <section class="band">
+      <div class="wrap">
+        <div class="about-intro">
+          <div class="rv">
+            <span class="eyebrow">About</span>
+            <h1 style="margin-top:18px">짓는 일과 옮기는 일을<br>같이 합니다.</h1>
+            <p>방음부스는 인테리어 소품이 아니라 소리가 새지 않게 만드는 구조물입니다. 그래서 벽을 세우기 전에 방의 가로·세로·천장 높이를 재고, 문이 어디로 열릴지, 콘센트와 조명이 어디에 있어야 할지부터 정합니다.</p>
+            <p>방음부스 시공과 이전을 11년 해 왔습니다. 신규 시공과 타사 제품을 포함한 이전·재설치를 수백 건 누적했습니다. 이미 쓰던 부스가 있으면 해체해서 새 집까지 옮겨 다시 세웁니다. <span class="hl">다른 업체에서 만든 부스도 옮깁니다.</span></p>
+            <p>드림디자인·조용한청년들·탐소리큐브 등 다양한 타사 브랜드의 부스를 옮겨 왔습니다.</p>
+
+            <div class="stats rv">
+              <div><b>11년</b><span>방음부스 시공·이전</span></div>
+              <div><b>수백 건</b><span>신규 · 이전 누적</span></div>
+              <div><b>직접 시공</b><span>중간 업체 없이</span></div>
+            </div>
+
+          </div>
+
+          <div class="rv">
+            <div class="quote-card">
+              <p class="q">“고민을 많이 했는데 설치하고 나니까 너무 깔끔하고 아늑해서 정말 만족스러워요! 내부 마감이 세련된 느낌이고 세로 패턴이라 공간이 답답하게 느껴지지 않는거같아요.”</p>
+              <p class="who">2025-12-31 · 숨고 리뷰</p>
+            </div>
+            <div class="quote-card">
+              <p class="q">“방음부스 신규 설치는 처음이었는데, 가격대비 높은 수준의 방음과 깔끔하고 고급스러운 디자인 결과물을 얻어서 매우 만족스럽습니다.”</p>
+              <p class="who">2026-01-01 · 숨고 리뷰</p>
+            </div>
+            <div class="quote-card">
+              <p class="q">“이전 설치였는데 분해부터 재설치까지 흔들림 없이 마무리해 주셨고, 중간중간 진행 상황도 공유해 주셨어요.”</p>
+              <p class="who">2026-11-11 · 숨고 리뷰</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="clinic-note rv">
+          <div class="media">
+            <img src="assets/clinic-exterior.jpg" alt="보청기 전문 센터 청력검사실 부스 외관. 검사시창과 시스템도어가 있는 백색 알판 마감." loading="lazy">
+          </div>
+          <div>
+            <span class="eyebrow">Reference</span>
+            <h3>소리를 재는 공간을<br>시공했습니다</h3>
+            <p>전국 <b>보청기 전문 센터</b>의 청력검사실을 다수 시공했습니다. 정밀한 청취가 필요한 공간이라 조용함이 곧 장비 성능이 됩니다. 일반 가정 시공과 같은 구조로, 마감과 기밀은 더 꼼꼼히 봅니다.</p>
+            <ul>
+              <li>검사시창 · 시스템도어까지 같은 구조로 시공</li>
+              <li>내부는 1면 라인타공 · 3면 아트보드</li>
+              <li>검사 장비 배치와 콘센트 위치까지 함께 확인</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-cream">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Why BEO</span>
+          <h2>베오방음이 다르게 하는 다섯 가지</h2>
+          <p>구조와 재단, 그리고 처음부터 넣는 것. 견적서에 없던 비용을 나중에 붙이지 않는 방식으로 일합니다.</p>
+        </div>
+
+        <div style="margin-top:clamp(40px,5vw,64px)">
+          <div class="feat rv">
+            <div class="feat-media"><img src="assets/exterior-corner.jpg" alt="백색 알판으로 마감한 부스 외관 코너. 측면 창과 시스템도어, 모서리까지 같은 톤." loading="lazy"></div>
+            <div>
+              <span class="num">01</span>
+              <h3>방을 재고,<br>그 자리에 맞춰 짓습니다</h3>
+              <p>기둥, 창문, 경사진 천장, 폭 1m 남짓한 방도 치수를 받아 현장에서 재단합니다. 엘리베이터에 들어가지 않는 자재는 분해해 올린 뒤 안에서 조립합니다.</p>
+              <ul>
+                <li>문 위치·콘센트 위치를 먼저 정하고 재단</li>
+                <li>계단 양중, 층고가 높은 오피스텔도 시공</li>
+                <li>문 위치 변경 같은 구조 변경도 상담 가능</li>
+              </ul>
+              <p class="note">방을 포기하지 않아도 됩니다.</p>
+            </div>
+          </div>
+
+          <div class="feat flip rv">
+            <div class="feat-media"><img src="assets/interior-academy.jpg" alt="부스 내부. 한 면은 메이플 톤 라인타공, 세 면은 아트보드, 라인타공 면 위 COB 매립등과 중앙 LED등." loading="lazy"></div>
+            <div>
+              <span class="num">02</span>
+              <h3>겹으로 채우고,<br>이음매를 막습니다</h3>
+              <p>PB 액자틀로 벽체 틀을 세우고 그 안을 고밀도 흡음으로 두 겹 채웁니다. 벽체와 벽체가 맞닿는 사이사이에는 실링 처리를 해 소리가 새는 틈을 막습니다.</p>
+              <ul>
+                <li>내부 마감 — 1면 라인타공 · 3면 아트보드</li>
+                <li>조명 — 라인타공 면 위 COB 매립등 (대형은 레일등)</li>
+                <li>충진 — 고밀도 흡음 2중 충진</li>
+                <li>기밀 — 벽체와 벽체 사이 실링 마감</li>
+                <li>외부 마감 — 백색 알판, 문틈은 현장에서 마감</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feat rv">
+            <div class="feat-media contain"><img src="assets/included-options-grid.png" alt="추가금 없는 기본 6가지: 세로 2구 콘센트, 강화마루, 3면 아트보드, 1면 라인타공, COB 매립등, 시스템도어." loading="lazy"></div>
+            <div>
+              <span class="num">03</span>
+              <h3>기본 6가지를<br>처음부터 넣습니다</h3>
+              <p>세로 2구 콘센트 · 강화마루 · 3면 아트보드 · 1면 라인타공 · COB 매립등과 중앙 LED등 · 시스템도어. 다른 업체에서 추가금을 받는 구성까지 기본으로 들어갑니다.</p>
+              <ul>
+                <li>기본 항목에는 나중에 옵션값을 붙이지 않습니다</li>
+                <li>대형 사이즈는 조명을 레일등으로 시공합니다</li>
+                <li>현장마다 달라지는 것만 선택 옵션으로 안내합니다</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feat flip rv">
+            <div class="feat-media"><img src="assets/relocation-complete.jpg" alt="이전 설치를 마친 부스 외관. 화이트 세로 루버 벽과 유리 도어, 열린 문 너머 조명 켜진 내부." loading="lazy"></div>
+            <div>
+              <span class="num">04</span>
+              <h3>세운 팀이<br>옮길 때도 옵니다</h3>
+              <p>신규 설치와 이전·재설치를 같은 팀이 합니다. 이사 갈 때는 해체·운반·재설치까지 이어서 맡고, 새 집 천장 높이와 문 위치에 맞춰 다시 세웁니다.</p>
+              <ul>
+                <li>드림디자인 · 조용한청년들 · 탐소리큐브 등 다양한 타사 브랜드</li>
+                <li>중고 부스를 사기 전, 이전 가능 여부부터 확인</li>
+                <li>세금계산서 · 현금영수증 발행 가능</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout rv">
+          <div>
+            <span class="num" style="font-size:12px;font-weight:800;letter-spacing:.22em;color:var(--accent-dark)">05</span>
+            <h3>에어컨을 못 다는 방도<br>벽체에 라인을 매설합니다</h3>
+            <p>오래된 복도식 아파트의 복도 쪽 앞방처럼 배관을 뺄 곳이 없거나, 실외기를 둘 공간이 없는 신축 아파트도 벽체 안으로 에어컨 라인을 매설해 시공합니다. 배관이 밖으로 드러나지 않도록 정리하고 마감합니다.</p>
+            <ul>
+              <li>복도식 아파트 복도 앞방 — 창문 쪽에 배관 자리가 없어도 가능</li>
+              <li>실외기 공간이 없는 신축 아파트 — 벽체 매설로 배관 노출을 줄입니다</li>
+              <li>상담 때 실외기 위치·전원·배수까지 함께 확인해 견적에 반영합니다</li>
+              <li>벽체 라인 매설과 함께, 필요하시면 에어컨 설치 전문 협력업체 연계도 가능합니다</li>
+              <li>천장 시스템에어컨이 있는 집은 <strong>천장 개폐형 프로젝트창</strong>으로 시공해, 창을 열면 방 천장의 에어컨 바람을 부스 안에서 그대로 쐴 수 있습니다</li>
+            </ul>
+          </div>
+          <div class="side-box">
+            <b>이런 현장에서 문의가 많습니다</b>
+            <ul>
+              <li>복도식 아파트 복도 앞방</li>
+              <li>실외기 자리가 없는 신축 아파트</li>
+              <li>창문이 없거나 배관 구멍을 낼 수 없는 방</li>
+              <li>상가·사무실 안쪽 방</li>
+              <li>천장 시스템에어컨이 있는 가정집</li>
+            </ul>
+            <p class="note">방 사진과 실외기 위치를 보내주시면 가능 여부를 먼저 확인해 드립니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
+        <div class="sec-head" style="max-width:520px">
+          <h2 style="font-size:clamp(24px,2.8vw,34px)">현장 사진으로 먼저 확인하세요</h2>
+          <p>사진과 위치만 있으면 견적까지 오래 걸리지 않습니다.</p>
+        </div>
+        <a class="btn btn-primary btn-lg" href="#contact">상담문의 <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================ PORTFOLIO ============================ -->
+  <div class="page" id="page-portfolio" data-page="portfolio">
+    <section class="band">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Portfolio</span>
+          <h2>시공사례</h2>
+          <p>신규 설치와 이전·재설치를 함께 보여드립니다. 현장별 대표 컷과 디테일 컷을 같이 실었습니다.</p>
+        </div>
+
+        <div class="chips" role="group" aria-label="시공사례 분류">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">전체</button>
+          <button class="chip" type="button" data-filter="new" aria-pressed="false">신규 설치</button>
+          <button class="chip" type="button" data-filter="move" aria-pressed="false">이전 · 재설치</button>
+        </div>
+
+        <div class="gallery" id="gallery">
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/exterior-home.jpg" alt="거실 창가에 맞춰 세운 부스. 문을 열면 우드 슬랫 포인트 벽과 아트보드 내부가 보인다." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 외관</b><span>창가 자리에 맞춰 세운 부스. 문 너머로 내부 마감이 이어집니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/exterior-complete.jpg" alt="수원 세류동 보컬학원 부스 외관. 백색 알판 코너와 시스템도어, 열린 문 너머 내부." loading="lazy"></div>
+            <figcaption><b>수원 세류동 · 보컬학원</b><span>백색 알판과 시스템도어. 코너와 모서리까지 같은 톤으로 마감했습니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-academy.jpg" alt="수원 세류동 보컬학원 부스 내부. 메이플 톤 라인타공과 아트보드, 방음창과 매립등." loading="lazy"></div>
+            <figcaption><b>수원 세류동 · 내부</b><span>메이플 톤 라인타공 한 면과 아트보드 세 면, 방음창.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge clinic">청력검사실</span><img src="assets/clinic-exterior.jpg" alt="보청기 전문 센터 청력검사실 부스 외관. 검사시창과 시스템도어가 있는 백색 알판 마감." loading="lazy"></div>
+            <figcaption><b>보청기 전문 센터 · 외관</b><span>검사시창과 시스템도어. 로고 없이 마감만 보이는 외관 컷입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge clinic">청력검사실</span><img src="assets/clinic-interior-window.jpg" alt="청력검사실 내부. 3면 베이지 아트보드와 검사시창, 세로 2구 콘센트와 강화마루." loading="lazy"></div>
+            <figcaption><b>보청기 전문 센터 · 내부</b><span>3면 아트보드와 검사시창. 세로 2구 콘센트와 강화마루는 기본입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge clinic">청력검사실</span><img src="assets/clinic-interior-slat.jpg" alt="청력검사실 내부. 1면 라인타공 위 COB 매립등과 중앙 LED등, 시스템도어." loading="lazy"></div>
+            <figcaption><b>보청기 전문 센터 · 내부</b><span>1면 라인타공 위 COB 매립등과 중앙 LED등, 시스템도어.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge clinic">청력검사실</span><img src="assets/clinic-interior-cob.jpg" alt="청력검사실 내부 디테일. 1면 라인타공과 COB 매립등 2구, 베이지 아트보드." loading="lazy"></div>
+            <figcaption><b>보청기 전문 센터 · 디테일</b><span>1면 라인타공과 COB 매립등 2구. 나머지 면은 베이지 아트보드입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-slat.jpg" alt="우드 톤 라인타공 한 면과 아트보드 세 면으로 마감한 부스 내부. 세로 2구 콘센트." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 내부</b><span>우드 톤 라인타공과 아트보드. 세로 2구 콘센트는 기본입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-door.jpg" alt="천안 아파트 방송용 부스 내부. 세 면은 차콜 아트보드, 한 면은 흰 라인타공, 매립 조명." loading="lazy"></div>
+            <figcaption><b>천안 아파트 · 방송용</b><span>차콜 아트보드 세 면과 흰 라인타공 한 면, COB 매립등.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-lab.jpg" alt="인천 연수구 연구실 부스 내부. 우드 슬랫 포인트 벽과 아트보드, 매립 조명." loading="lazy"></div>
+            <figcaption><b>인천 연수구 · 연구실</b><span>좁은 공간에 맞춰 재단하고 우드 슬랫으로 포인트를 준 내부.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/hero-exterior.jpg" alt="부스 외관 정면. 백색 알판과 상부 트랜섬이 있는 시스템도어." loading="lazy"></div>
+            <figcaption><b>수원 세류동 · 정면</b><span>상부 트랜섬이 있는 시스템도어와 백색 알판 정면.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">프로젝트창</span><img src="assets/project-window-main.jpg" alt="다크 톤 부스 내부. 천장에 개폐형 프로젝트창이 열려 있고 그 너머로 시스템에어컨이 보인다." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 프로젝트창</b><span>다크 아트보드에 화이트 라인타공. 천장 창을 열면 시스템에어컨 바람이 부스 안으로 들어옵니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">프로젝트창</span><img src="assets/project-window-open.jpg" alt="우드 라인타공 천장에 설치한 프로젝트창이 완전히 열린 모습." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 천장 개폐형</b><span>우드 라인타공 천장에 단 프로젝트창. 창 전체가 위로 열립니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="new">
+            <div class="ph"><span class="badge">프로젝트창</span><img src="assets/project-window-closed.jpg" alt="프로젝트창을 닫은 부스 내부. 창 너머로 천장 시스템에어컨 취출구가 보인다." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 창을 닫은 상태</b><span>닫으면 원래의 방음 상태로 돌아갑니다. 창 너머로 천장 시스템에어컨이 보입니다.</span></figcaption>
+          </figure>
+
+          <figure class="shot rv" data-kind="move">
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/relocation-complete.jpg" alt="파주 운정 이전 설치 완료 부스. 화이트 세로 루버 외관과 유리 도어, 열린 문 너머 내부." loading="lazy"></div>
+            <figcaption><b>고양 킨텍스 → 파주 운정</b><span>해체·운반·재설치까지 마친 대형 부스. 문 위치까지 새 집에 맞췄습니다.</span></figcaption>
+          </figure>
+        </div>
+
+        <div class="rev-cta" style="margin-top:clamp(34px,4vw,48px)">
+          <p>현장 사진과 시공 이야기는 블로그에 더 자세히 정리해 두었습니다.</p>
+          <a class="btn btn-line" href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener">네이버 블로그에서 더 보기 <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================ PRODUCTS ============================ -->
+  <div class="page" id="page-products" data-page="products">
+    <section class="band">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Products</span>
+          <h2>용도와 크기로 고르세요</h2>
+          <p>아래 치수는 표준 예시입니다. 실제로는 방 치수에 맞춰 조정되고, 금액은 사진과 현장 정보를 받은 뒤 견적서로 먼저 보여드립니다.</p>
+        </div>
+
+        <div class="grid-4 lineup">
+          <div class="p-card rv">
+            <span class="kicker">MAIN</span>
+            <h3>슈퍼싱글</h3>
+            <p class="desc">피아노 · 1인 방송 · 녹음. 가장 많이 선택하는 주력 모델입니다.</p>
+            <dl>
+              <div><dt>크기(예시)</dt><dd>1,900×1,400 내외</dd></div>
+              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+            </dl>
+            <span class="foot">견적 안내</span>
+          </div>
+
+          <div class="p-card rv">
+            <span class="kicker">PLUS</span>
+            <h3>슈퍼싱글 플러스</h3>
+            <p class="desc">보컬 · 악기 · 방송. 주력 슈퍼싱글에서 차음 성능을 한 단계 더 높인 상위 모델입니다.</p>
+            <dl>
+              <div><dt>크기(예시)</dt><dd>슈퍼싱글과 같은 치수</dd></div>
+              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+            </dl>
+            <span class="foot">견적 안내</span>
+          </div>
+
+          <div class="p-card rv">
+            <span class="kicker">DOUBLE</span>
+            <h3>더블</h3>
+            <p class="desc">2인 합주 · 레슨. 두 사람이 마주 앉아도 여유가 남는 크기입니다.</p>
+            <dl>
+              <div><dt>크기(예시)</dt><dd>2,000×2,000 이상</dd></div>
+              <div><dt>시공 기간</dt><dd>2~4일</dd></div>
+            </dl>
+            <span class="foot">견적 안내</span>
+          </div>
+
+          <div class="p-card dark rv">
+            <span class="kicker">MOVE</span>
+            <h3>이전 · 해체</h3>
+            <p class="desc">보유한 부스를 새 집으로. 타사 제품도 해체·운반·재설치까지 맡습니다.</p>
+            <dl>
+              <div><dt>크기</dt><dd>부스 정보 확인 후</dd></div>
+              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+            </dl>
+            <span class="foot">상담 후 견적</span>
+          </div>
+        </div>
+
+        <div class="blocks">
+          <div class="block block-2 rv">
+            <div>
+              <h4>Spec</h4>
+              <h3 style="margin-top:12px">규격과 사양</h3>
+              <p>구조는 한 가지입니다. 같은 구조로 현장 치수에 맞춰 재단하고, 마감 색과 옵션만 현장에 맞춰 정합니다.</p>
+              <div class="spec-list">
+                <div><dt>벽체</dt><dd>PB 액자틀 · 고밀도 흡음 2중 충진 · 벽체 사이 실링 마감</dd></div>
+                <div><dt>내부 마감</dt><dd>1면 라인타공 · 3면 아트보드(지정색·패턴)</dd></div>
+                <div><dt>외부 마감</dt><dd>백색 알판</dd></div>
+                <div><dt>문</dt><dd>시스템도어 · 상부 트랜섬 · 문틈 현장 마감</dd></div>
+                <div><dt>조명</dt><dd>COB 매립등 + 중앙 LED등 · 대형은 레일등</dd></div>
+                <div><dt>전기</dt><dd>2구 스위치 · 세로 2구 콘센트 (배선 벽체 매립)</dd></div>
+                <div><dt>바닥</dt><dd>강화마루 (밝은 오크·메이플 톤 기본)</dd></div>
+                <div><dt>사이즈</dt><dd>치수 접수 후 맞춤 재단 (외부·내부 치수는 견적서에 표기)</dd></div>
+              </div>
+            </div>
+            <div class="included-img">
+              <img src="assets/interior-academy.jpg" alt="시그니처 내부. 메이플 톤 라인타공 한 면과 아트보드 세 면, COB 매립등과 중앙 LED등." loading="lazy">
+            </div>
+          </div>
+
+          <div class="block block-2 rv">
+            <div class="included-img">
+              <img src="assets/included-options-grid.png" alt="추가금 없는 기본 6가지: 세로 2구 콘센트, 강화마루, 3면 아트보드, 1면 라인타공, COB 매립등, 시스템도어." loading="lazy">
+            </div>
+            <div>
+              <h4>All included</h4>
+              <h3 style="margin-top:12px">기본 포함 6가지</h3>
+              <p>다른 업체에서 추가금을 받는 구성까지 처음부터 들어갑니다. “이거 넣으면 얼마 더예요?”라는 질문을 안 받으려고 정한 기준입니다.</p>
+              <ul class="chips6">
+                <li>세로 2구 콘센트</li>
+                <li>강화마루</li>
+                <li>3면 아트보드</li>
+                <li>1면 라인타공 마감</li>
+                <li>COB 매립등 · 중앙 LED등</li>
+                <li>시스템도어</li>
+              </ul>
+              <p class="fine">기본 항목에는 나중에 옵션값을 붙이지 않습니다. 대형 사이즈는 조명을 레일등으로 시공합니다.</p>
+            </div>
+          </div>
+
+          <div class="block rv">
+            <h4>Signature</h4>
+            <h3 style="margin-top:12px">내부는 한 면만 살립니다</h3>
+            <p style="max-width:52em">메인 공간 한 면을 라인타공으로 잡고 그 위에 COB 매립등을 넣습니다. 나머지 세 면은 아트보드로 마감합니다. 부스가 크면 조명을 레일등으로 길게 깝니다. 이 대비가 베오방음 내부를 알아보는 표식입니다.</p>
+            <div class="opt-grid">
+              <div class="opt"><b>1면 라인타공</b><span>메인 공간 한 면만 세로줄로 살리고, 나머지 세 면은 아트보드로 정리합니다.</span></div>
+              <div class="opt"><b>COB 매립등</b><span>라인타공 면 위에 매립해 빛이 벽을 따라 내려오게 합니다. 대형은 레일등.</span></div>
+              <div class="opt"><b>3면 아트보드</b><span>지정색·패턴에서 고릅니다. 차콜·화이트·베이지 조합이 가장 많이 나갑니다.</span></div>
+              <div class="opt"><b>강화마루</b><span>밝은 오크·메이플 톤이 기본입니다. 바닥재에 따라 방 전체 톤이 달라집니다.</span></div>
+            </div>
+          </div>
+
+          <div class="block rv">
+            <h4>Options</h4>
+            <h3 style="margin-top:12px">현장마다 달라지는 것만 선택 옵션</h3>
+            <p>기본 6가지와 섞지 않고, 필요한 것만 견적서에 따로 적어 미리 보여드립니다.</p>
+
+            <div class="option-feature">
+              <div class="option-media">
+                <img src="assets/project-window-main.jpg" alt="천장에 개폐형 프로젝트창을 설치한 부스 내부. 창을 열면 천장 시스템에어컨이 보이고, 창문이 위로 열린다." loading="lazy">
+                <div class="option-media-pair">
+                  <img src="assets/project-window-open.jpg" alt="우드 라인타공 천장의 프로젝트창이 완전히 열린 모습." loading="lazy">
+                  <img src="assets/project-window-closed.jpg" alt="프로젝트창을 닫은 상태. 창 너머로 천장 시스템에어컨 취출구가 보인다." loading="lazy">
+                </div>
+              </div>
+              <div>
+                <span class="opt-label">OPTION · 천장 개폐형</span>
+                <h3 style="margin-top:10px;font-size:clamp(20px,2.3vw,26px)">프로젝트창 (개폐창)</h3>
+                <p>천장에 시스템에어컨이 있는 집은 <strong>천장 개폐형 프로젝트창</strong>으로 시공합니다. 부스 천장에 창을 달아 두고, <strong>창을 열면 방 천장의 시스템에어컨 바람을 부스 안에서 그대로 쐬는</strong> 구조입니다. 부스 안에 별도 냉방기를 두지 않아도 됩니다.</p>
+                <ul class="opt-points">
+                  <li>창을 닫으면 원래의 방음 상태로 돌아갑니다 — 연주·녹음할 때는 닫고, 더울 때만 열어 씁니다</li>
+                  <li>천장 취출구 위치와 방 구조를 사진으로 확인해 창 자리를 정합니다</li>
+                  <li>값은 견적서에 미리 적어 드립니다</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="opt-grid three">
+              <div class="opt">
+                <b>에어컨 라인 벽체 매설 시공</b>
+                <span>복도식 아파트의 복도 쪽 방이나 실외기 자리가 없는 신축 아파트도 냉매관·배수 라인을 벽체 안으로 넣어 시공합니다. 배관이 밖으로 드러나지 않습니다. 필요하시면 에어컨 설치 전문 협력업체 연계도 가능합니다.</span>
+                <em>실외기 위치 · 배관 경로 확인 후 견적</em>
+              </div>
+              <div class="opt">
+                <b>방음창 · 검사시창</b>
+                <span>소리를 막는 창과 내부를 확인하는 창입니다. 필요한 면적과 위치에 맞춰 넣습니다.</span>
+                <em>값은 견적서에 미리</em>
+              </div>
+              <div class="opt">
+                <b>타공판 추가 면적 · 우드 슬랫 마감</b>
+                <span>기본 마감 외 면적에 타공판을 더하거나, 한 면을 우드 슬랫으로 바꿔 톤을 맞춥니다.</span>
+                <em>값은 견적서에 미리</em>
+              </div>
+            </div>
+            <p class="fine">최종 구성과 사양은 현장 사진과 용도 상담으로 정합니다. 표준 조건은 계약금 50% · 제작 14일 · 잔금 설치 후이며, 일정과 조건은 계약 전에 서면으로 먼저 확정합니다.</p>
+          </div>
+
+          <div class="block rv">
+            <h4>Quote</h4>
+            <h3 style="margin-top:12px">금액은 사진을 보고 안내드립니다</h3>
+            <p style="max-width:54em">신규·이전설치 모두 제조사·규격·층수·현장 여건마다 달라, 사진·부스 정보·위치를 접수한 뒤 정확한 견적을 안내드립니다. 화면에 금액을 미리 정해 두지 않습니다.</p>
+            <p style="margin-top:20px"><a class="btn btn-primary btn-lg" href="#contact">무료 견적 상담 <span aria-hidden="true">→</span></a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================ REVIEWS ============================ -->
+  <div class="page" id="page-reviews" data-page="reviews">
+    <section class="band">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Reviews</span>
+          <h2>고객이 남긴 말</h2>
+          <p>숨고에 남겨주신 후기 가운데 대표 후기만 실었습니다. 실시간으로 쌓이는 전체 후기는 숨고에서 바로 확인하실 수 있습니다.</p>
+        </div>
+
+        <div class="rev-cta rv" style="margin-top:30px">
+          <p>실시간으로 쌓이는 전체 후기는 숨고에서 바로 확인하세요.</p>
+          <a class="btn btn-ink" href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener">숨고에서 전체 후기 보기 <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="rev-grid">
+          <article class="rev rv">
+            <div class="ph"><img src="assets/review-1.jpg" alt="고객이 리뷰에 남긴 시공 사진. 모두 라인타공으로 마감한 부스 내부와 매립 조명." loading="lazy"></div>
+            <div class="body">
+              <span class="stars" aria-label="별점 5점">★★★★★</span>
+              <p>“고민을 많이 했는데 설치하고 나니까 너무 깔끔하고 아늑해서 정말 만족스러워요! 내부 마감이 세련된 느낌이고 세로 패턴이라 공간이 답답하게 느껴지지 않는거같아요.”</p>
+              <span class="meta">2025-12-31 · 숨고 리뷰</span>
+            </div>
+          </article>
+
+          <article class="rev rv">
+            <div class="ph"><img src="assets/review-2.jpg" alt="고객이 리뷰에 남긴 시공 사진. 한 면 라인타공과 나머지 면 아트보드로 마감한 부스 내부." loading="lazy"></div>
+            <div class="body">
+              <span class="stars" aria-label="별점 5점">★★★★★</span>
+              <p>“방음부스 신규 설치는 처음이었는데 가격대비 높은 수준의 방음과 깔끔하고 고급스러운 디자인 결과물을 얻어서 매우 만족스럽습니다.”</p>
+              <span class="meta">2026-01-01 · 숨고 리뷰</span>
+            </div>
+          </article>
+
+          <article class="rev rv">
+            <div class="ph"><img src="assets/review-3.jpg" alt="고객이 리뷰에 남긴 시공 사진. 부스 안에 책상과 장비를 놓고 작업실로 쓰는 모습." loading="lazy"></div>
+            <div class="body">
+              <span class="stars" aria-label="별점 5점">★★★★★</span>
+              <p>“작업실 방음 시공을 맡겼는데 너무 마음에 듭니다! 방음 효과가 이렇게까지 체감이 클 줄은 몰랐는데, 시공 후에 외부 소음 걱정이나 야간 작업 심리적 부담이 줄어서 작업 집중도 잘 됩니다.”</p>
+              <span class="meta">2026-02-24 · 숨고 리뷰</span>
+            </div>
+          </article>
+
+          <article class="rev rv">
+            <div class="ph"><img src="assets/review-4.jpg" alt="고객이 리뷰에 남긴 시공 사진. 좁은 팬트리에 맞춰 세운 부스와 우드 톤 라인타공 벽." loading="lazy"></div>
+            <div class="body">
+              <span class="stars" aria-label="별점 5점">★★★★★</span>
+              <p>“좁은 거실 팬트리에 설치하는것임에도 불구하고 정말 깔끔하고 사이즈에 맞게 예쁜 디자인으로 설치를 엄청 잘 해주셨습니다. 사장님이 너무너무 친절하시고 상담도 빠르십니다.”</p>
+              <span class="meta">2026-03-05 · 숨고 리뷰</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="rev-cta rv">
+          <p>후기는 계속 쌓입니다. 최신 후기와 사진은 숨고 프로필에서 보실 수 있습니다.</p>
+          <a class="btn btn-primary" href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener">숨고에서 전체 후기 보기 <span aria-hidden="true">→</span></a>
+        </div>
+
+        <p class="rev-note">사진은 고객이 리뷰에 남긴 사진을 그대로 사용했고, 이름은 밝히지 않고 날짜만 적었습니다.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================ CONTACT ============================ -->
+  <div class="page" id="page-contact" data-page="contact">
+    <section class="band">
+      <div class="wrap contact-grid">
+        <div class="rv">
+          <span class="eyebrow">Contact</span>
+          <h2 style="margin-top:18px;font-size:clamp(27px,3.3vw,42px);line-height:1.24">사진과 위치로<br>바로 견적 드립니다</h2>
+          <p style="margin-top:20px;color:var(--body);font-size:15.5px">신규·이전설치 모두 제조사·규격·층수·현장 여건마다 달라, 사진·부스 정보·위치를 접수한 뒤 정확한 견적을 안내드립니다.</p>
+
+          <div class="steps">
+            <div class="step"><span class="n">01</span><div><b>사진 · 정보 접수</b><span>현장 사진 · 부스 정보 · 위치(지역·층수) · 연락처</span></div></div>
+            <div class="step"><span class="n">02</span><div><b>바로 견적 안내</b><span>사진과 정보 확인 후 견적서 발송</span></div></div>
+            <div class="step"><span class="n">03</span><div><b>일정 조율 · 당일 시공</b><span>계약 후 제작 → 방문 설치</span></div></div>
+          </div>
+
+          <div class="policy">
+            <div><b>방문 실측</b>은 신규 설치 · 수도권에 한해 무료로 가능합니다. 견적은 사진으로 먼저 드리고, 필요할 때 방문해 확인합니다.</div>
+            <div><b>가격</b>은 화면에 미리 정해 두지 않습니다. 신규·이전설치 모두 현장 여건에 따라 달라 사진과 정보를 받은 뒤 견적서로 안내드립니다.</div>
+            <div>현장에서 추가 비용이 생기면 작업 전에 먼저 말씀드리고, 승인받은 뒤 진행합니다.</div>
+          </div>
+        </div>
+
+        <div class="cta-card rv">
+          <h3>무료 견적 상담</h3>
+          <p>전화 한 통이 가장 빠릅니다. 상담신청서로 남겨주셔도 확인 후 바로 연락드립니다.</p>
+
+          <a class="tel-btn" href="tel:01030015906">
+            <span class="tel-text">
+              <span>대표 전화</span>
+              <b>010-3001-5906</b>
+            </span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+          </a>
+
+          <a class="btn btn-primary btn-lg" href="https://forms.gle/JEH16k8NPBRPMs7DA" target="_blank" rel="noopener">상담 신청서 작성하기</a>
+
+          <div class="chan">
+            <a href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener">네이버 블로그 <em>시공사례 →</em></a>
+            <a href="https://www.instagram.com/beo_soundproof" target="_blank" rel="noopener">인스타그램 <em>@beo_soundproof</em></a>
+            <a href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener">숨고 프로필 <em>후기 →</em></a>
+            <a href="https://m.bunjang.co.kr/shops/10707079/products" target="_blank" rel="noopener">번개장터 <em>중고부스 →</em></a>
+          </div>
+
+          <p class="fine">주문제작 상품이라 재단이 시작된 뒤에는 단순 변심에 의한 취소·환불이 어렵습니다. 재단 전 취소는 계약금 기준으로 안내드리고, 제품 하자는 확인 후 처리해 드립니다.</p>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="move-box rv">
+          <span class="eyebrow">Relocation</span>
+          <h3>이사 갈 때, 부스는 버리지 않아도 됩니다</h3>
+          <p>해체·운반·재설치까지 같은 팀이 한 번에 합니다. 같은 부스를 옮겨도 제조사와 규격, 층수, 엘리베이터·계단 사정, 이동 거리에 따라 비용 차이가 큽니다. 부스 사진과 정보, 지금 위치와 옮길 위치를 보내주시면 확인한 뒤 정확한 금액을 안내드립니다.</p>
+          <div class="move-cols">
+            <ul>
+              <li>타사 제품 포함 — 드림디자인·조용한청년들·탐소리큐브 등 다양한 타사 브랜드 부스를 옮겨 왔습니다</li>
+              <li>새 집 천장 높이·문 위치를 사진으로 확인하고 재설치 계획을 세웁니다</li>
+              <li>계단 양중, 엘리베이터 미사용, 사다리차 필요 여부는 현장 조건으로 안내합니다</li>
+            </ul>
+            <ul>
+              <li>중고 부스를 사기 전, 이전이 가능한지부터 확인해 드립니다</li>
+              <li>문 위치 변경 같은 구조 변경도 상담 가능합니다</li>
+              <li>이전설치도 신규와 같은 기준으로, 화면에 금액을 미리 정해 두지 않습니다</li>
+            </ul>
+          </div>
+          <p class="fine">이전설치 문의 시 보내주실 것 — 부스 사진, 제조사·규격, 지금 위치와 옮길 위치, 층수·엘리베이터 여부.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="brand" href="#home" aria-label="베오방음">
+        <img src="assets/logo-horizontal-white.png" alt="베오방음 BEO SOUNDPROOF">
+      </a>
+      <nav class="foot-links" aria-label="푸터 메뉴">
+        <a href="#about">회사소개</a>
+        <a href="#portfolio">시공사례</a>
+        <a href="#products">제품안내</a>
+        <a href="#reviews">사용후기</a>
+        <a href="#contact">상담문의</a>
+      </nav>
+    </div>
+    <div class="foot-info">
+      <div class="foot-call"><b>전화 상담</b> <a href="tel:01030015906">010-3001-5906</a></div>
+      <div><b>상호</b> 베오방음 (BEO SOUNDPROOF) · <b>대표</b> 이시영 · <b>사업자등록번호</b> 412-29-01799</div>
+      <div><b>주소</b> 경기 김포시 김포한강10로133번길 127, 530-AC06호 (구래동)</div>
+      <div><b>이메일</b> danielee96@naver.com · <b>시공 지역</b> 수도권 전역 (지방 출장 가능)</div>
+    </div>
+    <p class="copy">© 2026 BEO SOUNDPROOF. All rights reserved. · 이 페이지는 홈페이지 시안으로, 사업 정보와 시공 사진은 실제 자료를 사용했습니다.</p>
+  </div>
+</footer>
+
+<!-- floating channel buttons -->
+<div class="float" aria-label="채널 바로가기">
+  <a class="tel" href="tel:01030015906" aria-label="전화 상담 010-3001-5906">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+    <span class="tip">전화 상담</span>
+  </a>
+  <a href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener" aria-label="네이버 블로그">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H16l4 4v10.5A1.5 1.5 0 0 1 18.5 20h-13A1.5 1.5 0 0 1 4 18.5Z"/><path d="M15.5 4v4.5H20"/><path d="M8 13h8M8 16.5h5"/></svg>
+    <span class="tip">네이버 블로그</span>
+  </a>
+  <a href="https://www.instagram.com/beo_soundproof" target="_blank" rel="noopener" aria-label="인스타그램 @beo_soundproof">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".9" fill="currentColor" stroke="none"/></svg>
+    <span class="tip">인스타그램</span>
+  </a>
+  <a href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener" aria-label="숨고 프로필">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a7.5 7.5 0 0 1-11 6.7L4 20l1.8-5.4a7.5 7.5 0 1 1 14.7-3.1Z"/><path d="m8.8 11.8 2.2 2.2 4.2-4.4"/></svg>
+    <span class="tip">숨고 후기</span>
+  </a>
+  <button class="up" id="up" aria-label="맨 위로">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/></svg>
+    <span class="tip">맨 위로</span>
+  </button>
+</div>
+
+<!-- mobile bottom bar -->
+<div class="mbar" aria-label="빠른 메뉴">
+  <a href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H16l4 4v10.5A1.5 1.5 0 0 1 18.5 20h-13A1.5 1.5 0 0 1 4 18.5Z"/><path d="M15.5 4v4.5H20"/><path d="M8 13h8M8 16.5h5"/></svg>
+    블로그
+  </a>
+  <a href="https://www.instagram.com/beo_soundproof" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".9" fill="currentColor" stroke="none"/></svg>
+    인스타
+  </a>
+  <a href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a7.5 7.5 0 0 1-11 6.7L4 20l1.8-5.4a7.5 7.5 0 1 1 14.7-3.1Z"/><path d="m8.8 11.8 2.2 2.2 4.2-4.4"/></svg>
+    숨고
+  </a>
+  <a class="primary" href="tel:01030015906">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+    전화 상담
+  </a>
+</div>
+
+<!-- lightbox -->
+<div class="lbox" id="lbox" role="dialog" aria-modal="true" aria-label="시공 사진 확대 보기" hidden>
+  <button class="lbox-close" id="lbox-close" type="button" aria-label="닫기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+  </button>
+  <button class="lbox-arrow prev" id="lbox-prev" type="button" aria-label="이전 사진">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+  </button>
+  <figure class="lbox-fig">
+    <img id="lbox-img" alt="">
+    <figcaption><b id="lbox-title"></b><span id="lbox-desc"></span></figcaption>
+  </figure>
+  <button class="lbox-arrow next" id="lbox-next" type="button" aria-label="다음 사진">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+  </button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- hash routing ---------- */
+  var ROUTES = ["home","about","portfolio","products","reviews","contact"];
+  var META = {
+    home:      {t:"베오방음 | 맞춤 방음부스 신규 설치 · 이전·재설치 (수도권 전역)"},
+    about:     {t:"회사소개 | 베오방음"},
+    portfolio: {t:"시공사례 | 베오방음"},
+    products:  {t:"제품안내 | 베오방음"},
+    reviews:   {t:"사용후기 | 베오방음"},
+    contact:   {t:"상담문의 | 베오방음"}
+  };
+  var pages = Array.prototype.slice.call(document.querySelectorAll(".page"));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll("#nav a"));
+  var drawer = document.getElementById("drawer");
+  var burger = document.getElementById("burger");
+
+  function routeFromHash(){
+    var h = (location.hash || "").replace(/^#/, "");
+    return ROUTES.indexOf(h) > -1 ? h : "home";
+  }
+
+  function setMenu(open){
+    if (!drawer || !burger) return;
+    drawer.classList.toggle("open", open);
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+    burger.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+  }
+
+  function show(route, opts){
+    pages.forEach(function(p){
+      p.classList.toggle("is-active", p.getAttribute("data-page") === route);
+    });
+    navLinks.forEach(function(a){
+      if (a.getAttribute("href") === "#" + route) { a.setAttribute("aria-current","page"); }
+      else { a.removeAttribute("aria-current"); }
+    });
+    document.title = (META[route] && META[route].t) || META.home.t;
+    setMenu(false);
+    if (lbox && !lbox.hidden) { lboxCloseFn(); }
+    if (route === "home") { heroStart(); } else { heroStop(); }
+    if (!(opts && opts.keepScroll)) { window.scrollTo(0,0); }
+    revealAll();
+  }
+
+  /* ---------- reveal ---------- */
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var io = null;
+  if (!reduce && "IntersectionObserver" in window) {
+    io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, {threshold:.1, rootMargin:"0px 0px -40px 0px"});
+  }
+  function revealAll(){
+    var active = document.querySelector(".page.is-active");
+    if (!active) return;
+    var items = active.querySelectorAll(".rv");
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    items.forEach(function(el){
+      el.classList.remove("in","instant");
+      if (!io) { el.classList.add("in"); return; }
+      var r = el.getBoundingClientRect();
+      // 이미 보이는 영역은 애니메이션 없이 바로 표시
+      if (r.top < vh * .92 && r.bottom > 0) { el.classList.add("instant","in"); }
+      else { io.observe(el); }
+    });
+  }
+
+  window.addEventListener("hashchange", function(){
+    var h = (location.hash || "").replace(/^#/, "");
+    if (ROUTES.indexOf(h) === -1) return;   // #main 같은 앵커는 라우팅을 건드리지 않는다
+    show(h);
+  });
+
+  /* ---------- hero crossfade slideshow ---------- */
+  var heroSlides = Array.prototype.slice.call(document.querySelectorAll(".hero-slide"));
+  var heroDots = Array.prototype.slice.call(document.querySelectorAll(".hero-dot"));
+  var heroIdx = 0;
+  var heroTimer = null;
+  var HERO_INTERVAL = 4500;
+
+  function heroGo(i){
+    heroIdx = (i + heroSlides.length) % heroSlides.length;
+    heroSlides.forEach(function(s, k){
+      var on = k === heroIdx;
+      s.classList.toggle("is-active", on);
+      if (on) { s.removeAttribute("aria-hidden"); } else { s.setAttribute("aria-hidden", "true"); }
+    });
+    heroDots.forEach(function(d, k){
+      d.classList.toggle("is-active", k === heroIdx);
+      if (k === heroIdx) { d.setAttribute("aria-current", "true"); } else { d.removeAttribute("aria-current"); }
+    });
+  }
+  function heroStop(){
+    if (heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+  }
+  function heroStart(){
+    heroStop();
+    var home = document.getElementById("page-home");
+    if (reduce || heroSlides.length < 2 || document.hidden) return;
+    if (!home || !home.classList.contains("is-active")) return;
+    heroTimer = setInterval(function(){ heroGo(heroIdx + 1); }, HERO_INTERVAL);
+  }
+  if (heroSlides.length > 1) {
+    heroDots.forEach(function(d, k){
+      d.addEventListener("click", function(){ heroGo(k); heroStart(); });
+    });
+    document.addEventListener("visibilitychange", function(){ heroStart(); });
+  }
+
+  /* ---------- lightbox ---------- */
+  var lbox = document.getElementById("lbox");
+  var lboxImg = document.getElementById("lbox-img");
+  var lboxTitle = document.getElementById("lbox-title");
+  var lboxDesc = document.getElementById("lbox-desc");
+  var lboxClose = document.getElementById("lbox-close");
+  var lboxPrev = document.getElementById("lbox-prev");
+  var lboxNext = document.getElementById("lbox-next");
+  var lboxGroup = [], lboxIdx = 0, lboxFrom = null, lboxTimer = null;
+
+  function shotData(shot){
+    var img = shot.querySelector("img");
+    var b = shot.querySelector("figcaption b");
+    var s = shot.querySelector("figcaption span");
+    return {
+      src: img ? img.getAttribute("src") : "",
+      alt: img ? (img.getAttribute("alt") || "") : "",
+      title: b ? b.textContent : "",
+      desc: s ? s.textContent : ""
+    };
+  }
+  function lboxRender(){
+    var d = shotData(lboxGroup[lboxIdx]);
+    lboxImg.src = d.src;
+    lboxImg.alt = d.alt;
+    lboxTitle.textContent = d.title;
+    lboxDesc.textContent = d.desc;
+    var many = lboxGroup.length > 1;
+    lboxPrev.hidden = !many;
+    lboxNext.hidden = !many;
+  }
+  function lboxOpen(shot){
+    if (!lbox) return;
+    lboxGroup = Array.prototype.filter.call(shot.parentElement.querySelectorAll(".shot"), function(el){
+      return !el.hidden && el.offsetParent !== null;
+    });
+    lboxIdx = Math.max(0, lboxGroup.indexOf(shot));
+    lboxFrom = shot;
+    lboxRender();
+    if (lboxTimer) { clearTimeout(lboxTimer); lboxTimer = null; }
+    lbox.hidden = false;
+    var pad = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.classList.add("lbox-open");
+    if (pad > 0) { document.documentElement.style.paddingRight = pad + "px"; }
+    void lbox.offsetWidth;
+    lbox.classList.add("is-open");
+    lboxClose.focus();
+  }
+  function lboxCloseFn(){
+    if (!lbox || lbox.hidden) return;
+    lbox.classList.remove("is-open");
+    document.documentElement.classList.remove("lbox-open");
+    document.documentElement.style.paddingRight = "";
+    if (lboxTimer) { clearTimeout(lboxTimer); }
+    lboxTimer = setTimeout(function(){
+      lbox.hidden = true;
+      lboxImg.removeAttribute("src");
+      lboxTimer = null;
+    }, reduce ? 0 : 300);
+    if (lboxFrom) {
+      try { lboxFrom.focus({preventScroll:true}); } catch (e) {}
+      lboxFrom = null;
+    }
+  }
+  function lboxStep(n){
+    if (lboxGroup.length < 2) return;
+    lboxIdx = (lboxIdx + n + lboxGroup.length) % lboxGroup.length;
+    lboxRender();
+  }
+  if (lbox) {
+    Array.prototype.forEach.call(document.querySelectorAll(".shot"), function(shot){
+      var cap = shot.querySelector("figcaption b");
+      shot.setAttribute("tabindex", "0");
+      shot.setAttribute("role", "button");
+      shot.setAttribute("aria-label", (cap ? cap.textContent + " " : "") + "사진 크게 보기");
+      shot.addEventListener("click", function(){ lboxOpen(shot); });
+      shot.addEventListener("keydown", function(e){
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") { e.preventDefault(); lboxOpen(shot); }
+      });
+    });
+    lbox.addEventListener("click", function(e){
+      if (e.target.closest(".lbox-close, .lbox-arrow, .lbox-fig img")) return;
+      lboxCloseFn();
+    });
+    lboxClose.addEventListener("click", lboxCloseFn);
+    lboxPrev.addEventListener("click", function(){ lboxStep(-1); });
+    lboxNext.addEventListener("click", function(){ lboxStep(1); });
+    document.addEventListener("keydown", function(e){
+      if (lbox.hidden) return;
+      if (e.key === "Escape") { e.preventDefault(); lboxCloseFn(); return; }
+      if (e.key === "ArrowLeft") { lboxStep(-1); return; }
+      if (e.key === "ArrowRight") { lboxStep(1); return; }
+      if (e.key === "Tab") {
+        var f = [lboxClose, lboxPrev, lboxNext].filter(function(b){ return !b.hidden && b.offsetParent !== null; });
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+  }
+
+  /* ---------- sticky header state ---------- */
+  var siteHead = document.querySelector(".site-head");
+  if (siteHead) {
+    var headState = function(){ siteHead.classList.toggle("is-scrolled", window.scrollY > 8); };
+    headState();
+    window.addEventListener("scroll", headState, {passive:true});
+  }
+
+  /* ---------- menu ---------- */
+  if (burger) {
+    burger.addEventListener("click", function(){
+      setMenu(!drawer.classList.contains("open"));
+    });
+  }
+  if (drawer) {
+    drawer.addEventListener("click", function(e){
+      if (e.target.closest("a")) setMenu(false);
+    });
+  }
+
+  /* ---------- portfolio filter ---------- */
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var shots = Array.prototype.slice.call(document.querySelectorAll("#gallery .shot"));
+  chips.forEach(function(chip){
+    chip.addEventListener("click", function(){
+      var f = chip.getAttribute("data-filter");
+      chips.forEach(function(c){ c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
+      shots.forEach(function(s){
+        var kind = s.getAttribute("data-kind");
+        s.hidden = !(f === "all" || kind === f);
+      });
+    });
+  });
+
+  /* ---------- top button ---------- */
+  var up = document.getElementById("up");
+  if (up) {
+    window.addEventListener("scroll", function(){
+      if (window.scrollY > 700) up.classList.add("show"); else up.classList.remove("show");
+    }, {passive:true});
+    up.addEventListener("click", function(){ window.scrollTo({top:0, behavior: reduce ? "auto" : "smooth"}); });
+  }
+
+  /* ---------- init ---------- */
+  show(routeFromHash(), {keepScroll:true});
+})();
+</script>
+<noscript>
+  <style>
+    .page{display:block !important}
+    .rv{opacity:1 !important;transform:none !important}
+  </style>
+</noscript>
+</body>
+</html>
