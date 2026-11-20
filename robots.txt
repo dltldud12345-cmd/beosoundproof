@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# 네이버 서치어드바이저(Yeti) · 구글(Googlebot) 모두 전체 수집 허용
+User-agent: Yeti
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://dltldud12345-cmd.github.io/beosoundproof/sitemap.xml
