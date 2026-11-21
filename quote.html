@@ -176,11 +176,37 @@
   .dim-lb span{text-align:center;font-size:11.5px;color:var(--muted)}
   [hidden]{display:none!important}
 
-  /* ---------- preview ---------- */
-  .preview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-  .preview figure{margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line2);background:var(--cream)}
-  .preview img{width:100%;aspect-ratio:4/3;object-fit:cover}
-  .preview figcaption{padding:6px 6px 7px;font-size:10.5px;font-weight:700;line-height:1.35;color:var(--ink2);text-align:center}
+  /* ---------- 추천 조합 · 실제 시공 레퍼런스 ---------- */
+  .ref{display:flex;flex-direction:column;margin-top:12px;border:1px solid var(--line);border-radius:14px;
+    background:#fff;overflow:hidden}
+  .ref .stage{position:relative;aspect-ratio:4/3;background:var(--cream);overflow:hidden}
+  .ref .stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+    transition:opacity .36s ease}
+  .ref .stage img.on{opacity:1}
+  .ref .pill{position:absolute;left:8px;top:8px;z-index:2;font-size:10.5px;font-weight:800;letter-spacing:.01em;
+    color:#fff;background:rgba(20,23,26,.56);border-radius:999px;padding:4px 9px}
+  .ref .cv{position:absolute;inset:0;display:grid;grid-template-columns:3fr 1fr;opacity:0;
+    transition:opacity .3s ease;pointer-events:none}
+  .ref .cv.on{opacity:1}
+  .ref .cv i{position:relative;display:block;background:var(--c,#EFEAE1)}
+  .ref .cv i.wood{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 1px,rgba(255,255,255,.10) 1px 2px,rgba(0,0,0,0) 2px 6px),linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.05))}
+  .ref .cv i + i{border-left:1px solid rgba(255,255,255,.5)}
+  .ref .cv em{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:9.5px;font-weight:800;
+    color:#fff;background:rgba(20,23,26,.5);border-radius:6px;padding:2px 6px;line-height:1.35;white-space:nowrap}
+  .ref .rbody{padding:11px 12px 12px}
+  .ref .rname{font-size:13.5px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+  .ref .rsub{margin-top:3px;font-size:11.5px;font-weight:800;color:var(--accent-d)}
+  .ref .rpoint{margin-top:7px;font-size:12px;line-height:1.62;color:var(--body)}
+  .ref.swap .rname,.ref.swap .rsub,.ref.swap .rpoint{animation:refIn .34s ease both}
+  @keyframes refIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .ref .rgal{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:10px}
+  .ref .rgal figure{position:relative;margin:0;border-radius:8px;overflow:hidden;border:1px solid var(--line2)}
+  .ref .rgal img{width:100%;aspect-ratio:1;object-fit:cover}
+  .ref .rgal figcaption{position:absolute;left:0;right:0;bottom:0;padding:9px 4px 3px;font-size:9px;font-weight:800;
+    color:#fff;line-height:1.2;background:linear-gradient(180deg,rgba(20,23,26,0),rgba(20,23,26,.62))}
+  .ref .rbtn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px;min-height:44px;
+    border-radius:11px;border:1px solid var(--accent);background:var(--accent-t);color:var(--accent-d);
+    font-size:13px;font-weight:800}
 
   /* ---------- photos ---------- */
   .shots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
@@ -249,6 +275,19 @@
     form{padding:20px 18px 8px}
     .card{padding:18px 18px}
     .shots{grid-template-columns:repeat(4,1fr)}
+  }
+  /* PC: 추천 조합 바로 옆에 실제 시공 사진 */
+  @media (min-width:560px) and (max-width:899px){
+    .ref .stage{aspect-ratio:16/9}
+  }
+  @media (min-width:900px){
+    .wrap{max-width:860px}
+    .stylecard{display:grid;grid-template-columns:minmax(0,1fr) 336px;
+      grid-template-areas:"head ref" "combos ref" "subs ref";column-gap:18px;align-items:start}
+    .stylecard > .sh{grid-area:head}
+    .stylecard > .combos{grid-area:combos}
+    .stylecard > .ref{grid-area:ref;margin-top:10px;position:sticky;top:66px}
+    .stylecard > .subs{grid-area:subs}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -319,9 +358,11 @@
     </fieldset>
 
     <!-- 02 스타일 -->
-    <section class="card">
-      <div class="step-h"><span class="n">2</span><b>인테리어 스타일 · 마감</b></div>
-      <p class="hint">추천 조합을 고르면 <b>아트보드 3면 · 라인타공 1면</b> 색이 함께 정해집니다. 따로 고르셔도 됩니다. (실물 자재표 기준)</p>
+    <section class="card stylecard">
+      <div class="sh">
+        <div class="step-h"><span class="n">2</span><b>인테리어 스타일 · 마감</b></div>
+        <p class="hint">추천 조합을 고르면 <b>아트보드 3면 · 라인타공 1면</b> 색이 함께 정해지고, 그 조합의 <b>실제 시공 사진</b>이 바로 옆(PC) · 아래(모바일)에 함께 나옵니다. 따로 고르셔도 됩니다. (실물 자재표 기준)</p>
+      </div>
       <div class="combos" id="combo-chips">
         <label class="cbox"><input type="radio" name="combo" value="스튜디오 베스트">
           <span class="bd">
@@ -362,12 +403,27 @@
           </span>
         </label>
       </div>
-      <div class="preview" aria-hidden="true">
-        <figure><img src="assets/interior-door.jpg" alt="블랙 아트보드 세 면과 화이트 라인타공 한 면의 실제 시공 내부" loading="lazy"><figcaption>블랙 &amp; 화이트 톤</figcaption></figure>
-        <figure><img src="assets/interior-academy.jpg" alt="연베이지 아트보드와 메이플 톤 라인타공의 실제 시공 내부" loading="lazy"><figcaption>연베이지 · 메이플 톤</figcaption></figure>
-        <figure><img src="assets/clinic-interior-cob.jpg" alt="화이트 라인타공 한 면과 연베이지 아트보드, 천장 COB 매립등 2구의 실제 시공 내부" loading="lazy"><figcaption>화이트 · 연베이지 톤</figcaption></figure>
-      </div>
 
+      <aside class="ref" id="combo-ref">
+        <div class="stage">
+          <img class="on" src="assets/interior-academy.jpg" alt="연베이지 아트보드와 메이플 톤 라인타공의 실제 시공 내부" loading="lazy" width="1500" height="1125">
+          <img alt="" aria-hidden="true" loading="lazy">
+          <div class="cv" aria-hidden="true">
+            <i style="--c:#CDB79B"><em>아트보드 3면</em></i>
+            <i class="wood" style="--c:#D8C8B2"><em>1면</em></i>
+          </div>
+          <span class="pill" id="ref-pill">대표 시공 컷</span>
+        </div>
+        <div class="rbody" aria-live="polite">
+          <p class="rname" id="ref-name">스튜디오 베스트</p>
+          <p class="rsub" id="ref-sub">연베이지 3면 · 005 메이플 1면</p>
+          <p class="rpoint" id="ref-point">가장 많이 찾는 조합입니다. 조합을 고르시면 그 조합의 실제 시공 사진으로 바뀝니다.</p>
+          <div class="rgal" id="ref-gallery" hidden></div>
+          <a class="rbtn" id="ref-3d" href="configurator.html" target="_blank" rel="noopener" hidden>3D로 직접 입혀보기 <span aria-hidden="true">→</span></a>
+        </div>
+      </aside>
+
+      <div class="subs">
       <div class="subopt">
         <span class="lb">아트보드 3면 <em>12색</em></span>
         <div class="swgrid board" id="board-chips">
@@ -422,6 +478,7 @@
           <label class="chip"><input type="radio" name="cen" value="상담 후 결정"><span>상담 후 결정</span></label>
         </div>
         <p class="hint">천장 가운데 등의 빛 색입니다. <b>주백색</b>은 자연광에 가까운 중간 흰색, <b>주광색</b>은 형광등처럼 맑고 푸른기 도는 흰색입니다.</p>
+      </div>
       </div>
     </section>
 
@@ -826,11 +883,13 @@
     r.addEventListener("change", function(){
       if (!r.checked) return;
       var pair = COMBO[r.value];
-      if (!pair) return;
-      applyingCombo = true;
-      checkRadio("board", pair[0]);
-      checkRadio("slat", pair[1]);
-      applyingCombo = false;
+      if (pair) {
+        applyingCombo = true;
+        checkRadio("board", pair[0]);
+        checkRadio("slat", pair[1]);
+        applyingCombo = false;
+      }
+      setRef(r.value);
     });
   });
   /* 개별 칩을 직접 바꾸면 추천 조합 표시는 '직접 고르기'로 */
@@ -838,12 +897,153 @@
     if (applyingCombo) return;
     var manual = document.querySelector('input[name="combo"][value="직접 고르기"]');
     if (manual) manual.checked = true;
+    setRef("직접 고르기");
   }
   ["board", "slat"].forEach(function(name){
     Array.prototype.forEach.call(document.querySelectorAll('input[name="' + name + '"]'), function(r){
       r.addEventListener("change", function(){ if (r.checked) markManual(); });
     });
   });
+
+  /* ---------- 추천 조합별 실제 시공 레퍼런스 ---------- */
+  var REF = {
+    "default": {
+      img: "assets/interior-academy.jpg",
+      alt: "연베이지 아트보드와 메이플 톤 라인타공의 실제 시공 내부",
+      pill: "대표 시공 컷",
+      name: "스튜디오 베스트",
+      sub: "연베이지 3면 · 005 메이플 1면",
+      point: "가장 많이 찾는 조합입니다. 조합을 고르시면 그 조합의 실제 시공 사진으로 바뀝니다."
+    },
+    "스튜디오 베스트": {
+      img: "assets/interior-academy.jpg",
+      alt: "연베이지 아트보드와 메이플 톤 라인타공의 실제 시공 내부",
+      pill: "실제 시공 사진",
+      name: "스튜디오 베스트",
+      sub: "연베이지 3면 · 005 메이플 1면",
+      point: "가장 많이 찾는 조합입니다. 따뜻한 우드 톤 한 면이 공간의 중심이 되고, 먼지나 자국이 눈에 덜 띄어 관리도 무난합니다."
+    },
+    "클린 화이트": {
+      img: "assets/clinic-interior-cob.jpg",
+      alt: "화이트 라인타공 한 면과 밝은 아트보드, 천장 COB 매립등 2구의 실제 시공 내부",
+      pill: "실제 시공 사진",
+      name: "클린 화이트",
+      sub: "화이트 3면 · 004 화이트워시 1면",
+      point: "밝은 톤이라 좁은 방도 한결 넓어 보입니다. 흰 계열은 자국이 잘 보여 주기적인 관리가 필요합니다."
+    },
+    "블랙 & 화이트": {
+      img: "assets/interior-door.jpg",
+      alt: "블랙 아트보드 세 면과 화이트 라인타공 한 면의 실제 시공 내부",
+      pill: "실제 시공 사진",
+      name: "블랙 & 화이트",
+      sub: "블랙 3면 · 003 화이트 1면",
+      point: "검은 벽체에 흰 라인타공 한 면을 대비시킨 모노톤입니다. 조명을 켜면 라인 사이 그림자가 또렷하게 살아납니다."
+    },
+    "모던 다크": {
+      img: "assets/project-window-main.jpg",
+      alt: "차콜 톤 벽체와 천장 프로젝트창이 보이는 실제 시공 내부",
+      pill: "실제 시공 사진",
+      name: "모던 다크",
+      sub: "진그레이 3면 · 008 다크 월넛 1면",
+      point: "차분한 차콜 톤에 다크 우드를 얹은 작업실 느낌입니다. 사진은 라인타공을 화이트로 시공한 컷이라 색감은 참고용으로 봐 주세요."
+    }
+  };
+  var REF_GALLERY = [
+    {img: "assets/interior-slat.jpg", alt: "베이지 아트보드와 내추럴 오크 라인타공의 실제 시공 내부", cap: "베이지 · 내추럴 오크"},
+    {img: "assets/clinic-interior-slat.jpg", alt: "화이트 라인타공과 시스템도어의 실제 시공 내부", cap: "화이트 · 시스템도어"},
+    {img: "assets/interior-lab.jpg", alt: "연그레이 아트보드와 내추럴 오크 라인타공의 실제 시공 내부", cap: "연그레이 · 내추럴 오크"}
+  ];
+  var refBox = $("combo-ref");
+  var refImgs = refBox ? refBox.querySelectorAll(".stage img") : [];
+  var refCv = refBox ? refBox.querySelector(".cv") : null;
+  var refActive = 0, refCur = "", refGalleryBuilt = false;
+
+  function refSwatch(name, value){
+    if (!value) return null;
+    var inputs = document.querySelectorAll('input[name="' + name + '"]');
+    for (var i = 0; i < inputs.length; i++){
+      if (inputs[i].value !== value) continue;
+      var c = inputs[i].parentNode.querySelector(".c");
+      if (!c) return null;
+      return {hex: (c.style.getPropertyValue("--c") || "").trim(), wood: c.classList.contains("wood")};
+    }
+    return null;
+  }
+  function refPhoto(item){
+    if (!refImgs.length) return;
+    if (refCv) refCv.classList.remove("on");
+    var next = 1 - refActive;
+    var img = refImgs[next];
+    if (!img) return;
+    var fired = false;
+    function done(){
+      if (fired) return;
+      fired = true;
+      img.classList.add("on");
+      if (refImgs[refActive] && refImgs[refActive] !== img) refImgs[refActive].classList.remove("on");
+      refActive = next;
+    }
+    img.onload = function(){ img.onload = null; done(); };
+    img.alt = item.alt || "";
+    img.src = item.img;
+    if (img.complete && img.naturalWidth) done();
+  }
+  function refColorView(){
+    var b = checkedValue("board"), s = checkedValue("slat");
+    if (!refCv) return {b: b, s: s};
+    var bi = refCv.querySelectorAll("i")[0], si = refCv.querySelectorAll("i")[1];
+    var bs = refSwatch("board", b), ss = refSwatch("slat", s);
+    if (bi) bi.style.setProperty("--c", (bs && bs.hex) || "#EFEAE1");
+    if (si){
+      si.style.setProperty("--c", (ss && ss.hex) || "#EFEAE1");
+      si.classList.toggle("wood", !!(ss && ss.wood));
+    }
+    refCv.classList.add("on");
+    return {b: b, s: s};
+  }
+  function refGallery(){
+    var g = $("ref-gallery");
+    if (!g) return;
+    if (!refGalleryBuilt){
+      g.innerHTML = REF_GALLERY.map(function(it){
+        return '<figure><img src="' + it.img + '" alt="' + esc(it.alt) + '" loading="lazy"><figcaption>'
+          + esc(it.cap) + '</figcaption></figure>';
+      }).join("");
+      refGalleryBuilt = true;
+    }
+    g.hidden = false;
+  }
+  function setRef(key){
+    if (!refBox) return;
+    var item = REF[key] || REF["default"];
+    var isManual = key === "직접 고르기";
+    var g = $("ref-gallery"), btn = $("ref-3d"), pill = $("ref-pill");
+    var name = $("ref-name"), sub = $("ref-sub"), point = $("ref-point");
+    var subText = item.sub, pointText = item.point, titleText = item.name;
+    if (isManual){
+      var picked = refColorView();
+      titleText = "직접 고르기";
+      subText = "아트보드 " + (picked.b || "선택 전") + " · 라인타공 " + (picked.s || "선택 전");
+      pointText = "12색 아트보드와 8종 라인타공을 각각 고르실 수 있습니다. 색을 고르시면 이 자리에 두 면의 색이 그대로 나옵니다.";
+      if (pill) pill.textContent = "선택한 색 미리보기";
+      refGallery();
+      if (btn) btn.hidden = false;
+    } else {
+      refPhoto(item);
+      if (pill) pill.textContent = item.pill;
+      if (g) g.hidden = true;
+      if (btn) btn.hidden = true;
+    }
+    if (name) name.textContent = titleText;
+    if (sub) sub.textContent = subText;
+    if (point) point.textContent = pointText;
+    if (refCur !== key){
+      refBox.classList.remove("swap");
+      void refBox.offsetWidth;
+      refBox.classList.add("swap");
+    }
+    refCur = key;
+  }
 
   /* ---------- 메시지 ---------- */
   function msg(text, kind){
@@ -992,6 +1192,7 @@
     state.picked.forEach(function(p){ if (p.url) URL.revokeObjectURL(p.url); });
     state.picked = [];
     renderShots();
+    setRef("");
     $("custom-wrap").hidden = true;
     $("done").hidden = true;
     $("intro").hidden = false;
