@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="naver-site-verification" content="807be83b3caf076ebb7361e8c2cabe482281a79b" />
 <title>베오방음 | 맞춤 방음부스 신규 설치 · 이전·재설치 (수도권 전역)</title>
-<meta name="description" content="방의 치수를 재서 만드는 맞춤 방음부스. PB 액자틀에 고밀도 흡음을 두 겹으로 채우고 벽체 사이를 실링으로 막은 뒤, 내부는 1면 라인타공·3면 아트보드, 외부는 백색 알판으로 마감합니다. 기본 6가지 포함. 타사 부스도 해체·운반·재설치까지. 수도권 전역 직접 시공.">
+<meta name="description" content="방의 치수를 재서 만드는 맞춤 방음부스. PB 액자틀에 고밀도 흡음을 두 겹으로 채우고 벽체 사이를 실링으로 막은 뒤, 내부는 1면 라인타공·3면 아트보드, 외부는 백색 알판으로 마감합니다. 기본 6가지 포함. 타사 부스도 해체·운반·재설치까지. 중고 방음부스 매물·위탁과 이전설치도 한 번에. 수도권 전역 직접 시공.">
 <meta property="og:title" content="베오방음 | 맞춤 방음부스 신규 설치 · 이전 설치">
 <meta property="og:description" content="방 치수에 맞춰 재단하는 맞춤 방음부스. 2중 고밀도 흡음 충진 · 벽체 간 실링 · 백색 알판 마감 · 기본 6가지 포함 · 타사 부스 이전 가능.">
 <meta property="og:image" content="assets/exterior-home.jpg">
@@ -389,6 +389,29 @@
   .opt em{display:block;margin-top:auto;padding-top:14px;font-style:normal;font-size:12px;font-weight:700;color:var(--accent-dark);letter-spacing:.02em}
   .fine{margin-top:22px;font-size:13px;line-height:1.8;color:var(--muted)}
 
+  /* ============ used / consignment ============ */
+  .used-status{display:flex;gap:16px;align-items:flex-start;padding:22px clamp(20px,2.6vw,26px);background:var(--accent-tint);border:1px solid rgba(46,156,134,.22);border-radius:16px}
+  .used-status .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:11px;box-shadow:0 0 0 5px rgba(46,156,134,.14)}
+  .used-status b{display:block;font-size:15px;letter-spacing:-.01em;color:var(--accent-dark)}
+  .used-status p{margin-top:6px;font-size:14px;line-height:1.8;color:var(--ink-2);max-width:58em}
+  .used-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2vw,24px)}
+  .used-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;padding:clamp(24px,3vw,32px)}
+  .used-num{font-size:11px;font-weight:800;letter-spacing:.22em;color:var(--accent-dark)}
+  .used-card h3{margin-top:12px;font-size:clamp(20px,2.2vw,25px);line-height:1.34}
+  .used-card>p{margin-top:12px;font-size:14.8px;line-height:1.8;color:var(--body)}
+  .used-list{margin-top:18px;display:grid;gap:8px;padding-top:16px;border-top:1px solid var(--line-soft)}
+  .used-list li{position:relative;padding-left:18px;font-size:14px;line-height:1.7;color:var(--ink-2)}
+  .used-list li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:2px;background:var(--accent);opacity:.85}
+  .used-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:22px}
+  .used-cta .btn{flex:1 1 auto}
+  .used-note{margin-top:14px;font-size:12.5px;line-height:1.75;color:var(--muted)}
+  .used-note a{color:var(--ink-2);border-bottom:1px solid var(--line);transition:color .2s,border-color .2s}
+  .used-note a:hover{color:var(--accent-dark);border-color:var(--accent-dark)}
+  .used-points{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,22px);margin-top:clamp(26px,3.4vw,36px)}
+  .used-points div{padding:20px 0 0;border-top:1px solid var(--line)}
+  .used-points b{display:block;font-size:15px;letter-spacing:-.02em}
+  .used-points span{display:block;margin-top:8px;font-size:13.5px;line-height:1.75;color:var(--body)}
+
   /* ============ reviews ============ */
   .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.2vw,24px);margin-top:38px}
   .rev{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -551,6 +574,10 @@
     .opt-grid.three{grid-template-columns:1fr 1fr}
     .contact-grid{grid-template-columns:1fr;gap:36px}
     .move-cols{grid-template-columns:1fr;gap:24px}
+    .used-grid{grid-template-columns:1fr;gap:18px}
+    .used-points{grid-template-columns:1fr;gap:0}
+    .used-points div{padding:16px 0 18px;border-top:1px solid var(--line)}
+    .used-points div:last-child{border-bottom:1px solid var(--line)}
   }
   @media (max-width:880px){
     .nav,.head-cta{display:none}
@@ -586,6 +613,8 @@
     .spec-list div{grid-template-columns:110px 1fr;gap:12px;font-size:14px}
     .opt-grid{grid-template-columns:1fr}
     .opt-grid.three{grid-template-columns:1fr}
+    .used-cta .btn{flex:1 1 100%}
+    .used-status{padding:20px 18px;gap:12px}
     .chan{grid-template-columns:1fr}
     .faq-list summary{padding:22px 40px 22px 0;font-size:16px}
     .faq-list .a{padding:0 16px 22px 0;font-size:14.5px}
@@ -621,6 +650,7 @@
       <a href="#about">회사소개</a>
       <a href="#portfolio">시공사례</a>
       <a href="#products">제품안내</a>
+      <a href="#used">중고매물</a>
       <a href="#reviews">사용후기</a>
       <a href="#contact">상담문의</a>
     </nav>
@@ -636,6 +666,7 @@
     <a href="#about">회사소개</a>
     <a href="#portfolio">시공사례</a>
     <a href="#products">제품안내</a>
+    <a href="#used">중고매물</a>
     <a href="#reviews">사용후기</a>
     <a href="#contact">상담문의</a>
     <a class="btn btn-primary drawer-cta" href="tel:01030015906">전화 상담 010-3001-5906</a>
@@ -797,6 +828,42 @@
             </dl>
             <span class="foot">이전 안내 보기 <span aria-hidden="true">→</span></span>
           </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="home-used">
+      <div class="wrap">
+        <div class="sec-top rv">
+          <div class="sec-head">
+            <span class="eyebrow">Used &amp; Consignment</span>
+            <h2>중고 방음부스 위탁 · 매칭</h2>
+            <p>중고 거래에서 가장 자주 막히는 건 가격이 아니라 해체·운반·재설치입니다. 파실 부스도, 구하실 부스도 사진과 정보만 보내주시면 매물 연결과 이전설치를 한 번에 맡습니다.</p>
+          </div>
+          <a class="more" href="#used">중고 매물·위탁 안내 보기 <span>→</span></a>
+        </div>
+
+        <div class="used-points rv">
+          <div>
+            <b>파실 때</b>
+            <span>브랜드·규격·지역·사진만 보내면 매물로 정리해 구매 희망 고객과 연결합니다.</span>
+          </div>
+          <div>
+            <b>구하실 때</b>
+            <span>원하시는 규격·예산·지역을 남겨 주시면 조건에 맞는 매물이 들어오는 대로 먼저 연락드립니다.</span>
+          </div>
+          <div>
+            <b>옮길 때</b>
+            <span>타사 부스도 해체·운반·재설치까지 같은 팀이 맡습니다. 이전비는 사진을 보고 미리 적어 드립니다.</span>
+          </div>
+        </div>
+
+        <div class="used-status rv" style="margin-top:clamp(24px,3vw,32px)">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <b>현재 위탁·매칭 접수 중입니다</b>
+            <p>공개된 확정 매물은 아직 없습니다. 접수해 주신 조건을 기준으로 매물이 들어오는 대로 먼저 안내드리니, 사진과 정보를 남겨 주세요.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -1334,6 +1401,118 @@
     </section>
   </div>
 
+  <!-- ============================ USED / CONSIGNMENT ============================ -->
+  <div class="page" id="page-used" data-page="used">
+    <section class="band">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Used &amp; Consignment</span>
+          <h2>중고 방음부스,<br>옮기는 일까지 함께 넘깁니다</h2>
+          <p>개인 간 거래에서 가장 자주 멈추는 곳은 가격이 아니라 해체·운반·재설치입니다. 11년간 타사 부스를 옮겨온 베오방음이 매물 연결과 이전설치를 한 번에 맡습니다.</p>
+        </div>
+
+        <div class="used-status rv" style="margin-top:clamp(30px,4vw,44px)">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <b>위탁·매칭 접수 중</b>
+            <p>이 페이지에 공개된 확정 매물은 아직 없습니다. 접수해 주신 규격·예산·지역을 기준으로 매물이 들어오는 대로 먼저 연락드리고, 파실 부스는 사진을 받은 뒤 등록 가능 여부와 이전 비용부터 안내드립니다.</p>
+          </div>
+        </div>
+
+        <div class="used-grid" style="margin-top:clamp(18px,2.4vw,26px)">
+          <article class="used-card rv">
+            <span class="used-num">01</span>
+            <h3>내 부스 위탁 · 처분 신청</h3>
+            <p>이사·이전·업종 변경으로 부스를 처분해야 할 때, 사진과 정보만 보내 주시면 됩니다. 매물로 정리해 구매 희망 고객과 연결하고, 철거와 운반까지 같은 팀이 맡습니다.</p>
+            <ul class="used-list">
+              <li>부스 브랜드와 규격(가로×세로×높이)</li>
+              <li>지금 위치·층수, 엘리베이터 여부</li>
+              <li>외관·내부·문·바닥 사진 3~5장</li>
+              <li>희망 금액과 처분 시기</li>
+            </ul>
+            <div class="used-cta">
+              <a class="btn btn-primary" href="tel:01030015906">전화 접수 010-3001-5906</a>
+              <a class="btn btn-line" href="https://forms.gle/JEH16k8NPBRPMs7DA" target="_blank" rel="noopener">상담 신청서로 접수</a>
+            </div>
+            <p class="used-note">블로그 · 인스타그램 · 숨고로 보내셔도 접수됩니다 — <a href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener">네이버 블로그</a> · <a href="https://www.instagram.com/beo_soundproof" target="_blank" rel="noopener">@beo_soundproof</a> · <a href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener">숨고</a></p>
+          </article>
+
+          <article class="used-card rv">
+            <span class="used-num">02</span>
+            <h3>중고 부스 구매 · 이전설치 문의</h3>
+            <p>지금 바로 살 수 있는 매물이 없어도 괜찮습니다. 원하시는 조건을 남겨 주시면 조건에 맞는 매물이 들어왔을 때 가장 먼저 안내드립니다.</p>
+            <ul class="used-list">
+              <li>원하시는 규격과 용도(보컬·피아노·방송·레슨 등)</li>
+              <li>예산 범위</li>
+              <li>설치하실 지역과 층수</li>
+              <li>이전설치까지 필요한지 여부</li>
+            </ul>
+            <div class="used-cta">
+              <a class="btn btn-ink" href="#contact">맞춤 매칭 신청</a>
+              <a class="btn btn-line" href="#contact">이전설치 안내 보기</a>
+            </div>
+            <p class="used-note">맞는 매물이 없으면 헛걸음하지 않도록, 지금 팔 수 있는 부스를 먼저 찾아 드리거나 신규 제작 견적과 비교해 함께 안내드립니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-cream">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Why BEO</span>
+          <h2>베오방음에 맡기면 달라지는 세 가지</h2>
+        </div>
+
+        <div class="opt-grid three rv" style="margin-top:clamp(28px,3.6vw,40px)">
+          <div class="opt">
+            <b>① 타사 포함 11년 해체·재조립</b>
+            <span>드림디자인·조용한청년들·탐소리큐브·뮤트홈·도피오 등 여러 브랜드의 부스를 해체하고 다시 세워 왔습니다. 구조를 모르는 부스도 순서대로 풀어 옮깁니다.</span>
+          </div>
+          <div class="opt">
+            <b>② 매물 연결부터 이전설치까지 한 번에</b>
+            <span>파는 사람과 사는 사람 사이에서 매물을 정리하고, 해체·운반·재설치까지 같은 팀이 처리합니다. 업체를 따로 부를 일이 없습니다.</span>
+          </div>
+          <div class="opt">
+            <b>③ 현장 사진 기반 이전비 안내</b>
+            <span>층수·엘리베이터·이동 거리까지 사진으로 확인하고, 이전비를 견적서에 미리 적어 드립니다. 작업을 시작한 뒤에 금액이 붙지 않습니다.</span>
+          </div>
+        </div>
+
+        <p class="fine" style="max-width:62em">베오방음은 매물을 직접 보증 판매하는 것이 아니라, 매물과 구매자를 연결하고 해체·운반·재설치를 직접 맡습니다. 매물 상태·거래 조건·위탁 진행 방식은 등록 전에 사진과 현장 확인을 거쳐 서면으로 안내드립니다.</p>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Process</span>
+          <h2>접수부터 재설치까지</h2>
+        </div>
+
+        <div class="steps rv" style="margin-top:clamp(28px,3.6vw,40px)">
+          <div class="step"><span class="n">01</span><div><b>사진 · 정보 접수</b><span>부스 사진, 브랜드·규격, 지금 위치와 옮길 위치, 희망 금액</span></div></div>
+          <div class="step"><span class="n">02</span><div><b>이전 가능 여부 확인</b><span>새 공간의 천장 높이와 문 위치를 사진으로 확인하고, 해체·재설치 계획을 세웁니다</span></div></div>
+          <div class="step"><span class="n">03</span><div><b>매물 정리 · 조건 안내</b><span>매물 정보와 이전 비용을 견적서로 먼저 보여드립니다. 가격과 일정은 이 단계에서 확정합니다</span></div></div>
+          <div class="step"><span class="n">04</span><div><b>해체 · 운반 · 재설치</b><span>같은 팀이 철거부터 재설치까지 마치고, 남은 자재와 포장은 저희가 치우고 나갑니다</span></div></div>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="move-box rv">
+          <span class="eyebrow">Relocation</span>
+          <h3>중고로 사기 전에, 옮길 수 있는 부스인지부터</h3>
+          <p>중고 매물을 눈여겨보고 있다면 사기 전에 부스 정보를 보내 주세요. 구조와 규격을 보고 해체·운반·재설치가 가능한지, 새 공간에 들어가는지 먼저 확인해 드립니다. 매물을 구하는 중이시라면 원하시는 규격·예산·지역을 남겨 주시면 조건에 맞는 매물이 들어오는 대로 연락드립니다.</p>
+          <div class="used-cta" style="margin-top:26px">
+            <a class="btn btn-primary" href="tel:01030015906">전화 상담 010-3001-5906</a>
+            <a class="btn btn-ghost-dark" href="#contact">상담 신청서 작성</a>
+          </div>
+          <p class="fine">보내주실 것 — 부스 사진, 제조사·규격, 지금 위치와 옮길 위치, 층수·엘리베이터 여부.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <!-- ============================ CONTACT ============================ -->
   <div class="page" id="page-contact" data-page="contact">
     <section class="band">
@@ -1416,6 +1595,7 @@
         <a href="#about">회사소개</a>
         <a href="#portfolio">시공사례</a>
         <a href="#products">제품안내</a>
+        <a href="#used">중고매물</a>
         <a href="#reviews">사용후기</a>
         <a href="#contact">상담문의</a>
       </nav>
@@ -1426,7 +1606,7 @@
       <div><b>주소</b> 경기 김포시 김포한강10로133번길 127, 530-AC06호 (구래동)</div>
       <div><b>이메일</b> danielee96@naver.com · <b>시공 지역</b> 수도권 전역 (지방 출장 가능)</div>
     </div>
-    <p class="copy">© 2026 BEO SOUNDPROOF. All rights reserved. · 이 페이지는 홈페이지 시안으로, 사업 정보와 시공 사진은 실제 자료를 사용했습니다.</p>
+    <p class="copy">© 2026 BEO SOUNDPROOF. All rights reserved. · 시공 사진은 베오방음이 직접 시공한 현장을 촬영한 자료입니다. 중고 매물·위탁 정보와 견적은 접수 후 확인해 안내드립니다.</p>
   </div>
 </footer>
 
@@ -1496,12 +1676,13 @@
   "use strict";
 
   /* ---------- hash routing ---------- */
-  var ROUTES = ["home","about","portfolio","products","reviews","contact"];
+  var ROUTES = ["home","about","portfolio","products","used","reviews","contact"];
   var META = {
     home:      {t:"베오방음 | 맞춤 방음부스 신규 설치 · 이전·재설치 (수도권 전역)"},
     about:     {t:"회사소개 | 베오방음"},
     portfolio: {t:"시공사례 | 베오방음"},
     products:  {t:"제품안내 | 베오방음"},
+    used:      {t:"중고 방음부스 매물·위탁 | 베오방음"},
     reviews:   {t:"사용후기 | 베오방음"},
     contact:   {t:"상담문의 | 베오방음"}
   };
