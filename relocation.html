@@ -193,6 +193,18 @@
   .sms .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
   .sms .row .btn{min-height:48px;font-size:14px}
 
+  /* ---------- real site gallery ---------- */
+  .cases{padding:26px 16px 4px}
+  .cases .eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:var(--accent-d)}
+  .cases h2{margin-top:8px;font-size:19px;letter-spacing:-.03em}
+  .cases-lead{margin-top:7px;font-size:12.5px;line-height:1.62;color:var(--muted)}
+  .cases-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+  .cases-grid figure{margin:0}
+  .cases-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;
+    border:1px solid var(--line2);background:var(--cream)}
+  .cases-grid figcaption{margin-top:5px;font-size:10.5px;font-weight:700;line-height:1.4;
+    color:var(--ink2);letter-spacing:-.01em}
+
   /* ---------- footer ---------- */
   .foot{padding:26px 16px 40px;text-align:center}
   .foot .co{font-size:11.5px;line-height:1.75;color:var(--muted)}
@@ -240,6 +252,8 @@
     form{padding:20px 18px 8px}
     .card{padding:18px 18px}
     .shots{grid-template-columns:repeat(4,1fr)}
+    .cases{padding:30px 22px 4px}
+    .cases-grid{gap:9px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -427,6 +441,39 @@
     <p class="msg" id="msg" aria-live="polite" hidden></p>
     <p class="hint" style="text-align:center;margin-top:10px">접수 후 사장님이 직접 사진을 보고 연락드립니다. 급하시면 <a href="tel:01030015906" style="color:var(--accent-d);font-weight:800">010-3001-5906</a>으로 전화 주셔도 됩니다.</p>
   </form>
+
+  <!-- 이전 설치 실제 현장 -->
+  <section class="cases" id="cases" aria-labelledby="cases-h">
+    <p class="eyebrow">Real Site</p>
+    <h2 id="cases-h">이전 설치 실제 현장</h2>
+    <p class="cases-lead">부스를 해체해 새 자리에 다시 세운 현장들입니다. 사진은 현장에서 찍은 그대로이고, 현장마다 치수와 마감이 다릅니다.</p>
+    <div class="cases-grid">
+      <figure>
+        <img src="assets/case-move-2.jpg" alt="사무실에 세운 블랙 프레임·화이트 아트보드 방음부스 정면. 도어가 열려 내부 슬랫 마감이 보인다." loading="lazy">
+        <figcaption>사무실 · 정면</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/case-move-3.jpg" alt="보컬 연습용 부스 내부. 상단 우드 톤 라인타공 띠와 천장 매립등, 시창이 보인다." loading="lazy">
+        <figcaption>보컬 연습 · 내부</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/case-move-4.jpg" alt="방송·작업용 부스 내부. 블랙 천장과 밝은 아트보드 벽, 양쪽 우드 슬랫 패널과 책상." loading="lazy">
+        <figcaption>방송·작업 · 내부</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/case-move-6.jpg" alt="업라이트 피아노가 놓인 방음부스 내부. 밝은 아트보드 벽과 블루 카펫, 천장 등." loading="lazy">
+        <figcaption>피아노방 · 내부</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/case-move-1.jpg" alt="회색 아트보드 외벽에 우드 프레임 시창을 낸 방음부스 외관. 옆 서가와 마루가 함께 보인다." loading="lazy">
+        <figcaption>주거 공간 · 외관</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/case-move-7.jpg" alt="해체한 방음부스 패널을 적재하고 그물로 고정한 차량. 주차장에서 출발 전 모습." loading="lazy">
+        <figcaption>해체 · 운반</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <!-- 접수 완료 -->
   <section id="done" hidden>
