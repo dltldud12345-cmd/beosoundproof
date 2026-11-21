@@ -1586,7 +1586,10 @@ function init(){
   const q = new URLSearchParams(location.search);
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem('beo-blueprint')||'null'); }catch(e){}
-  const src = q.get('w') ? {W:q.get('w'),D:q.get('d'),H:q.get('h')||2280,doorSide:q.get('ds')||'front',doorAlign:q.get('da')||'center',doorHinge:q.get('hg')||'right'} : (saved||{});
+  const qHinge = q.get('hg') || q.get('hinge');
+  const src = Object.assign({}, saved||{},
+    q.get('w') ? {W:q.get('w'),D:q.get('d'),H:q.get('h')||2280,doorSide:q.get('ds')||'front',doorAlign:q.get('da')||'center'} : {},
+    qHinge ? {doorHinge: qHinge} : {});
   if(src.W) $('#W').value = src.W;
   if(src.D) $('#D').value = src.D;
   if(src.H) $('#H').value = src.H;
