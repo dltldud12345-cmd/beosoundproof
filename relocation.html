@@ -84,7 +84,7 @@
   .step-h .req{color:var(--accent);font-size:13px;font-weight:800;margin-left:-4px}
   .hint{margin-top:7px;font-size:12.5px;line-height:1.55;color:var(--muted)}
 
-  /* ---------- notice / payment ---------- */
+  /* ---------- notice / options ---------- */
   .notice{margin-top:12px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;
     background:#fff;padding:11px 12px;font-size:12.5px;line-height:1.65;color:var(--body)}
   .notice b{color:var(--ink);font-weight:800}
@@ -92,12 +92,12 @@
   .notice li{position:relative;padding-left:12px}
   .notice li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:999px;background:var(--accent)}
   .notice .nt{display:block;margin-top:7px;font-size:12px;line-height:1.55;color:var(--muted)}
-  .pay{margin-top:14px;border:1px solid var(--line2);border-radius:14px;background:var(--paper);padding:12px 13px;text-align:center}
-  .pay .t{font-size:10.5px;font-weight:800;letter-spacing:.14em;color:var(--accent-d)}
-  .pay ul{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
-  .pay li{font-size:12.5px;font-weight:700;color:var(--ink2);background:#fff;border:1px solid var(--line);
-    border-radius:999px;padding:6px 12px}
-  .pay .d{margin-top:8px;font-size:12px;line-height:1.6;color:var(--muted)}
+  .step-h .opt{font-size:11.5px;font-weight:700;color:var(--muted);margin-left:-4px}
+  .subopt{margin-top:14px;padding-top:13px;border-top:1px solid var(--line2)}
+  .subopt .lb{display:block;font-size:12.5px;font-weight:700;color:var(--ink2)}
+  .subopt .lb em{font-style:normal;font-weight:600;color:var(--muted);margin-left:4px}
+  .subopt .chips{margin-top:9px}
+  .subopt .chip span{min-height:44px;padding:10px 13px;font-size:14px}
 
   /* ---------- chips ---------- */
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
@@ -275,6 +275,14 @@
         <label class="chip"><input type="radio" name="booth_type" value="기타"><span>잘 모름</span></label>
       </div>
       <p class="hint">1인용이면 싱글, 2인 합주·레슨이면 더블입니다. 헷갈리시면 <b>잘 모름</b>으로 두세요.</p>
+      <div class="subopt">
+        <span class="lb">부스 내 에어컨 <em>선택</em></span>
+        <div class="chips" id="aircon-chips">
+          <label class="chip"><input type="radio" name="aircon" value="없음" checked><span>없음</span></label>
+          <label class="chip"><input type="radio" name="aircon" value="있음"><span>있음 (해체·이동만 +5만 원)</span></label>
+        </div>
+        <p class="hint">에어컨 재설치는 진행하지 않으며, 해체 후 이동만 가능합니다 (재설치는 에어컨 설치 전문업체 이용 필요).</p>
+      </div>
     </fieldset>
 
     <!-- 02 제조사 -->
@@ -375,9 +383,20 @@
       </label>
     </section>
 
-    <!-- 07 연락처 -->
+    <!-- 07 결제 · 증빙 -->
     <section class="card">
-      <div class="step-h"><span class="n">7</span><b>성함 · 연락처</b><span class="req">*</span></div>
+      <div class="step-h"><span class="n">7</span><b>결제 · 증빙 희망</b><span class="opt">선택</span></div>
+      <div class="chips" id="pay-chips">
+        <label class="chip"><input type="radio" name="pay" value="카드결제"><span>카드결제</span></label>
+        <label class="chip"><input type="radio" name="pay" value="세금계산서"><span>세금계산서</span></label>
+        <label class="chip"><input type="radio" name="pay" value="현금영수증"><span>현금영수증</span></label>
+      </div>
+      <p class="hint">견적 확정 후 편하신 방법으로 결제하시면 되고, 증빙도 그에 맞춰 발행해 드립니다. 고르지 않으셔도 접수되고, 한 번 더 누르면 선택이 풀립니다.</p>
+    </section>
+
+    <!-- 08 연락처 -->
+    <section class="card">
+      <div class="step-h"><span class="n">8</span><b>성함 · 연락처</b><span class="req">*</span></div>
       <div class="field" style="margin-top:10px">
         <label class="lb" for="name">성함 <span class="req">*</span></label>
         <input class="in" id="name" maxlength="20" autocomplete="name" placeholder="예: 김민수">
@@ -388,7 +407,7 @@
       </div>
       <div class="field">
         <label class="lb" for="memo">추가로 알려주실 내용 (선택)</label>
-        <textarea class="in" id="memo" maxlength="1000" placeholder="예: 문이 좁아서 각도를 돌려야 합니다 / 낮 시간만 가능합니다"></textarea>
+        <textarea class="in" id="memo" maxlength="1000" placeholder="예: 주차 가능 여부 / 좁은 복도 · 계단 등 특이사항"></textarea>
       </div>
       <label class="agree">
         <input type="checkbox" id="agree">
@@ -406,15 +425,6 @@
 
     <button class="submit" type="submit" id="submit">견적 신청하기</button>
     <p class="msg" id="msg" aria-live="polite" hidden></p>
-    <div class="pay">
-      <p class="t">결제 · 증빙 안내</p>
-      <ul>
-        <li>카드결제</li>
-        <li>세금계산서 발행</li>
-        <li>현금영수증 발행</li>
-      </ul>
-      <p class="d">견적 확정 후 편하신 방법으로 결제하시면 되고, 증빙도 그에 맞춰 발행해 드립니다.</p>
-    </div>
     <p class="hint" style="text-align:center;margin-top:10px">접수 후 사장님이 직접 사진을 보고 연락드립니다. 급하시면 <a href="tel:01030015906" style="color:var(--accent-d);font-weight:800">010-3001-5906</a>으로 전화 주셔도 됩니다.</p>
   </form>
 
@@ -437,16 +447,18 @@
   <details class="sms">
     <summary><span>링크 입력이 번거로우시면, 이 양식을 복사해 문자로 보내주세요</span><span class="chev">▾</span></summary>
     <div class="inner">
-      <p class="hint">아래 8가지를 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
+      <p class="hint">아래 항목을 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 부스에 에어컨이 있으면 해체·이동만 가능(+5만 원)하고, 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
       <pre class="tmpl" id="tmpl">[베오방음 이전설치 견적 문의]
 1. 부스 유형: 싱글 / 세미더블 / 더블 (모르면 '모름')
 2. 제조사:
-3. 외부 크기(가로×세로×높이, mm):
-4. 부스 사진: 1~2장 (최대 6장) — 사진이 없으면 5번만 적어도 됩니다
-5. 매물 링크(선택): 중고나라 · 번개장터 · 당근 주소
-6. 해체 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
-7. 설치 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
-8. 희망 설치 날짜: (조율 가능 여부)
+3. 부스 내 에어컨: 없음 / 있음 (해체·이동만, +5만 원)
+4. 외부 크기(가로×세로×높이, mm):
+5. 부스 사진: 1~2장 (최대 6장) — 사진이 없으면 6번만 적어도 됩니다
+6. 매물 링크(선택): 중고나라 · 번개장터 · 당근 주소
+7. 해체 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
+8. 설치 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
+9. 희망 설치 날짜: (조율 가능 여부)
+10. 결제·증빙 희망(선택): 카드결제 / 세금계산서 / 현금영수증
 성함 / 연락처:</pre>
       <div class="row">
         <button class="btn btn-line" type="button" id="copy">양식 복사</button>
@@ -624,6 +636,19 @@
     });
   });
 
+  /* ---------- 결제·증빙 칩은 한 번 더 누르면 해제 ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll("#pay-chips .chip"), function(lab){
+    var r = lab.querySelector("input");
+    if (!r) return;
+    function mark(){ r.dataset.on = r.checked ? "1" : "0"; }
+    lab.addEventListener("pointerdown", mark);
+    r.addEventListener("keydown", mark);
+    r.addEventListener("click", function(e){
+      if (r.dataset.on === "1") { r.checked = false; r.dataset.on = "0"; e.preventDefault(); }
+      else { r.dataset.on = "1"; }
+    });
+  });
+
   /* ---------- 날짜 최소값 ---------- */
   var dateEl = $("date");
   if (dateEl) {
@@ -678,7 +703,12 @@
     if (brand === "__custom") brand = ($("brand-custom").value || "").trim();
     var type = checkedValue("booth_type") || "기타";
     var memo = ($("memo").value || "").trim();
-    if (link) memo = "[매물 링크] " + link + (memo ? "\n\n" + memo : "");
+    var head = [];
+    if (link) head.push("[매물 링크] " + link);
+    if (checkedValue("aircon") === "있음") head.push("[에어컨] 해체·이동만(+5만원)");
+    if (checkedValue("pay")) head.push("[결제·증빙] " + checkedValue("pay"));
+    if (head.length) memo = head.join("\n") + (memo ? "\n\n" + memo : "");
+    if (memo.length > 2000) memo = memo.slice(0, 2000);
 
     var btn = $("submit");
     state.busy = true;
@@ -734,6 +764,9 @@
   }
   var form = $("q-form");
   if (form) form.addEventListener("submit", submitForm);
+  if (form) form.addEventListener("reset", function(){
+    Array.prototype.forEach.call(document.querySelectorAll("#pay-chips input"), function(r){ r.dataset.on = "0"; });
+  });
 
   var again = $("again");
   if (again) again.addEventListener("click", function(){
