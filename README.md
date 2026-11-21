@@ -174,7 +174,7 @@ python3 tmp/shot_site.py "file:///workspace/website/index.html#portfolio" downlo
 
 - 라이브: `https://dltldud12345-cmd.github.io/beosoundproof/relocation.html` (관리자: `…/relocation.html#admin`)
 - `베오방음 | 방음부스 이전설치 간편 견적` 제목 · `og:image` = `assets/relocation-complete.jpg`
-- 고객 입력: ① 부스 유형(싱글·세미더블·더블·잘 모름) ② 제조사 칩(드림디자인·조용한청년들·탐소리큐브·뮤지쿠스·직접입력) ③ 외부 크기 가로×세로×높이(mm) ④ 사진 최대 6장(앨범에서, 1600px JPEG로 자동 축소) ⑤ 해체·설치 장소(동·구까지 주소 + 층 + 엘리베이터 있음/없음) ⑥ 희망 날짜 + 조율 가능 ⑦ 성함·연락처 + 개인정보 동의 → `견적 신청하기` → 접수 완료(접수번호·전화 링크)
+- 고객 입력: ① 부스 유형(싱글·세미더블·더블·잘 모름) ② 제조사 칩(드림디자인·조용한청년들·소리지오·탐소리큐브·바른방음·직접입력/모름 — 타임트리 이전 실적 빈도 순) ③ 외부 크기 가로×세로×높이(mm) ④ 사진 1~2장(최대 6장, 앨범에서 1600px JPEG로 자동 축소) ⑤ 해체·설치 장소(동·구까지 주소 + 층 + 엘리베이터 있음/없음) ⑥ 희망 날짜 + 조율 가능 ⑦ 성함·연락처 + 개인정보 동의 → `견적 신청하기` → 접수 완료(접수번호·전화 링크)
 - 하단 접힘: **문자로 보낼 7항목 양식** 복사 버튼 + `sms:` 링크
 - 관리자(맨 아래 작은 `관리자`): 기존 키 `beo-by3hkmmyrev7gk` 공유, 기기에 기억. 최근 접수 순 목록 · 사진 썸네일(원본 열림) · 해체/설치 엘리베이터 · `tel:` 전화 · 상태(신규/연락완료/완료) · 삭제 · 탭 필터(신규·전체·연락완료·완료)
 - 데이터: Supabase `relocation_quotes` + `relocation_submit` / `relocation_admin` (`supabase/04-relocation.sql`), 사진은 `listing-photos` 버킷 `relocation/` 경로
