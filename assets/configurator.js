@@ -19,8 +19,8 @@ const PRICE = {
   areaRate: null,
   artboard:{ beige: null, beige_d: null, white: null, gray_l: null, gray_d: null, black: null, orange: null, melon: null, green: null, sky: null, blue: null, pink: null },
   slat:    { oak: null, walnut: null, white: null, whitewash: null, maple: null, teak: null, ash: null, dark: null },
-  light:   { cob3000: null, cob4000: null, rail: null },
-  floor:   { oak: null, wash: null, walnut: null },
+  light:   { cob4000: null, rail: null },
+  floor:   { oak: null, pine: null },
   door:    { left: null, center: null, right: null },
   window1: null,
   window2: null,
@@ -61,19 +61,18 @@ const SLAT = [
   { v:'ash',      label:'애쉬 오크',   hex:'#B5A896', grain:'#7C6E5B', code:'007' },
   { v:'dark',     label:'다크 월넛',   hex:'#5B483A', grain:'#2E2018', code:'008' }
 ];
+/* 매립등은 주백색 4000K 고정 · 레일등은 2,400mm 이상 규격의 기본값 */
 const LIGHT = [
-  { v:'cob3000', label:'COB 3000K', sub:'웜 화이트', temp:3000 },
-  { v:'cob4000', label:'COB 4000K', sub:'뉴트럴',    temp:4000 },
-  { v:'rail',    label:'레일등',     sub:'대형 공간', temp:3500 }
+  { v:'cob4000', label:'COB 매립등 4000K', sub:'2구 · 주백색', temp:4000 },
+  { v:'rail',    label:'레일등',           sub:'대형 공간',   temp:4000 }
 ];
 const LEDTEMP = [
   { v:'4000', label:'주백색 4000K', hex:'#FFF4E2', light:'#FFEFD6' },
   { v:'6500', label:'주광색 6500K', hex:'#F6FAFF', light:'#EAF2FF' }
 ];
 const FLOOR = [
-  { v:'oak',    label:'내추럴 오크', hex:'#CBAC86', grain:'#8F6E49' },
-  { v:'wash',   label:'라이트 워시', hex:'#DED1BB', grain:'#AA9070' },
-  { v:'walnut', label:'다크 월넛',  hex:'#5A4536', grain:'#2E1E13' }
+  { v:'oak',  label:'멜로우 오크', hex:'#C6A47E', grain:'#8E7048' },
+  { v:'pine', label:'화이트 파인', hex:'#E4DDD0', grain:'#B9B0A0' }
 ];
 const DOORS = [
   { v:'left',   label:'좌측 구석' },
@@ -102,22 +101,37 @@ const PROJECTS = [
   { v:'in',   label:'포함' }
 ];
 const PRESETS = [
-  { id:'studio', label:'스튜디오 베스트', sw:['#D8C6A6','#E0CBA6','#C9A472'], set:{ artboard:'beige',  slat:'maple',     floor:'oak',   light:'cob3000' } },
-  { id:'clean',  label:'클린 화이트',     sw:['#E7E5E1','#DFDBD0','#E6E1D2'], set:{ artboard:'white',  slat:'whitewash', floor:'wash',  light:'cob4000' } },
-  { id:'dark',   label:'모던 다크',       sw:['#737A82','#5B483A','#584234'], set:{ artboard:'gray_d', slat:'dark',      floor:'walnut', light:'cob3000' } },
-  { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C9A472'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
+  { id:'studio', label:'스튜디오 베스트', sw:['#D8C6A6','#E0CBA6','#C6A47E'], set:{ artboard:'beige',  slat:'maple',     floor:'oak',   light:'cob4000' } },
+  { id:'clean',  label:'클린 화이트',     sw:['#E7E5E1','#DFDBD0','#E4DDD0'], set:{ artboard:'white',  slat:'whitewash', floor:'pine',  light:'cob4000' } },
+  { id:'dark',   label:'모던 다크',       sw:['#737A82','#5B483A','#C6A47E'], set:{ artboard:'gray_d', slat:'dark',      floor:'oak',   light:'cob4000' } },
+  { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C6A47E'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
 ];
-const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000', door:'right' };
+const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000', door:'right' };
 const INCLUDED = ['세로 2구 콘센트','강화마루','3면 아트보드','1면 라인타공','COB 매립등·중앙 LED등','시스템도어'];
 const PHONE = '010-3001-5906';
 const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
 
 const state = {
   model:'ss', w:1500, d:1800,
-  artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000',
+  artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000',
   door:'right', hinge:'right', open:false, window:'none', project:'none', ac:false,
   view:'exterior'
 };
+
+/* ---- 조명 규칙 ----
+   매립등은 주백색 4000K 고정. 가로(W)·세로(D) 중 한 변이라도 2,400mm 이상이면
+   레일등이 필수(자동 선택)이고, 그 미만은 COB 매립등 2구가 기본(레일등 선택 가능). */
+const RAIL_MIN_MM = 2400;
+let lightAuto = true;   // 지금 조명 선택이 규격 때문에 자동으로 정해진 것인지(사용자가 누르면 false)
+function railRequired(){ return state.w >= RAIL_MIN_MM || state.d >= RAIL_MIN_MM; }
+function defaultLight(){ return railRequired() ? 'rail' : 'cob4000'; }
+function enforceLightRule(){
+  if (railRequired()){
+    if (state.light !== 'rail'){ state.light = 'rail'; lightAuto = true; }
+  } else if (lightAuto && state.light === 'rail'){
+    state.light = 'cob4000';
+  }
+}
 
 const $ = (s, r = document) => r.querySelector(s);
 const fmt = n => Number(n).toLocaleString('ko-KR');
@@ -190,12 +204,12 @@ function buildPanel(){
           ${LEDTEMP.map(t => `<button type="button" data-group="ledTemp" data-value="${t.v}" aria-pressed="false">${t.label}</button>`).join('')}
         </div>
       </div>
-      <p class="note">라인타공 면 위 COB 매립등 + 중앙 원형 LED등. 공간이 넓으면 레일등으로 길게 깝니다.</p>
+      <p class="note" id="lightNote">COB 매립등 2구를 주백색 4000K로 시공합니다. 가로·세로 2,400mm 이상은 레일등이 기본입니다.</p>
     </section>
 
     <section class="sec">
       <div class="sec-h"><span class="n">05</span><h2>바닥 마루</h2><span class="tag">강화마루</span></div>
-      <div class="sw-grid three">
+      <div class="sw-grid">
         ${FLOOR.map(f => `<button type="button" class="sw tight" data-group="floor" data-value="${f.v}" aria-pressed="false">
           <span class="dot" style="background:${f.hex}"></span>
           <span class="tx">${f.label}</span>
@@ -280,6 +294,7 @@ function onPanelClick(e){
   if (group === 'window') state.window = value;
   else if (group === 'project') state.project = value;
   else state[group] = value;
+  if (group === 'light') lightAuto = false;
   syncUI();
   rebuild();
 }
@@ -308,14 +323,14 @@ function dimText(){ return `${fmt(state.w)} × ${fmt(state.d)}`; }
 /* ---- 사양 행 ---- */
 function specRows(){
   const a = pick(ARTBOARD, state.artboard), s = pick(SLAT, state.slat);
-  const l = pick(LIGHT, state.light), f = pick(FLOOR, state.floor);
+  const f = pick(FLOOR, state.floor);
   const d = pick(DOORS, state.door);
   const rows = [];
   rows.push({ k:'규격', v:`${modelName()} ${dimText()}`, chg:state.model === 'custom',
               chip:'', sub:`${((state.w/1000)*(state.d/1000)).toFixed(2)}㎡` });
   rows.push({ k:'아트보드', v:a.label, chg:state.artboard !== DEFAULTS.artboard, chip:a.hex, sub:'3면' });
   rows.push({ k:'라인타공', v:s.label + (s.code ? ` (${s.code})` : ''), chg:state.slat !== DEFAULTS.slat, chip:s.hex, sub:'1면' });
-  rows.push({ k:'조명', v:(state.light === 'rail' ? '레일등' : `COB 매립등 ${l.temp}K`), chg:state.light !== DEFAULTS.light, chip:'', sub:(state.light === 'rail' ? '대형 공간' : l.sub) });
+  rows.push({ k:'조명', v:(state.light === 'rail' ? '레일등' : 'COB 매립등 2구 · 주백색 4000K'), chg:state.light !== defaultLight(), chip:'', sub:(state.light === 'rail' ? (railRequired() ? '2,400mm 이상 필수' : '천장 트랙') : '') });
   rows.push({ k:'중앙등', v:pick(LEDTEMP, state.ledTemp).label, chg:state.ledTemp !== DEFAULTS.ledTemp, chip:pick(LEDTEMP, state.ledTemp).hex, sub:'천장 원형' });
   rows.push({ k:'바닥', v:f.label, chg:state.floor !== DEFAULTS.floor, chip:f.hex, sub:'강화마루' });
   rows.push({ k:'문', v:`${d.label} · ${state.hinge === 'right' ? '우경첩' : '좌경첩'}`, chg:(state.door !== DEFAULTS.door || state.hinge !== 'right'), chip:'', sub:'시스템도어' });
@@ -351,11 +366,25 @@ function totalPrice(){
 
 /* ---- UI 동기화 ---- */
 function syncUI(){
+  /* 규격이 2,400mm 이상이면 레일등 필수 */
+  enforceLightRule();
+
   panel.querySelectorAll('[data-group]').forEach(b => {
     const on = state[b.dataset.group] === b.dataset.value;
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.classList.toggle('on', on);
   });
+  const lockRail = railRequired();
+  panel.querySelectorAll('[data-group="light"]').forEach(b => {
+    const lock = lockRail && b.dataset.value !== 'rail';
+    b.disabled = lock;
+    b.setAttribute('aria-disabled', lock ? 'true' : 'false');
+  });
+  if ($('#lightNote')) $('#lightNote').textContent = lockRail
+    ? '가로·세로 2,400mm 이상 규격은 레일등(천장 트랙)으로 시공합니다. COB 매립등은 이 규격에서 선택할 수 없습니다.'
+    : (state.light === 'rail'
+        ? '레일등을 선택하셨습니다. COB 매립등 2구(주백색 4000K)로 바꾸실 수 있습니다.'
+        : 'COB 매립등 2구를 주백색 4000K로 시공합니다. 원하시면 레일등으로 바꾸실 수 있습니다.');
   panel.querySelectorAll('[data-preset]').forEach(b => {
     const p = PRESETS.find(x => x.id === b.dataset.preset);
     const on = p && Object.keys(p.set).every(k => state[k] === p.set[k]);
@@ -404,14 +433,14 @@ function syncUI(){
 
 function updateLegend(){
   const a = pick(ARTBOARD, state.artboard), s = pick(SLAT, state.slat);
-  const f = pick(FLOOR, state.floor), l = pick(LIGHT, state.light);
+  const f = pick(FLOOR, state.floor);
   const el = $('#legend');
   if (!el) return;
   el.innerHTML = `
     <span class="lg"><i style="background:${a.hex}"></i>아트보드 ${a.label}</span>
     <span class="lg"><i style="background:${s.hex}"></i>라인타공 ${s.label}</span>
     <span class="lg"><i style="background:${f.hex}"></i>마루 ${f.label}</span>
-    <span class="lg"><i style="background:${state.light === 'rail' ? '#C9CDD1' : (l.temp === 3000 ? '#FFD8A8' : '#FFF1DC')}"></i>${state.light === 'rail' ? '레일등' : `COB ${l.temp}K`}</span>`;
+    <span class="lg"><i style="background:${state.light === 'rail' ? '#C9CDD1' : '#FFF1DC'}"></i>${state.light === 'rail' ? '레일등' : 'COB 4000K'}</span>`;
 }
 
 /* ---- 사양 텍스트 (복사/전달) ---- */
@@ -1382,12 +1411,12 @@ function buildSlatWall(g, width, hex, grain){
   return inner;
 }
 
-/* ---- 조명 색 ---- */
+/* ---- 조명 색 (매립등은 주백색 4000K 고정) ---- */
 function lightColor(){
-  return state.light === 'cob4000' ? 0xFFF6E8 : 0xFFE3C6;
+  return 0xFFF6E8;
 }
 function lightGlowColor(){
-  return state.light === 'cob4000' ? 0xFFF7EC : 0xFFE7C8;
+  return 0xFFF7EC;
 }
 
 /* ---- COB 매립등 (실제 다운라이트 구조) ---- */
@@ -1584,7 +1613,7 @@ function buildLights(plan){
   parts.lightGroup = group;
 
   const warm = lightColor();
-  const tempK = state.light === 'cob4000' ? 4000 : 3000;
+  const tempK = 4000;
 
   if (plan.mode === 'rail'){
     /* --- 슬림 트랙 + 회전형 원통 헤드 --- */

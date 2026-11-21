@@ -302,6 +302,7 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
 }
 .seg button:hover{color:var(--ink)}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,23,26,.12)}
+.seg button:disabled{opacity:.42;cursor:not-allowed;text-decoration:line-through;color:var(--muted)}
 .seg.two button{font-size:12px}
 
 /* rows / toggle */
