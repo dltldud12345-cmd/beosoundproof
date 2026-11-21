@@ -119,6 +119,7 @@
   .field{margin-top:12px}
   .field .lb{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:6px}
   .field .lb .req{color:var(--accent)}
+  .field .lb em{font-style:normal;font-weight:600;color:var(--muted);margin-left:4px}
   .dim{display:grid;grid-template-columns:1fr 14px 1fr 14px 1fr;gap:6px;align-items:center;margin-top:12px}
   .dim .x{text-align:center;color:var(--muted);font-size:13px}
   .dim .in{padding:0 8px;text-align:center}
@@ -228,6 +229,7 @@
   .shots-s a{flex:0 0 auto;width:66px;height:66px;border-radius:9px;overflow:hidden;border:1px solid var(--line2)}
   .shots-s img{width:100%;height:100%;object-fit:cover}
   .qcard .memo{margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--ink2);background:var(--cream);border-radius:9px;padding:9px 10px;white-space:pre-wrap}
+  .qcard .memo a{color:var(--accent-d);font-weight:800;text-decoration:underline;text-underline-offset:2px;word-break:break-all}
   .qcard .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .state{font-size:13px;color:var(--muted);text-align:center;padding:14px 0}
   .login{max-width:340px;margin:26px auto 0;text-align:center}
@@ -256,6 +258,7 @@
     <ul class="facts">
       <li>타사 부스 가능</li>
       <li>사진은 앨범에서 바로</li>
+      <li>매물 링크로도 접수</li>
       <li>30초 접수</li>
     </ul>
   </section>
@@ -305,12 +308,17 @@
       <p class="hint">줄자로 부스 바깥을 잰 값(mm)입니다. 모르시면 비워두셔도 됩니다.</p>
     </section>
 
-    <!-- 04 사진 -->
+    <!-- 04 사진 · 매물 링크 -->
     <section class="card">
-      <div class="step-h"><span class="n">4</span><b>부스 사진</b><span class="req">*</span></div>
+      <div class="step-h"><span class="n">4</span><b>부스 사진 · 매물 링크</b><span class="req">*</span></div>
       <p class="hint"><b>부스 내·외부 사진 (1~2장만 있어도 가능 · 최대 6장)</b><br>앨범에서 바로 고르시면 자동으로 줄여 올라갑니다. 내부·외부·문 쪽까지 3장이면 가장 정확합니다.</p>
       <div class="shots" id="shots"></div>
       <input type="file" id="file" accept="image/*" multiple hidden>
+      <div class="field">
+        <label class="lb" for="listing-link">보고 계신 매물 링크<em>선택</em></label>
+        <input class="in" id="listing-link" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="중고나라 · 번개장터 · 당근 주소 붙여넣기">
+      </div>
+      <p class="hint">사진이 없어도 <b>매물 링크</b>가 있으면 접수됩니다. 둘 중 하나만 있으면 됩니다.</p>
     </section>
 
     <!-- 05 장소 -->
@@ -429,15 +437,16 @@
   <details class="sms">
     <summary><span>링크 입력이 번거로우시면, 이 양식을 복사해 문자로 보내주세요</span><span class="chev">▾</span></summary>
     <div class="inner">
-      <p class="hint">아래 7가지를 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
+      <p class="hint">아래 8가지를 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
       <pre class="tmpl" id="tmpl">[베오방음 이전설치 견적 문의]
 1. 부스 유형: 싱글 / 세미더블 / 더블 (모르면 '모름')
 2. 제조사:
 3. 외부 크기(가로×세로×높이, mm):
-4. 부스 사진: 1~2장 (최대 6장)
-5. 해체 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
-6. 설치 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
-7. 희망 설치 날짜: (조율 가능 여부)
+4. 부스 사진: 1~2장 (최대 6장) — 사진이 없으면 5번만 적어도 됩니다
+5. 매물 링크(선택): 중고나라 · 번개장터 · 당근 주소
+6. 해체 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
+7. 설치 장소: 주소(동·구까지) / 층 / 엘리베이터 있음·없음
+8. 희망 설치 날짜: (조율 가능 여부)
 성함 / 연락처:</pre>
       <div class="row">
         <button class="btn btn-line" type="button" id="copy">양식 복사</button>
@@ -484,6 +493,11 @@
   function $(id){ return document.getElementById(id); }
   function esc(v){ return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function linkify(v){
+    return esc(v).replace(/(https?:\/\/[^\s<]+)/g, function(u){
+      return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>';
+    });
+  }
   function uid(){
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){
@@ -646,13 +660,25 @@
     if (digits(phone).length < 8) { msg("연락처를 정확히 입력해 주세요.", "err"); $("phone").focus(); return; }
     if (!from) { msg("해체 장소(지금 있는 곳) 주소를 입력해 주세요.", "err"); $("from-region").focus(); return; }
     if (!to) { msg("설치 장소(옮길 곳) 주소를 입력해 주세요.", "err"); $("to-region").focus(); return; }
-    if (!state.picked.length) { msg("부스 사진을 1장 이상 올려 주세요. 견적의 정확도가 크게 달라집니다.", "err"); return; }
+
+    var link = ($("listing-link").value || "").trim();
+    if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+    if (link && !/^https?:\/\/[^\s/.]+\.[^\s]+/i.test(link)) {
+      msg("매물 링크 주소를 확인해 주세요. 보시던 페이지 주소를 그대로 붙여넣으시면 됩니다.", "err");
+      $("listing-link").focus(); return;
+    }
+    if (!state.picked.length && !link) {
+      msg("사진이나 매물 링크 중 하나는 입력해 주세요.", "err");
+      $("listing-link").focus(); return;
+    }
     if (!agree) { msg("개인정보 수집·이용에 동의해 주세요.", "err"); $("agree").focus(); return; }
     if (!sbReady) { msg("지금은 접수 연결을 준비 중입니다. " + PHONE + " 으로 전화 주세요.", "err"); return; }
 
     var brand = checkedValue("brand");
     if (brand === "__custom") brand = ($("brand-custom").value || "").trim();
     var type = checkedValue("booth_type") || "기타";
+    var memo = ($("memo").value || "").trim();
+    if (link) memo = "[매물 링크] " + link + (memo ? "\n\n" + memo : "");
 
     var btn = $("submit");
     state.busy = true;
@@ -687,7 +713,7 @@
         desired_date: ($("date").value || "").trim(),
         date_flexible: $("flex").checked,
         photos: photos,
-        memo: ($("memo").value || "").trim()
+        memo: memo
       }});
     }).then(function(res){
       if (!res || !res.ok) throw new Error((res && res.error) || "접수에 실패했습니다.");
@@ -921,7 +947,7 @@
       + (photos.length ? '<div class="shots-s">' + photos.map(function(u, i){
           return '<a href="' + esc(u) + '" target="_blank" rel="noopener"><img src="' + esc(u) + '" alt="부스 사진 ' + (i+1) + '" loading="lazy"></a>';
         }).join("") + '</div>' : '')
-      + (q.memo ? '<div class="memo">' + esc(q.memo) + '</div>' : '')
+      + (q.memo ? '<div class="memo">' + linkify(q.memo) + '</div>' : '')
       + '<div class="acts">' + acts + '<button type="button" class="mini danger" data-del="' + esc(q.id) + '">삭제</button></div>'
     + '</div>';
   }
