@@ -349,6 +349,7 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
 }
 .quote .amt small{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0}
 .quote .amt .won{font-size:12px;font-weight:700;color:var(--body);font-weight:700}
+.quote .amt{flex-wrap:wrap}
 .quote .amt small{display:block;width:100%;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0;margin-top:2px}
 .quote .qnote{margin-top:8px;font-size:10.5px;line-height:1.6;color:var(--body)}
 .quote .inc{margin-top:13px;padding-top:12px;border-top:1px dashed #DCD3C3;display:grid;gap:5px}
@@ -432,7 +433,8 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
   .panel-head h1{font-size:19px}
   .panel-head .sub{display:none}
   .sec{padding:15px 18px}
-  .quote{margin:14px 18px 96px}
+  .quote{margin:14px 18px 124px}
+  .quote .amt{font-size:18px}
   .panel-foot{
     position:fixed;left:0;right:0;bottom:0;z-index:70;
     padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));
