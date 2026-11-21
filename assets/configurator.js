@@ -1565,7 +1565,7 @@ function viewSettings(name){
   const W = state.w/1000, D = state.d/1000;
   const S = Math.hypot(W, D) * 0.94;
   const doorTheta = pick(DOORS, state.door).theta;
-  const base = (S * 2.7 + 1.4) * aspectFactor() * (isSmall() ? 0.84 : 1);
+  const base = (S * 2.7 + 1.4) * aspectFactor() * (isSmall() ? 0.93 : 1);
   switch (name){
     case 'interior': return { theta: doorTheta + 0.34, phi: 1.06, r: base * 0.80, ty: 0.96, fov: 44 };
     case 'door':     return { theta: doorTheta + 0.14, phi: 1.44, r: base * 1.1, ty: 1.1, fov: 28 };
