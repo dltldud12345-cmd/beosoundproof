@@ -70,6 +70,8 @@
   .seg{display:grid;grid-auto-flow:column;gap:5px;background:var(--cream);padding:4px;border-radius:10px}
   .seg button{appearance:none;border:0;background:transparent;font:inherit;font-size:12px;font-weight:600;color:var(--body);padding:7px 4px;border-radius:7px;cursor:pointer;transition:.14s}
   .seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,23,26,.13)}
+  .note-small{margin:9px 0 0;font-size:10.5px;color:#7B8389;line-height:1.62}
+  .note-small b{color:#4F585F;font-weight:700}
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip{appearance:none;border:1px solid var(--line);background:#fff;font:inherit;font-size:11.5px;font-weight:600;color:var(--ink2);padding:6px 9px;border-radius:8px;cursor:pointer;transition:.14s;font-variant-numeric:tabular-nums}
   .chip:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-t)}
@@ -202,6 +204,13 @@
           <button data-v="right" aria-pressed="false">우</button>
         </div>
       </div>
+      <div class="field"><label>문 경첩 <span class="hint">문 밖에서 볼 때</span></label>
+        <div class="seg" id="doorHinge">
+          <button data-v="left" aria-pressed="false">좌경첩</button>
+          <button data-v="right" aria-pressed="true">우경첩</button>
+        </div>
+      </div>
+      <p class="note-small">문은 부스 <b>바깥으로 열리는 외여닫이</b>입니다. 경첩은 <b>문 밖에서 문을 마주보았을 때</b> 기준으로 고르세요.</p>
     </section>
 
     <section class="card">
@@ -288,6 +297,7 @@ function buildModel(inp){
   const MOD = +inp.mod, JOINT = +inp.joint;
   const dw = +inp.doorW, dh = +inp.doorH;
   const doorSide = inp.doorSide, doorAlign = inp.doorAlign;
+  const doorHinge = inp.doorHinge==='left' ? 'left' : 'right';   // 문 밖에서 볼 때 경첩 쪽
   const winCount = inp.winOn ? +inp.winCount : 0;
   const winSide = inp.winSide, winW = +inp.winW, winH = +inp.winH;
   const fillH = Math.max(60, CFG.HEAD - dh - 2);   // 문 상단 채움판 높이(198)
@@ -468,7 +478,7 @@ function buildModel(inp){
   ];
 
   return {
-    inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, sideName,
+    inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, doorHinge, sideName,
     winCount, winSide, winSideKey, winMoved, winW, winH, winPositions, winSideObj,
     floor:{l1:f1, l2:f2}, ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan},
     cut, bom, perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
@@ -635,6 +645,20 @@ function pageNo(no,i,total){
 /* =====================================================================
    4. A-101 평면도
    ===================================================================== */
+/* 문 밖에서 마주보았을 때의 좌/우경첩 → 벽면 좌표의 경첩 위치(0=시작, 1=끝)
+   앞면은 도면 왼쪽이 문 밖에서 본 왼쪽, 뒷면·우측면은 반대라서 면마다 뒤집힌다. */
+const HINGE_END = {
+  front:{left:0, right:1},
+  back: {left:1, right:0},
+  left: {left:0, right:1},
+  right:{left:1, right:0}
+};
+function hingeAtEnd(sideK, hinge){
+  const row = HINGE_END[sideK] || HINGE_END.front;
+  return !!row[hinge==='left' ? 'left' : 'right'];
+}
+function hingeName(h){ return h==='left' ? '좌경첩' : '우경첩'; }
+
 function layoutPieces(sd, doorAlign){
   const nonDoor = sd.pieces.filter(p=>p.kind!=='door');
   const doorP = sd.pieces.find(p=>p.kind==='door');
@@ -657,15 +681,26 @@ function layoutPieces(sd, doorAlign){
 }
 
 function sheetPlan(m){
-  let s = sheetHead('A-101','벽체 평면도','PLAN · 외경 '+m.W+' × '+m.D+' · 벽체 110㎜ 액자틀(15T 원판 + 95T 날개) + 외부 9T 알판 · 내부 9T 마감 · 좌·우 벽 전길이');
+  let s = sheetHead('A-101','벽체 평면도','PLAN · 외경 '+m.W+' × '+m.D+' · 벽체 110㎜ 액자틀(15T 원판 + 95T 날개) · 문 외부 열림('+hingeName(m.doorHinge)+') · 좌·우 벽 전길이');
   s += pageNo('A-101',1,4);
 
-  const regionX = M+104, regionW = SW-M-40-regionX;
-  const regionY = M+92,  regionH = 700;
-  const sc = Math.min(regionW/m.W, regionH/m.D)*0.92;
+  /* 도면 영역 — 문이 있는 면은 바깥 여닫이 호(반지름 = 문 폭)만큼 자리를 비우고 축척을 역산 */
+  const boxX0 = M+18, boxX1 = SW-M-10;
+  const boxY0 = M+78, boxY1 = 858;
+  const BASE = {front:58, back:30, left:76, right:24};      // 면별 치수선 자리(px)
+  const doorHoriz = (m.doorSide==='left'  || m.doorSide==='right');   // 호가 좌·우로 열림
+  const doorVert  = (m.doorSide==='front' || m.doorSide==='back');    // 호가 상·하로 열림
+  const sc = Math.min(
+    (boxX1-boxX0 - BASE.left - BASE.right) / (m.W + (doorHoriz ? m.dw : 0)),
+    (boxY1-boxY0 - BASE.back - BASE.front) / (m.D + (doorVert  ? m.dw : 0))
+  );
+  const R0 = m.dw*sc;                                       // 여닫이 호 반지름
+  const mgOf = k => BASE[k] + (m.doorSide===k ? R0 : 0);
+  const availW = boxX1-boxX0 - mgOf('left') - mgOf('right');
+  const availH = boxY1-boxY0 - mgOf('back') - mgOf('front');
   const pw = m.W*sc, ph = m.D*sc;
-  const ox = regionX + (regionW-pw)/2;
-  const oy = regionY + (regionH-ph)/2;
+  const ox = boxX0 + mgOf('left') + Math.max(0,(availW-pw)/2);
+  const oy = boxY0 + mgOf('back') + Math.max(0,(availH-ph)/2);
   const t = CFG.FIN*sc;
 
   /* 벽체 밴드 — 좌·우 벽은 외경 끝~끝 전길이, 문 면·반대 면은 좌·우 벽(110) 안쪽에 끼움 */
@@ -777,33 +812,39 @@ function sheetPlan(m){
     });
   }
 
-  /* 문 여닫이 */
+  /* 문 여닫이 — 부스 바깥으로 열리는 외여닫이. 경첩 쪽 문짝을 90° 열린 상태로 그린다 */
   {
     const sd = S(m.doorSide);
     const items = sideGeom(sd);
     const d = items.find(i=>i.kind==='door');
     if(d){
-      const a1 = d.at*sc, a2 = (d.at+d.w)*sc, R0 = d.w*sc;
-      if(m.doorSide==='front'){
-        const hx = ox+a2, hy = oy+ph-t;
-        s += L(hx,hy,hx,hy-R0,{stroke:INK,sw:1.6});
-        s += P(`M ${n(hx-R0)} ${n(hy)} A ${n(R0)} ${n(R0)} 0 0 1 ${n(hx)} ${n(hy-R0)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += T(hx-R0/2, hy-R0/2, m.dw, {size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700});
-      } else if(m.doorSide==='back'){
-        const hx = ox+a1, hy = oy+t;
-        s += L(hx,hy,hx,hy+R0,{stroke:INK,sw:1.6});
-        s += P(`M ${n(hx+R0)} ${n(hy)} A ${n(R0)} ${n(R0)} 0 0 0 ${n(hx)} ${n(hy+R0)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += T(hx+R0/2, hy+R0/2, m.dw, {size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700});
-      } else if(m.doorSide==='left'){
-        const hx = ox+t, hy = oy+a1;
-        s += L(hx,hy,hx+R0,hy,{stroke:INK,sw:1.6});
-        s += P(`M ${n(hx)} ${n(hy+R0)} A ${n(R0)} ${n(R0)} 0 0 0 ${n(hx+R0)} ${n(hy)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += `<g transform="rotate(-90 ${n(hx+R0/2)} ${n(hy+R0/2)})">${T(hx+R0/2, hy+R0/2+2, m.dw,{size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700})}</g>`;
-      } else {
-        const hx = ox+pw-t, hy = oy+a2;
-        s += L(hx,hy,hx-R0,hy,{stroke:INK,sw:1.6});
-        s += P(`M ${n(hx)} ${n(hy-R0)} A ${n(R0)} ${n(R0)} 0 0 1 ${n(hx-R0)} ${n(hy)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += `<g transform="rotate(-90 ${n(hx-R0/2)} ${n(hy-R0/2)})">${T(hx-R0/2, hy-R0/2+2, m.dw,{size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700})}</g>`;
+      const a1 = d.at*sc;
+      /* u = 벽을 따라가는 방향, v = 부스 바깥 방향, p0 = 개구부 시작점(벽 바깥면) */
+      let u, v, p0;
+      if(m.doorSide==='front'){      u=[1,0]; v=[0,1];  p0=[ox+a1, oy+ph]; }
+      else if(m.doorSide==='back'){  u=[1,0]; v=[0,-1]; p0=[ox+a1, oy]; }
+      else if(m.doorSide==='left'){  u=[0,1]; v=[-1,0]; p0=[ox, oy+a1]; }
+      else {                         u=[0,1]; v=[1,0];  p0=[ox+pw, oy+a1]; }
+
+      const atEnd = hingeAtEnd(m.doorSide, m.doorHinge);
+      const H   = atEnd ? [p0[0]+u[0]*R0, p0[1]+u[1]*R0] : p0;                 /* 경첩 */
+      const F   = atEnd ? p0 : [p0[0]+u[0]*R0, p0[1]+u[1]*R0];                 /* 닫힌 쪽 문틀 */
+      const tip = [H[0]+v[0]*R0, H[1]+v[1]*R0];                                /* 열린 문짝 끝 */
+
+      s += L(H[0],H[1],tip[0],tip[1],{stroke:INK,sw:2.6,cap:'round'});         /* 문짝 */
+      const cross = (F[0]-H[0])*(tip[1]-H[1]) - (F[1]-H[1])*(tip[0]-H[0]);
+      s += P(`M ${n(F[0])} ${n(F[1])} A ${n(R0)} ${n(R0)} 0 0 ${cross>0?1:0} ${n(tip[0])} ${n(tip[1])}`,
+             {stroke:'#6B7378',sw:0.8,dash:'4 2.5'});                          /* 여닫이 호 */
+      s += C(H[0],H[1],2.6,{fill:INK,stroke:'#fff',sw:0.9});                  /* 경첩 표시 */
+
+      /* 호 안쪽 캡션 — 바깥 열림 · 좌/우경첩 (호 45° 중간점, 글자는 항상 수평) */
+      if(R0 > 62){
+        const cx = H[0] + ((F[0]-H[0]) + (tip[0]-H[0]))/2;
+        const cy = H[1] + ((F[1]-H[1]) + (tip[1]-H[1]))/2;
+        const cs = Math.max(5.4, Math.min(6.4, R0*0.034));
+        const hs = Math.max(6.6, Math.min(8.6, R0*0.046));
+        s += T(cx, cy-1.6, '바깥 열림', {size:cs, anchor:'middle', fill:'#6B7378', weight:700})
+          + T(cx, cy+hs+1.2, hingeName(m.doorHinge), {size:hs, anchor:'middle', fill:'#8A4210', weight:800});
       }
     }
   }
@@ -812,9 +853,10 @@ function sheetPlan(m){
   s += T(ox+pw/2, oy+ph/2-3, m.innerW+' × '+m.innerD, {size:13, weight:800, anchor:'middle', fill:'#DAD4C6', ls:'0.02em'});
   s += T(ox+pw/2, oy+ph/2+11, '내부 유효 (㎜)', {size:6.2, anchor:'middle', fill:'#DAD4C6', ls:'0.12em'});
 
-  /* 치수 — 외경 전체 + 면별 합 체인 (좌·우 벽 110 + 내폭 + 110 / 600 + 600 + 600) */
-  s += dimH(ox, ox+pw, oy+ph+26, m.W, {ext1:oy+ph, ext2:oy+ph, size:10.2, labelY:oy+ph+22.4});
-  s += dimV(oy, oy+ph, ox-34, m.D, {ext1:ox, ext2:ox, size:10.4, labelX:ox-38});
+  /* 치수 — 외경 전체 + 면별 합 체인. 문이 있는 면은 호 바깥으로 치수선을 밀어 겹치지 않게 */
+  const dOff = k => (m.doorSide===k ? R0 : 0);
+  s += dimH(ox, ox+pw, oy+ph+26+dOff('front'), m.W, {ext1:oy+ph, ext2:oy+ph, size:10.2, labelY:oy+ph+22.4+dOff('front')});
+  s += dimV(oy, oy+ph, ox-34-dOff('left'), m.D, {ext1:ox, ext2:ox, size:10.4, labelX:ox-38-dOff('left')});
 
   const chainH = (sd, y) => {
     let out = '';
@@ -838,13 +880,18 @@ function sheetPlan(m){
     });
     return out;
   };
-  s += chainH(S('front'), oy+ph+52);
-  s += chainV(S('left'), ox-66);
-  s += dimH(ox, ox+t, oy-21, String(CFG.FIN), {size:8.2, labelY:oy-24.5});
+  s += chainH(S('front'), oy+ph+52+dOff('front'));
+  s += chainV(S('left'), ox-66-dOff('left'));
+  /* 벽체 110 기준 — 뒷면 문이 있으면 문에서 먼 쪽 모서리에 표기 */
+  const dBand = S('back');
+  const dItem = sideGeom(dBand).find(i=>i.kind==='door');
+  const farRight = !!dItem && (dItem.at + dItem.w/2) < dBand.span/2;
+  const x110 = farRight ? ox+pw-t : ox;
+  s += dimH(x110, x110+t, oy-21, String(CFG.FIN), {size:8.2, labelY:oy-24.5});
 
   /* 범례 */
   const ly = 872, lw = SW-2*M-24;
-  s += R(M+12, ly, lw, 88, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  s += R(M+12, ly, lw, 98, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
@@ -863,12 +910,13 @@ function sheetPlan(m){
     '2. '+m.sideName[longSide.k]+' '+sumOf(longSide)+' = '+longSide.len+' (전길이).',
     '3. '+m.sideName[m.doorSide]+' '+sumOf(S(m.doorSide))+' = '+S(m.doorSide).len+' (좌·우 벽 안쪽 '+S(m.doorSide).span+').',
     '4. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공. 좌·우 벽은 모서리까지 전길이 한 줄로 세움.',
-    '5. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000).'
+    '5. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000) — 부스 바깥으로 열림.',
+    '6. 경첩 '+hingeName(m.doorHinge)+' — 문 밖에서 마주보았을 때 경첩이 '+ (m.doorHinge==='left'?'왼쪽':'오른쪽') +'. 여닫이 호 반지름 = 문 폭.'
   ];
-  notes.forEach((tx,i)=> s += T(M+300, ly+28+i*12.4, tx, {size:6.2, fill:'#4F585F'}));
+  notes.forEach((tx,i)=> s += T(M+300, ly+28+i*12.2, tx, {size:6.2, fill:'#4F585F'}));
 
   s += titleBlock(m,{no:'A-101',title:'평면도',scale:'1 : '+Math.round(3.7795/sc)});
-  s += scaleBar(M+24, 972, sc);
+  s += scaleBar(M+24, 984, sc);
   return sheetShell(s);
 }
 
@@ -1016,8 +1064,21 @@ function sheetElevation(m){
       o += T(dx+dwp/2, y+hh-dhp/2-2, '방음문 '+(m.dw)+'×'+(m.dh), {size: opts.big?7.4:5.4, anchor:'middle', fill:'#8A4210', weight:800});
       o += T(dx+dwp/2, y+hh-dhp/2+7, '시스템도어', {size: opts.big?6:4.4, anchor:'middle', fill:'#B4622A'});
       o += T(dx+dwp/2, y+hh-dhp-fhp/2+2, m.dw+'×'+m.fillH, {size: opts.big?6:4.4, anchor:'middle', fill:'#8A4210', mono:true, weight:700});
-      /* 손잡이 */
-      o += C(dx+dwp-10*sc*3, y+hh-dhp*0.45, Math.max(1.2, 2*sc*3), {fill:INK, stroke:INK, sw:0.4});
+      /* 경첩 · 손잡이 — 좌/우경첩에 맞춰 좌우로 뒤집힘 (도면 왼쪽 = 벽면 시작) */
+      const hingeEnd = hingeAtEnd(side.k, m.doorHinge);
+      const hyy = y + hh - dhp*0.5;
+      const off  = Math.min(13, Math.max(4, dwp*0.13));
+      const hx   = hingeEnd ? dx + off : dx + dwp - off;              /* 손잡이 = 경첩 반대쪽 */
+      o += L(hx, hyy-7.5, hx, hyy+7.5, {stroke:INK, sw:2.0, cap:'round'});
+      const tick = Math.min(7, Math.max(2.6, dwp*0.1));
+      [0.22, 0.72].forEach(f=>{
+        const yy = y + hh - dhp*f;
+        const x1 = hingeEnd ? dx + dwp - tick : dx;                  /* 경첩 쪽 문틀 */
+        o += L(x1, yy, x1+tick, yy, {stroke:'#8A4210', sw:1.7});
+      });
+      if(opts.big){
+        o += T(dx+dwp/2, y+hh-6, '외부 열림 · '+hingeName(m.doorHinge), {size:5.8, anchor:'middle', fill:'#8A4210', weight:700});
+      }
     }
     /* 시창 */
     if(m.winCount>0 && side.k===m.winSideKey){
@@ -1133,9 +1194,9 @@ function sheetElevation(m){
   s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
   s += T(M+24, ny+27, '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.', {size:6.4});
   s += T(M+24, ny+38, '· 좌·우 벽은 외경 끝~끝 전길이(600×3)로 세우고, 문 면은 좌·우 벽 안쪽(내폭 −220)에 끼워 시공.', {size:6.4});
-  s += T(M+24, ny+49, '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨.', {size:6.4});
+  s += T(M+24, ny+49, '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨. 부스 바깥으로 열림(외여닫이).', {size:6.4});
   s += T(M+24, ny+60, '· 벽체·바닥·천장 접합부는 실링 처리로 기밀 유지. 내부 1면 라인타공 아트보드.', {size:6.4});
-  s += T(M+24, ny+71, '· 마루 '+CFG.MARU+'㎜ · 천장 65T · 몰딩 45T 마감. 문턱·개폐 방향은 현장 확인.', {size:6.4});
+  s += T(M+24, ny+71, '· 마루 '+CFG.MARU+'㎜ · 천장 65T · 몰딩 45T 마감 · 문 경첩 '+hingeName(m.doorHinge)+' (문 밖에서 마주볼 때).', {size:6.4});
 
   s += titleBlock(m,{no:'A-103',title:'전개도·단면',scale:'1 : '+Math.round(3.7795/sc)});
   return sheetShell(s);
@@ -1301,6 +1362,7 @@ function readInputs(){
     doorH: +$('#doorH').value || 1800,
     doorSide: state.doorSide || 'front',
     doorAlign: state.doorAlign || 'center',
+    doorHinge: state.doorHinge || 'right',
     winOn: $('#winOn').checked,
     winCount: +$('#winCount').value || 1,
     winSide: $('#winSide').value,
@@ -1384,7 +1446,7 @@ function verifyHTML(m){
 }
 
 function syncURL(inp){
-  const q = new URLSearchParams({w:inp.W,d:inp.D,h:inp.H,ds:inp.doorSide,da:inp.doorAlign});
+  const q = new URLSearchParams({w:inp.W,d:inp.D,h:inp.H,ds:inp.doorSide,da:inp.doorAlign,hg:inp.doorHinge});
   if(inp.winOn) q.set('win', inp.winSide+inp.winCount);
   try{ history.replaceState(null,'','?'+q.toString()); }catch(e){}
 }
@@ -1501,6 +1563,7 @@ function init(){
 
   segInit('#doorSide','doorSide','front');
   segInit('#doorAlign','doorAlign','center');
+  segInit('#doorHinge','doorHinge','right');
 
   $('#presets').addEventListener('click', e=>{
     const b = e.target.closest('.chip'); if(!b) return;
@@ -1523,7 +1586,7 @@ function init(){
   const q = new URLSearchParams(location.search);
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem('beo-blueprint')||'null'); }catch(e){}
-  const src = q.get('w') ? {W:q.get('w'),D:q.get('d'),H:q.get('h')||2280,doorSide:q.get('ds')||'front',doorAlign:q.get('da')||'center'} : (saved||{});
+  const src = q.get('w') ? {W:q.get('w'),D:q.get('d'),H:q.get('h')||2280,doorSide:q.get('ds')||'front',doorAlign:q.get('da')||'center',doorHinge:q.get('hg')||'right'} : (saved||{});
   if(src.W) $('#W').value = src.W;
   if(src.D) $('#D').value = src.D;
   if(src.H) $('#H').value = src.H;
@@ -1534,6 +1597,10 @@ function init(){
   if(src.doorAlign){
     state.doorAlign = src.doorAlign;
     $('#doorAlign').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===src.doorAlign)));
+  }
+  if(src.doorHinge){
+    state.doorHinge = src.doorHinge==='left' ? 'left' : 'right';
+    $('#doorHinge').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===state.doorHinge)));
   }
   if(src.winOn){ $('#winOn').checked = true; $('#winFields').style.display=''; if(src.winSide) $('#winSide').value=src.winSide; if(src.winCount) $('#winCount').value=src.winCount; }
 
