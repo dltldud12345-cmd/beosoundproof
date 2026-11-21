@@ -617,6 +617,17 @@
     });
   });
 
+  /* ---------- 모델 카드에서 넘어온 규격 미리 선택 (?spec=ss|ssp|double|custom) ---------- */
+  (function(){
+    var m = /[?&]spec=(ssp|ss|double|custom)(?:&|$)/.exec(location.search);
+    if (!m) return;
+    var r = document.querySelector('input[name="spec"][value="' + m[1] + '"]');
+    if (!r) return;
+    r.checked = true;
+    r.dispatchEvent(new Event("change"));
+    if (m[1] === "custom") { var w = $("cw"); if (w) w.focus(); }
+  })();
+
   /* ---------- 추천 조합 → 개별 칩 동기화 ---------- */
   var COMBO = {
     "차콜&화이트": ["차콜 그레이", "화이트"],
