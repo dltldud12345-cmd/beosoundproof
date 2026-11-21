@@ -357,7 +357,7 @@
               <option value="max">2400 최대 절단 · 3000 → 2400+600</option>
             </select>
           </div>
-          <p class="note-small">모든 판재는 <b>원판 600×2400</b> 기준입니다. 가로는 항상 <b>600 모듈 + 자투리</b>, 길이가 <b>2400㎜를 넘으면</b> 길이 방향을 나눠 재단·산출합니다.</p>
+          <p class="note-small">모든 판재는 <b>원판 600×2400</b> 기준입니다. 가로는 항상 <b>600 모듈 + 자투리</b>, 길이가 <b>2400㎜를 넘으면</b> 길이 방향을 나눠 재단·산출합니다. <b>천장 65T는 위 설정과 무관하게 항상 2000 + 나머지</b>(3000 → 2000+1000)로 자르고, 600 열마다 순서를 바꿔 이음선을 <b>지그재그</b>로 깝니다 — 2000 판에 575×975 마블 스펀지 2장이 재단 없이 들어가 나머지 판만 재단하면 되기 때문입니다.</p>
           <p class="note-small" style="margin-top:6px">이 <b>여유</b>는 <b>천장 판 사이에 15T 합판을 세워 박아</b> 천장이 처지지 않게 받치는 값입니다. 마지막 판을 <b>자투리 − (15T × 이음매 개소)</b>로 줄여 재단합니다.</p>
           <p style="margin:10px 0 0;font-size:10.5px;color:#7B8389;line-height:1.6">기본값은 제작팀 손도면 10장에서 확인한 값입니다. 현장에 따라 조정하세요.</p>
         </div>
@@ -426,6 +426,19 @@ function splitLen(L, mode){
   return out;
 }
 const splitModeName = m => (m==='max' ? '2400 최대 절단' : '균등 분할');
+
+/* 천장 65T 전용 분할 — 길이 2400 초과면 설정과 무관하게 항상 2000 + 나머지
+   3000 → 2000 + 1000 · 2500 → 2000 + 500 · 4000 → 2000 + 2000 · 4400 → 2000 + 2000 + 400
+   (2000 짜리 판을 먼저 깔고 남은 자투리를 끝에 붙이는 현장 시공 순서)            */
+function splitCeilLen(L){
+  if(!(L > CFG.STOCK_L + 0.5)) return [L];
+  const out = [];
+  let r = L;
+  while(r > 2000.5){ out.push(2000); r -= 2000; }
+  out.push(r);
+  return out;
+}
+const ceilSplitName = '2000+나머지';
 
 /* =====================================================================
    1. 계산 엔진  — 손도면에서 확인한 규칙
@@ -670,8 +683,9 @@ function buildModel(inp){
   const cWidths = [];
   if(cRest >= 120){ for(let i=0;i<cN;i++) cWidths.push(MOD); cWidths.push(cRest - JOINT*cN); }
   else { for(let i=0;i<Math.max(1,cN-1);i++) cWidths.push(MOD); cWidths.push(MOD - JOINT*Math.max(1,cN-1)); }
-  const ceilLens = splitLen(cLen, LSPLIT);
-  const ceilPieces = cWidths.map(w=>({w, l:cLen, lens:ceilLens}));
+  const ceilLens = splitCeilLen(cLen);
+  /* 600 열마다 [2000 | 나머지] ↔ [나머지 | 2000] 로 순서를 바꿔 이음선이 일자로 겹치지 않게 한다 */
+  const ceilPieces = cWidths.map((w,i)=>({w, l:cLen, lens:(i%2? [...ceilLens].reverse() : [...ceilLens])}));
 
   /* --- 외벽 알판 ---------------------------------------------- */
   const extRows = [];
@@ -794,9 +808,9 @@ function buildModel(inp){
   const lenSplits = [
     {label:'바닥 1층', length:D},
     {label:'바닥 2층', length:W},
-    {label:'천장 65T', length:cLen},
+    {label:'천장 65T', length:cLen, ceil:true},
     {label:'외벽 알판(층고)', length:H}
-  ].map(o=>Object.assign(o,{lens:splitLen(o.length, LSPLIT)}));
+  ].map(o=>Object.assign(o,{lens: o.ceil? splitCeilLen(o.length) : splitLen(o.length, LSPLIT)}));
 
   return {
     inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, usedAlign, doorHinge, sideName,
@@ -1499,6 +1513,122 @@ function breakdown(W,D,strips,orient,{x,y,w,h,title,sub,hatch}){
   return s;
 }
 
+/* A-102 천장 65T — 600 판 + 15T 세움 합판 띠 + [2000 | 나머지] 지그재그 이음
+   · 판 사이마다 15T 합판이 실제로 자리를 차지한다 (폭 합 = 600 + 15 + 600 + … + 자투리)
+   · 열마다 길이 분할 순서를 바꿔 이음선이 일자로 겹치지 않게 그린다 (지그재그)   */
+function ceilSplitPanel(m, x, y, w, h){
+  const along = (m.ceil.len === m.W);            // true → 길이 x방향 · 폭 y방향
+  const LEN = m.ceil.len, SPAN = m.ceil.span;
+  const XW = along ? LEN : SPAN, YW = along ? SPAN : LEN;
+  const padL = 26, padR = 50, padT = 46, padB = 30;
+  const sc = Math.min((w-padL-padR)/XW, (h-padT-padB)/YW);
+  const ox = x + padL, oy = y + padT;
+  const pw = XW*sc, ph = YW*sc;
+  const J = m.JOINT, pieces = m.ceil.pieces, nB = pieces.length;
+  const posOf = i => { let a=0; for(let k=0;k<i;k++) a += pieces[k].w + J; return a; };
+  const lens = pieces[0] ? pieces[0].lens : [LEN];
+  const multi = lens.length > 1;
+  const widths = pieces.map(p=>p.w);
+  const WARN2 = '#B4622A', BAND = '#D99A4E';
+
+  let s = T(x+2,y+8,'천장 65T 분할',{size:8.6,weight:800});
+  s += T(x+2,y+17,'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 폭 합 '+SPAN+' · '+widths.map(v=>Math.round(v)).join(' · 15T · '), {size:5.9,fill:'#7B8389'});
+  s += T(x+2,y+26,'길이 '+LEN+(multi? ' → '+lens.join(' + ') : ' (분할 없음)')+(multi? ' · 열마다 [2000|나머지] ↔ [나머지|2000] 교차' : ''),
+    {size:5.9,fill:multi? WARN2 : '#7B8389', weight:multi?700:400});
+  s += R(x+2,y+32,7,4.4,{fill:BAND,stroke:'#8A5A20',sw:0.5});
+  s += T(x+12,y+36,'15T 합판 세움 띠 — 600 판 사이마다 (마지막 판 = 자투리 − 15×'+ (nB-1) +')', {size:5.6,fill:'#6B3E0E'});
+
+  s += R(ox,oy,pw,ph,{fill:'url(#hCeil)',stroke:INK,sw:1.2});
+
+  /* 600 판 — 홀수 열은 분할 순서를 뒤집어 이음선을 어긋나게 */
+  pieces.forEach((st,i)=>{
+    const a = posOf(i);
+    const rx = along ? ox : ox + a*sc;
+    const ry = along ? oy + a*sc : oy;
+    const rw = along ? pw : st.w*sc;
+    const rh = along ? st.w*sc : ph;
+    s += R(rx,ry,rw,rh,{fill:'#FFFDF8',stroke:INK,sw:0.7,op:0.92});
+    const ls = st.lens;                      /* 모델에서 이미 열마다 교차(지그재그) */
+    let la = 0;
+    ls.forEach((len,k)=>{
+      if(k>0){
+        if(along) s += L(rx+la*sc, ry, rx+la*sc, ry+rh, {stroke:INK, sw:1.25});
+        else      s += L(rx, ry+la*sc, rx+rw, ry+la*sc, {stroke:INK, sw:1.25});
+      }
+      const cL = along ? len*sc : rw, cH = along ? rh : len*sc;
+      const cx = along ? rx + (la+len/2)*sc : rx + rw/2;
+      const cy = along ? ry + rh/2 : ry + (la+len/2)*sc;
+      const lbl = Math.round(st.w)+'×'+Math.round(len);
+      const tsz = 5.2, tw = tagWidth(lbl,tsz);
+      if(cL >= tw+2 && cH >= 8) s += T(cx, cy+1.8, lbl, {size:tsz, anchor:'middle', mono:true, fill:'#3B4248'});
+      else if(cH >= tw+2 && cL >= 7) s += `<g transform="rotate(-90 ${n(cx)} ${n(cy)})">${T(cx, cy+1.8, lbl, {size:tsz, anchor:'middle', mono:true, fill:'#3B4248'})}</g>`;
+      la += len;
+    });
+  });
+
+  /* 15T 합판 세움 띠 — 실제 15㎜ 자리, 도면에서는 최소 폭으로 도시 */
+  const bandW = Math.max(J*sc, 3.8);
+  for(let i=0;i<nB-1;i++){
+    const c0 = (posOf(i) + pieces[i].w + J/2)*sc;
+    if(along){
+      s += R(ox, oy + c0 - bandW/2, pw, bandW, {fill:BAND, stroke:'#8A5A20', sw:0.5, op:0.97});
+      s += tag(ox + pw*0.5, oy + c0, '15T', {size:4.9, fill:'#5E360C', bg:'#FFF6E6', bgop:0.99, stroke:'#C08A4A', sw:0.35});
+    } else {
+      s += R(ox + c0 - bandW/2, oy, bandW, ph, {fill:BAND, stroke:'#8A5A20', sw:0.5, op:0.97});
+      s += tag(ox + c0, oy + ph*0.52, '15T', {size:4.9, fill:'#5E360C', bg:'#FFF6E6', bgop:0.99, stroke:'#C08A4A', sw:0.35, rot:-90});
+    }
+  }
+  s += R(ox,oy,pw,ph,{fill:'none',stroke:INK,sw:1.3});
+
+  /* 치수 — 길이 분할(교차) · 폭 체인(600 · 15 · 600 · … · 자투리) */
+  if(along){
+    let la = 0;
+    lens.forEach(len=>{
+      const a1 = ox+la*sc, a2 = ox+(la+len)*sc;
+      if(a2-a1 >= 12) s += dimH(a1,a2, oy+ph+12, String(Math.round(len)), {size:6, color:WARN2});
+      la += len;
+    });
+    s += dimH(ox,ox+pw, oy+ph+(multi?26:12), String(LEN), {size:6.2, ext1:oy+ph});
+    let a = 0;
+    pieces.forEach((st,i)=>{
+      const y1 = oy + (a)*sc, y2 = oy + (a+st.w)*sc;
+      if(y2-y1 >= 12) s += dimV(y1,y2, ox+pw+11, String(Math.round(st.w)), {size:5.6, labelX:ox+pw+8});
+      a += st.w;
+      if(i < nB-1){
+        const j1 = oy + a*sc, j2 = oy + (a+J)*sc;
+        s += L(ox+pw+8, j1, ox+pw+14, j1, {stroke:'#C08A4A', sw:0.6});
+        s += L(ox+pw+8, j2, ox+pw+14, j2, {stroke:'#C08A4A', sw:0.6});
+        s += L(ox+pw+11, j1, ox+pw+11, j2, {stroke:'#C08A4A', sw:0.6});
+        a += J;
+      }
+    });
+    s += dimV(oy,oy+ph, ox+pw+30, String(SPAN), {size:6.2, ext1:ox+pw, labelX:ox+pw+33});
+  } else {
+    let a = 0;
+    pieces.forEach((st,i)=>{
+      const x1 = ox + a*sc, x2 = ox + (a+st.w)*sc;
+      if(x2-x1 >= 12) s += dimH(x1,x2, oy+ph+12, String(Math.round(st.w)), {size:5.6, color:DIMC});
+      a += st.w;
+      if(i < nB-1){
+        const j1 = ox + a*sc, j2 = ox + (a+J)*sc;
+        s += L(j1, oy+ph+8, j1, oy+ph+15, {stroke:'#C08A4A', sw:0.6});
+        s += L(j2, oy+ph+8, j2, oy+ph+15, {stroke:'#C08A4A', sw:0.6});
+        a += J;
+      }
+    });
+    s += dimH(ox,ox+pw, oy+ph+(multi?26:12), String(SPAN), {size:6.2, ext1:oy+ph});
+    let la = 0;
+    lens.forEach(len=>{
+      const a1 = oy+la*sc, a2 = oy+(la+len)*sc;
+      if(a2-a1 >= 12) s += dimV(a1,a2, ox+pw+13, String(Math.round(len)), {size:6, color:WARN2, labelX:ox+pw+10});
+      la += len;
+    });
+    s += dimV(oy,oy+ph, ox+pw+30, String(LEN), {size:6.2, ext1:ox+pw, labelX:ox+pw+33});
+  }
+
+  return s;
+}
+
 /* A-102 부속 — 천장 마감 평면 : 라인타공 1면 · COB 매립등 2구 타공 위치
    내부 유효 길이를 3등분한 1/3·2/3 지점에 2구를 두고, 면 시작에서의 거리로
    치수선(593 · 594 · 593)을 건다. 2000 부스 → 1780 ÷ 3 = 593 ㎜ 간격.      */
@@ -1657,7 +1787,7 @@ function cobCeilPanel(m, x, y, w, h){
 }
 
 function sheetFloorCeil(m){
-  let s = sheetHead('A-102','바닥 2겹 · 천장 65T 분할도','FLOOR 2 LAYERS (CROSS) & CEILING 65T · 원판 600×2400 · 길이 2400 초과 '+splitModeName(m.lenSplit)+' · 천장 '+(m.lightMode==='rail'? '레일등':'COB 매립등 2구')+' + 중앙등 위치');
+  let s = sheetHead('A-102','바닥 2겹 · 천장 65T 분할도','FLOOR 2 LAYERS (CROSS) & CEILING 65T · 원판 600×2400 · 천장 2400 초과 '+ceilSplitName+' 지그재그 · 바닥 '+splitModeName(m.lenSplit)+' · '+(m.lightMode==='rail'? '레일등':'COB 매립등 2구')+' + 중앙등 위치');
   s += pageNo('A-102',2,4);
   const boxW = (SW-2*M-30)/2;
   const xL = M+8, xR = M+8+boxW+14;
@@ -1665,9 +1795,8 @@ function sheetFloorCeil(m){
   s += breakdown(m.W, m.D, m.floor.l1, 'v', {x:xL, y:M+78, w:boxW, h:262, title:'바닥 1층 (하판)', sub:'세로 결 · 폭 '+m.MOD+' 모듈 · 길이 '+m.D, hatch:'#fff'});
   s += breakdown(m.W, m.D, m.floor.l2, 'h', {x:xR, y:M+78, w:boxW, h:262, title:'바닥 2층 (상판)', sub:'가로 결 · 1층과 교차 · 길이 '+m.W, hatch:'#FBF8F2'});
 
-  /* 천장 */
-  const ceilOrient = (m.ceil.len === m.W) ? 'h' : 'v';
-  s += breakdown(m.W, m.D, m.ceil.pieces, ceilOrient, {x:xL, y:368, w:boxW, h:296, title:'천장 65T 분할', sub:'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 폭 합 '+m.ceil.span+' · 15T 세움 합판 보강 −'+m.JOINT+'/개소', hatch:'url(#hCeil)'});
+  /* 천장 — 600 판 사이 15T 합판 띠 + [2000 | 나머지] 지그재그 */
+  s += ceilSplitPanel(m, xL, 368, boxW, 296);
 
   /* 요약 표 (분할 수량) */
   const shortNote = p => {
@@ -1677,7 +1806,7 @@ function sheetFloorCeil(m){
   const rows = [];
   rows.push({type:'group', label:'바닥 PB 18T · 2겹 교차'});
   m.cut.filter(c=>c.group==='바닥 PB (2겹 교차)').forEach(p=>rows.push({cells:['PB 18T', p.w+'×'+p.l, p.qty+' 장', shortNote(p)]}));
-  rows.push({type:'group', label:'천장 65T'});
+  rows.push({type:'group', label:'천장 65T · 15T 띠'});
   m.cut.filter(c=>c.group==='천장 65T').forEach(p=>rows.push({cells:['65T', p.w+'×'+p.l, p.qty+' 장', p.note.indexOf('긴 변')>=0? '긴 변 결':'짧은 변 결']}));
 
   const tRows = rows.length;
@@ -1696,10 +1825,13 @@ function sheetFloorCeil(m){
   /* 계산 근거 박스 */
   const calc = [];
   const multi = m.lenSplits.filter(o=>o.lens.length>1);
-  if(multi.length) calc.push('· 원판 600×2400 — 길이 2400 초과 '+splitModeName(m.lenSplit)+' : '+multi.map(o=>o.label+' '+o.length+' → '+o.lens.join(' + ')).join(' / '));
+  const multiFloor = multi.filter(o=>!o.ceil);
+  if(multiFloor.length) calc.push('· 원판 600×2400 — 바닥·알판 2400 초과 '+splitModeName(m.lenSplit)+' : '+multiFloor.map(o=>o.label+' '+o.length+' → '+o.lens.join(' + ')).join(' / '));
   calc.push('· 바닥 1층 : 가로 '+m.W+' ÷ 600 → '+m.floor.l1.map(p=>p.w).join(' + ')+'  (길이 '+m.D+' 재단)');
   calc.push('· 바닥 2층 : 세로 '+m.D+' ÷ 600 → '+m.floor.l2.map(p=>p.w).join(' + ')+'  (길이 '+m.W+' 재단) — 1층과 90° 교차');
   calc.push('· 천장 65T : 폭 '+m.ceil.span+' ÷ 600 → '+m.ceil.pieces.map(p=>p.w).join(' + ')+'  (길이 '+m.ceil.len+' 재단)');
+  calc.push('· 천장 '+m.ceil.len+' → '+m.ceilLens.join(' + ')+'  — 600 열마다 [2000|나머지] ↔ [나머지|2000] 지그재그로 이음선이 일자로 겹치지 않게');
+  calc.push('· 천장 2400 초과 시 2,000 + 나머지 지그재그 분할 — 2,000㎜ 판에 575×975 마블 스펀지 2장이 재단 없이 쏙 들어가 나머지 판만 재단');
   calc.push('· 마지막 판 = 자투리 − 15T 세움 합판 여유 '+m.JOINT+'㎜ × 개소 (판 사이에 15T 합판을 세워 박음 · 2000→155 · 1400→170 · 1800→570)');
   calc.push('· 자투리가 40㎜ 미만이면 앞 판에 합쳐 재단 (예: 1600 → 1000 + 600)');
   calc.push('· 시공 순서 : 바닥 1층 깔기 → 2층 교차 → 벽체 → 천장 65T');
@@ -1991,7 +2123,7 @@ function svgTable(x,y,w,cols,rows,opt={}){
 }
 
 function sheetTables(m){
-  let s = sheetHead('A-104','재단 치수표 · 자재 산출표','CUT LIST & BILL OF MATERIALS · 원판 600×2400 기준 · 길이 2400 초과 '+splitModeName(m.lenSplit)+' · 샷시·문 2mm 여유 · 천장 15T 세움 보강');
+  let s = sheetHead('A-104','재단 치수표 · 자재 산출표','CUT LIST & BILL OF MATERIALS · 원판 600×2400 기준 · 천장 2400 초과 '+ceilSplitName+' 지그재그 · 바닥 길이 분할 '+splitModeName(m.lenSplit)+' · 샷시·문 2mm 여유 · 천장 15T 세움 보강');
   s += pageNo('A-104',4,4);
 
   const groups = ['바닥 PB (2겹 교차)','천장 65T','벽판 95T PB','문·개구부','외벽 알판'];
@@ -2020,12 +2152,14 @@ function sheetTables(m){
   s += t1.svg;
   if(m.lenSplits.some(o=>o.lens.length>1)){
     const t1b = M+84 + t1.height + 13;
-    s += T(M+10, t1b, '※ 길이 분할 ('+splitModeName(m.lenSplit)+') : '+m.lenSplits.filter(o=>o.lens.length>1).map(o=>o.label+' '+o.length+' → '+o.lens.join(' + ')).join('  ·  '),
+    s += T(M+10, t1b, '※ 길이 분할 : '+m.lenSplits.filter(o=>o.lens.length>1).map(o=>o.label+' '+o.length+' → '+o.lens.join(' + ')+(o.ceil? ' (천장 '+ceilSplitName+'·지그재그)':' ('+splitModeName(m.lenSplit)+')')).join('  ·  '),
       {size:5.9, fill:WARN, weight:700});
+    s += T(M+10, t1b+10, '천장 2400 초과 시 2,000 + 나머지 지그재그 분할 — 2,000㎜ 판에 575×975 마블 스펀지 2장이 재단 없이 쏙 들어가 나머지 판만 재단',
+      {size:5.9, fill:'#4F585F'});
   }
 
   /* BOM */
-  const by0 = M+84 + t1.height + (m.lenSplits.some(o=>o.lens.length>1)? 40 : 28);
+  const by0 = M+84 + t1.height + (m.lenSplits.some(o=>o.lens.length>1)? 50 : 28);
   s += T(M+10, by0-8, '자재 산출표 (BOM)', {size:8.6, weight:800});
   s += T(M+10, by0+2, '원판 600×2400 기준 (폭별 1열 재단 · 길이 합 2.4m 이내 묶음 · 할증 12%)', {size:6, fill:'#7B8389'});
 
@@ -2060,11 +2194,12 @@ function sheetTables(m){
   const wy = ty+80;
   s += T(M+10, wy+6, '※ 확인 사항', {size:6.6, weight:800, fill:WARN});
   s += T(M+10, wy+18, '· 재단 치수는 제작팀 손도면(1500×1800 · 2000×2000 등)에서 확인한 600 모듈·자투리·조인트 여유 규칙으로 산출했습니다.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+29, '· 원판은 600×2400 — 길이 2400 이하 1장 = 1원판, 초과 시 '+splitModeName(m.lenSplit)+' 후 각 장 1원판으로 환산했습니다.', {size:6.2, fill:'#4F585F'});
+  s += T(M+10, wy+29, '· 원판은 600×2400 — 길이 2400 이하 1장 = 1원판. 초과 시 천장은 2000+나머지, 바닥·알판은 '+splitModeName(m.lenSplit)+' 후 각 장 1원판으로 환산했습니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+40, '· 문 면 자투리·현장 여유는 실측에 따라 ±10㎜ 보정하세요. 시공 전 바닥 수평·문 개폐 방향을 확인합니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+51, '· 65T 천장 마지막 판과 벽판 자투리는 손도면 값을 우선하며, 조인트 여유·분할 방식은 고급 설정에서 조정할 수 있습니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+62, '· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ' · 시창 위판 400−2='+m.winAbove+' (샷시 삽입 여유)' : ' · 시창은 상부 코스 100+800+100')+' — 재단표 반영.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+73, '· 천장 15T 세움 합판 보강 — 판과 판 사이 이음매마다 15T 합판을 세워 박고, 마지막 판 = 자투리 − 15×개소.', {size:6.2, fill:'#4F585F'});
+  s += T(M+10, wy+73, '· 천장 15T 세움 합판 보강 — 600 · 15T · 600 · 15T · … · 자투리 순으로 깔고, 마지막 판 = 자투리 − 15×개소.', {size:6.2, fill:'#4F585F'});
+  s += T(M+10, wy+84, '· 천장 600 열마다 [2000 | 나머지] ↔ [나머지 | 2000] 교차 — 이음선이 일자로 겹치지 않게 지그재그로 깝니다.', {size:6.2, fill:'#4F585F'});
 
   /* 발주 체크리스트 */
   const cy0 = wy + 96;
@@ -2502,7 +2637,7 @@ function verifyHTML(m){
     <p style="margin:0;color:#7B8389">프리셋을 누르면 제작팀 도면과 장수·치수를 나란히 대조해 볼 수 있습니다.</p>` + splitLine;
   const mineWall = m.cut.filter(c=>c.group==='벽판 95T PB' && c.w===m.MOD && c.l===1000).reduce((a,c)=>a+c.qty,0);
   const ok = mineWall === hit.wall;
-  const ceilTxt = m.ceil.pieces.map(p=>p.w+'×'+p.l).join(' · ');
+  const ceilTxt = merge(m.ceil.pieces.flatMap(st=>st.lens.map(L=>({w:st.w,l:L})))).map(p=>p.w+'×'+p.l+'×'+p.qty).join(', ');
   const wallLi = (m.winCount>0)
     ? `<li>벽판 600×1000 — 도면 <b>${hit.wall}</b>장 / 산출 <b>${mineWall}</b>장 <span style="color:#7B8389">(시창 열 ${m.winStackTxt}은 아래·위 판으로 별도 재단)</span></li>`
     : `<li>벽판 600×1000 — 도면 <b>${hit.wall}</b>장 / 산출 <b class="${ok?'ok':'no'}">${mineWall}</b>장 ${ok?'✓':'△'}</li>`;
