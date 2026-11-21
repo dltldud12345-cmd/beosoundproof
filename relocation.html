@@ -957,18 +957,23 @@
 
   function cardHTML(q){
     var st = q.status || "new";
+    /* 신규 부스 간편 견적(quote.html)은 같은 테이블에 brand="[신규부스]", from_region="신규설치" 로 저장됩니다. */
+    var isNew = String(q.brand || "").indexOf("[신규부스]") === 0;
     var photos = Array.isArray(q.photos) ? q.photos : [];
     var acts = ["new","contacted","done"].map(function(s){
       return '<button type="button" class="mini' + (st === s ? " on" : "") + '" data-set="' + s + '" data-id="' + esc(q.id) + '">' + LABEL[s] + '</button>';
     }).join("");
     return '<div class="qcard">'
-      + '<div class="t"><b>' + esc(q.customer_name || "이름 없음") + ' · ' + esc(q.booth_type || "유형 미상") + '</b>'
+      + '<div class="t"><b>' + esc(q.customer_name || "이름 없음") + ' · ' + esc(isNew ? "신규 부스 견적" : (q.booth_type || "유형 미상")) + '</b>'
         + '<span class="badge ' + esc(st) + '">' + esc(LABEL[st] || st) + '</span></div>'
       + '<div class="kv">'
         + '<span><b>연락처</b> <a href="tel:' + esc(digits(q.customer_phone)) + '">' + esc(q.customer_phone || "-") + '</a></span>'
-        + '<span><b>제조사</b> ' + esc(q.brand || "미기재") + ' · <b>크기</b> ' + esc(sizeLine(q)) + '</span>'
-        + '<span><b>해체</b> ' + esc(placeLine(q.from_region, q.from_floor, q.from_elevator)) + '</span>'
-        + '<span><b>설치</b> ' + esc(placeLine(q.to_region, q.to_floor, q.to_elevator)) + '</span>'
+        + (isNew
+            ? '<span><b>설치</b> ' + esc(placeLine(q.to_region, q.to_floor, q.to_elevator)) + '</span>'
+              + '<span><b>규격</b> ' + esc(sizeLine(q)) + '</span>'
+            : '<span><b>제조사</b> ' + esc(q.brand || "미기재") + ' · <b>크기</b> ' + esc(sizeLine(q)) + '</span>'
+              + '<span><b>해체</b> ' + esc(placeLine(q.from_region, q.from_floor, q.from_elevator)) + '</span>'
+              + '<span><b>설치</b> ' + esc(placeLine(q.to_region, q.to_floor, q.to_elevator)) + '</span>')
         + '<span><b>희망일</b> ' + esc(q.desired_date ? fmtDay(q.desired_date) : "미정") + (q.date_flexible ? " · 조율 가능" : "") + ' · <b>접수</b> ' + esc(fmtDate(q.created_at)) + ' · 사진 ' + photos.length + '장</span>'
       + '</div>'
       + (photos.length ? '<div class="shots-s">' + photos.map(function(u, i){
