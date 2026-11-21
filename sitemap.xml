@@ -2,36 +2,36 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://dltldud12345-cmd.github.io/beosoundproof/</loc>
+    <loc>https://beosoundproof.com/</loc>
     <lastmod>2026-11-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://dltldud12345-cmd.github.io/beosoundproof/assets/exterior-home.jpg</image:loc>
+      <image:loc>https://beosoundproof.com/assets/exterior-home.jpg</image:loc>
       <image:title>베오방음 방음부스 시공 사례</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://dltldud12345-cmd.github.io/beosoundproof/assets/hero-main.jpg</image:loc>
+      <image:loc>https://beosoundproof.com/assets/hero-main.jpg</image:loc>
       <image:title>베오방음 맞춤 방음부스</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://dltldud12345-cmd.github.io/beosoundproof/quote.html</loc>
+    <loc>https://beosoundproof.com/quote.html</loc>
     <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://dltldud12345-cmd.github.io/beosoundproof/assets/interior-door.jpg</image:loc>
+      <image:loc>https://beosoundproof.com/assets/interior-door.jpg</image:loc>
       <image:title>베오방음 신규 방음부스 내부</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://dltldud12345-cmd.github.io/beosoundproof/relocation.html</loc>
+    <loc>https://beosoundproof.com/relocation.html</loc>
     <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://dltldud12345-cmd.github.io/beosoundproof/assets/relocation-complete.jpg</image:loc>
+      <image:loc>https://beosoundproof.com/assets/relocation-complete.jpg</image:loc>
       <image:title>베오방음 방음부스 이전설치</image:title>
     </image:image>
   </url>
