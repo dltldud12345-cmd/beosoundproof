@@ -83,8 +83,9 @@ const DOOR_W = 0.86;
 /* 문은 항상 정면(가로 벽)에 있고 좌/가운데/우로만 이동합니다 */
 function doorX0Of(){
   const W = state.w/1000;
-  if (state.door === 'left')  return -W/2 + 0.07;
-  if (state.door === 'right') return  W/2 - 0.07 - DOOR_W;
+  /* 옆벽 두께(T) + 2cm 안쪽에 붙여 문틀이 옆벽을 파고들지 않게 합니다 */
+  if (state.door === 'left')  return -W/2 + T + 0.02;
+  if (state.door === 'right') return  W/2 - T - 0.02 - DOOR_W;
   return -DOOR_W/2;
 }
 const HINGES = [
@@ -1901,7 +1902,8 @@ function rebuild(){
     const sw = wallDesc(slatName).innerW;
     addPlate(walls[slatName], Math.min(sw/2 - 0.3, sw * 0.2), 0.34, 'outlet');
   }
-  addPlate(doorWall, doorX0 + doorW + 0.13, 1.14, 'switch');
+  const swX = state.door === 'right' ? doorX0 - 0.13 : doorX0 + doorW + 0.13;
+  addPlate(doorWall, swX, 1.14, 'switch');
 
   // 에어컨 라인 매설 표시
   if (state.ac){
