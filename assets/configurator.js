@@ -17,11 +17,11 @@ import * as THREE from './three.module.min.js';
 const PRICE = {
   base:    { ss: null, ssp: null, db: null, custom: null }, // 모델 기본가
   areaRate: null,
-  artboard:{ cream: null, ivory: null, warm: null, charcoal: null },
-  slat:    { oak: null, walnut: null, white: null },
+  artboard:{ beige: null, beige_d: null, white: null, gray_l: null, gray_d: null, black: null, orange: null, melon: null, green: null, sky: null, blue: null, pink: null },
+  slat:    { oak: null, walnut: null, white: null, whitewash: null, maple: null, teak: null, ash: null, dark: null },
   light:   { cob3000: null, cob4000: null, rail: null },
   floor:   { oak: null, wash: null, walnut: null },
-  door:    { front: null, left: null, right: null },
+  door:    { left: null, center: null, right: null },
   window1: null,
   window2: null,
   project: null,
