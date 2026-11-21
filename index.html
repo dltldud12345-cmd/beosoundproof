@@ -76,14 +76,14 @@
   .nav a:hover::after{transform:scaleX(1)}
   .nav a[aria-current]{color:var(--ink)}
   .nav a[aria-current]::after{transform:scaleX(1)}
-  .head-cta{display:inline-flex}
-  .nav a.nav-reloc{
+  /* 두 서비스 진입 메뉴(신규 설치 문의 · 이전설치 견적)를 같은 톤·같은 크기의 필로 묶어 균형을 맞춤 */
+  .nav a.nav-pill{
     display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
     padding:7px 13px;border-radius:999px;background:var(--accent-tint);
     color:var(--accent-dark);font-weight:800;transition:background .2s,color .2s;
   }
-  .nav a.nav-reloc::after{display:none}
-  .nav a.nav-reloc:hover{background:#DCEBE6;color:var(--accent-dark)}
+  .nav a.nav-pill::after{display:none}
+  .nav a.nav-pill:hover{background:#DCEBE6;color:var(--accent-dark)}
 
   .burger{
     display:none;width:46px;height:46px;padding:0;border:1px solid var(--line);
@@ -105,9 +105,9 @@
   .drawer a{display:block;padding:15px 2px;font-size:16px;font-weight:600;border-bottom:1px solid var(--line-soft)}
   .drawer a:last-of-type{border-bottom:0}
   .drawer .drawer-cta{margin-top:14px;width:100%;border-bottom:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 20px}
-  .drawer a.drawer-reloc{color:var(--accent-dark);font-weight:800}
-  .drawer a.drawer-reloc span{display:inline-block;margin-left:2px;transition:transform .2s var(--ease)}
-  .drawer a.drawer-reloc:hover span{transform:translateX(3px)}
+  .drawer a.drawer-pill{color:var(--accent-dark);font-weight:800}
+  .drawer a.drawer-pill span{display:inline-block;margin-left:2px;transition:transform .2s var(--ease)}
+  .drawer a.drawer-pill:hover span{transform:translateX(3px)}
 
   /* ============ buttons ============ */
   .btn{
@@ -573,7 +573,6 @@
 
   /* ============ responsive ============ */
   @media (max-width:1119px){
-    .head-cta{display:none}
     .nav{gap:18px;font-size:14px}
   }
   @media (max-width:1020px){
@@ -594,7 +593,7 @@
     .used-points div:last-child{border-bottom:1px solid var(--line)}
   }
   @media (max-width:880px){
-    .nav,.head-cta{display:none}
+    .nav{display:none}
     .burger{display:flex}
     .site-head .inner{height:64px}
     .hero{min-height:calc(100vh - 64px);min-height:calc(100svh - 64px)}
@@ -832,12 +831,10 @@
       <a href="#portfolio">시공사례</a>
       <a href="#products">제품안내</a>
       <a href="#used">중고매물</a>
-      <a class="nav-reloc" href="relocation.html">이전설치 견적 <span aria-hidden="true">→</span></a>
       <a href="#reviews">사용후기</a>
-      <a href="#contact">상담문의</a>
+      <a class="nav-pill" href="#contact">신규 설치 문의 <span aria-hidden="true">→</span></a>
+      <a class="nav-pill" href="relocation.html">이전설치 견적 <span aria-hidden="true">→</span></a>
     </nav>
-
-    <a class="btn btn-primary head-cta" href="#contact">무료 견적 상담</a>
 
     <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="drawer">
       <span></span><span></span><span></span>
@@ -849,9 +846,9 @@
     <a href="#portfolio">시공사례</a>
     <a href="#products">제품안내</a>
     <a href="#used">중고매물</a>
-    <a class="drawer-reloc" href="relocation.html">이전설치 간편 견적 <span aria-hidden="true">→</span></a>
     <a href="#reviews">사용후기</a>
-    <a href="#contact">상담문의</a>
+    <a class="drawer-pill" href="#contact">신규 설치 문의 <span aria-hidden="true">→</span></a>
+    <a class="drawer-pill" href="relocation.html">이전설치 간편 견적 <span aria-hidden="true">→</span></a>
     <a class="btn btn-primary drawer-cta" href="tel:01030015906">전화 상담 010-3001-5906</a>
   </div>
 </header>
