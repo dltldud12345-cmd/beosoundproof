@@ -76,10 +76,18 @@ const FLOOR = [
   { v:'walnut', label:'다크 월넛',  hex:'#5A4536', grain:'#2E1E13' }
 ];
 const DOORS = [
-  { v:'front', label:'정면', theta:0 },
-  { v:'left',  label:'좌측', theta:-Math.PI/2 },
-  { v:'right', label:'우측', theta:Math.PI/2 }
+  { v:'left',   label:'좌측 구석' },
+  { v:'center', label:'가운데' },
+  { v:'right',  label:'우측 구석' }
 ];
+const DOOR_W = 0.86;
+/* 문은 항상 정면(가로 벽)에 있고 좌/가운데/우로만 이동합니다 */
+function doorX0Of(){
+  const W = state.w/1000;
+  if (state.door === 'left')  return -W/2 + 0.07;
+  if (state.door === 'right') return  W/2 - 0.07 - DOOR_W;
+  return -DOOR_W/2;
+}
 const HINGES = [
   { v:'right', label:'우경첩' },
   { v:'left',  label:'좌경첩' }
@@ -99,7 +107,7 @@ const PRESETS = [
   { id:'dark',   label:'모던 다크',       sw:['#737A82','#5B483A','#584234'], set:{ artboard:'gray_d', slat:'dark',      floor:'walnut', light:'cob3000' } },
   { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C9A472'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
 ];
-const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000' };
+const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000', door:'center' };
 const INCLUDED = ['세로 2구 콘센트','강화마루','3면 아트보드','1면 라인타공','COB 매립등·중앙 LED등','시스템도어'];
 const PHONE = '010-3001-5906';
 const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
@@ -107,7 +115,7 @@ const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
 const state = {
   model:'ss', w:1500, d:1800,
   artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000',
-  door:'front', hinge:'right', open:false, window:'none', project:'none', ac:false,
+  door:'center', hinge:'right', open:false, window:'none', project:'none', ac:false,
   view:'exterior'
 };
 
@@ -199,7 +207,7 @@ function buildPanel(){
       <div class="sec-h"><span class="n">06</span><h2>옵션</h2><span class="tag">견적서에 미리 표기</span></div>
 
       <div class="row" style="display:block;padding-top:0">
-        <div class="rl" style="margin-bottom:8px"><b>문 위치</b><small>현장 동선에 맞춰 정면·좌측·우측 중에서</small></div>
+        <div class="rl" style="margin-bottom:8px"><b>문 위치</b><small>문이 있는 쪽이 정면입니다 · 정면 가로 벽에서 좌우로</small></div>
         <div class="seg">
           ${DOORS.map(d => `<button type="button" data-group="door" data-value="${d.v}" aria-pressed="false">${d.label}</button>`).join('')}
         </div>
@@ -310,7 +318,7 @@ function specRows(){
   rows.push({ k:'조명', v:(state.light === 'rail' ? '레일등' : `COB 매립등 ${l.temp}K`), chg:state.light !== DEFAULTS.light, chip:'', sub:(state.light === 'rail' ? '대형 공간' : l.sub) });
   rows.push({ k:'중앙등', v:pick(LEDTEMP, state.ledTemp).label, chg:state.ledTemp !== DEFAULTS.ledTemp, chip:pick(LEDTEMP, state.ledTemp).hex, sub:'천장 원형' });
   rows.push({ k:'바닥', v:f.label, chg:state.floor !== DEFAULTS.floor, chip:f.hex, sub:'강화마루' });
-  rows.push({ k:'문', v:`${d.label} · ${state.hinge === 'right' ? '우경첩' : '좌경첩'}`, chg:(state.door !== 'front' || state.hinge !== 'right'), chip:'', sub:'시스템도어' });
+  rows.push({ k:'문', v:`${d.label} · ${state.hinge === 'right' ? '우경첩' : '좌경첩'}`, chg:(state.door !== DEFAULTS.door || state.hinge !== 'right'), chip:'', sub:'시스템도어' });
   rows.push({ k:'시창', v:(state.window === 'none' ? '없음' : `400×800 ${state.window}개`), chg:state.window !== 'none', chip:'', sub:'' });
   rows.push({ k:'프로젝트창', v:(state.project === 'in' ? '포함' : '없음'), chg:state.project === 'in', chip:'', sub:'천장 개폐형' });
   rows.push({ k:'에어컨 라인', v:(state.ac ? '벽체 매설' : '미포함'), chg:state.ac, chip:'', sub:'' });
@@ -1105,7 +1113,11 @@ function buildWallGroup(name, openings, opts){
   outer.position.z = -T/2 - 0.0012;
   outer.receiveShadow = true;
   g.add(outer);
-  addOuterTrims(g, w, openings);
+  g.userData.outer = outer;
+  const outerTrims = new THREE.Group();
+  g.add(outerTrims);
+  addOuterTrims(outerTrims, w, openings);
+  g.userData.outerTrims = outerTrims;
   if (!opts || !opts.noInner){
     addSkirting(g, d.innerW, openings);
     addCeilReveal(g, d.innerW);
@@ -1213,7 +1225,7 @@ function holePanel(w, h, t, holes, mat){
       if (cw < 0.003 || ch < 0.003) continue;
       const inside = holes.some(o => cx0 >= o.x0 - 1e-4 && cx1 <= o.x0 + o.w + 1e-4 && cy0 >= o.y0 - 1e-4 && cy1 <= o.y0 + o.h + 1e-4);
       if (inside) continue;
-      const m = new THREE.Mesh(new THREE.BoxGeometry(cw, ch, t), mat);
+      const m = new THREE.Mesh(new THREE.BoxGeometry(cw + 0.0016, ch + 0.0016, t), mat);
       m.position.set((cx0 + cx1)/2, (cy0 + cy1)/2, 0);
       m.castShadow = true; m.receiveShadow = true;
       grp.add(m);
@@ -1398,9 +1410,9 @@ function buildCobDownlight(colorTemp){
   const refl = new THREE.Mesh(
     new THREE.CylinderGeometry(0.029, 0.0485, 0.046, 40, 1, true),
     new THREE.MeshStandardMaterial({
-      color: 0xE4DED2, metalness: 0.25, roughness: 0.48,
-      side: THREE.DoubleSide, envMapIntensity: 0.8,
-      emissive: col, emissiveIntensity: 0.42
+      color: 0x8A8378, metalness: 0.45, roughness: 0.38,
+      side: THREE.DoubleSide, envMapIntensity: 0.9,
+      emissive: col, emissiveIntensity: 0.26
     })
   );
   refl.position.y = 0.028;
@@ -1410,7 +1422,7 @@ function buildCobDownlight(colorTemp){
   const throat = new THREE.Mesh(
     new THREE.CylinderGeometry(0.0295, 0.0479, 0.044, 36, 1, true),
     new THREE.MeshBasicMaterial({
-      color: lightGlowColor(), transparent: true, opacity: 0.42,
+      color: lightGlowColor(), transparent: true, opacity: 0.20,
       blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
     })
   );
@@ -1420,9 +1432,9 @@ function buildCobDownlight(colorTemp){
 
   // COB 발광면
   const lens = new THREE.Mesh(
-    new THREE.CircleGeometry(0.0295, 36),
+    new THREE.CircleGeometry(0.026, 36),
     new THREE.MeshStandardMaterial({
-      color: 0x14140F, emissive: col, emissiveIntensity: 6.2,
+      color: 0x14140F, emissive: col, emissiveIntensity: 3.4,
       roughness: 0.45, metalness: 0
     })
   );
@@ -1435,7 +1447,7 @@ function buildCobDownlight(colorTemp){
     new THREE.CircleGeometry(0.044, 40),
     new THREE.MeshBasicMaterial({
       map: glowTexture(), color: lightGlowColor(), transparent: true,
-      depthWrite: false, opacity: 0.55
+      depthWrite: false, opacity: 0.34
     })
   );
   aperture.rotation.x = Math.PI / 2;
@@ -1466,7 +1478,7 @@ function buildCobDownlight(colorTemp){
     new THREE.PlaneGeometry(0.56, 0.56),
     new THREE.MeshBasicMaterial({
       map: glowTexture(), color: lightGlowColor(), transparent: true,
-      blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.18
+      blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.13
     })
   );
   halo.rotation.x = Math.PI / 2;
@@ -1476,10 +1488,10 @@ function buildCobDownlight(colorTemp){
 
   // 렌즈 자체 발광 번짐 (정면에서 봤을 때 빛무리)
   const spark = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.115, 0.115),
+    new THREE.PlaneGeometry(0.095, 0.095),
     new THREE.MeshBasicMaterial({
       map: glowTexture(), color: lightGlowColor(), transparent: true,
-      blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.55
+      blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.30
     })
   );
   spark.rotation.x = Math.PI / 2;
@@ -1751,11 +1763,11 @@ function rebuild(){
   booth.name = 'booth';
 
   const W = state.w/1000, D = state.d/1000;
-  const doorName = state.door;
-  const slatName = { front:'back', left:'right', right:'left' }[doorName];
-  const perp = { front:['left','right'], left:['front','back'], right:['front','back'] }[doorName];
+  const doorName = 'front';
+  const slatName = 'back';
+  const perp = ['left','right'];
 
-  const doorX0 = -0.43, doorW = 0.86;
+  const doorX0 = doorX0Of(), doorW = DOOR_W;
   const doorOpen = { x0: doorX0, y0: 0, w: doorW, h: H };
   const winOpen = { x0: -0.2, y0: 1.08, w: 0.4, h: 0.8 };
 
@@ -1821,10 +1833,10 @@ function rebuild(){
   const cf = new THREE.Group();
   const cfMat = trimsMat();
   const cfBars = [];
-  if (doorName !== 'back')   cfBars.push([W, 0.03, 0.03, 0, -(D/2 - 0.015)]);
-  if (doorName !== 'front')  cfBars.push([W, 0.03, 0.03, 0, D/2 - 0.015]);
-  if (doorName !== 'left')   cfBars.push([0.03, 0.03, D - 0.06, -(W/2 - 0.015), 0]);
-  if (doorName !== 'right')  cfBars.push([0.03, 0.03, D - 0.06, W/2 - 0.015, 0]);
+  cfBars.push([W, 0.03, 0.03, 0, -(D/2 - 0.015)]);
+  cfBars.push([W, 0.03, 0.03, 0, D/2 - 0.015]);
+  cfBars.push([0.03, 0.03, D - 0.06, -(W/2 - 0.015), 0]);
+  cfBars.push([0.03, 0.03, D - 0.06, W/2 - 0.015, 0]);
   cfBars.forEach(([bw, bh, bd, bx, bz]) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), cfMat);
     m.position.set(bx, H - 0.014, bz);
@@ -1856,7 +1868,7 @@ function rebuild(){
     const sw = wallDesc(slatName).innerW;
     addPlate(walls[slatName], Math.min(sw/2 - 0.3, sw * 0.2), 0.34, 'outlet');
   }
-  addPlate(doorWall, doorX0 - 0.13, 1.14, 'switch');
+  addPlate(doorWall, doorX0 + doorW + 0.13, 1.14, 'switch');
 
   // 에어컨 라인 매설 표시
   if (state.ac){
@@ -1871,6 +1883,7 @@ function rebuild(){
     aw2.add(groove);
   }
 
+  parts.walls = walls;
   booth.updateMatrixWorld(true);
   buildHotspots(walls, slatName, doorName, perp);
   buildDimensions(W, D);
@@ -1916,18 +1929,18 @@ function buildDoor(g, o, slatName){
   // 상부 트랜섬
   const transH = 0.15;
   const trans = new THREE.Mesh(new THREE.BoxGeometry(o.w - 0.012, transH, 0.05), white);
-  trans.position.set(o.x0 + o.w/2, o.h - transH/2 - 0.006, zc - 0.026);
+  trans.position.set(o.x0 + o.w/2, o.h - jamb - transH/2 + 0.004, zc - 0.026);
   trans.castShadow = true; trans.receiveShadow = true;
   g.add(trans);
   const tGasket = new THREE.Mesh(new THREE.BoxGeometry(o.w - 0.01, 0.01, 0.03), gasket);
-  tGasket.position.set(o.x0 + o.w/2, o.h - transH - 0.011, zc - 0.026);
+  tGasket.position.set(o.x0 + o.w/2, o.h - jamb - transH + 0.004, zc - 0.026);
   g.add(tGasket);
 
   // 문짝
   const hingeRight = state.hinge === 'right';
   const dir = hingeRight ? -1 : 1;
   const pivotX = hingeRight ? (o.x0 + o.w - 0.015) : (o.x0 + 0.015);
-  const leafW = o.w - 0.03, leafH = o.h - transH - 0.05;
+  const leafW = o.w - 0.03, leafH = o.h - jamb - transH + 0.004 - 0.006;
   const pivot = new THREE.Group();
   pivot.position.set(pivotX, 0.012, zc - 0.03);
   g.add(pivot);
@@ -1936,6 +1949,8 @@ function buildDoor(g, o, slatName){
   const holes = [{ x0: dir * 0.02 - glassW/2, y0: -leafH/2 + 0.34, w: glassW, h: glassH }];
   const leaf = holePanel(leafW, leafH, 0.046, holes, white);
   leaf.position.set(dir * leafW/2, leafH/2, 0);
+  // 얇은 판재는 자기 그림자 아크네(점선)가 생기므로 문짝 자체는 그림자를 던지지 않습니다
+  leaf.traverse(o => { if (o.isMesh){ o.castShadow = false; o.receiveShadow = false; } });
   pivot.add(leaf);
 
   const glassY = 0.012 + 0.34 + glassH/2;
@@ -2149,7 +2164,7 @@ function buildHotspots(walls, slatName, doorName, perp){
   }
   const dw = walls[doorName];
   if (dw){
-    addHotspot(wallPoint(doorName, 0, 1.25, T/2).addScaledVector(wallInward(doorName), 0.06), '시스템도어', 'out');
+    addHotspot(wallPoint(doorName, doorX0Of() + DOOR_W/2, 1.25, T/2).addScaledVector(wallInward(doorName), 0.06), '시스템도어', 'out');
   }
   if (state.window !== 'none'){
     addHotspot(wallPoint(perp[0], 0, 1.52, T/2).addScaledVector(wallInward(perp[0]), 0.05), '시창 400×800');
@@ -2171,25 +2186,18 @@ function aspectFactor(){
   const a = camera.aspect;
   return a >= 1 ? 1 : Math.pow(1/a, 0.86);
 }
-function slatWallOfDoor(){
-  return { front:'back', left:'right', right:'left' }[state.door] || 'back';
-}
+function slatWallOfDoor(){ return 'back'; }
+function doorCenterX(){ return doorX0Of() + DOOR_W/2; }
 function interiorSetup(){
-  const name = slatWallOfDoor();
-  const d = wallDesc(name);
-  const dist = Math.hypot(d.pos[0], d.pos[2]);
-  const back = (0.42 + T/2) / dist;
-  const tx = d.pos[0] * (1 - back);
-  const tz = d.pos[2] * (1 - back);
-  const doorTheta = pick(DOORS, state.door).theta;
-  const theta = doorTheta + 0.62;
-  const phi = 1.575;
-  const W = state.w/1000;
-  const lateral = -0.30 * W;
-  const tg = wallPoint(name, lateral, 1.02, T/2).addScaledVector(wallInward(name), 0.32);
-  const ty = tg.y;
-  const r = Math.max(0.6, maxInsideR(theta, phi, tg.x, ty, tg.z) * 0.97);
-  return { theta, phi, r, ty, tx: tg.x, tz: tg.z, fov: isSmall() ? 84 : 72 };
+  /* 문 쪽에 서서 라인타공(문 맞은편) 정면을 바라보는 구도 — 좌우 아트보드와
+     천장 COB 매립등, 하단 마루까지 한 화면에 들어옵니다. */
+  const W = state.w/1000, D = state.d/1000;
+  const tz = -(D/2 - 0.06);      // 라인타공 벽면 살짝 앞
+  const ty = 1.31;               // 눈높이 아래를 살짝 내려다보는 타깃
+  const camZ = D/2 - 0.18;       // 문 쪽에 선 카메라
+  const phi = 1.472;
+  const r = Math.max(0.6, (camZ - tz) / Math.sin(phi));
+  return { theta: 0.0, phi, r, ty, tx: 0, tz, fov: isSmall() ? 78 : 70 };
 }
 /* 시점 중심에서 방 안을 벗어나지 않는 최대 반경 */
 function maxInsideR(theta, phi, tx, ty, tz){
@@ -2214,13 +2222,13 @@ function maxInsideR(theta, phi, tx, ty, tz){
 function viewSettings(name){
   const W = state.w/1000, D = state.d/1000;
   const S = Math.hypot(W, D) * 0.94;
-  const doorTheta = pick(DOORS, state.door).theta;
   const base = (S * 2.7 + 1.4) * aspectFactor() * (isSmall() ? 0.93 : 1);
+  const dx = doorCenterX();
   switch (name){
     case 'interior': return interiorSetup();
-    case 'door':     return { theta: doorTheta + 0.14, phi: 1.44, r: base * 1.1, ty: 1.1, tx: 0, tz: 0, fov: 28 };
-    case 'top':      return { theta: doorTheta + 0.45, phi: 0.20, r: base * 0.98, ty: 0.35, tx: 0, tz: 0, fov: 36 };
-    default:         return { theta: doorTheta + 0.62, phi: 1.13, r: base * 1.0, ty: 0.92, tx: 0, tz: 0, fov: 38 };
+    case 'door':     return { theta: 0.0, phi: 1.445, r: base * 0.86, ty: 1.0, tx: dx, tz: 0, fov: 30 };
+    case 'top':      return { theta: 0.45, phi: 0.20, r: base * 0.98, ty: 0.35, tx: 0, tz: 0, fov: 36 };
+    default:         return { theta: 0.62, phi: 1.13, r: base * 1.0, ty: 0.92, tx: 0, tz: 0, fov: 38 };
   }
 }
 function setView(name, force = false){
@@ -2282,6 +2290,16 @@ function applyViewState(){
   if (parts.ceilFrame) parts.ceilFrame.visible = top;
   if (dimGroup) dimGroup.visible = top;
   if (parts.lightGroup) parts.lightGroup.visible = true;
+  if (!interior && parts.walls){
+    Object.keys(parts.walls).forEach(k => {
+      const g = parts.walls[k];
+      if (!g) return;
+      g.visible = true;
+      if (g.userData.outer) g.userData.outer.visible = true;
+      if (g.userData.outerTrims) g.userData.outerTrims.visible = true;
+    });
+  }
+  if (interior) updateInteriorVisibility();
   if (parts.fillLight){
     parts.fillLight.intensity = interior ? TUNE.interiorFill : TUNE.interiorFill * 0.16;
     parts.fillLight.position.set(0, 1.35, 0);
@@ -2290,6 +2308,28 @@ function applyViewState(){
   if (parts.hemi) parts.hemi.intensity = interior ? TUNE.hemi * 0.7 : TUNE.hemi;
 }
 
+
+/* ---- 내부 보기: 카메라와 방 중심 사이를 가로막는 벽만 숨김 (360° 컷어웨이) ---- */
+const _camW = new THREE.Vector3();
+function updateInteriorVisibility(){
+  const walls = parts.walls;
+  if (!walls) return;
+  const W = state.w/1000, D = state.d/1000;
+  ['front','back','left','right'].forEach(name => {
+    const g = walls[name];
+    if (!g) return;
+    const outward = wallInward(name).negate();
+    const c = wallPoint(name, 0, 0, 0);
+    const d = outward.dot(_camW.copy(camera.position).sub(c));
+    // 카메라가 벽 바깥(또는 벽면)에 있으면 그 벽은 시야를 가리므로 숨깁니다
+    g.visible = d < -0.02;
+    // 안쪽 시점에서는 바깥쪽 흰 알판·외부 몰딩을 벗겨 단면처럼 보이게 합니다
+    if (g.userData.outer) g.userData.outer.visible = false;
+    if (g.userData.outerTrims) g.userData.outerTrims.visible = false;
+  });
+  // 카메라가 천장 위로 올라가면 천장도 숨김
+  if (parts.ceiling) parts.ceiling.visible = camera.position.y < H - 0.06;
+}
 /* ---- 입력 ---- */
 function initControls(){
   const pointers = new Map();
@@ -2343,7 +2383,7 @@ function initControls(){
 function clampR(r){
   if (state.view === 'interior'){
     const lim = maxInsideR(cam.theta, cam.phi, cam.tx, cam.ty, cam.tz);
-    return Math.max(0.30, Math.min(lim, r));
+    return Math.max(0.34, Math.min(lim * 2.25, r));
   }
   const v = viewSettings(state.view);
   return Math.max(v.r * 0.45, Math.min(v.r * 1.9, r));
@@ -2392,6 +2432,7 @@ function tick(){
     if (t >= 1){ camAnim = 0; Object.assign(camTarget, { theta: cam.theta, phi: cam.phi, r: cam.r, ty: cam.ty, fov: cam.fov, tx: cam.tx, tz: cam.tz }); }
   }
   updateCameraState();
+  if (state.view === 'interior') updateInteriorVisibility();
   if (parts.doorPivot){
     const pv = parts.doorPivot;
     const target = state.open ? pv.userData.dir * DOOR_OPEN : 0;
