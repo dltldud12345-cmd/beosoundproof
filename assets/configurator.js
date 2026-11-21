@@ -1589,8 +1589,18 @@ function setView(name, force = false){
 function fitCamera(immediate){
   if (!camera) return;
   const v = viewSettings(state.view);
-  camTarget.r = v.r; camTarget.ty = v.ty;
-  if (immediate){ cam.r = v.r; cam.ty = v.ty; }
+  camTarget.r = v.r;
+  camTarget.ty = v.ty;
+  // 현재 각도는 유지한 채 거리만 다시 맞춥니다
+  camTarget.theta = cam.theta;
+  camTarget.phi = cam.phi;
+  camTarget.fov = cam.fov;
+  if (immediate){
+    cam.r = v.r; cam.ty = v.ty;
+    camAnim = 0;
+  } else {
+    camAnim = performance.now();
+  }
 }
 function updateCameraState(){
   cam.phi = Math.max(0.08, Math.min(1.52, cam.phi));
