@@ -898,15 +898,16 @@ function sheetElevation(m){
       if(doorP) parts.push(Math.round(doorP.w)+' 문');
       if(modN) parts.push(modN+'×600');
       residN.forEach(r=>parts.push(String(r)));
-      o += T(x+sw/2, y+hh+13, m.sideName[side.k]+' · '+side.span, {size:6.6, anchor:'middle', weight:700});
-      o += T(x+sw/2, y+hh+21, parts.join(' + '), {size:5.8, anchor:'middle', fill:'#7B8389', mono:true});
+      o += dimH(x, x+sw, y+hh+7, side.span, {size:5.6, labelY:y+hh+4.4});
+      o += T(x+sw/2, y+hh+16, m.sideName[side.k], {size:6.6, anchor:'middle', weight:700});
+      o += T(x+sw/2, y+hh+24, parts.join(' + '), {size:5.8, anchor:'middle', fill:'#7B8389', mono:true});
     }
     return o;
   };
 
   /* ---------- 4면 전개 ---------- */
   const totalSpan = sum(m.sides.map(x=>x.span));
-  const availW = SW-2*M-40, availH = 236;
+  const availW = SW-2*M-40, availH = 286;
   const sc = Math.min(availW/(totalSpan+54), availH/(m.H+70));
   const gap = 12;
   let x = M+20, y = M+96;
@@ -921,7 +922,7 @@ function sheetElevation(m){
   s += T(M+20, y-16, '축척 약 1 : '+Math.round(3.7795/sc), {size:5.8, fill:SOFT});
 
   /* ---------- 벽체 단면 (수평) ---------- */
-  const sy = y + m.H*sc + 54;
+  const sy = y + m.H*sc + 62;
   s += T(M+20, sy, '벽체 단면 · 완성 120㎜ (외부 → 내부)', {size:8.4, weight:800});
   s += T(M+20, sy+10, 'PB 95T 5겹(18T×5) + 9T 알판(외부) + 9T 아트보드(내부)', {size:6, fill:'#7B8389'});
 
@@ -931,13 +932,16 @@ function sheetElevation(m){
     {t:9,  name:'9T 아트보드',    fill:'#EDE7DC'},
     {t:7,  name:'여유',           fill:'#F3E3D6'}
   ];
-  const sx0 = M+60, sy0 = sy+28, pxPerMm = 3.3, sech = 116;
+  const sx0 = M+54, sy0 = sy+28, pxPerMm = 2.95, sech = 112;
   let ax = sx0;
   layers.forEach(l=>{
     const wpx = l.t*pxPerMm;
     s += R(ax, sy0, wpx, sech, {fill:l.fill, stroke:INK, sw:0.7});
-    const lab = l.name+' ('+l.t+')';
-    if(wpx > 60) s += T(ax+wpx/2, sy0+sech/2+2.4, l.name, {size:6.2, anchor:'middle', fill:'#3B4248'});
+    if(wpx > 62){
+      s += T(ax+wpx/2, sy0+sech/2+2.4, l.name, {size:6.2, anchor:'middle', fill:'#3B4248'});
+    } else {
+      s += `<g transform="rotate(-90 ${n(ax+wpx/2)} ${n(sy0+sech/2)})">${T(ax+wpx/2, sy0+sech/2+2, l.name, {size:5.2, anchor:'middle', fill:'#3B4248'})}</g>`;
+    }
     s += T(ax+wpx/2, sy0+sech+11, l.t, {size:5.6, anchor:'middle', mono:true, fill:DIMC});
     ax += wpx;
   });
@@ -948,8 +952,8 @@ function sheetElevation(m){
 
   /* ---------- 문 면 상세 입면 ---------- */
   const dside = m.sides.find(v=>v.k===m.doorSide);
-  const dsc = Math.min(230/(dside.span), 340/(m.H));
-  const ddx = 470, ddy = sy+22;
+  const dsc = Math.min(224/(dside.span), 352/(m.H));
+  const ddx = 508, ddy = sy+26;
   s += T(ddx, sy, '문 면 상세 입면 (1 : '+Math.round(3.7795/dsc)+')', {size:8.4, weight:800});
   s += drawWall(dside, ddx, ddy, dsc, {big:true, labels:false});
   s += dimH(ddx, ddx+dside.span*dsc, ddy+m.H*dsc+14, dside.span, {size:6.2});
@@ -959,7 +963,7 @@ function sheetElevation(m){
   s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+34, m.fillH, {size:5.4});
 
   /* ---------- 시공 메모 ---------- */
-  const ny = 902;
+  const ny = 872;
   s += R(M+16, ny, SW-2*M-32, 82, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
   s += T(M+24, ny+27, '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.', {size:6.4});
