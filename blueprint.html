@@ -990,7 +990,7 @@ function svgTable(x,y,w,cols,rows,opt={}){
   s += R(x,y,w,headH,{fill:INK,stroke:INK,sw:0.6});
   cols.forEach((c,i)=>{
     const right = c.align==='right', mid=c.align==='center';
-    const tx = right? xs[i+1]-3 : (mid? (xs[i]+xs[i+1])/2 : xs[i]+3.5);
+    const tx = right? xs[i+1]-5 : (mid? (xs[i]+xs[i+1])/2 : xs[i]+5);
     s += T(tx, y+headH-4.8, c.label, {size:fs-0.2, fill:'#fff', weight:700, anchor: right?'end':(mid?'middle':'start'), ls:'0.03em'});
   });
   cy = y+headH;
@@ -1007,7 +1007,7 @@ function svgTable(x,y,w,cols,rows,opt={}){
     r.cells.forEach((cell,i)=>{
       const c=cols[i];
       const right = c.align==='right', mid=c.align==='center';
-      const tx = right? xs[i+1]-3 : (mid? (xs[i]+xs[i+1])/2 : xs[i]+3.5);
+      const tx = right? xs[i+1]-5 : (mid? (xs[i]+xs[i+1])/2 : xs[i]+5);
       s += T(tx, cy+hh-4.4, cell, {size:fs, anchor: right?'end':(mid?'middle':'start'), fill: i===0? '#2E353B':'#14171A', weight: i===2? 700:400, mono: c.mono!==false});
     });
     cy += hh;
@@ -1037,10 +1037,10 @@ function sheetTables(m){
   });
 
   const t1 = svgTable(M+10, M+84, SW-2*M-20, [
-    {label:'재단 규격 (가로 × 세로, ㎜)', w:2.0},
-    {label:'수량', w:.55, align:'center'},
-    {label:'면적', w:.85, align:'right'},
-    {label:'부위 · 근거', w:2.4}
+    {label:'재단 규격 (가로 × 세로, ㎜)', w:1.85},
+    {label:'수량', w:.5, align:'center'},
+    {label:'면적', w:.95, align:'right'},
+    {label:'부위 · 근거', w:2.5}
   ], rows, {rowH:12.4, fs:6.6});
 
   s += t1.svg;
@@ -1083,6 +1083,32 @@ function sheetTables(m){
   s += T(M+10, wy+18, '· 재단 치수는 제작팀 손도면(1500×1800 · 2000×2000 등)에서 확인한 600 모듈·자투리·조인트 여유 규칙으로 산출했습니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+29, '· 문 면 자투리·현장 여유는 실측에 따라 ±10㎜ 보정하세요. 시공 전 바닥 수평·문 개폐 방향을 확인합니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+40, '· 65T 천장 마지막 판과 벽판 자투리는 손도면 값을 우선하며, 조인트 여유는 고급 설정에서 조정할 수 있습니다.', {size:6.2, fill:'#4F585F'});
+
+  /* 발주 체크리스트 */
+  const cy0 = wy + 62;
+  s += R(M+10, cy0, SW-2*M-20, 96, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  s += T(M+18, cy0+14, '발주 · 준비 체크리스트', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
+  const chk = [
+    ['PB 18T (바닥 2겹)', m.bom[0].sheets+'장'],
+    ['PB 18T (벽판 5겹)', m.bom[1].sheets+'장'],
+    ['천장 65T', m.bom[2].amount+'㎡'],
+    ['합판 18T (코너)', '1장'],
+    ['백색 알판', m.bom[4].sheets+'장'],
+    ['9T 아트보드', m.bom[5].sheets+'장'],
+    ['고밀도 흡음재', m.bom[6].amount+'㎡'],
+    ['강화마루', m.bom[7].note],
+    ['45T 몰딩', m.bom[8].sheets+'개'],
+    ['시스템도어', '1세트'],
+    ['시창 아크릴', m.winCount? m.winCount+'개':'—'],
+    ['실리콘·피스·압착', '현장 준비']
+  ];
+  chk.forEach((c,i)=>{
+    const col = i%3, row = Math.floor(i/3);
+    const cx = M+22 + col*((SW-2*M-60)/3), cyy = cy0+30+row*16;
+    s += R(cx, cyy-7, 7, 7, {fill:'#fff', stroke:'#8A939A', sw:0.7});
+    s += T(cx+12, cyy, c[0], {size:6.2, fill:'#4F585F'});
+    s += T(cx+12+96, cyy, c[1], {size:6.2, weight:700, mono:true});
+  });
 
   s += titleBlock(m,{no:'A-104',title:'재단표·자재표',scale:'N.T.S'});
   return sheetShell(s);
