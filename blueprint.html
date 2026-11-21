@@ -75,6 +75,15 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip{appearance:none;border:1px solid var(--line);background:#fff;font:inherit;font-size:11.5px;font-weight:600;color:var(--ink2);padding:6px 9px;border-radius:8px;cursor:pointer;transition:.14s;font-variant-numeric:tabular-nums}
   .chip:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-t)}
+  input[type=range]{width:100%;height:22px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
+  input[type=range]:disabled{opacity:.45;cursor:default}
+  .posbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;font-size:10.5px;color:var(--muted)}
+  .posbar b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:11.5px}
+  .mini{appearance:none;border:1px solid var(--line);background:#fff;font:inherit;font-size:10.5px;font-weight:700;color:var(--ink2);padding:5px 9px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:.14s}
+  .mini:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-t)}
+  .warnline{color:var(--warn);font-weight:600}
+  .wg{cursor:ew-resize;touch-action:none}
+  body.dragging{user-select:none;-webkit-user-select:none;cursor:ew-resize}
   .switch{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:600;color:var(--ink2)}
   .switch input{appearance:none;width:38px;height:21px;border-radius:99px;background:#D8D2C6;position:relative;cursor:pointer;transition:.18s;flex:none;margin:0}
   .switch input::after{content:"";position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
@@ -216,7 +225,14 @@
 
     <section class="card">
       <h2>시창</h2>
-      <div class="switch" style="margin-bottom:11px"><span>시창 넣기</span><input type="checkbox" id="winOn"></div>
+      <div class="field"><label>시창 규격 <span class="hint">한 번 눌러 적용</span></label>
+        <div class="seg" id="winSpec">
+          <button data-v="none" aria-pressed="true">없음</button>
+          <button data-v="400x800" aria-pressed="false">400×800</button>
+          <button data-v="800x800" aria-pressed="false">800×800</button>
+          <button data-v="1200x800" aria-pressed="false">1200×800</button>
+        </div>
+      </div>
       <div id="winFields" style="display:none">
         <div class="row2">
           <div class="field"><label for="winCount">개수</label><input type="number" id="winCount" value="1" min="1" max="4" step="1"></div>
@@ -224,11 +240,15 @@
             <select id="winSide"><option value="front">앞면</option><option value="back">뒷면</option><option value="left">좌측</option><option value="right">우측</option></select>
           </div>
         </div>
-        <div class="row2">
-          <div class="field"><label for="winW">가로 <span class="hint">mm</span></label><input type="number" id="winW" value="400" min="200" max="1200" step="10"></div>
-          <div class="field"><label for="winH">높이 <span class="hint">mm</span></label><input type="number" id="winH" value="800" min="200" max="1500" step="10"></div>
+        <div class="field">
+          <label for="winPos">시창 위치 <span class="hint">도면 위에서 끌어도 됩니다</span></label>
+          <input type="range" id="winPos" min="0" max="100" step="1" value="50">
+          <div class="posbar"><span>왼쪽 벽 안쪽에서 <b id="winPosVal">—</b> ㎜</span><button type="button" id="winCenter" class="mini">중앙 정렬</button></div>
         </div>
+        <p class="note-small" id="winFillNote"></p>
+        <p class="note-small warnline" id="winWarn"></p>
       </div>
+      <p class="note-small" id="winNote">· <b>400×800</b> 세로 시창 — 상부 1000 코스 안에 100 + 800 + 100.<br>· <b>800×800</b> 검사시창 — 문 폭을 뺀 남은 공간 <b>정중앙</b>, 좌우 <b>같은 폭</b> 채움 · 아래 <b>400×400 2장</b> · 위 <b>400×398 2장</b>(샷시 2mm 여유). <b>600+200으로 쪼개지 않습니다.</b><br>· <b>1200×800</b> 가로 시창 — 600 모듈 2장 · 아래 <b>600×400 2장</b> · 위 <b>600×398 2장</b>. 위치는 드래그·슬라이더로 자유 이동.</p>
     </section>
 
     <section class="card">
@@ -248,7 +268,7 @@
         <div class="inner">
           <div class="row2">
             <div class="field"><label for="mod">모듈 <span class="hint">mm</span></label><input type="number" id="mod" value="600" min="300" max="1200" step="10"></div>
-            <div class="field"><label for="joint">조인트 여유 <span class="hint">mm</span></label><input type="number" id="joint" value="15" min="0" max="60" step="1"></div>
+            <div class="field"><label for="joint">15T 천장 합판 여유 <span class="hint">mm</span></label><input type="number" id="joint" value="15" min="0" max="60" step="1"></div>
           </div>
           <div class="field"><label for="doorH">문 높이 <span class="hint">mm</span></label><input type="number" id="doorH" value="1800" min="1500" max="2100" step="10"></div>
           <div class="field"><label for="ceilDir">천장 결 방향</label>
@@ -261,6 +281,7 @@
             </select>
           </div>
           <p class="note-small">모든 판재는 <b>원판 600×2400</b> 기준입니다. 가로는 항상 <b>600 모듈 + 자투리</b>, 길이가 <b>2400㎜를 넘으면</b> 길이 방향을 나눠 재단·산출합니다.</p>
+          <p class="note-small" style="margin-top:6px">이 <b>여유</b>는 <b>천장 판 사이에 15T 합판을 세워 박아</b> 천장이 처지지 않게 받치는 값입니다. 마지막 판을 <b>자투리 − (15T × 이음매 개소)</b>로 줄여 재단합니다.</p>
           <p style="margin:10px 0 0;font-size:10.5px;color:#7B8389;line-height:1.6">기본값은 제작팀 손도면 10장에서 확인한 값입니다. 현장에 따라 조정하세요.</p>
         </div>
       </details>
@@ -291,7 +312,8 @@ const CFG = {
   MARU: 45,        // 마루
   FILL_W: 702,     // 문 상단 채움판 폭 (문폭과 동일)
   STOCK_W: 600,    // 원판 기본 가로 — 모든 판재는 항상 600 모듈 우선
-  STOCK_L: 2400    // 원판 최대 길이 — 넘으면 길이 방향 분할
+  STOCK_L: 2400,   // 원판 최대 길이 — 넘으면 길이 방향 분할
+  SHASHI: 2        // 샷시·창호 2mm 여유 (문 702 · 시창 판재 400→398)
 };
 const $ = s => document.querySelector(s);
 const n = v => (Math.round(v*10)/10).toString();
@@ -335,8 +357,32 @@ function buildModel(inp){
   const dw = +inp.doorW, dh = +inp.doorH;
   const doorSide = inp.doorSide, doorAlign = inp.doorAlign;
   const doorHinge = inp.doorHinge==='left' ? 'left' : 'right';   // 문 밖에서 볼 때 경첩 쪽
-  const winCount = inp.winOn ? +inp.winCount : 0;
-  const winSide = inp.winSide, winW = +inp.winW, winH = +inp.winH;
+  /* --- 시창 규격 : 없음 / 400×800(세로) / 800×800(검사시창) / 1200×800 -----
+     800·1200 은 아래 400 · 시창 · 위 398(샷시 2mm 여유) · 상단 밴드 402 로 쌓고,
+     400×800 은 상부 1000 코스 안에 100 + 800 + 100 으로 넣는다.            */
+  const WIN_SPEC = {
+    none:      {w:0,    h:0, cols:[]},
+    '400x800': {w:400,  h:800, cols:[400]},
+    '800x800': {w:800,  h:800, cols:[400,400]},
+    '1200x800':{w:1200, h:800, cols:[600,600]}
+  };
+  const winSpec = WIN_SPEC[inp.winSpec] ? inp.winSpec : 'none';
+  const winDef = WIN_SPEC[winSpec];
+  const winCount = winSpec==='none' ? 0 : Math.max(1, Math.min(4, +inp.winCount || 1));
+  const winSide = ['front','back','left','right'].indexOf(inp.winSide)>=0 ? inp.winSide : 'front';
+  const winW = winDef.w, winH = winDef.h, winCols = winDef.cols;
+  const winBig = (winSpec==='800x800' || winSpec==='1200x800');
+  const winBelow  = winBig ? 400 : Math.max(20, Math.round((1000-winH)/2));   // 시창 아래
+  const winAbove  = winBig ? 400 - CFG.SHASHI : winBelow;                    // 시창 위 398 = 400 − 샷시 2
+  const winTopBand = Math.max(0, CFG.HEAD - winBelow - winH - winAbove);     // 800·1200 상단 밴드 402
+  const winLowBand = winBig ? 0 : Math.max(0, CFG.HEAD - winBelow - winH - winAbove);  // 400 하부 밴드 1000
+  /* 시창 열의 수직 적층 (아래 → 위). 큰 시창은 아래 400 / 작은 시창은 하부 1000 코스 위에 */
+  const winStack = winBig
+    ? [{h:winBelow,kind:'below',note:'시창 아래'}, {h:winH,kind:'win'},
+       {h:winAbove,kind:'above',note:'시창 위'}, {h:winTopBand,kind:'band',note:'시창 상단 밴드'}]
+    : [{h:winLowBand,kind:'band',note:'시창 하부 밴드'}, {h:winBelow,kind:'below',note:'시창 아래'},
+       {h:winH,kind:'win'}, {h:winAbove,kind:'above',note:'시창 위'}];
+  const winBottomY = (()=>{ let yb=0; for(const st of winStack){ if(st.kind==='win') break; yb += st.h; } return yb; })();   // 바닥에서 시창 하단까지
   const fillH = Math.max(60, CFG.HEAD - dh - 2);   // 문 상단 채움판 높이(198)
 
   /* --- 4면 정의 ------------------------------------------------------ */
@@ -357,73 +403,139 @@ function buildModel(inp){
     s.span = Math.max(300, s.span);
   });
 
-  /* --- 면별 분할 (600 모듈 + 자투리) --------------------------------- */
+  /* --- 시창 자리 · 좌우 대칭 계산 --------------------------------------
+     문 폭·벽두께를 뺀 '연속된 남은 공간'의 정중앙에 시창을 놓고, 좌우 채움판을
+     같은 폭((남은공간 − 시창폭) / 2)으로 재단한다. 예) 2000×2000 앞면,
+     문 702 를 빼고 1078 → 800 시창 + 좌우 139씩.                          */
+  const startOf = sd => (sd.len - sd.span)/2;
+  const regionsOf = (sd, al) => {             // 문을 피한 연속 빈 공간 (스팬 좌표)
+    const isDoor = sd.k === doorSide;
+    const align = al || doorAlign;
+    if(!isDoor) return [{a:0, b:sd.span}];
+    if(align === 'left')  return [{a:dw, b:sd.span}];
+    if(align === 'right') return [{a:0, b:sd.span-dw}];
+    const h = (sd.span - dw)/2;
+    return [{a:0, b:h}, {a:h+dw, b:sd.span}];
+  };
+  const doorAt = (sd, al) => (al||doorAlign)==='right' ? sd.span-dw : ((al||doorAlign)==='center' ? (sd.span-dw)/2 : 0);
+  const modSplit = w => {                     // 폭 → 600 모듈 + 자투리 (합 = w)
+    let cnt = Math.max(0, Math.floor(w/MOD));
+    let rest = w - cnt*MOD;
+    if(rest > 0 && rest < 40 && cnt > 0){ cnt -= 1; rest += MOD; }
+    const out = [];
+    for(let i=0;i<cnt;i++) out.push({w:MOD, kind:'mod'});
+    if(rest >= 40) out.push({w:rest, kind:'resid'});
+    return out;
+  };
+  /* 채움판 폭 → 원판 600 폭 안에서 재단 (합 = w). 40 미만 자투리는 두 장 균등 분할 */
+  const fillSplit = w => {
+    const out = []; let r = w;
+    while(r > MOD + 0.5){
+      if(r - MOD < 40){ const a = Math.round(r/2/5)*5; out.push(a, r-a); r = 0; break; }
+      out.push(MOD); r -= MOD;
+    }
+    if(r > 0.5) out.push(Math.round(r));
+    return out;
+  };
+
+  let winSideKey = winSide, winMoved = false, winDoorMoved = false, winTight = false,
+      winRegion = {a:0,b:0}, winFillL = 0, winFillR = 0,
+      winCenterEff = 0, winCenterMin = 0, winCenterMax = 0, usedAlign = doorAlign;
+  const winPositions = [];
+  const winStackTxt = winStack.map(st=>st.h).join(' + ');
+  const winJoints = [];                        // 시창 열 가로 조인트 (바닥에서 높이)
+  { let y=0; winStack.forEach(st=>{ y+=st.h; if(y < CFG.HEAD-1) winJoints.push(Math.round(y)); }); }
+  const needW = winW*winCount;
+  const fitRegion = (sd, al) => regionsOf(sd, al)
+      .filter(r => r.b-r.a >= needW - 0.01)
+      .sort((x,y)=>(y.b-y.a)-(x.b-x.a))[0] || null;
+  if(winCount > 0){
+    let ws = sides.find(s=>s.k===winSide);
+    let reg = fitRegion(ws, doorAlign);
+    if(!reg && ws.k===doorSide && doorAlign==='center'){
+      /* 문을 가운데 두면 반쪽씩 갈라져 시창이 못 들어간다 → 문을 좌/우로 붙인다 */
+      for(const al of ['right','left']){
+        const r0 = fitRegion(ws, al);
+        if(r0){ reg = r0; usedAlign = al; winDoorMoved = true; break; }
+      }
+    }
+    if(!reg){                                  // 이 면에 자리가 없으면 가장 넓은 다른 면으로
+      const cand = sides.filter(s=>s.k!==ws.k)
+        .map(s=>({s, r:fitRegion(s, usedAlign)}))
+        .filter(o=>o.r)
+        .sort((a,b)=>(b.r.b-b.r.a)-(a.r.b-a.r.a))[0];
+      if(cand){ ws = cand.s; reg = cand.r; winMoved = true; }
+    }
+    if(!reg){                                  // 어느 면에도 자리가 없을 때
+      reg = regionsOf(ws, usedAlign).slice().sort((x,y)=>(y.b-y.a)-(x.b-x.a))[0];
+      winTight = true;
+    }
+    winSideKey = ws.k;
+    winRegion = reg;
+    winCenterMin = reg.a + needW/2;
+    winCenterMax = reg.b - needW/2;
+    const mid = (reg.a + reg.b)/2;
+    let c = (inp.winCenter===null || inp.winCenter===undefined || inp.winCenter==='' || !isFinite(+inp.winCenter))
+      ? mid : +inp.winCenter;
+    if(winTight){ c = mid; winFillL = 0; winFillR = 0; }
+    else {
+      c = Math.round(Math.max(Math.round(winCenterMin), Math.min(Math.round(winCenterMax), Math.round(c))));
+      const st = c - needW/2;
+      winFillL = Math.round(st - reg.a);
+      winFillR = Math.round(reg.b - st - needW);
+    }
+    winCenterEff = c;
+    for(let i=0;i<winCount;i++) winPositions.push({c: c - needW/2 + winW*(i+0.5), w:winW, h:winH, bottom:winBottomY});
+  }
+
+  /* --- 면별 분할 (600 모듈 + 자투리) · 시창 구간은 시창 열로 나눈다 ------
+     시창이 없는 면은 손도면 그대로 600 모듈을 깔고 문을 문 위치에 끼운다.
+     시창이 있는 면은 문을 뺀 남은 공간을 시창 자리와 좌우 채움으로 나눈다. */
   sides.forEach(s=>{
     const isDoor = s.k===doorSide;
-    let avail = s.span - (isDoor ? dw : 0);   // 남는 폭을 그대로 자투리로 → 합이 스팬과 정확히 일치
-    let cnt = Math.max(0, Math.floor(avail/MOD));
-    let rest = avail - cnt*MOD;
-    if(rest > 0 && rest < 40 && cnt > 0){ cnt -= 1; rest += MOD; }
-    const pieces = [];
-    for(let i=0;i<cnt;i++) pieces.push({w:MOD, kind:'mod'});
-    if(rest >= 40) pieces.push({w:rest, kind:'resid'});
-    if(isDoor) pieces.unshift({w:dw, kind:'door'});
-    s.pieces = pieces;
-    s.mods = cnt;
-    s.resid = rest >= 40 ? rest : 0;
-
-    s.winSlots = 0;
-  });
-
-  /* --- 시창 배치 : 문이 있는 면에서는 문을 피해, 없으면 반대 면으로 ----- */
-  const startOf = sd => (sd.len - sd.span)/2;
-  let winSideKey = winSide, winMoved = false;
-  const winPositions = [];
-  if(winCount > 0){
-    const gapsOf = (sd) => {
-      const lay = layoutPieces(sd, doorAlign);
-      const st = startOf(sd);
-      const gaps = [];
-      let cur = st;
-      lay.forEach(it=>{ if(it.kind==='door'){ if(it.at - cur > 40) gaps.push([cur, it.at]); cur = it.at + it.w; } });
-      if(st + sd.span - cur > 40) gaps.push([cur, st + sd.span]);
-      return gaps.sort((a,b)=>(b[1]-b[0])-(a[1]-a[0]));
-    };
-    const place = (sd, n) => {
-      const gaps = gapsOf(sd).filter(g=> (g[1]-g[0]) >= winW + 40);
-      const out = [];
-      if(!gaps.length) return out;
-      const st = startOf(sd);
-      let i = 0;
-      gaps.forEach(g=>{
-        const room = g[1]-g[0];
-        const slots = Math.max(1, Math.min(n - out.length, Math.floor(room/(winW+40))));
-        for(let k=0;k<slots;k++){
-          const c = g[0] + (room/slots)*(k+0.5);
-          out.push({c: c - st, w: winW, h: winH});
+    const winHere = winCount>0 && !winTight && s.k===winSideKey;
+    const fixed = [];
+    let a = 0;
+    const put = b => { fixed.push({w:b.w, kind:b.kind, at:a, note:b.note}); a += b.w; };
+    if(winHere){
+      regionsOf(s, usedAlign).forEach(r=>{
+        const isWinReg = Math.abs(r.a-winRegion.a)<0.5 && Math.abs(r.b-winRegion.b)<0.5;
+        let blocks;
+        if(isWinReg){
+          blocks = [];
+          fillSplit(winFillL).forEach(w=>blocks.push({w, kind:'resid', note:'시창 좌 채움'}));
+          for(let i=0;i<winCount;i++) winCols.forEach(cw=>blocks.push({w:cw, kind:'win'}));
+          fillSplit(winFillR).forEach(w=>blocks.push({w, kind:'resid', note:'시창 우 채움'}));
+        } else {
+          blocks = modSplit(r.b - r.a);
         }
+        let aa = r.a;
+        blocks.forEach(b=>{ fixed.push({w:b.w, kind:b.kind, at:aa, note:b.note}); aa += b.w; });
       });
-      return out.slice(0, n);
-    };
-    let ws = sides.find(s=>s.k===winSide);
-    let pos = place(ws, winCount);
-    if(!pos.length){
-      const alt = sides.find(s=>s.k===opp) || sides.find(s=>s.k!==winSide);
-      pos = place(alt, winCount);
-      ws = alt; winSideKey = alt.k; winMoved = true;
+      if(isDoor) fixed.push({w:dw, kind:'door', at:doorAt(s, usedAlign), note:'문 개구부'});
+      fixed.sort((x,y)=> x.at-y.at);
+      a = fixed.reduce((t,b)=> t+b.w, 0);
+    } else {
+      const avail = s.span - (isDoor ? dw : 0);   // 남는 폭을 그대로 자투리로 → 합이 스팬과 정확히 일치
+      let cnt = Math.max(0, Math.floor(avail/MOD));
+      let rest = avail - cnt*MOD;
+      if(rest > 0 && rest < 40 && cnt > 0){ cnt -= 1; rest += MOD; }
+      const arr = [];
+      for(let i=0;i<cnt;i++) arr.push({w:MOD, kind:'mod'});
+      if(rest >= 40) arr.push({w:rest, kind:'resid'});
+      if(isDoor){
+        const before = doorAlign==='center' ? Math.ceil(arr.length/2) : (doorAlign==='right' ? arr.length : 0);
+        arr.slice(0,before).forEach(put);
+        put({w:dw, kind:'door', note:'문 개구부'});
+        arr.slice(before).forEach(put);
+      } else arr.forEach(put);
     }
-    pos.forEach(p=>winPositions.push(p));
-    const take = Math.min(winPositions.length, ws.mods || 0);
-    if(take > 0){
-      let removed = 0;
-      ws.pieces = ws.pieces.filter(pc=>{
-        if(pc.kind==='mod' && removed < take){ removed++; return false; }
-        return true;
-      });
-      ws.mods -= removed;
-    }
-    ws.winSlots = winPositions.length;
-  }
+    s.fixed = fixed;
+    s.pieces = fixed.map(p=>({w:p.w, kind:p.kind, note:p.note}));
+    s.mods = fixed.filter(p=>p.kind==='mod').length;
+    s.resid = fixed.filter(p=>p.kind==='resid').length;
+    s.winSlots = winHere ? winCount : 0;
+  });
   const winSideObj = sides.find(s=>s.k===winSideKey);
 
   /* --- 바닥 2겹 (교차) — 원판 600×2400 기준 ------------------------------ */
@@ -479,17 +591,27 @@ function buildModel(inp){
   const wallRows = [];
   sides.forEach(s=>{
     s.pieces.forEach(p=>{
-      const note = sideName[s.k] + (p.kind==='mod'?' 모듈':(p.kind==='resid'?' 자투리':' 문 개구부'));
-      if(p.kind!=='door') wallRows.push({w:p.w, l:1000, qty:2, note, group:'벽판 95T PB'});
+      if(p.kind==='door' || p.kind==='win') return;      // 시창 400 반쪽은 아래 전개 규칙으로 따로 산출
+      const note = p.note ? sideName[s.k]+' '+p.note
+        : sideName[s.k] + (p.kind==='mod'?' 모듈':(p.kind==='resid'?' 자투리':' 문 개구부'));
+      wallRows.push({w:p.w, l:1000, qty:2, note, group:'벽판 95T PB'});
     });
   });
   merge2(wallRows).forEach(p=>add('벽판 95T PB', p.w, p.l, p.qty, p.note));
-  if(fillH > 40) add('문·개구부', dw, fillH, 1, '문 상단 채움판');
+  if(fillH > 40) add('문·개구부', dw, fillH, 1, '문 상단 채움판 '+dw+'×'+fillH+' · 문 700+2mm 여유');
   if(winCount>0){
-    add('문·개구부', winW, winH, winCount, '시창 개구부' + (winMoved? ' · '+sideName[winSideKey]+' 배치':''));
-    const side = winW; const upDown = Math.max(20, Math.round((1000-winH)/2));
-    add('문·개구부', winW, upDown, winCount*2, '시창 상·하 채움');
-    if(MOD-winW > 40) add('문·개구부', MOD-winW, 1000, winCount, '시창 옆 채움');
+    const wnote = (winMoved? ' · '+sideName[winSideKey]+' 배치' : '')
+                + (winDoorMoved? ' · 문 좌우 이동' : '')
+                + (winTight? ' · 자리 부족 현장 확인' : '');
+    add('문·개구부', winW, winH, winCount, '시창 개구부 '+winW+'×'+winH+' · 아크릴 3T'+wnote);
+    /* 시창 열마다 아래 400 · 위 398(샷시 2mm) · 상단 밴드 402 — 800 은 400 2장, 1200 은 600 2장 */
+    winCols.forEach(cw=>{
+      winStack.forEach(st=>{
+        if(st.kind==='win' || st.h <= 10) return;
+        const tail = st.kind==='above' && winBig ? ' · 샷시 2mm 여유 (400−2)' : (st.kind==='below' && winBig ? ' · 2장 나란히 대칭' : '');
+        add('벽판 95T PB', cw, st.h, winCount, st.note+' '+cw+'×'+st.h+tail+' · '+sideName[winSideKey]);
+      });
+    });
   }
   /* 외벽 알판 — 층고가 2400을 넘으면 길이(높이) 방향 분할 */
   merge2(extRows.filter(r=>r.w>40)).forEach(p=>{
@@ -548,14 +670,14 @@ function buildModel(inp){
   const bom = [
     {mat:'PB 18T — 바닥 (2겹)', spec:'원판 600×2400', amount: n(floorArea*2), unit:'㎡', boards: stockCount(cutCells('바닥 PB (2겹 교차)')), note:'1층·2층 교차 재단'},
     {mat:'PB 95T — 벽판 (액자틀 날개)', spec:'95T 적층', amount: n(wallArea), unit:'㎡', boards: stockCount(cutCells('벽판 95T PB')), note:'15T 원판 + 95T 날개 · 18T×5 기준'},
-    {mat:'천장 65T', spec:'600 모듈', amount: n(sum(cellsOf(ceilPieces).map(p=>p.w*p.l))/1e6), unit:'㎡', boards: stockCount(cutCells('천장 65T')), note:'조인트 여유 '+JOINT+'㎜'},
+    {mat:'천장 65T', spec:'600 모듈', amount: n(sum(cellsOf(ceilPieces).map(p=>p.w*p.l))/1e6), unit:'㎡', boards: stockCount(cutCells('천장 65T')), note:'15T 합판 세움 보강 '+JOINT+'㎜'},
     {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H, amount: n(extArea), unit:'㎡', boards: stockCount(cutCells('외벽 알판')), note:'외부 마감 9T'},
     {mat:'9T 마감재 — 내부', spec:'3면 + 천장', amount: n(artArea), unit:'㎡', boards: boardF(artArea), note:'아트보드 · 1면 라인타공'},
     {mat:'45T 마블 — 액자틀 충전', spec:'2겹', amount: n(wallArea*2), unit:'㎡', boards: boardF(wallArea*2), note:'액자틀 안쪽 충진 45T × 2'},
     {mat:'강화마루', spec:'BOX(약 2.0㎡)', amount: n(innerArea)+' ㎡', unit:'', boards: null, note: Math.ceil(innerArea/2.0)+' BOX'},
     {mat:'45T 몰딩', spec:'2.4m', amount: n((innerW+innerD)*2*2/1000), unit:'m', boards: null, note:'바닥+천장'},
     {mat:'시스템도어', spec: dw+'×'+dh, amount:'1 세트', unit:'', boards: null, note:'상부 트랜섬 '+(fillH+2)},
-    {mat:'시창', spec: winW+'×'+winH, amount: winCount? winCount+' 개':'—', unit:'', boards: null, note: winCount? '아크릴 3T + 창틀':'미적용'}
+    {mat:'시창', spec: winW+'×'+winH, amount: winCount? winCount+' 개':'—', unit:'', boards: null, note: winCount? ('아크릴 3T + 창틀 · '+(winBig?'좌우 대칭 · 샷시 2mm':'샷시 2mm')):'미적용'}
   ];
 
   /* 원판 600×2400 환산 총괄 */
@@ -568,8 +690,11 @@ function buildModel(inp){
   ].map(o=>Object.assign(o,{lens:splitLen(o.length, LSPLIT)}));
 
   return {
-    inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, doorHinge, sideName,
-    winCount, winSide, winSideKey, winMoved, winW, winH, winPositions, winSideObj,
+    inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, usedAlign, doorHinge, sideName,
+    winSpec, winDef, winCount, winSide, winSideKey, winMoved, winDoorMoved, winTight,
+    winW, winH, winCols, winPositions, winSideObj, winRegion, winJoints,
+    winFillL, winFillR, winCenterEff, winCenterMin, winCenterMax, needW,
+    winBig, winBelow, winAbove, winTopBand, winLowBand, winStack, winStackTxt, winBottomY,
     lenSplit: LSPLIT, lenSplits, ceilLens,
     floor:{l1:f1, l2:f2}, ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan, len:cLen},
     cut: cutList, bom, boardTotal, stockCount,
@@ -752,20 +877,19 @@ function hingeAtEnd(sideK, hinge){
 }
 function hingeName(h){ return h==='left' ? '좌경첩' : '우경첩'; }
 
-function layoutPieces(sd, doorAlign){
+function layoutPieces(sd){
+  const off0 = (sd.len - sd.span)/2;
+  if(sd.fixed && sd.fixed.length) return sd.fixed.map(p=>({kind:p.kind, w:p.w, at:p.at+off0}));
+  /* fixed 가 없을 때(예외) — 문을 가운데 두고 앞뒤로 나눔 */
   const nonDoor = sd.pieces.filter(p=>p.kind!=='door');
   const doorP = sd.pieces.find(p=>p.kind==='door');
-  const off0 = (sd.len - sd.span)/2;
   const items = [];
   if(!doorP){
     let a = off0;
     nonDoor.forEach(p=>{ items.push({kind:p.kind,w:p.w,at:a}); a += p.w; });
     return items;
   }
-  let before = 0;
-  if(doorAlign==='center') before = Math.ceil(nonDoor.length/2);
-  else if(doorAlign==='right') before = nonDoor.length;
-  let a = off0;
+  let before = Math.ceil(nonDoor.length/2), a = off0;
   nonDoor.slice(0,before).forEach(p=>{ items.push({kind:p.kind,w:p.w,at:a}); a += p.w; });
   items.push({kind:'door', w:doorP.w, at:a});
   a += doorP.w;
@@ -805,7 +929,7 @@ function sheetPlan(m){
   s += R(ox+9*sc,oy+9*sc,pw-18*sc,ph-18*sc,{fill:'none',stroke:'#CBD1D5',sw:0.5,dash:'3 1.8'});
 
   /* 면 분할 계산 */
-  const sideGeom = (sd) => layoutPieces(sd, m.doorAlign);
+  const sideGeom = (sd) => layoutPieces(sd);
 
   /* 면 세그먼트 — 전길이 벽은 외경 끝부터, 문 면·반대 면은 양쪽 110(좌·우 벽 두께) 뒤부터 */
   const segsOf = (sd) => {
@@ -880,27 +1004,36 @@ function sheetPlan(m){
 
   s += drawBand('top', S('back')) + drawBand('bottom', S('front')) + drawBand('left', S('left')) + drawBand('right', S('right'));
 
-  /* 시창 */
+  /* 시창 — 도면 위에서 면 방향으로 끌어 위치를 옮길 수 있다 */
   if(m.winCount>0 && m.winSideObj){
     const ws = m.winSideObj;
     const isH = (m.winSideKey==='front'||m.winSideKey==='back');
     const off0 = (ws.len - ws.span)/2;
+    const dragA = m.winTight ? 'pointer-events="none"' : '';
     m.winPositions.forEach(wp=>{
       const c = (off0 + wp.c)*sc, half = wp.w*sc/2;
       if(isH){
         const y = (m.winSideKey==='front')? oy+ph-t : oy;
+        s += `<g class="wg" data-drag="plan" data-sc="${sc}" data-axis="x" ${dragA}>`;
+        s += R(ox+c-half, y-t*0.7, wp.w*sc, t*2.4, {fill:'transparent',stroke:'none'});
         s += R(ox+c-half, y, wp.w*sc, t, {fill:'#fff',stroke:'none'});
-        s += R(ox+c-half, y, wp.w*sc, t, {fill:'url(#hGlass)',stroke:DIMC,sw:0.9});
-        s += L(ox+c-half, y+t/2, ox+c+half, y+t/2, {stroke:DIMC,sw:1.2});
-        s += L(ox+c-half, y, ox+c-half, y+t, {stroke:DIMC,sw:1.1});
-        s += L(ox+c+half, y, ox+c+half, y+t, {stroke:DIMC,sw:1.1});
-        s += tag(ox+c, y-8, '시창 '+wp.w+'×'+wp.h, {size:7.4, fill:DIMC, weight:700, mono:false});
+        s += R(ox+c-half, y, wp.w*sc, t, {fill:'url(#hGlass)',stroke:DIMC,sw:1.1});
+        s += L(ox+c-half, y+t/2, ox+c+half, y+t/2, {stroke:DIMC,sw:1.0});
+        let cAcc = c-half;
+        m.winCols.forEach((cw2,ci)=>{ if(ci>0) s += L(ox+cAcc, y, ox+cAcc, y+t, {stroke:DIMC,sw:1.0,dash:'2 1.4'}); cAcc += cw2*sc; });
+        s += L(ox+c-half, y, ox+c-half, y+t, {stroke:DIMC,sw:1.2});
+        s += L(ox+c+half, y, ox+c+half, y+t, {stroke:DIMC,sw:1.2});
+        s += tag(ox+c, y-9, '시창 '+wp.w+'×'+wp.h+' ↔', {size:7.4, fill:DIMC, weight:700, mono:false});
+        s += `</g>`;
       } else {
         const x = (m.winSideKey==='left')? ox : ox+pw-t;
-        s += R(x, oy+c-half, t, wp.w*sc, {fill:'url(#hGlass)',stroke:DIMC,sw:0.9});
-        s += L(x, oy+c-half, x+t, oy+c-half, {stroke:DIMC,sw:1.1});
-        s += L(x, oy+c+half, x+t, oy+c+half, {stroke:DIMC,sw:1.1});
+        s += `<g class="wg" data-drag="plan" data-sc="${sc}" data-axis="y" ${dragA}>`;
+        s += R(x-t*0.7, oy+c-half, t*2.4, wp.w*sc, {fill:'transparent',stroke:'none'});
+        s += R(x, oy+c-half, t, wp.w*sc, {fill:'url(#hGlass)',stroke:DIMC,sw:1.1});
+        s += L(x, oy+c-half, x+t, oy+c-half, {stroke:DIMC,sw:1.2});
+        s += L(x, oy+c+half, x+t, oy+c+half, {stroke:DIMC,sw:1.2});
         s += `<g transform="rotate(-90 ${n(x+t/2)} ${n(oy+c)})">${T(x+t/2, oy+c+1.8, '시창 '+wp.w+'×'+wp.h,{size:7.2,fill:DIMC,anchor:'middle',mono:true})}</g>`;
+        s += `</g>`;
       }
     });
   }
@@ -984,11 +1117,11 @@ function sheetPlan(m){
 
   /* 범례 */
   const ly = 872, lw = SW-2*M-24;
-  s += R(M+12, ly, lw, 98, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  s += R(M+12, ly, lw, 104, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
-    ['hGlass','시창 400×800 아크릴 3T']
+    ['hGlass','시창 '+(m.winCount? m.winW+'×'+m.winH : '400×800')+' 아크릴 3T · 드래그로 위치 이동']
   ];
   items.forEach((it,i)=>{
     const yy = ly+26+i*16;
@@ -1006,7 +1139,14 @@ function sheetPlan(m){
     '5. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000) — 부스 바깥으로 열림.',
     '6. 경첩 '+hingeName(m.doorHinge)+' — 문 밖에서 마주보았을 때 경첩이 '+ (m.doorHinge==='left'?'왼쪽':'오른쪽') +'. 여닫이 호 반지름 = 문 폭.'
   ];
-  notes.forEach((tx,i)=> s += T(M+300, ly+28+i*12.2, tx, {size:6.2, fill:'#4F585F'}));
+  if(m.winCount>0){
+    const regW = Math.round(m.winRegion.b-m.winRegion.a);
+    notes.push('7. '+m.sideName[m.winSideKey]+' 시창 '+m.winW+'×'+m.winH
+      + (m.winCount>1? ' '+m.winCount+'개':'') + ' — 면 안쪽 '+regW+' 안 정중앙 기준, 좌 채움 '+m.winFillL
+      + ' · 우 채움 '+m.winFillR+(m.winFillL===m.winFillR?' (대칭)':'')
+      + '. 시창 열 '+m.winStackTxt+' = '+CFG.HEAD+'.');
+  }
+  notes.forEach((tx,i)=> s += T(M+300, ly+26+i*11.4, tx, {size:6.05, fill:'#4F585F'}));
 
   s += titleBlock(m,{no:'A-101',title:'평면도',scale:'1 : '+Math.round(3.7795/sc)});
   s += scaleBar(M+24, 984, sc);
@@ -1111,7 +1251,7 @@ function sheetFloorCeil(m){
 
   /* 천장 */
   const ceilOrient = (m.ceil.len === m.W) ? 'h' : 'v';
-  s += breakdown(m.W, m.D, m.ceil.pieces, ceilOrient, {x:xL, y:368, w:boxW, h:296, title:'천장 65T 분할', sub:'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 폭 합 '+m.ceil.span+' · 조인트 −'+m.JOINT+'/개소', hatch:'url(#hCeil)'});
+  s += breakdown(m.W, m.D, m.ceil.pieces, ceilOrient, {x:xL, y:368, w:boxW, h:296, title:'천장 65T 분할', sub:'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 폭 합 '+m.ceil.span+' · 15T 세움 합판 보강 −'+m.JOINT+'/개소', hatch:'url(#hCeil)'});
 
   /* 요약 표 (분할 수량) */
   const shortNote = p => {
@@ -1138,7 +1278,7 @@ function sheetFloorCeil(m){
   calc.push('· 바닥 1층 : 가로 '+m.W+' ÷ 600 → '+m.floor.l1.map(p=>p.w).join(' + ')+'  (길이 '+m.D+' 재단)');
   calc.push('· 바닥 2층 : 세로 '+m.D+' ÷ 600 → '+m.floor.l2.map(p=>p.w).join(' + ')+'  (길이 '+m.W+' 재단) — 1층과 90° 교차');
   calc.push('· 천장 65T : 폭 '+m.ceil.span+' ÷ 600 → '+m.ceil.pieces.map(p=>p.w).join(' + ')+'  (길이 '+m.ceil.len+' 재단)');
-  calc.push('· 마지막 판 = 자투리 − 조인트 '+m.JOINT+'㎜ × 개소 (손도면 확인 : 2000→155 · 1400→170 · 1800→570)');
+  calc.push('· 마지막 판 = 자투리 − 15T 세움 합판 여유 '+m.JOINT+'㎜ × 개소 (판 사이에 15T 합판을 세워 박음 · 2000→155 · 1400→170 · 1800→570)');
   calc.push('· 자투리가 40㎜ 미만이면 앞 판에 합쳐 재단 (예: 1600 → 1000 + 600)');
   calc.push('· 시공 순서 : 바닥 1층 깔기 → 2층 교차 → 벽체 → 천장 65T');
 
@@ -1169,7 +1309,8 @@ function sheetFloorCeil(m){
    6. A-103 벽체 전개도 · 단면
    ===================================================================== */
 function sheetElevation(m){
-  let s = sheetHead('A-103','벽체 전개도 · 벽체 단면','ELEVATION (UNFOLDED) · 벽판 95T PB 1000 2단 · 문 상단 '+m.fillH+' 채움판');
+  let s = sheetHead('A-103','벽체 전개도 · 벽체 단면','ELEVATION (UNFOLDED) · 벽판 95T PB 1000 2단 · 문 상단 '+m.fillH+' 채움판'
+    + (m.winCount? ' · 시창 '+m.winW+'×'+m.winH+' ('+m.winStackTxt+' = '+CFG.HEAD+')' : ''));
   s += pageNo('A-103',3,4);
   const EDGE_E = '#14171A';
 
@@ -1202,7 +1343,7 @@ function sheetElevation(m){
     o += L(x0, y+hh-1000*sc, x0+spanW, y+hh-1000*sc, {stroke:'#8A939A', sw:1.1, dash:'5 2.2'});
 
     /* 모듈 분할선 — 전길이 벽은 외경 끝(0)부터 600, 문 면은 좌·우 벽 안쪽부터 */
-    const layout = layoutPieces(side, m.doorAlign);
+    const layout = layoutPieces(side);
     layout.forEach((it,i)=>{
       const a = x + it.at*sc;
       if(i>0) o += L(a, y, a, y+hh, {stroke:EDGE_E, sw:2.0});
@@ -1234,14 +1375,38 @@ function sheetElevation(m){
         o += T(dx+dwp/2, y+hh-6, '외부 열림 · '+hingeName(m.doorHinge), {size:5.8, anchor:'middle', fill:'#8A4210', weight:700});
       }
     }
-    /* 시창 */
+    /* 시창 — 시창 열은 아래·위 판과 밴드로 쌓는다 (아래 400 / 위 398 = 400−2 샷시 여유) */
     if(m.winCount>0 && side.k===m.winSideKey){
+      const wy = y + hh - (m.winBottomY + m.winH)*sc;
+      const dragA = m.winTight ? 'pointer-events="none"' : '';
+      const gx0 = x0 + (m.winPositions[0].c - m.winW/2)*sc;
+      const gx1 = x0 + (m.winPositions[m.winPositions.length-1].c + m.winW/2)*sc;
+      /* 가로 조인트 — 시창 아래·위·밴드 경계 */
+      m.winJoints.forEach(h=>{
+        const yy = y + hh - h*sc;
+        const isSash = m.winBig && Math.abs(h - (m.winBottomY+m.winH+m.winAbove)) < 0.6;
+        o += L(gx0, yy, gx1, yy, {stroke:EDGE_E, sw:1.2, dash: isSash? '3 2' : undefined});
+      });
       m.winPositions.forEach(wp=>{
         const cx = x0 + wp.c*sc, ww = wp.w*sc, wh = wp.h*sc;
-        const wy = y + hh - CFG.HEAD*sc + (1000*sc - wh)/2;
-        o += R(cx-ww/2, wy, ww, wh, {fill:'url(#hGlass)', stroke:DIMC, sw:1.2});
-        o += T(cx, wy-3.2, wp.w+'×'+wp.h, {size: opts.big?6:4.6, anchor:'middle', fill:DIMC, mono:true, weight:700});
+        o += `<g class="wg" data-drag="ele" data-sc="${sc}" data-axis="x" ${dragA}>`;
+        o += R(cx-ww/2, wy, ww, wh, {fill:'url(#hGlass)', stroke:DIMC, sw:1.3});
+        o += R(cx-ww/2-1.6, wy-1.6, ww+3.2, wh+3.2, {fill:'none', stroke:DIMC, sw:0.7});
+        o += T(cx, wy+wh/2+ (opts.big? 2.6 : 1.6), wp.w+'×'+wp.h, {size: opts.big? 8.6 : 5.0, anchor:'middle', fill:DIMC, mono:true, weight:800});
+        o += `</g>`;
       });
+      if(opts.big){
+        const bx = gx1 + 7;
+        let h0 = 0;
+        m.winStack.forEach(st=>{
+          const y1 = y + hh - h0*sc, y2 = y + hh - (h0+st.h)*sc;
+          if(st.h > 6){
+            o += dimV(y1, y2, bx, String(st.h),
+              {size:5.4, labelX:bx+2.8, color: st.kind==='above'? WARN : (st.kind==='win'? DIMC : '#4F585F')});
+          }
+          h0 += st.h;
+        });
+      }
     }
     /* 패널 폭 라벨 — 하단 안쪽에 크게 */
     {
@@ -1343,14 +1508,22 @@ function sheetElevation(m){
   s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+36, m.fillH, {size:7.4});
 
   /* ---------- 시공 메모 ---------- */
-  const ny = 1000;
-  s += R(M+16, ny, SW-2*M-32, 82, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  const memo = [
+    '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.',
+    '· 좌·우 벽은 외경 끝~끝 전길이로 세우고, 문 면은 좌·우 벽 안쪽(내폭 −220)에 끼워 시공.',
+    '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨 · 바깥 열림(외여닫이).'
+  ];
+  if(m.winCount>0){
+    memo.push('· 시창 '+m.winW+'×'+m.winH+' 열 적층 : '+m.winStackTxt+' = '+CFG.HEAD+(m.winBig? ' (위판 398 = 400−2 샷시 여유)' : ' (상부 1000 코스 안)')+'.');
+    memo.push('· 시창 좌우 채움 '+m.winFillL+' / '+m.winFillR+' ㎜'+(m.winFillL===m.winFillR?' (좌우 대칭)':'')+' — '+m.sideName[m.winSideKey]+' · 면 안쪽 '+Math.round(m.winRegion.b-m.winRegion.a)+'.');
+  }
+  memo.push('· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+', 시창 위판 400−2='+m.winAbove+'.');
+  memo.push('· 천장 65T 판 사이에 15T 합판을 세워 보강 — 마지막 판 = 자투리 − 15×이음매 개소.');
+  memo.push('· 접합부 실링 · 내부 1면 라인타공 · 마루 '+CFG.MARU+' · 몰딩 45T · 경첩 '+hingeName(m.doorHinge)+'.');
+  const ny = 1000, memoW = SW-3*M-252-6, memoH = 20 + memo.length*11;
+  s += R(M+16, ny, memoW, memoH, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
-  s += T(M+24, ny+27, '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.', {size:6.4});
-  s += T(M+24, ny+38, '· 좌·우 벽은 외경 끝~끝 전길이(600×3)로 세우고, 문 면은 좌·우 벽 안쪽(내폭 −220)에 끼워 시공.', {size:6.4});
-  s += T(M+24, ny+49, '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨. 부스 바깥으로 열림(외여닫이).', {size:6.4});
-  s += T(M+24, ny+60, '· 벽체·바닥·천장 접합부는 실링 처리로 기밀 유지. 내부 1면 라인타공 아트보드.', {size:6.4});
-  s += T(M+24, ny+71, '· 마루 '+CFG.MARU+'㎜ · 천장 65T · 몰딩 45T 마감 · 문 경첩 '+hingeName(m.doorHinge)+' (문 밖에서 마주볼 때).', {size:6.4});
+  memo.forEach((tx,ix)=> s += T(M+24, ny+26+ix*11, tx, {size:6.2, fill:'#3B4248'}));
 
   s += titleBlock(m,{no:'A-103',title:'전개도·단면',scale:'1 : '+Math.round(3.7795/sc)});
   return sheetShell(s);
@@ -1396,7 +1569,7 @@ function svgTable(x,y,w,cols,rows,opt={}){
 }
 
 function sheetTables(m){
-  let s = sheetHead('A-104','재단 치수표 · 자재 산출표','CUT LIST & BILL OF MATERIALS · 원판 600×2400 기준 · 길이 2400 초과 '+splitModeName(m.lenSplit));
+  let s = sheetHead('A-104','재단 치수표 · 자재 산출표','CUT LIST & BILL OF MATERIALS · 원판 600×2400 기준 · 길이 2400 초과 '+splitModeName(m.lenSplit)+' · 샷시·문 2mm 여유 · 천장 15T 세움 보강');
   s += pageNo('A-104',4,4);
 
   const groups = ['바닥 PB (2겹 교차)','천장 65T','벽판 95T PB','문·개구부','외벽 알판'];
@@ -1468,9 +1641,11 @@ function sheetTables(m){
   s += T(M+10, wy+29, '· 원판은 600×2400 — 길이 2400 이하 1장 = 1원판, 초과 시 '+splitModeName(m.lenSplit)+' 후 각 장 1원판으로 환산했습니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+40, '· 문 면 자투리·현장 여유는 실측에 따라 ±10㎜ 보정하세요. 시공 전 바닥 수평·문 개폐 방향을 확인합니다.', {size:6.2, fill:'#4F585F'});
   s += T(M+10, wy+51, '· 65T 천장 마지막 판과 벽판 자투리는 손도면 값을 우선하며, 조인트 여유·분할 방식은 고급 설정에서 조정할 수 있습니다.', {size:6.2, fill:'#4F585F'});
+  s += T(M+10, wy+62, '· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ' · 시창 위판 400−2='+m.winAbove+' (샷시 삽입 여유)' : ' · 시창은 상부 코스 100+800+100')+' — 재단표 반영.', {size:6.2, fill:'#4F585F'});
+  s += T(M+10, wy+73, '· 천장 15T 세움 합판 보강 — 판과 판 사이 이음매마다 15T 합판을 세워 박고, 마지막 판 = 자투리 − 15×개소.', {size:6.2, fill:'#4F585F'});
 
   /* 발주 체크리스트 */
-  const cy0 = wy + 74;
+  const cy0 = wy + 96;
   s += R(M+10, cy0, SW-2*M-20, 96, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+18, cy0+14, '발주 · 준비 체크리스트', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
   const B = k => m.bom.find(b=>b.mat.indexOf(k)>=0) || {};
@@ -1523,11 +1698,10 @@ function readInputs(){
     doorSide: state.doorSide || 'front',
     doorAlign: state.doorAlign || 'center',
     doorHinge: state.doorHinge || 'right',
-    winOn: $('#winOn').checked,
+    winSpec: state.winSpec || 'none',
     winCount: +$('#winCount').value || 1,
     winSide: $('#winSide').value,
-    winW: +$('#winW').value || 400,
-    winH: +$('#winH').value || 800,
+    winCenter: (state.winCenter===undefined || state.winCenter===null || state.winCenter==='') ? null : +state.winCenter,
     mod: +$('#mod').value || 600,
     joint: +$('#joint').value || 0,
     ceilDir: $('#ceilDir').value,
@@ -1535,10 +1709,78 @@ function readInputs(){
   };
 }
 
+/* --- 시창 패널 UI (슬라이더 · 채움 치수 · 경고) ---------------------------- */
+function syncWinUI(m){
+  const on = m.winCount>0;
+  $('#winFields').style.display = on ? '' : 'none';
+  if(!on){ $('#winWarn').innerHTML = ''; return; }
+  const lo = Math.round(m.winCenterMin), hi = Math.round(m.winCenterMax);
+  const sl = $('#winPos');
+  sl.min = lo; sl.max = Math.max(lo, hi); sl.step = 1;
+  sl.value = Math.round(m.winCenterEff);
+  sl.disabled = hi <= lo || m.winTight;
+  $('#winPosVal').textContent = fmt(m.winCenterEff);
+  const regW = Math.round(m.winRegion.b - m.winRegion.a);
+  $('#winFillNote').innerHTML =
+    '면 안쪽 <b>'+fmt(regW)+'</b> ㎜ 중 시창 <b>'+fmt(m.needW)+'</b> ㎜ — 좌 채움 <b>'+fmt(m.winFillL)+'</b> · 우 채움 <b>'+fmt(m.winFillR)+'</b> ㎜'
+    + (m.winFillL===m.winFillR ? ' <b>(좌우 대칭)</b>' : '')
+    + '<br>도면 위 시창을 끌거나 슬라이더로 옮기면 양쪽 판·재단표가 바로 바뀝니다.';
+  const warn = [];
+  if(m.winDoorMoved) warn.push('시창 '+fmt(m.needW)+' ㎜ 자리를 확보하려고 문을 '+(m.usedAlign==='right'?'우측':'좌측')+'으로 붙였습니다 (문을 가운데 두면 시창이 들어가지 않습니다).');
+  if(m.winMoved) warn.push(m.sideName[m.inp.winSide]+'에 '+fmt(m.needW)+' ㎜ 자리가 없어 '+m.sideName[m.winSideKey]+'으로 옮겼습니다.');
+  if(m.winTight) warn.push('시창 '+fmt(m.needW)+' ㎜가 어느 면에도 들어가지 않습니다 — 부스를 넓히거나 규격·개수를 줄이세요.');
+  $('#winWarn').innerHTML = warn.map(w=>'· '+w).join('<br>');
+}
+
+/* --- 시창 드래그 (A-101 평면도 · A-103 전개도) --------------------------- */
+let winDrag = null;
+function onWinDragStart(e){
+  const m = state.model;
+  if(!m || !m.winCount || m.winTight) return;
+  const svg = e.currentTarget.closest('svg');
+  if(!svg) return;
+  const sc = +e.currentTarget.dataset.sc || 0;
+  if(!(sc > 0)) return;
+  const box = svg.getBoundingClientRect();
+  if(!box.width) return;
+  winDrag = {x0:e.clientX, y0:e.clientY, c0:m.winCenterEff, unit:(SW/box.width)/sc,
+             axis:e.currentTarget.dataset.axis||'x', raf:0};
+  e.preventDefault();
+  document.body.classList.add('dragging');
+  window.addEventListener('pointermove', onWinDragMove, {passive:false});
+  window.addEventListener('pointerup', onWinDragEnd);
+  window.addEventListener('pointercancel', onWinDragEnd);
+}
+function onWinDragMove(e){
+  if(!winDrag) return;
+  const dpx = winDrag.axis==='y' ? (e.clientY - winDrag.y0) : (e.clientX - winDrag.x0);
+  if(!dpx) return;
+  e.preventDefault();
+  const c = Math.round(winDrag.c0 + dpx*winDrag.unit);
+  if(c === state.winCenter) return;
+  state.winCenter = c;
+  if(!winDrag.raf) winDrag.raf = requestAnimationFrame(()=>{ if(winDrag) winDrag.raf = 0; render(); });
+}
+function onWinDragEnd(){
+  if(winDrag && winDrag.raf) cancelAnimationFrame(winDrag.raf);
+  winDrag = null;
+  document.body.classList.remove('dragging');
+  window.removeEventListener('pointermove', onWinDragMove);
+  window.removeEventListener('pointerup', onWinDragEnd);
+  window.removeEventListener('pointercancel', onWinDragEnd);
+}
+
 function render(){
   const inp = readInputs();
   const m = buildModel(inp);
   state.model = m;
+  /* 시창 자리를 만들려고 문을 좌/우로 붙인 경우 — 문 위치 버튼도 같이 맞춘다 */
+  if(m.winDoorMoved && state.doorAlign !== m.usedAlign){
+    state.doorAlign = m.usedAlign;
+    const da = $('#doorAlign');
+    if(da) da.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===m.usedAlign)));
+  }
+  syncWinUI(m);
 
   // sheets
   const host = $('#sheets');
@@ -1554,6 +1796,10 @@ function render(){
     </div>`).join('');
   host.querySelectorAll('[data-png]').forEach(b=>{
     b.addEventListener('click', ()=>exportSheet(b.dataset.png));
+  });
+  /* 시창 드래그 — 평면도·전개도 어느 쪽을 끌어도 같은 값으로 움직인다 */
+  host.querySelectorAll('[data-drag]').forEach(el=>{
+    el.addEventListener('pointerdown', onWinDragStart);
   });
 
   // stats
@@ -1599,9 +1845,12 @@ function verifyHTML(m){
   const mineWall = m.cut.filter(c=>c.group==='벽판 95T PB' && c.w===m.MOD && c.l===1000).reduce((a,c)=>a+c.qty,0);
   const ok = mineWall === hit.wall;
   const ceilTxt = m.ceil.pieces.map(p=>p.w+'×'+p.l).join(' · ');
+  const wallLi = (m.winCount>0)
+    ? `<li>벽판 600×1000 — 도면 <b>${hit.wall}</b>장 / 산출 <b>${mineWall}</b>장 <span style="color:#7B8389">(시창 열 ${m.winStackTxt}은 아래·위 판으로 별도 재단)</span></li>`
+    : `<li>벽판 600×1000 — 도면 <b>${hit.wall}</b>장 / 산출 <b class="${ok?'ok':'no'}">${mineWall}</b>장 ${ok?'✓':'△'}</li>`;
   return `<p style="margin:0 0 8px">기준 <b>${hit.name}</b> <span style="color:#9AA4AC">(${hit.src})</span></p>
     <ul>
-      <li>벽판 600×1000 — 도면 <b>${hit.wall}</b>장 / 산출 <b class="${ok?'ok':'no'}">${mineWall}</b>장 ${ok?'✓':'△'}</li>
+      ${wallLi}
       <li>바닥 — 도면 ${hit.floor.join(', ')}</li>
       <li class="ok">산출 ${merge(flatCells([...m.floor.l1,...m.floor.l2])).map(p=>p.w+'×'+p.l+'×'+p.qty).join(', ')}</li>
       <li>천장 — 도면 ${hit.ceil.join(', ')}</li>
@@ -1611,7 +1860,10 @@ function verifyHTML(m){
 
 function syncURL(inp){
   const q = new URLSearchParams({w:inp.W,d:inp.D,h:inp.H,ds:inp.doorSide,da:inp.doorAlign,hg:inp.doorHinge,ls:inp.lenSplit});
-  if(inp.winOn) q.set('win', inp.winSide+inp.winCount);
+  if(inp.winSpec && inp.winSpec!=='none'){
+    q.set('ws', inp.winSpec); q.set('wc', inp.winCount); q.set('wn', inp.winSide);
+    if(inp.winCenter!==null && inp.winCenter!==undefined && inp.winCenter!=='') q.set('wp', Math.round(inp.winCenter));
+  }
   try{ history.replaceState(null,'','?'+q.toString()); }catch(e){}
 }
 
@@ -1708,16 +1960,22 @@ function m0(){ return state.model; }
 /* =====================================================================
    9. 이벤트 · 초기화
    ===================================================================== */
-function segInit(sel, key, def){
+function segInit(sel, key, def, after){
   const el = $(sel);
   state[key] = def;
   el.querySelectorAll('button').forEach(b=>{
     b.addEventListener('click', ()=>{
       state[key] = b.dataset.v;
       el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+      if(after) after(b.dataset.v);
       render();
     });
   });
+}
+function setSeg(sel, key, val){
+  const el = $(sel); if(!el) return;
+  el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===val)));
+  state[key] = val;
 }
 
 function init(){
@@ -1728,6 +1986,7 @@ function init(){
   segInit('#doorSide','doorSide','front');
   segInit('#doorAlign','doorAlign','center');
   segInit('#doorHinge','doorHinge','right');
+  segInit('#winSpec','winSpec','none', ()=>{ state.winCenter = null; });
 
   $('#presets').addEventListener('click', e=>{
     const b = e.target.closest('.chip'); if(!b) return;
@@ -1735,13 +1994,12 @@ function init(){
     render();
   });
 
-  ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#winW','#winH','#mod','#joint','#ceilDir','#lenSplit']
+  ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit']
     .forEach(s=>{ const el=$(s); el.addEventListener('input', render); el.addEventListener('change', render); });
 
-  $('#winOn').addEventListener('change', ()=>{
-    $('#winFields').style.display = $('#winOn').checked ? '' : 'none';
-    render();
-  });
+  /* 시창 위치 슬라이더 · 중앙 정렬 */
+  $('#winPos').addEventListener('input', e=>{ state.winCenter = +e.target.value; render(); });
+  $('#winCenter').addEventListener('click', ()=>{ state.winCenter = null; render(); });
 
   $('#btnPrint').addEventListener('click', ()=>window.print());
   $('#btnPngAll').addEventListener('click', exportAll);
@@ -1769,7 +2027,15 @@ function init(){
     state.doorHinge = src.doorHinge==='left' ? 'left' : 'right';
     $('#doorHinge').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===state.doorHinge)));
   }
-  if(src.winOn){ $('#winOn').checked = true; $('#winFields').style.display=''; if(src.winSide) $('#winSide').value=src.winSide; if(src.winCount) $('#winCount').value=src.winCount; }
+  const qWs = q.get('ws') || src.winSpec;
+  state.winCenter = null;
+  if(qWs==='none' || qWs==='400x800' || qWs==='800x800' || qWs==='1200x800') setSeg('#winSpec','winSpec', qWs);
+  const qWc = q.get('wc') || src.winCount, qWn = q.get('wn') || src.winSide;
+  if(qWc) $('#winCount').value = qWc;
+  if(qWn) $('#winSide').value = qWn;
+  const qWp = q.get('wp');
+  if(qWp !== null && qWp !== '') state.winCenter = +qWp;
+  else if(src.winCenter !== undefined && src.winCenter !== null && src.winCenter !== '') state.winCenter = +src.winCenter;
   const qSplit = q.get('ls') || src.lenSplit;
   if(qSplit==='max' || qSplit==='even') $('#lenSplit').value = qSplit;
 
