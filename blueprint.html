@@ -305,28 +305,59 @@ function buildModel(inp){
     s.mods = cnt;
     s.resid = rest >= 40 ? rest : 0;
 
-    /* 시창이 이 면에 있으면 모듈 하나를 창틀로 교체 */
-    s.wins = [];
-    if(winCount > 0 && s.k===winSide){
-      const usable = pieces.filter(p=>p.kind==='mod');
-      const take = Math.min(winCount, usable.length);
-      let removed = 0;
-      s.pieces = pieces.filter(p=>{ if(p.kind==='mod' && removed < take){removed++; return false;} return true; });
-      s.mods -= removed;
-      s.winSlots = take;
-    } else s.winSlots = 0;
+    s.winSlots = 0;
   });
 
-  /* 시창 위치(도면용) */
-  const winSideObj = sides.find(s=>s.k===winSide);
+  /* --- 시창 배치 : 문이 있는 면에서는 문을 피해, 없으면 반대 면으로 ----- */
+  const startOf = sd => (sd.len - sd.span)/2;
+  let winSideKey = winSide, winMoved = false;
   const winPositions = [];
-  if(winCount>0 && winSideObj){
-    const span = winSideObj.span, cnt = Math.min(winCount, winSideObj.winSlots||winCount);
-    for(let i=0;i<cnt;i++){
-      const center = span * (i+1)/(cnt+1);
-      winPositions.push({c:center, w:winW, h:winH});
+  if(winCount > 0){
+    const gapsOf = (sd) => {
+      const lay = layoutPieces(sd, doorAlign);
+      const st = startOf(sd);
+      const gaps = [];
+      let cur = st;
+      lay.forEach(it=>{ if(it.kind==='door'){ if(it.at - cur > 40) gaps.push([cur, it.at]); cur = it.at + it.w; } });
+      if(st + sd.span - cur > 40) gaps.push([cur, st + sd.span]);
+      return gaps.sort((a,b)=>(b[1]-b[0])-(a[1]-a[0]));
+    };
+    const place = (sd, n) => {
+      const gaps = gapsOf(sd).filter(g=> (g[1]-g[0]) >= winW + 40);
+      const out = [];
+      if(!gaps.length) return out;
+      const st = startOf(sd);
+      let i = 0;
+      gaps.forEach(g=>{
+        const room = g[1]-g[0];
+        const slots = Math.max(1, Math.min(n - out.length, Math.floor(room/(winW+40))));
+        for(let k=0;k<slots;k++){
+          const c = g[0] + (room/slots)*(k+0.5);
+          out.push({c: c - st, w: winW, h: winH});
+        }
+      });
+      return out.slice(0, n);
+    };
+    let ws = sides.find(s=>s.k===winSide);
+    let pos = place(ws, winCount);
+    if(!pos.length){
+      const alt = sides.find(s=>s.k===opp) || sides.find(s=>s.k!==winSide);
+      pos = place(alt, winCount);
+      ws = alt; winSideKey = alt.k; winMoved = true;
     }
+    pos.forEach(p=>winPositions.push(p));
+    const take = Math.min(winPositions.length, ws.mods || 0);
+    if(take > 0){
+      let removed = 0;
+      ws.pieces = ws.pieces.filter(pc=>{
+        if(pc.kind==='mod' && removed < take){ removed++; return false; }
+        return true;
+      });
+      ws.mods -= removed;
+    }
+    ws.winSlots = winPositions.length;
   }
+  const winSideObj = sides.find(s=>s.k===winSideKey);
 
   /* --- 바닥 2겹 (교차) ------------------------------------------------ */
   function strips(len){          // 폭 배열
@@ -385,7 +416,7 @@ function buildModel(inp){
   merge2(wallRows).forEach(p=>add('벽판 95T PB', p.w, p.l, p.qty, p.note));
   if(fillH > 40) add('문·개구부', dw, fillH, 1, '문 상단 채움판');
   if(winCount>0){
-    add('문·개구부', winW, winH, winCount, '시창 개구부');
+    add('문·개구부', winW, winH, winCount, '시창 개구부' + (winMoved? ' · '+sideName[winSideKey]+' 배치':''));
     const side = winW; const upDown = Math.max(20, Math.round((1000-winH)/2));
     add('문·개구부', winW, upDown, winCount*2, '시창 상·하 채움');
     if(MOD-winW > 40) add('문·개구부', MOD-winW, 1000, winCount, '시창 옆 채움');
@@ -422,7 +453,7 @@ function buildModel(inp){
 
   return {
     inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, sideName,
-    winCount, winSide, winW, winH, winPositions, winSideObj,
+    winCount, winSide, winSideKey, winMoved, winW, winH, winPositions, winSideObj,
     floor:{l1:f1, l2:f2}, ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan},
     cut, bom, perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
     cornerPosts, extRows
@@ -655,12 +686,12 @@ function sheetPlan(m){
   /* 시창 */
   if(m.winCount>0 && m.winSideObj){
     const ws = m.winSideObj;
-    const isH = (m.winSide==='front'||m.winSide==='back');
+    const isH = (m.winSideKey==='front'||m.winSideKey==='back');
     const off0 = (ws.len - ws.span)/2;
     m.winPositions.forEach(wp=>{
       const c = (off0 + wp.c)*sc, half = wp.w*sc/2;
       if(isH){
-        const y = (m.winSide==='front')? oy+ph-t : oy;
+        const y = (m.winSideKey==='front')? oy+ph-t : oy;
         s += R(ox+c-half, y, wp.w*sc, t, {fill:'#fff',stroke:'none'});
         s += R(ox+c-half, y, wp.w*sc, t, {fill:'url(#hGlass)',stroke:DIMC,sw:0.9});
         s += L(ox+c-half, y+t/2, ox+c+half, y+t/2, {stroke:DIMC,sw:1.2});
@@ -668,7 +699,7 @@ function sheetPlan(m){
         s += L(ox+c+half, y, ox+c+half, y+t, {stroke:DIMC,sw:1.1});
         s += T(ox+c, y-3.6, '시창 '+wp.w+'×'+wp.h, {size:6,fill:DIMC,anchor:'middle',mono:true});
       } else {
-        const x = (m.winSide==='left')? ox : ox+pw-t;
+        const x = (m.winSideKey==='left')? ox : ox+pw-t;
         s += R(x, oy+c-half, t, wp.w*sc, {fill:'url(#hGlass)',stroke:DIMC,sw:0.9});
         s += L(x, oy+c-half, x+t, oy+c-half, {stroke:DIMC,sw:1.1});
         s += L(x, oy+c+half, x+t, oy+c+half, {stroke:DIMC,sw:1.1});
@@ -882,7 +913,7 @@ function sheetElevation(m){
       o += C(dx+dwp-10*sc*3, y+hh-dhp*0.45, Math.max(1.2, 2*sc*3), {fill:INK, stroke:INK, sw:0.4});
     }
     // 시창
-    if(m.winCount>0 && side.k===m.winSide){
+    if(m.winCount>0 && side.k===m.winSideKey){
       const off0 = (side.len - side.span)/2;
       m.winPositions.forEach(wp=>{
         const c = (off0+wp.c)*sc - x + x; // 절대
