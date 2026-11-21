@@ -569,6 +569,27 @@ function pageNo(no,i,total){
 /* =====================================================================
    4. A-101 평면도
    ===================================================================== */
+function layoutPieces(sd, doorAlign){
+  const nonDoor = sd.pieces.filter(p=>p.kind!=='door');
+  const doorP = sd.pieces.find(p=>p.kind==='door');
+  const off0 = (sd.len - sd.span)/2;
+  const items = [];
+  if(!doorP){
+    let a = off0;
+    nonDoor.forEach(p=>{ items.push({kind:p.kind,w:p.w,at:a}); a += p.w; });
+    return items;
+  }
+  let before = 0;
+  if(doorAlign==='center') before = Math.ceil(nonDoor.length/2);
+  else if(doorAlign==='right') before = nonDoor.length;
+  let a = off0;
+  nonDoor.slice(0,before).forEach(p=>{ items.push({kind:p.kind,w:p.w,at:a}); a += p.w; });
+  items.push({kind:'door', w:doorP.w, at:a});
+  a += doorP.w;
+  nonDoor.slice(before).forEach(p=>{ items.push({kind:p.kind,w:p.w,at:a}); a += p.w; });
+  return items;
+}
+
 function sheetPlan(m){
   let s = sheetHead('A-101','벽체 평면도','PLAN · 외경 '+m.W+' × '+m.D+' · 벽체 120㎜ (95T PB 5겹 + 마감) · 코너 110 합판 기둥');
   s += pageNo('A-101',1,4);
@@ -592,27 +613,7 @@ function sheetPlan(m){
   });
 
   /* 면 분할 계산 */
-  const sideGeom = (sd) => {
-    const off0 = (sd.len - sd.span)/2;
-    const doorP = sd.pieces.find(p=>p.kind==='door');
-    const rest = sd.pieces.filter(p=>p.kind!=='door');
-    const items = [];
-    if(doorP){
-      const free = sd.span - doorP.w;
-      const dOff = off0 + (m.doorAlign==='left'?0:(m.doorAlign==='right'?free:free/2));
-      items.push({kind:'door', w:doorP.w, at:dOff});
-      let a = off0;
-      rest.forEach(p=>{
-        if(a < dOff + doorP.w - 0.5 && a + p.w > dOff - 0.5) a = dOff + doorP.w;
-        items.push({kind:p.kind, w:p.w, at:a});
-        a += p.w;
-      });
-    } else {
-      let a = off0;
-      rest.forEach(p=>{ items.push({kind:p.kind,w:p.w,at:a}); a += p.w; });
-    }
-    return items.sort((x,y)=>x.at-y.at);
-  };
+  const sideGeom = (sd) => layoutPieces(sd, m.doorAlign);
 
   const drawBand = (kind, sd) => {
     const items = sideGeom(sd);
@@ -869,8 +870,8 @@ function sheetElevation(m){
     // 문
     const doorP = side.pieces.find(p=>p.kind==='door');
     if(doorP){
-      const free = side.span - doorP.w;
-      const off = (side.len - side.span)/2 + (m.doorAlign==='left'?0:(m.doorAlign==='right'?free:free/2));
+      const di = layoutPieces(side, m.doorAlign).find(i=>i.kind==='door');
+      const off = di.at;
       const dx = x+off*sc, dwp = doorP.w*sc, dhp = m.dh*sc, fhp = m.fillH*sc;
       o += R(dx, y+hh-dhp, dwp, dhp, {fill:'#F7F4ED', stroke:WARN, sw:1.1});
       o += R(dx, y+hh-dhp-fhp, dwp, fhp, {fill:'#FBEFE4', stroke:WARN, sw:0.85});
