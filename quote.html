@@ -117,6 +117,46 @@
   .chip.big > span b{font-size:14.5px;font-weight:800}
   .combo .chip{flex:1 1 calc(50% - 4px)}
 
+  /* ---------- 실제 자재 색상(아트보드·라인타공) ---------- */
+  .swgrid{display:grid;gap:7px;margin-top:10px}
+  .swgrid.board{grid-template-columns:repeat(3,1fr)}
+  .swgrid.slat{grid-template-columns:repeat(4,1fr)}
+  .sw{position:relative;display:block}
+  .sw input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .sw .tile{display:block;height:100%;border:1px solid rgba(20,23,26,.14);border-radius:11px;overflow:hidden;background:#fff;
+    transition:border-color .15s,box-shadow .15s}
+  .sw .c{display:block;position:relative;height:46px;background:var(--c);border-bottom:1px solid rgba(20,23,26,.07)}
+  .sw .c.wood{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 1px,rgba(255,255,255,.18) 1px 2px,rgba(0,0,0,0) 2px 5px)}
+  .sw .nm{display:block;padding:5px 3px 6px;text-align:center;line-height:1.22;letter-spacing:-.02em}
+  .sw .nm b{display:block;font-size:11.5px;font-weight:800;color:var(--ink2)}
+  .sw .nm em{display:block;margin-top:1px;font-style:normal;font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+  .sw input:checked+.tile{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .sw input:checked+.tile .nm b,.sw input:checked+.tile .nm em{color:var(--accent-d)}
+  .sw input:focus-visible+.tile{outline:2px solid var(--accent);outline-offset:2px}
+  .sw.wide{grid-column:1/-1}
+  .sw.wide .tile{display:flex;align-items:center;justify-content:center;min-height:44px}
+  .sw.wide .nm{padding:11px 8px}
+  .sw.wide .nm b{font-size:13.5px}
+  .sw.wide .nm em{margin-top:2px}
+
+  /* ---------- 추천 조합 카드 ---------- */
+  .combos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .cbox{position:relative;display:block}
+  .cbox input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .cbox .bd{display:flex;flex-direction:column;gap:5px;height:100%;padding:8px 8px 9px;border:1px solid var(--line);
+    border-radius:13px;background:#fff;transition:border-color .15s,box-shadow .15s}
+  .cbox .duo{display:grid;grid-template-columns:2fr 1fr;gap:3px;height:40px;border-radius:8px;overflow:hidden;
+    border:1px solid rgba(20,23,26,.1)}
+  .cbox .duo i{display:block;background:var(--c)}
+  .cbox .duo i.wood{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 1px,rgba(255,255,255,.18) 1px 2px,rgba(0,0,0,0) 2px 5px)}
+  .cbox .t{font-size:12.5px;font-weight:800;color:var(--ink);line-height:1.25;letter-spacing:-.02em}
+  .cbox .cn{font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.32}
+  .cbox .tip{font-size:10.5px;font-weight:600;color:var(--body);line-height:1.42}
+  .cbox input:checked+.bd{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .cbox input:focus-visible+.bd{outline:2px solid var(--accent);outline-offset:2px}
+  .cbox.wide{grid-column:1/-1}
+  .cbox.wide .bd{flex-direction:row;align-items:center;gap:8px;padding:11px 12px}
+
   /* ---------- inputs ---------- */
   .in{display:block;width:100%;height:50px;border:1px solid var(--line);border-radius:12px;background:#fff;
     padding:0 13px;font-size:16px;color:var(--ink);font-family:inherit;-webkit-appearance:none;appearance:none}
@@ -279,41 +319,91 @@
     <!-- 02 스타일 -->
     <section class="card">
       <div class="step-h"><span class="n">2</span><b>인테리어 스타일 · 마감</b></div>
-      <p class="hint">추천 조합을 고르면 아트보드와 라인타공 색이 함께 정해집니다. 따로 고르셔도 됩니다.</p>
-      <div class="chips combo" id="combo-chips">
-        <label class="chip big"><input type="radio" name="combo" value="차콜&amp;화이트"><span><b>차콜 &amp; 화이트</b><span class="s">차콜 그레이 3면 + 화이트 1면</span></span></label>
-        <label class="chip big"><input type="radio" name="combo" value="아이보리&amp;오크"><span><b>아이보리 &amp; 내추럴 오크</b><span class="s">아이보리 화이트 3면 + 오크 1면</span></span></label>
-        <label class="chip big"><input type="radio" name="combo" value="크림&amp;월넛"><span><b>크림 &amp; 월넛</b><span class="s">크림 베이지 3면 + 월넛 1면</span></span></label>
-        <label class="chip big"><input type="radio" name="combo" value="직접 고르기"><span><b>직접 고르기</b><span class="s">아래에서 색을 각각 선택</span></span></label>
+      <p class="hint">추천 조합을 고르면 <b>아트보드 3면 · 라인타공 1면</b> 색이 함께 정해집니다. 따로 고르셔도 됩니다. (실물 자재표 기준)</p>
+      <div class="combos" id="combo-chips">
+        <label class="cbox"><input type="radio" name="combo" value="스튜디오 베스트">
+          <span class="bd">
+            <span class="duo" aria-hidden="true"><i style="--c:#CDB79B"></i><i class="wood" style="--c:#D8C8B2"></i></span>
+            <span class="t">스튜디오 베스트</span>
+            <span class="cn">연베이지 3면 · 005 메이플 1면</span>
+            <span class="tip">가장 많이 찾는 조합 · 포근하고 오염 관리가 편해요</span>
+          </span>
+        </label>
+        <label class="cbox"><input type="radio" name="combo" value="클린 화이트">
+          <span class="bd">
+            <span class="duo" aria-hidden="true"><i style="--c:#E3E4E2"></i><i class="wood" style="--c:#CFCCC4"></i></span>
+            <span class="t">클린 화이트</span>
+            <span class="cn">화이트 3면 · 004 화이트워시 1면</span>
+            <span class="tip">화사하고 넓어 보여요 (밝은 톤이라 관리 주의)</span>
+          </span>
+        </label>
+        <label class="cbox"><input type="radio" name="combo" value="블랙 &amp; 화이트">
+          <span class="bd">
+            <span class="duo" aria-hidden="true"><i style="--c:#17191C"></i><i class="wood" style="--c:#E9E9E7"></i></span>
+            <span class="t">블랙 &amp; 화이트</span>
+            <span class="cn">블랙 3면 · 003 화이트 1면</span>
+            <span class="tip">선명한 모노톤 (블랙은 먼지 관리가 조금 더 필요해요)</span>
+          </span>
+        </label>
+        <label class="cbox"><input type="radio" name="combo" value="모던 다크">
+          <span class="bd">
+            <span class="duo" aria-hidden="true"><i style="--c:#5D6771"></i><i class="wood" style="--c:#3B302B"></i></span>
+            <span class="t">모던 다크</span>
+            <span class="cn">진그레이 3면 · 008 다크 월넛 1면</span>
+            <span class="tip">차분하고 묵직한 작업실 톤 · 관리 무난해요</span>
+          </span>
+        </label>
+        <label class="cbox wide"><input type="radio" name="combo" value="직접 고르기">
+          <span class="bd">
+            <span class="t">직접 고르기</span>
+            <span class="cn" style="margin-left:auto">아래 12색 · 8종에서 각각 선택</span>
+          </span>
+        </label>
       </div>
       <div class="preview" aria-hidden="true">
-        <figure><img src="assets/interior-door.jpg" alt="차콜 아트보드 세 면과 화이트 라인타공 한 면" loading="lazy"><figcaption>차콜 &amp; 화이트</figcaption></figure>
-        <figure><img src="assets/interior-academy.jpg" alt="아이보리 아트보드와 메이플 톤 라인타공" loading="lazy"><figcaption>아이보리 &amp; 오크</figcaption></figure>
-        <figure><img src="assets/interior-slat.jpg" alt="베이지 아트보드와 우드 톤 라인타공 한 면" loading="lazy"><figcaption>크림 &amp; 월넛</figcaption></figure>
+        <figure><img src="assets/interior-door.jpg" alt="블랙 아트보드 세 면과 화이트 라인타공 한 면의 실제 시공 내부" loading="lazy"><figcaption>블랙 &amp; 화이트 톤</figcaption></figure>
+        <figure><img src="assets/interior-academy.jpg" alt="연베이지 아트보드와 메이플 톤 라인타공의 실제 시공 내부" loading="lazy"><figcaption>연베이지 · 메이플 톤</figcaption></figure>
+        <figure><img src="assets/interior-slat.jpg" alt="우드 톤 라인타공과 밝은 아트보드의 실제 시공 내부" loading="lazy"><figcaption>우드 톤 내부</figcaption></figure>
       </div>
 
       <div class="subopt">
-        <span class="lb">아트보드 3면</span>
-        <div class="chips" id="board-chips">
-          <label class="chip"><input type="radio" name="board" value="크림 베이지"><span>크림 베이지</span></label>
-          <label class="chip"><input type="radio" name="board" value="아이보리 화이트"><span>아이보리 화이트</span></label>
-          <label class="chip"><input type="radio" name="board" value="웜 그레이"><span>웜 그레이</span></label>
-          <label class="chip"><input type="radio" name="board" value="차콜 그레이"><span>차콜 그레이</span></label>
+        <span class="lb">아트보드 3면 <em>12색</em></span>
+        <div class="swgrid board" id="board-chips">
+          <label class="sw"><input type="radio" name="board" value="연베이지"><span class="tile"><span class="c" style="--c:#CDB79B"></span><span class="nm"><b>연베이지</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="진베이지"><span class="tile"><span class="c" style="--c:#B08659"></span><span class="nm"><b>진베이지</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="화이트"><span class="tile"><span class="c" style="--c:#E3E4E2"></span><span class="nm"><b>화이트</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="연그레이"><span class="tile"><span class="c" style="--c:#AEAFAC"></span><span class="nm"><b>연그레이</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="진그레이"><span class="tile"><span class="c" style="--c:#5D6771"></span><span class="nm"><b>진그레이</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="블랙"><span class="tile"><span class="c" style="--c:#17191C"></span><span class="nm"><b>블랙</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="오렌지"><span class="tile"><span class="c" style="--c:#E2A11C"></span><span class="nm"><b>오렌지</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="메론"><span class="tile"><span class="c" style="--c:#8CC13E"></span><span class="nm"><b>메론</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="그린"><span class="tile"><span class="c" style="--c:#1E5A44"></span><span class="nm"><b>그린</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="스카이블루"><span class="tile"><span class="c" style="--c:#4C86C8"></span><span class="nm"><b>스카이블루</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="블루"><span class="tile"><span class="c" style="--c:#2B3A78"></span><span class="nm"><b>블루</b></span></span></label>
+          <label class="sw"><input type="radio" name="board" value="핑크"><span class="tile"><span class="c" style="--c:#C6484A"></span><span class="nm"><b>핑크</b></span></span></label>
+          <label class="sw wide"><input type="radio" name="board" value="상담 후 결정"><span class="tile"><span class="nm"><b>상담 후 결정</b></span></span></label>
         </div>
+        <p class="hint">실제 쓰는 아트보드 <b>12색</b>입니다. 화면 색은 실물과 조금 다를 수 있어, 상담 때 실물 샘플로 확인하실 수 있습니다.</p>
       </div>
 
       <div class="subopt">
-        <span class="lb">라인타공 1면</span>
-        <div class="chips" id="slat-chips">
-          <label class="chip"><input type="radio" name="slat" value="내추럴 오크"><span>내추럴 오크</span></label>
-          <label class="chip"><input type="radio" name="slat" value="월넛"><span>월넛</span></label>
-          <label class="chip"><input type="radio" name="slat" value="화이트"><span>화이트</span></label>
-          <label class="chip"><input type="radio" name="slat" value="상담 후 결정"><span>상담 후 결정</span></label>
+        <span class="lb">라인타공 1면 <em>RG-LT3203 8종</em></span>
+        <div class="swgrid slat" id="slat-chips">
+          <label class="sw"><input type="radio" name="slat" value="001 내추럴 오크"><span class="tile"><span class="c wood" style="--c:#C9B49B"></span><span class="nm"><em>001</em><b>내추럴 오크</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="002 미디엄 월넛"><span class="tile"><span class="c wood" style="--c:#8E7467"></span><span class="nm"><em>002</em><b>미디엄 월넛</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="003 화이트"><span class="tile"><span class="c wood" style="--c:#E9E9E7"></span><span class="nm"><em>003</em><b>화이트</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="004 화이트워시"><span class="tile"><span class="c wood" style="--c:#CFCCC4"></span><span class="nm"><em>004</em><b>화이트워시</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="005 메이플"><span class="tile"><span class="c wood" style="--c:#D8C8B2"></span><span class="nm"><em>005</em><b>메이플</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="006 티크"><span class="tile"><span class="c wood" style="--c:#A68168"></span><span class="nm"><em>006</em><b>티크</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="007 애쉬 오크"><span class="tile"><span class="c wood" style="--c:#938372"></span><span class="nm"><em>007</em><b>애쉬 오크</b></span></span></label>
+          <label class="sw"><input type="radio" name="slat" value="008 다크 월넛"><span class="tile"><span class="c wood" style="--c:#3B302B"></span><span class="nm"><em>008</em><b>다크 월넛</b></span></span></label>
+          <label class="sw wide"><input type="radio" name="slat" value="상담 후 결정"><span class="tile"><span class="nm"><b>상담 후 결정</b></span></span></label>
         </div>
+        <p class="hint">바닥에서 천장까지 세로로 파인 <b>라인타공</b> 마감입니다. 번호(<b>001~008</b>)로 실물 자재표와 똑같이 맞춰 두었으니, 상담 때 번호로 말씀해 주셔도 됩니다.</p>
       </div>
 
       <div class="subopt">
-        <span class="lb">조명</span>
+        <span class="lb">조명 — COB 매립등 · 레일등</span>
         <div class="chips" id="light-chips">
           <label class="chip"><input type="radio" name="light" value="COB 매립등 (3000K)"><span>COB 매립등 (3000K)</span></label>
           <label class="chip"><input type="radio" name="light" value="COB 매립등 (4000K)"><span>COB 매립등 (4000K)</span></label>
@@ -321,6 +411,16 @@
           <label class="chip"><input type="radio" name="light" value="상담 후 결정"><span>상담 후 결정</span></label>
         </div>
         <p class="hint"><b>3000K</b>는 따뜻한 빛, <b>4000K</b>는 하얗고 밝은 빛입니다. 부스가 길면 레일등으로 천장을 따라 길게 깝니다.</p>
+      </div>
+
+      <div class="subopt">
+        <span class="lb">중앙 LED 등 색온도</span>
+        <div class="chips" id="cen-chips">
+          <label class="chip"><input type="radio" name="cen" value="주백색 (4000K)"><span>주백색 (4000K)</span></label>
+          <label class="chip"><input type="radio" name="cen" value="주광색 (6500K)"><span>주광색 (6500K)</span></label>
+          <label class="chip"><input type="radio" name="cen" value="상담 후 결정"><span>상담 후 결정</span></label>
+        </div>
+        <p class="hint">천장 가운데 등의 빛 색입니다. <b>주백색</b>은 자연광에 가까운 중간 흰색, <b>주광색</b>은 형광등처럼 맑고 푸른기 도는 흰색입니다.</p>
       </div>
     </section>
 
@@ -439,15 +539,16 @@
       <pre class="tmpl" id="tmpl">[베오방음 신규 설치 간편 견적]
 1. 규격: 슈퍼싱글(1,500×1,800) / 슈퍼싱글 플러스(1,800×2,000) / 더블(2,000×2,400) / 맞춤(가로×세로 mm)
 2. 문 경첩: 우경첩(기본) / 좌경첩 / 현장 상담
-3. 아트보드 3면: 크림 베이지 / 아이보리 화이트 / 웜 그레이 / 차콜 그레이
-4. 라인타공 1면: 내추럴 오크 / 월넛 / 화이트 / 상담 후 결정
+3. 아트보드 3면(12색): 연베이지 / 진베이지 / 화이트 / 연그레이 / 진그레이 / 블랙 / 오렌지 / 메론 / 그린 / 스카이블루 / 블루 / 핑크 / 상담 후 결정
+4. 라인타공 1면(RG-LT3203 8종): 001 내추럴 오크 / 002 미디엄 월넛 / 003 화이트 / 004 화이트워시 / 005 메이플 / 006 티크 / 007 애쉬 오크 / 008 다크 월넛 / 상담 후 결정
 5. 조명: COB 매립등 3000K / COB 매립등 4000K / 레일등 / 상담 후 결정
-6. 추가 옵션(복수): 벽면 시창(400×800) / 천장 프로젝트창(시스템에어컨 연동) / 에어컨 라인 벽체 매설
-7. 설치 지역: 서울·경기·인천 / 충청·강원·지방
-8. 상세 지역·층수: (엘리베이터 있음·없음)
-9. 희망 설치 시기:
-10. 결제·증빙 희망(선택): 카드결제 / 세금계산서 / 현금영수증
-11. 설치 공간 사진: 있으면 1~2장
+6. 중앙 LED 등: 주백색(4000K) / 주광색(6500K) / 상담 후 결정
+7. 추가 옵션(복수): 벽면 시창(400×800) / 천장 프로젝트창(시스템에어컨 연동) / 에어컨 라인 벽체 매설
+8. 설치 지역: 서울·경기·인천 / 충청·강원·지방
+9. 상세 지역·층수: (엘리베이터 있음·없음)
+10. 희망 설치 시기:
+11. 결제·증빙 희망(선택): 카드결제 / 세금계산서 / 현금영수증
+12. 설치 공간 사진: 있으면 1~2장
 성함 / 연락처:
 메모(용도·주차 등):</pre>
       <div class="row">
@@ -630,9 +731,10 @@
 
   /* ---------- 추천 조합 → 개별 칩 동기화 ---------- */
   var COMBO = {
-    "차콜&화이트": ["차콜 그레이", "화이트"],
-    "아이보리&오크": ["아이보리 화이트", "내추럴 오크"],
-    "크림&월넛": ["크림 베이지", "월넛"]
+    "스튜디오 베스트": ["연베이지", "005 메이플"],
+    "클린 화이트": ["화이트", "004 화이트워시"],
+    "블랙 & 화이트": ["블랙", "003 화이트"],
+    "모던 다크": ["진그레이", "008 다크 월넛"]
   };
   function checkRadio(name, value){
     var hit = null;
@@ -717,6 +819,7 @@
     var board = checkedValue("board") || "상담 후 결정";
     var slat = checkedValue("slat") || "상담 후 결정";
     var light = checkedValue("light") || "상담 후 결정";
+    var cen = checkedValue("cen") || "상담 후 결정";
     var hinge = checkedValue("hinge") || "우경첩 (기본)";
     var opts = checkedList("opt");
     var pays = checkedList("pay");
@@ -734,6 +837,7 @@
     lines.push("[아트보드 3면] " + board);
     lines.push("[라인타공 1면] " + slat);
     lines.push("[조명] " + light);
+    lines.push("[중앙등] " + cen);
     if (opts.length) lines.push("[추가 옵션] " + opts.join(", "));
     lines.push("[지역] " + region);
     if (floorTxt) lines.push("[층수·엘리베이터] " + floorTxt);
