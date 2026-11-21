@@ -15,4 +15,14 @@
       <image:title>베오방음 맞춤 방음부스</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://dltldud12345-cmd.github.io/beosoundproof/relocation.html</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://dltldud12345-cmd.github.io/beosoundproof/assets/relocation-complete.jpg</image:loc>
+      <image:title>베오방음 방음부스 이전설치</image:title>
+    </image:image>
+  </url>
 </urlset>
