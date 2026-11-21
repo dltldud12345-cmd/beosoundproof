@@ -108,7 +108,7 @@ const PRESETS = [
   { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C6A47E'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
 ];
 const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000', door:'right' };
-const INCLUDED = ['세로 2구 콘센트','강화마루','3면 아트보드','1면 라인타공','COB 매립등·중앙 LED등','시스템도어'];
+const INCLUDED = ['세로 2구 콘센트','강화마루','3면 아트보드','1면 라인타공','COB 매립등·레일등·중앙 LED등','시스템도어'];
 const PHONE = '010-3001-5906';
 const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
 
