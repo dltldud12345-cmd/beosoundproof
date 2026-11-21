@@ -1830,7 +1830,9 @@ function sheetFloorCeil(m){
   calc.push('· 바닥 1층 : 가로 '+m.W+' ÷ 600 → '+m.floor.l1.map(p=>p.w).join(' + ')+'  (길이 '+m.D+' 재단)');
   calc.push('· 바닥 2층 : 세로 '+m.D+' ÷ 600 → '+m.floor.l2.map(p=>p.w).join(' + ')+'  (길이 '+m.W+' 재단) — 1층과 90° 교차');
   calc.push('· 천장 65T : 폭 '+m.ceil.span+' ÷ 600 → '+m.ceil.pieces.map(p=>p.w).join(' + ')+'  (길이 '+m.ceil.len+' 재단)');
-  calc.push('· 천장 '+m.ceil.len+' → '+m.ceilLens.join(' + ')+'  — 600 열마다 [2000|나머지] ↔ [나머지|2000] 지그재그로 이음선이 일자로 겹치지 않게');
+  calc.push(m.ceilLens.length>1
+    ? '· 천장 '+m.ceil.len+' → '+m.ceilLens.join(' + ')+'  — 600 열마다 [2000|나머지] ↔ [나머지|2000] 지그재그로 이음선이 일자로 겹치지 않게'
+    : '· 천장 '+m.ceil.len+' (2400 이하 — 길이 분할 없음) · 600 판 사이 15T 합판 띠 '+ (m.ceil.pieces.length-1) +'개소');
   calc.push('· 천장 2400 초과 시 2,000 + 나머지 지그재그 분할 — 2,000㎜ 판에 575×975 마블 스펀지 2장이 재단 없이 쏙 들어가 나머지 판만 재단');
   calc.push('· 마지막 판 = 자투리 − 15T 세움 합판 여유 '+m.JOINT+'㎜ × 개소 (판 사이에 15T 합판을 세워 박음 · 2000→155 · 1400→170 · 1800→570)');
   calc.push('· 자투리가 40㎜ 미만이면 앞 판에 합쳐 재단 (예: 1600 → 1000 + 600)');
