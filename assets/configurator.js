@@ -1786,7 +1786,7 @@ function rebuild(){
   hotspots = [];
   parts = Object.assign({}, parts);
   delete parts.doorWall; delete parts.ceiling; delete parts.ceilFrame; delete parts.cap;
-  delete parts.lightGroup; delete parts.lightAnchor; delete parts.led; delete parts.projectAnchor;
+  delete parts.lightGroup; delete parts.lightAnchor; delete parts.led; delete parts.projectAnchor; delete parts.projectGroup;
 
   booth = new THREE.Group();
   booth.name = 'booth';
@@ -1874,10 +1874,14 @@ function rebuild(){
   booth.add(cf);
   parts.ceilFrame = cf;
 
-  const projHole = state.project === 'in' ? { x0: -0.3, z0: 0.04, w: 0.6, d: 0.6 } : null;
+  const projHole = state.project === 'in' ? projectWindowRect(W, D) : null;
   const plan = lightLayout(slatName);
   buildCeilingFace(ceilGroup, W, D, projHole, plan.cobHoles);
-  if (projHole) addProjectWindow(ceilGroup, projHole);
+  const projGroup = new THREE.Group();
+  projGroup.name = 'projectWindow';
+  booth.add(projGroup);
+  parts.projectGroup = projGroup;
+  if (projHole) addProjectWindow(projGroup, projHole);
 
   parts.cap = null;
   if (!projHole){
@@ -2082,14 +2086,42 @@ function buildCeilingFace(parent, W, D, projHole, cobHoles){
   });
   band.geometry.dispose();
 
-  // 천장 판 이음 (사진의 얇은 줄눈)
+  // 천장 판 이음 (사진의 얇은 줄눈) — 프로젝트창 개구부는 빼고 긋습니다
+  const seamMat = stdMat({ color: 0xDCD4C2, roughness: 0.95 });
   [-1, 1].forEach(sd => {
-    if (D > 1.4){
-      const seam = new THREE.Mesh(new THREE.BoxGeometry(W - 0.02, 0.0015, 0.005), stdMat({ color: 0xDCD4C2, roughness: 0.95 }));
-      seam.position.set(0, H - 0.0004, sd * D * 0.24);
+    if (D <= 1.4) return;
+    const z = sd * D * 0.24;
+    const cut = projHole && z > projHole.z0 - 0.012 && z < projHole.z0 + projHole.d + 0.012;
+    const spans = cut
+      ? [[-W/2 + 0.01, projHole.x0], [projHole.x0 + projHole.w, W/2 - 0.01]]
+      : [[-W/2 + 0.01, W/2 - 0.01]];
+    spans.forEach(([a, b]) => {
+      const len = b - a;
+      if (len < 0.08) return;
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(len, 0.0015, 0.005), seamMat);
+      seam.position.set((a + b)/2, H - 0.0004, z);
       parent.add(seam);
-    }
+    });
   });
+}
+
+/* ---- 프로젝트창(천장 개폐창) 자리 ----------------
+   천장 가운데 원형 LED(반지름 0.185m)와 COB 매립등(문 맞은편 벽 쪽 z≈-0.48m)을
+   피해서 왼쪽·문 쪽 구석에 비켜 놓습니다. 규격이 작아 구석까지 거리가 모자라면
+   LED와 여유 간격이 살아날 때까지 개구부를 조금씩 줄입니다. */
+const PROJ_SIZE = 0.6;     // 표준 프로젝트창 한 변(m)
+const PROJ_INSET = 0.04;   // 천장 안쪽 면에서 띄우는 값(m)
+const PROJ_CLEAR = 0.26;   // 중앙 LED 중심 ~ 개구부 모서리 최소 거리(m)
+function projectWindowRect(W, D){
+  const x0 = -W/2 + PROJ_INSET;
+  const z1 = D/2 - PROJ_INSET;
+  let s = Math.min(PROJ_SIZE, W - PROJ_INSET*2, D - PROJ_INSET*2);
+  s = Math.round(s * 100) / 100;
+  while (s > 0.34){
+    if (Math.hypot(x0 + s, z1 - s) >= PROJ_CLEAR) break;
+    s = Math.round((s - 0.02) * 100) / 100;
+  }
+  return { x0, z0: Math.round((z1 - s) * 1000) / 1000, w: s, d: s };
 }
 
 function addProjectWindow(parent, h){
@@ -2317,6 +2349,7 @@ function applyViewState(){
   if (parts.ceiling) parts.ceiling.visible = !top;
   if (parts.cap) parts.cap.visible = !top && !interior;
   if (parts.ceilFrame) parts.ceilFrame.visible = top;
+  if (parts.projectGroup) parts.projectGroup.visible = true;
   if (dimGroup) dimGroup.visible = top;
   if (parts.lightGroup) parts.lightGroup.visible = true;
   if (!interior && parts.walls){
@@ -2358,6 +2391,7 @@ function updateInteriorVisibility(){
   });
   // 카메라가 천장 위로 올라가면 천장도 숨김
   if (parts.ceiling) parts.ceiling.visible = camera.position.y < H - 0.22;
+  if (parts.projectGroup) parts.projectGroup.visible = camera.position.y < H - 0.22;
 }
 /* ---- 입력 ---- */
 function initControls(){
