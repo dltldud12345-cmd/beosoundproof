@@ -2267,7 +2267,9 @@ function updateCameraState(){
   );
   camera.lookAt(v.tx, v.ty, v.tz);
   if (Math.abs(camera.fov - cam.fov) > 0.01){
-    camera.fov += (cam.fov - camera.fov) * 0.2;
+    const kf = 1 - Math.exp(-tickDt / 95);
+    camera.fov += (cam.fov - camera.fov) * kf;
+    if (Math.abs(camera.fov - cam.fov) < 0.1) camera.fov = cam.fov;
     camera.updateProjectionMatrix();
   }
 }
@@ -2368,18 +2370,25 @@ function onResize(){
 /* ---- 루프 ---- */
 const tmpV = new THREE.Vector3();
 let firstFrame = true;
+let lastTick = performance.now();
+let tickDt = 16;
 function tick(){
   requestAnimationFrame(tick);
+  const nowT = performance.now();
+  const dt = Math.min(120, Math.max(1, nowT - lastTick));
+  lastTick = nowT;
+  tickDt = dt;
   if (camAnim){
-    const t = Math.min(1, (performance.now() - camAnim) / 900);
-    const e = 1 - Math.pow(1 - t, 3);
-    cam.theta += (camTarget.theta - cam.theta) * (0.08 + e * 0.2);
-    cam.phi += (camTarget.phi - cam.phi) * (0.08 + e * 0.2);
-    cam.r += (camTarget.r - cam.r) * (0.08 + e * 0.2);
-    cam.ty += (camTarget.ty - cam.ty) * (0.08 + e * 0.2);
-    cam.fov += (camTarget.fov - cam.fov) * (0.08 + e * 0.2);
-    cam.tx += (camTarget.tx - cam.tx) * (0.08 + e * 0.2);
-    cam.tz += (camTarget.tz - cam.tz) * (0.08 + e * 0.2);
+    const t = Math.min(1, (nowT - camAnim) / 900);
+    // 프레임률과 무관하게 수렴하도록 시간 기반 보간
+    const k = 1 - Math.exp(-dt / 95);
+    cam.theta += (camTarget.theta - cam.theta) * k;
+    cam.phi += (camTarget.phi - cam.phi) * k;
+    cam.r += (camTarget.r - cam.r) * k;
+    cam.ty += (camTarget.ty - cam.ty) * k;
+    cam.fov += (camTarget.fov - cam.fov) * k;
+    cam.tx += (camTarget.tx - cam.tx) * k;
+    cam.tz += (camTarget.tz - cam.tz) * k;
     if (t >= 1){ camAnim = 0; Object.assign(camTarget, { theta: cam.theta, phi: cam.phi, r: cam.r, ty: cam.ty, fov: cam.fov, tx: cam.tx, tz: cam.tz }); }
   }
   updateCameraState();
