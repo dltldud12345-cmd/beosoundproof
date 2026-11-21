@@ -2318,11 +2318,11 @@ function updateInteriorVisibility(){
   ['front','back','left','right'].forEach(name => {
     const g = walls[name];
     if (!g) return;
-    const outward = wallInward(name).negate();
-    const c = wallPoint(name, 0, 0, 0);
-    const d = outward.dot(_camW.copy(camera.position).sub(c));
-    // 카메라가 벽 바깥(또는 벽면)에 있으면 그 벽은 시야를 가리므로 숨깁니다
-    g.visible = d < -0.02;
+    // 방 안쪽 면 기준 — 카메라가 그 벽의 실내면을 벗어나면(= 벽을 사이에 두고 바깥에 있으면) 숨김
+    const inward = wallInward(name);
+    const inner = wallPoint(name, 0, 0, T/2);
+    const d = inward.dot(_camW.copy(camera.position).sub(inner));
+    g.visible = d > 0.02;
     // 안쪽 시점에서는 바깥쪽 흰 알판·외부 몰딩을 벗겨 단면처럼 보이게 합니다
     if (g.userData.outer) g.userData.outer.visible = false;
     if (g.userData.outerTrims) g.userData.outerTrims.visible = false;
@@ -2383,7 +2383,7 @@ function initControls(){
 function clampR(r){
   if (state.view === 'interior'){
     const lim = maxInsideR(cam.theta, cam.phi, cam.tx, cam.ty, cam.tz);
-    return Math.max(0.34, Math.min(lim * 2.25, r));
+    return Math.max(0.34, Math.min(lim * 1.75, r));
   }
   const v = viewSettings(state.view);
   return Math.max(v.r * 0.45, Math.min(v.r * 1.9, r));
