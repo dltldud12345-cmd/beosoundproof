@@ -522,6 +522,25 @@ function T(x,y,s,o={}){
     'text-anchor':anchor,'font-family':o.mono?'ui-monospace,SFMono-Regular,Menlo,monospace':undefined,
     'letter-spacing':o.ls,transform:o.rotate?`rotate(${o.rotate} ${n(x)} ${n(y)})`:undefined,opacity:o.op})}>${esc(s)}</text>`;
 }
+/* 글자 폭 근사 (숫자·한글 혼용) */
+function tagWidth(label,size){
+  const em = [...String(label)].reduce((a,c)=>{
+    if(/[\u3131-\uD7A3]/.test(c)) return a + 1.0;
+    if(/[0-9]/.test(c)) return a + 0.62;
+    return a + 0.40;
+  },0);
+  return em*size + size*0.72;
+}
+/* 라벨 필(pill) — 해치·경계선 위에서도 숫자가 또렷하게 */
+function tag(cx,cy,label,o={}){
+  const size = o.size||8, w = o.w || tagWidth(label,size), h = size*1.44;
+  const rot = o.rot||0, bg = o.bg||PAPER, bgop = o.bgop!==undefined? o.bgop : 0.97;
+  const st = o.stroke===undefined? 'none' : o.stroke, sw = o.sw!==undefined? o.sw : (o.stroke? 0.5 : 0);
+  return `<g transform="rotate(${rot} ${n(cx)} ${n(cy)})">`
+    + `<rect x="${n(cx-w/2)}" y="${n(cy-h/2)}" width="${n(w)}" height="${n(h)}" rx="${n(h/2)}" fill="${bg}" fill-opacity="${bgop}" stroke="${st}" stroke-width="${n(sw)}"/>`
+    + T(cx, cy + size*0.35, label, {size, anchor:'middle', weight:o.weight||800, fill:o.fill||INK, mono:o.mono===undefined? true : o.mono})
+    + `</g>`;
+}
 /* 치수선 (건축식 사선 틱) */
 function dimH(x1,x2,y,label,o={}){
   const c = o.color||DIMC, sw = o.sw||0.7, t = o.size||7.2, ty = o.labelY!==undefined? o.labelY : y-3.4;
@@ -529,7 +548,7 @@ function dimH(x1,x2,y,label,o={}){
   s += L(x1-2.2,y-2.2,x1+2.2,y+2.2,{stroke:c,sw}) + L(x2-2.2,y-2.2,x2+2.2,y+2.2,{stroke:c,sw});
   if(o.ext1) s += L(x1,o.ext1,x1,y,{stroke:c,sw,opacity:.55});
   if(o.ext2) s += L(x2,o.ext2,x2,y,{stroke:c,sw,opacity:.55});
-  if(label!==undefined && label!=='') s += `<rect x="${n((x1+x2)/2 - String(label).length*2.05 - 1.6)}" y="${n(ty-(t-0.6))}" width="${n(String(label).length*4.1+3.2)}" height="${n(t+2.2)}" fill="${PAPER}" opacity="0.9"/>` + T((x1+x2)/2, ty+0.4, label, {size:t,fill:c,anchor:'middle',weight:600,mono:true});
+  if(label!==undefined && label!=='') s += tag((x1+x2)/2, ty - t*0.36, label, {size:t, fill:c, weight:700, bg:PAPER, bgop:0.94});
   return s;
 }
 function dimV(y1,y2,x,label,o={}){
@@ -538,7 +557,7 @@ function dimV(y1,y2,x,label,o={}){
   s += L(x-2.2,y1-2.2,x+2.2,y1+2.2,{stroke:c,sw}) + L(x-2.2,y2-2.2,x+2.2,y2+2.2,{stroke:c,sw});
   if(o.ext1) s += L(o.ext1,y1,x,y1,{stroke:c,sw,opacity:.55});
   if(o.ext2) s += L(o.ext2,y2,x,y2,{stroke:c,sw,opacity:.55});
-  if(label!==undefined && label!=='') s += `<g transform="rotate(-90 ${n(tx)} ${n((y1+y2)/2)})">${T(tx,(y1+y2)/2 + 2.4, label,{size:t,fill:c,anchor:'middle',weight:600,mono:true})}</g>`;
+  if(label!==undefined && label!=='') s += tag(tx,(y1+y2)/2, label, {size:t, fill:c, weight:700, bg:PAPER, bgop:0.94, rot:-90});
   return s;
 }
 
@@ -553,7 +572,7 @@ function defs(){
       <line x1="0" y1="0" x2="0" y2="5.2" stroke="#A6AFB6" stroke-width="0.72"/>
     </pattern>
     <pattern id="hCorner" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-      <line x1="0" y1="0" x2="0" y2="4" stroke="${WARN}" stroke-width="0.8" opacity="0.9"/>
+      <line x1="0" y1="0" x2="0" y2="4" stroke="#8A4210" stroke-width="1.15" opacity="1"/>
     </pattern>
     <pattern id="hFinish" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
       <line x1="0" y1="0" x2="0" y2="3.2" stroke="${ACC}" stroke-width="0.45" opacity="0.55"/>
@@ -653,15 +672,23 @@ function sheetPlan(m){
   const oy = regionY + (regionH-ph)/2;
   const t = CFG.FIN*sc, cw = CFG.CORNER*sc;
 
-  /* 벽체 밴드 */
-  s += R(ox,oy,pw,ph,{fill:'url(#hWall)',stroke:INK,sw:1.7});
-  s += R(ox+t,oy+t,pw-2*t,ph-2*t,{fill:'#fff',stroke:INK,sw:1.2});
+  /* 벽체 밴드 — 외곽선·내부면을 굵은 실선으로 */
+  const EDGE = '#14171A';
+  s += R(ox,oy,pw,ph,{fill:'url(#hWall)',stroke:EDGE,sw:2.4});
+  s += R(ox+t,oy+t,pw-2*t,ph-2*t,{fill:'#fff',stroke:EDGE,sw:2.0});
   s += R(ox+9*sc,oy+9*sc,pw-18*sc,ph-18*sc,{fill:'none',stroke:'#CBD1D5',sw:0.5,dash:'3 1.8'});
 
-  /* 코너 110 기둥 */
-  [[ox,oy],[ox+pw-cw,oy],[ox,oy+ph-cw],[ox+pw-cw,oy+ph-cw]].forEach(([cx,cy])=>{
-    s += R(cx,cy,cw,cw,{fill:'url(#hCorner)',stroke:WARN,sw:1});
-  });
+  /* 코너 110 기둥 — 채움 대비 + 굵은 경계 (밴드 위에 올려 분할선을 정리) */
+  const drawCorners = () => {
+    let out = '';
+    [[ox,oy],[ox+pw-cw,oy],[ox,oy+ph-cw],[ox+pw-cw,oy+ph-cw]].forEach(([cx,cy])=>{
+      out += R(cx,cy,cw,cw,{fill:'#F7E3D2',stroke:'none'});
+      out += R(cx,cy,cw,cw,{fill:'url(#hCorner)',stroke:'#7A3B12',sw:2.2});
+      const csz = Math.min(cw*0.30, 8.6);
+      out += tag(cx+cw/2, cy+cw/2, '110', {size:csz, fill:'#7A3B12', weight:800, bg:'#FFF9F3', bgop:0.94});
+    });
+    return out;
+  };
 
   /* 면 분할 계산 */
   const sideGeom = (sd) => layoutPieces(sd, m.doorAlign);
@@ -679,29 +706,41 @@ function sheetPlan(m){
       else { rx=ox+pw-t; ry=oy+a1; rw=t; rh=a2-a1; }
 
       if(it.kind==='door'){
-        out += R(rx,ry,rw,rh,{fill:'#fff',stroke:'none'});
-        out += L(rx,ry,rx,ry+rh,{stroke:INK,sw:1.3});
-        out += L(rx+rw,ry,rx+rw,ry+rh,{stroke:INK,sw:1.3});
+        out += R(rx,ry,rw,rh,{fill:'#FFFDF7',stroke:'none'});
+        out += L(rx,ry,rx,ry+rh,{stroke:EDGE,sw:2.5});
+        out += L(rx+rw,ry,rx+rw,ry+rh,{stroke:EDGE,sw:2.5});
         const lbl = '문 '+Math.round(it.w);
-        if(isH) out += T(rx+rw/2, ry+rh/2+2.4, lbl, {size:6.4,anchor:'middle',fill:WARN,weight:700});
-        else out += `<g transform="rotate(-90 ${n(rx+rw/2)} ${n(ry+rh/2)})">${T(rx+rw/2, ry+rh/2+2.4, lbl,{size:6.4,anchor:'middle',fill:WARN,weight:700})}</g>`;
+        const size = Math.min(t*0.34, (isH?rw:rh)*0.30, 12.5);
+        out += isH ? tag(rx+rw/2, ry+rh/2, lbl, {size, fill:'#8A4210', weight:800, mono:false})
+                   : tag(rx+rw/2, ry+rh/2, lbl, {size, fill:'#8A4210', weight:800, mono:false, rot:-90});
         return;
       }
-      // 분할선
-      if(isH) out += L(rx,ry,rx,ry+rh,{stroke:'#8A939A',sw:0.55});
-      else    out += L(rx,ry,rx+rw,ry,{stroke:'#8A939A',sw:0.55});
-      // 폭 라벨
+      // 분할 경계선 — 굵은 진한 실선
+      if(isH) out += L(rx,ry,rx,ry+rh,{stroke:EDGE,sw:2.1});
+      else    out += L(rx,ry,rx+rw,ry,{stroke:EDGE,sw:2.1});
+      // 폭 라벨 — 밴드 두께·패널 폭에 맞춰 최대한 크게 (코너 기둥 안은 피해서)
       const span = isH? rw : rh;
+      const size = Math.min(t*0.36, span*0.34, 13);
       const lbl = String(Math.round(it.w));
-      const size = span>30? 6.8 : (span>16? 5.4 : 4.2);
-      if(isH) out += T(rx+rw/2, ry+rh/2+2.4, lbl, {size,anchor:'middle',fill:'#333B41',mono:true,weight:600});
-      else out += `<g transform="rotate(-90 ${n(rx+rw/2)} ${n(ry+rh/2)})">${T(rx+rw/2, ry+rh/2+2.4, lbl,{size,anchor:'middle',fill:'#333B41',mono:true,weight:600})}</g>`;
+      const half = tagWidth(lbl, size)/2;
+      const along = isH? (rx+rw/2) : (ry+rh/2);
+      const lo = (isH? ox : oy) + cw + half + 1.2;
+      const hi = (isH? ox+pw : oy+ph) - cw - half - 1.2;
+      const pos = Math.min(Math.max(along, lo), hi);
+      const ok = pos-half >= (isH? ox : oy) + 0.5 && pos+half <= (isH? ox+pw : oy+ph) - 0.5
+                 && Math.abs(pos-along) <= span*0.9;
+      const cx = isH? pos : rx+rw/2, cy = isH? ry+rh/2 : pos;
+      if(ok){
+        if(isH) out += tag(cx, cy, lbl, {size, fill:'#101619'});
+        else out += tag(cx, cy, lbl, {size, fill:'#101619', rot:-90});
+      }
     });
     return out;
   };
 
   const S = k => m.sides.find(x=>x.k===k);
   s += drawBand('top', S('back')) + drawBand('bottom', S('front')) + drawBand('left', S('left')) + drawBand('right', S('right'));
+  s += drawCorners();
 
   /* 시창 */
   if(m.winCount>0 && m.winSideObj){
@@ -717,13 +756,13 @@ function sheetPlan(m){
         s += L(ox+c-half, y+t/2, ox+c+half, y+t/2, {stroke:DIMC,sw:1.2});
         s += L(ox+c-half, y, ox+c-half, y+t, {stroke:DIMC,sw:1.1});
         s += L(ox+c+half, y, ox+c+half, y+t, {stroke:DIMC,sw:1.1});
-        s += T(ox+c, y-3.6, '시창 '+wp.w+'×'+wp.h, {size:6,fill:DIMC,anchor:'middle',mono:true});
+        s += tag(ox+c, y-8, '시창 '+wp.w+'×'+wp.h, {size:7.4, fill:DIMC, weight:700, mono:false});
       } else {
         const x = (m.winSideKey==='left')? ox : ox+pw-t;
         s += R(x, oy+c-half, t, wp.w*sc, {fill:'url(#hGlass)',stroke:DIMC,sw:0.9});
         s += L(x, oy+c-half, x+t, oy+c-half, {stroke:DIMC,sw:1.1});
         s += L(x, oy+c+half, x+t, oy+c+half, {stroke:DIMC,sw:1.1});
-        s += `<g transform="rotate(-90 ${n(x+t/2)} ${n(oy+c)})">${T(x+t/2, oy+c+1.8, '시창 '+wp.w+'×'+wp.h,{size:6,fill:DIMC,anchor:'middle',mono:true})}</g>`;
+        s += `<g transform="rotate(-90 ${n(x+t/2)} ${n(oy+c)})">${T(x+t/2, oy+c+1.8, '시창 '+wp.w+'×'+wp.h,{size:7.2,fill:DIMC,anchor:'middle',mono:true})}</g>`;
       }
     });
   }
@@ -739,22 +778,22 @@ function sheetPlan(m){
         const hx = ox+a2, hy = oy+ph-t;
         s += L(hx,hy,hx,hy-R0,{stroke:INK,sw:1.6});
         s += P(`M ${n(hx-R0)} ${n(hy)} A ${n(R0)} ${n(R0)} 0 0 1 ${n(hx)} ${n(hy-R0)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += T(hx-R0/2, hy-R0/2, m.dw, {size:6.4,mono:true,anchor:'middle',fill:'#5A6268'});
+        s += T(hx-R0/2, hy-R0/2, m.dw, {size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700});
       } else if(m.doorSide==='back'){
         const hx = ox+a1, hy = oy+t;
         s += L(hx,hy,hx,hy+R0,{stroke:INK,sw:1.6});
         s += P(`M ${n(hx+R0)} ${n(hy)} A ${n(R0)} ${n(R0)} 0 0 0 ${n(hx)} ${n(hy+R0)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += T(hx+R0/2, hy+R0/2, m.dw, {size:6.4,mono:true,anchor:'middle',fill:'#5A6268'});
+        s += T(hx+R0/2, hy+R0/2, m.dw, {size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700});
       } else if(m.doorSide==='left'){
         const hx = ox+t, hy = oy+a1;
         s += L(hx,hy,hx+R0,hy,{stroke:INK,sw:1.6});
         s += P(`M ${n(hx)} ${n(hy+R0)} A ${n(R0)} ${n(R0)} 0 0 0 ${n(hx+R0)} ${n(hy)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += `<g transform="rotate(-90 ${n(hx+R0/2)} ${n(hy+R0/2)})">${T(hx+R0/2, hy+R0/2+2, m.dw,{size:6.4,mono:true,anchor:'middle',fill:'#5A6268'})}</g>`;
+        s += `<g transform="rotate(-90 ${n(hx+R0/2)} ${n(hy+R0/2)})">${T(hx+R0/2, hy+R0/2+2, m.dw,{size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700})}</g>`;
       } else {
         const hx = ox+pw-t, hy = oy+a2;
         s += L(hx,hy,hx-R0,hy,{stroke:INK,sw:1.6});
         s += P(`M ${n(hx)} ${n(hy-R0)} A ${n(R0)} ${n(R0)} 0 0 1 ${n(hx-R0)} ${n(hy)}`,{stroke:'#6B7378',sw:0.7,dash:'4 2.5'});
-        s += `<g transform="rotate(-90 ${n(hx-R0/2)} ${n(hy-R0/2)})">${T(hx-R0/2, hy-R0/2+2, m.dw,{size:6.4,mono:true,anchor:'middle',fill:'#5A6268'})}</g>`;
+        s += `<g transform="rotate(-90 ${n(hx-R0/2)} ${n(hy-R0/2)})">${T(hx-R0/2, hy-R0/2+2, m.dw,{size:9.2,mono:true,anchor:'middle',fill:'#3E474D',weight:700})}</g>`;
       }
     }
   }
@@ -764,12 +803,12 @@ function sheetPlan(m){
   s += T(ox+pw/2, oy+ph/2+11, '내부 유효 (㎜)', {size:6.2, anchor:'middle', fill:'#DAD4C6', ls:'0.12em'});
 
   /* 치수 */
-  s += dimH(ox, ox+pw, oy+ph+26, m.W, {ext1:oy+ph, ext2:oy+ph, size:7.6, labelY:oy+ph+22.4});
-  s += dimV(oy, oy+ph, ox-38, m.D, {ext1:ox, ext2:ox, size:7.8, labelX:ox-42});
-  s += dimH(ox+t, ox+pw-t, oy+ph+48, (m.W-CFG.FIN*2), {size:6.4});
-  s += dimV(oy+t, oy+ph-t, ox-74, (m.D-CFG.FIN*2), {size:6.6, labelX:ox-78});
-  s += dimH(ox, ox+t, oy-20, '120', {size:6, labelY:oy-23.5});
-  s += dimH(ox, ox+cw, oy+ph+72, '110', {size:5.6});
+  s += dimH(ox, ox+pw, oy+ph+26, m.W, {ext1:oy+ph, ext2:oy+ph, size:10.2, labelY:oy+ph+22.4});
+  s += dimV(oy, oy+ph, ox-38, m.D, {ext1:ox, ext2:ox, size:10.4, labelX:ox-42});
+  s += dimH(ox+t, ox+pw-t, oy+ph+50, (m.W-CFG.FIN*2), {size:8.8});
+  s += dimV(oy+t, oy+ph-t, ox-74, (m.D-CFG.FIN*2), {size:9, labelX:ox-78});
+  s += dimH(ox, ox+t, oy-21, '120', {size:8.2, labelY:oy-24.5});
+  s += dimH(ox, ox+cw, oy+ph+74, '110', {size:8.2});
 
   /* 범례 */
   const ly = 872, lw = SW-2*M-24;
@@ -896,51 +935,63 @@ function sheetFloorCeil(m){
 function sheetElevation(m){
   let s = sheetHead('A-103','벽체 전개도 · 벽체 단면','ELEVATION (UNFOLDED) · 벽판 95T PB 1000 2단 · 문 상단 '+m.fillH+' 채움판');
   s += pageNo('A-103',3,4);
+  const EDGE_E = '#14171A';
 
   /* ---------- 벽면 1개 그리기 ---------- */
   const drawWall = (side, x, y, sc, opts={}) => {
     const H = m.H, hh = H*sc, sw = side.span*sc;
     let o = '';
-    o += R(x,y,sw,hh,{fill:'#fff',stroke:INK,sw:1.15});
+    o += R(x,y,sw,hh,{fill:'#fff',stroke:INK,sw:2.3});
     // 상단 밴드 / 문 상단 / 1000 2단
     const yHead = y + hh - CFG.HEAD*sc;
-    o += L(x, yHead, x+sw, yHead, {stroke:'#B0B8BE', sw:0.6, dash:'5 2.4'});
-    o += L(x, y+hh-1000*sc, x+sw, y+hh-1000*sc, {stroke:'#D8D3C9', sw:0.45, dash:'3 2'});
+    o += L(x, yHead, x+sw, yHead, {stroke:'#6E7A82', sw:1.2, dash:'6 2.6'});
+    o += L(x, y+hh-1000*sc, x+sw, y+hh-1000*sc, {stroke:'#8A939A', sw:1.1, dash:'5 2.2'});
     // 천장 65 라인
     o += R(x, y, sw, CFG.CEIL*sc, {fill:'#F1EDE4', stroke:'none'});
-    o += L(x, y+CFG.CEIL*sc, x+sw, y+CFG.CEIL*sc, {stroke:'#C9C2B4', sw:0.5});
-    // 모듈 분할선
-    let acc = (side.len - side.span)/2;
-    side.pieces.forEach((p,i)=>{
-      if(i>0) o += L(x+(acc)*sc, y, x+(acc)*sc, y+hh, {stroke:'#D8D3C9', sw:0.5});
-      acc += p.w;
+    o += L(x, y+CFG.CEIL*sc, x+sw, y+CFG.CEIL*sc, {stroke:'#8A9390', sw:0.9});
+    // 모듈 분할선 — 굵은 진한 실선 (실제 패널 배치 순서)
+    const off0w = (side.len - side.span)/2;
+    const layout = layoutPieces(side, m.doorAlign);
+    layout.forEach((it,i)=>{
+      const a = (it.at - off0w)*sc;
+      if(i>0) o += L(x+a, y, x+a, y+hh, {stroke:EDGE_E, sw:2.0});
     });
     // 코너 기둥
-    o += R(x, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:WARN, sw:0.6});
-    o += R(x+sw-CFG.CORNER*sc, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:WARN, sw:0.6});
+    o += R(x, y, CFG.CORNER*sc, hh, {fill:'#F7E3D2', stroke:'none'});
+    o += R(x, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:'#7A3B12', sw:1.8});
+    o += R(x+sw-CFG.CORNER*sc, y, CFG.CORNER*sc, hh, {fill:'#F7E3D2', stroke:'none'});
+    o += R(x+sw-CFG.CORNER*sc, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:'#7A3B12', sw:1.8});
     // 문
     const doorP = side.pieces.find(p=>p.kind==='door');
     if(doorP){
-      const di = layoutPieces(side, m.doorAlign).find(i=>i.kind==='door');
-      const off = di.at;
+      const di = layout.find(i=>i.kind==='door');
+      const off = di.at - off0w;
       const dx = x+off*sc, dwp = doorP.w*sc, dhp = m.dh*sc, fhp = m.fillH*sc;
-      o += R(dx, y+hh-dhp, dwp, dhp, {fill:'#F7F4ED', stroke:WARN, sw:1.1});
-      o += R(dx, y+hh-dhp-fhp, dwp, fhp, {fill:'#FBEFE4', stroke:WARN, sw:0.85});
-      o += T(dx+dwp/2, y+hh-dhp/2-2, '방음문 '+(m.dw)+'×'+(m.dh), {size: opts.big?6.6:5, anchor:'middle', fill:WARN, weight:700});
-      o += T(dx+dwp/2, y+hh-dhp/2+7, '시스템도어', {size: opts.big?5.4:4.2, anchor:'middle', fill:'#B4622A'});
-      o += T(dx+dwp/2, y+hh-dhp-fhp/2+2, m.dw+'×'+m.fillH, {size: opts.big?5.4:4.2, anchor:'middle', fill:WARN, mono:true});
+      o += R(dx, y+hh-dhp, dwp, dhp, {fill:'#F7F4ED', stroke:'#8A4210', sw:2.0});
+      o += R(dx, y+hh-dhp-fhp, dwp, fhp, {fill:'#FBEFE4', stroke:'#8A4210', sw:1.6});
+      o += T(dx+dwp/2, y+hh-dhp/2-2, '방음문 '+(m.dw)+'×'+(m.dh), {size: opts.big?7.4:5.6, anchor:'middle', fill:'#8A4210', weight:800});
+      o += T(dx+dwp/2, y+hh-dhp/2+7, '시스템도어', {size: opts.big?6:4.6, anchor:'middle', fill:'#B4622A'});
+      o += T(dx+dwp/2, y+hh-dhp-fhp/2+2, m.dw+'×'+m.fillH, {size: opts.big?6:4.6, anchor:'middle', fill:'#8A4210', mono:true, weight:700});
       // 손잡이
       o += C(dx+dwp-10*sc*3, y+hh-dhp*0.45, Math.max(1.2, 2*sc*3), {fill:INK, stroke:INK, sw:0.4});
     }
     // 시창
     if(m.winCount>0 && side.k===m.winSideKey){
-      const off0 = (side.len - side.span)/2;
       m.winPositions.forEach(wp=>{
-        const c = (off0+wp.c)*sc - x + x; // 절대
-        const cx = x + (off0+wp.c)*sc, ww = wp.w*sc, wh = wp.h*sc;
+        const cx = x + wp.c*sc, ww = wp.w*sc, wh = wp.h*sc;
         const wy = y + hh - CFG.HEAD*sc + (1000*sc - wh)/2;
-        o += R(cx-ww/2, wy, ww, wh, {fill:'url(#hGlass)', stroke:DIMC, sw:1});
-        o += T(cx, wy-2.6, wp.w+'×'+wp.h, {size: opts.big?5.4:4.4, anchor:'middle', fill:DIMC, mono:true});
+        o += R(cx-ww/2, wy, ww, wh, {fill:'url(#hGlass)', stroke:DIMC, sw:1.2});
+        o += T(cx, wy-3.2, wp.w+'×'+wp.h, {size: opts.big?6:4.8, anchor:'middle', fill:DIMC, mono:true, weight:700});
+      });
+    }
+    // 패널 폭 라벨 — 하단 안쪽에 크게
+    {
+      layout.forEach(it=>{
+        const a = (it.at - off0w)*sc, wpx = it.w*sc;
+        if(it.kind!=='door' && wpx >= 22 && a >= -0.5 && a+wpx <= sw+0.5){
+          const size = Math.min(wpx*0.30, hh*0.045, 9.8);
+          o += tag(x+a+wpx/2, y+hh-size*1.75, String(Math.round(it.w)), {size, fill:'#101619'});
+        }
       });
     }
     if(opts.labels!==false){
@@ -951,9 +1002,9 @@ function sheetElevation(m){
       if(modN===1) parts.push('600');
     else if(modN>1) parts.push(modN+'×600');
       residN.forEach(r=>parts.push(String(r)));
-      o += dimH(x, x+sw, y+hh+7, side.span, {size:5.6, labelY:y+hh+4.4});
-      o += T(x+sw/2, y+hh+16, m.sideName[side.k], {size:6.6, anchor:'middle', weight:700});
-      o += T(x+sw/2, y+hh+24, parts.join(' + '), {size:5.8, anchor:'middle', fill:'#7B8389', mono:true});
+      o += dimH(x, x+sw, y+hh+19, side.span, {size:9.4, labelY:y+hh+15});
+      o += T(x+sw/2, y+hh+30, m.sideName[side.k], {size:9.6, anchor:'middle', weight:800});
+      o += T(x+sw/2, y+hh+41, parts.join(' + '), {size:8.4, anchor:'middle', fill:'#4F585F', mono:true, weight:600});
     }
     return o;
   };
@@ -970,7 +1021,7 @@ function sheetElevation(m){
     s += drawWall(side, x, y, sc);
     x += side.span*sc + gap;
   });
-  s += dimV(y, y+m.H*sc, M+10, m.H, {size:6.6});
+  s += dimV(y, y+m.H*sc, M+10, m.H, {size:9.2});
   s += T(M+20, y-8, '전개도 — 외부에서 본 4면 (좌→우 : 앞 · 우 · 뒤 · 좌)', {size:6.4, fill:'#7B8389'});
   s += T(M+20, y-16, '축척 약 1 : '+Math.round(3.7795/sc), {size:5.8, fill:SOFT});
 
@@ -998,7 +1049,7 @@ function sheetElevation(m){
     s += T(ax+wpx/2, sy0+sech+11, l.t, {size:5.6, anchor:'middle', mono:true, fill:DIMC});
     ax += wpx;
   });
-  s += dimH(sx0, sx0+120*pxPerMm, sy0+sech+24, '120', {size:6.6});
+  s += dimH(sx0, sx0+120*pxPerMm, sy0+sech+24, '120', {size:8.4});
   s += T(sx0-6, sy0+sech/2, '외부', {size:6, anchor:'end', fill:SOFT});
   s += T(sx0+120*pxPerMm+8, sy0+sech/2, '내부', {size:6, fill:SOFT});
   s += T(sx0, sy0-6, '고밀도 흡음재 2겹은 PB 틀 안쪽에 충진', {size:5.6, fill:'#7B8389'});
@@ -1009,11 +1060,11 @@ function sheetElevation(m){
   const ddx = 508, ddy = sy+26;
   s += T(ddx, sy, '문 면 상세 입면 (1 : '+Math.round(3.7795/dsc)+')', {size:8.4, weight:800});
   s += drawWall(dside, ddx, ddy, dsc, {big:true, labels:false});
-  s += dimH(ddx, ddx+dside.span*dsc, ddy+m.H*dsc+14, dside.span, {size:6.2});
-  s += dimV(ddy, ddy+m.H*dsc, ddx-12, m.H, {size:6.2, labelX:ddx-15});
+  s += dimH(ddx, ddx+dside.span*dsc, ddy+m.H*dsc+15, dside.span, {size:8.8});
+  s += dimV(ddy, ddy+m.H*dsc, ddx-13, m.H, {size:8.8, labelX:ddx-16});
   // 주요 레벨
-  s += dimV(ddy+m.H*dsc-m.dh*dsc, ddy+m.H*dsc, ddx+dside.span*dsc+16, m.dh, {size:5.6});
-  s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+34, m.fillH, {size:5.4});
+  s += dimV(ddy+m.H*dsc-m.dh*dsc, ddy+m.H*dsc, ddx+dside.span*dsc+18, m.dh, {size:7.8});
+  s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+36, m.fillH, {size:7.4});
 
   /* ---------- 시공 메모 ---------- */
   const ny = 1000;
