@@ -2194,7 +2194,7 @@ function interiorSetup(){
   const W = state.w/1000, D = state.d/1000;
   const tz = -(D/2 - 0.06);      // 라인타공 벽면 살짝 앞
   const ty = 1.31;               // 눈높이 아래를 살짝 내려다보는 타깃
-  const camZ = D/2 - 0.18;       // 문 쪽에 선 카메라
+  const camZ = D/2 - 0.26;       // 문 쪽에 선 카메라
   const phi = 1.472;
   const r = Math.max(0.6, (camZ - tz) / Math.sin(phi));
   return { theta: 0.0, phi, r, ty, tx: 0, tz, fov: isSmall() ? 78 : 70 };
@@ -2322,13 +2322,13 @@ function updateInteriorVisibility(){
     const inward = wallInward(name);
     const inner = wallPoint(name, 0, 0, T/2);
     const d = inward.dot(_camW.copy(camera.position).sub(inner));
-    g.visible = d > 0.02;
+    g.visible = d > 0.14;   // 실내면에 닿기 전에 미리 걷어 벽 속을 들여다보는 프레임이 없도록
     // 안쪽 시점에서는 바깥쪽 흰 알판·외부 몰딩을 벗겨 단면처럼 보이게 합니다
     if (g.userData.outer) g.userData.outer.visible = false;
     if (g.userData.outerTrims) g.userData.outerTrims.visible = false;
   });
   // 카메라가 천장 위로 올라가면 천장도 숨김
-  if (parts.ceiling) parts.ceiling.visible = camera.position.y < H - 0.06;
+  if (parts.ceiling) parts.ceiling.visible = camera.position.y < H - 0.22;
 }
 /* ---- 입력 ---- */
 function initControls(){
