@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>베오방음 | 제작 도면 생성기 (CAD · 재단표)</title>
-<meta name="description" content="외경 가로·세로·층고를 입력하면 베오방음 120mm 벽체 기준 CAD 스타일 제작 도면과 재단 치수표·자재 산출표를 자동으로 생성합니다. A4 인쇄 및 PNG 저장 지원.">
+<meta name="description" content="외경 가로·세로·층고를 입력하면 베오방음 110mm 벽체 기준 CAD 스타일 제작 도면과 재단 치수표·자재 산출표를 자동으로 생성합니다. A4 인쇄 및 PNG 저장 지원.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314171A'/%3E%3Cg fill='%232E9C86'%3E%3Crect x='15' y='26' width='6' height='12' rx='3'/%3E%3Crect x='29' y='17' width='6' height='30' rx='3'/%3E%3Crect x='43' y='23' width='6' height='18' rx='3'/%3E%3C/g%3E%3C/svg%3E">
 <style>
@@ -267,7 +267,7 @@
 const CFG = {
   PB: 95,          // 벽체 PB 두께
   CORNER: 110,     // 코너 합판 기둥
-  FIN: 120,        // 완성 벽체 두께 (9T 아트보드 + 흡음 + 각재 + 95T PB + 알판)
+  FIN: 110,        // 완성 벽체 두께 (6T 알판 + 95T PB 5겹 + 9T 아트보드 = 110)
   HEAD: 2000,      // 문 상단 레벨 (벽판 1000 × 2단)
   CEIL: 65,        // 천장재 두께
   MARU: 45,        // 마루
@@ -614,7 +614,7 @@ function titleBlock(m,{no,title,scale}){
   s += T(x+7,y+48,'규격 (외경)',{size:5.4,fill:SOFT});
   s += T(x+7,y+55,m.W+' × '+m.D+' × '+m.H,{size:7.6,weight:700,mono:true});
   s += T(x+103,y+48,'층고 / 벽체',{size:5.4,fill:SOFT});
-  s += T(x+103,y+55,m.H+' / 120㎜',{size:7.6,weight:700,mono:true});
+  s += T(x+103,y+55,m.H+' / 110㎜',{size:7.6,weight:700,mono:true});
   s += T(x+7,y+69,'도면',{size:5.4,fill:SOFT});
   s += T(x+7,y+76.5,no+'  '+title,{size:7.2,weight:700});
   s += T(x+103,y+69,'축척',{size:5.4,fill:SOFT});
@@ -661,7 +661,7 @@ function layoutPieces(sd, doorAlign){
 }
 
 function sheetPlan(m){
-  let s = sheetHead('A-101','벽체 평면도','PLAN · 외경 '+m.W+' × '+m.D+' · 벽체 120㎜ (95T PB 5겹 + 마감) · 코너 110 합판 기둥');
+  let s = sheetHead('A-101','벽체 평면도','PLAN · 외경 '+m.W+' × '+m.D+' · 벽체 110㎜ (95T PB 5겹 + 마감) · 코너 110 합판 기둥');
   s += pageNo('A-101',1,4);
 
   const regionX = M+104, regionW = SW-M-40-regionX;
@@ -807,7 +807,7 @@ function sheetPlan(m){
   s += dimV(oy, oy+ph, ox-38, m.D, {ext1:ox, ext2:ox, size:10.4, labelX:ox-42});
   s += dimH(ox+t, ox+pw-t, oy+ph+50, (m.W-CFG.FIN*2), {size:8.8});
   s += dimV(oy+t, oy+ph-t, ox-74, (m.D-CFG.FIN*2), {size:9, labelX:ox-78});
-  s += dimH(ox, ox+t, oy-21, '120', {size:8.2, labelY:oy-24.5});
+  s += dimH(ox, ox+t, oy-21, String(CFG.FIN), {size:8.2, labelY:oy-24.5});
   s += dimH(ox, ox+cw, oy+ph+74, '110', {size:8.2});
 
   /* 범례 */
@@ -815,7 +815,7 @@ function sheetPlan(m){
   s += R(M+12, ly, lw, 78, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const items = [
-    ['hWall','120㎜ 벽체 · 95T PB 5겹 + 마감'],
+    ['hWall','110㎜ 벽체 · 95T PB 5겹 + 마감'],
     ['hCorner','110 코너 합판 기둥 (4개소)'],
     ['hGlass','시창 400×800 아크릴 3T']
   ];
@@ -826,7 +826,7 @@ function sheetPlan(m){
   });
   s += T(M+300, ly+14, 'NOTE', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const notes = [
-    '1. 모든 치수는 ㎜, 외경 기준. 벽체는 120㎜ 완성 두께.',
+    '1. 모든 치수는 ㎜, 외경 기준. 벽체는 110㎜ 완성 두께.',
     '2. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공.',
     '3. 문 면은 좌우 벽 사이(내폭 −190), 반대 면은 코너 기둥 사이(−220).',
     '4. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000).'
@@ -1011,10 +1011,11 @@ function sheetElevation(m){
 
   /* ---------- 4면 전개 ---------- */
   const totalSpan = sum(m.sides.map(x=>x.span));
-  const availW = SW-2*M-40, availH = 286;
-  const sc = Math.min(availW/(totalSpan+54), availH/(m.H+70));
   const gap = 12;
-  let x = M+20, y = M+96;
+  const xStart = M+20, xEnd = SW-M-8;
+  const availW = xEnd - xStart - gap*3, availH = 286;
+  const sc = Math.min(availW/totalSpan, availH/(m.H+70));
+  let x = xStart, y = M+96;
   const order = ['front','right','back','left'];
   order.forEach(k=>{
     const side = m.sides.find(v=>v.k==k);
@@ -1027,31 +1028,30 @@ function sheetElevation(m){
 
   /* ---------- 벽체 단면 (수평) ---------- */
   const sy = y + m.H*sc + 62;
-  s += T(M+20, sy, '벽체 단면 · 완성 120㎜ (외부 → 내부)', {size:8.4, weight:800});
-  s += T(M+20, sy+10, 'PB 95T 5겹(18T×5) + 9T 알판(외부) + 9T 아트보드(내부)', {size:6, fill:'#7B8389'});
+  s += T(M+20, sy, '벽체 단면 · 완성 110㎜ (외부 → 내부)', {size:8.4, weight:800});
+  s += T(M+20, sy+10, '6T 알판(외부) + 95T PB 5겹(18T×5) + 9T 아트보드(내부) = 110', {size:6, fill:'#7B8389'});
 
   const layers = [
-    {t:9,  name:'9T 알판',        fill:'#FBF6EC', hatch:''},
+    {t:6,  name:'6T 알판',        fill:'#FBF6EC', hatch:''},
     {t:95, name:'95T PB 5겹',     fill:'url(#hWall)', hatch:''},
-    {t:9,  name:'9T 아트보드',    fill:'#EDE7DC'},
-    {t:7,  name:'여유',           fill:'#F3E3D6'}
+    {t:9,  name:'9T 아트보드',    fill:'#EDE7DC'}
   ];
-  const sx0 = M+54, sy0 = sy+30, pxPerMm = 3.15, sech = 148;
+  const sx0 = M+54, sy0 = sy+30, pxPerMm = 3.4, sech = 148;
   let ax = sx0;
   layers.forEach(l=>{
     const wpx = l.t*pxPerMm;
     s += R(ax, sy0, wpx, sech, {fill:l.fill, stroke:INK, sw:0.7});
     if(wpx > 62){
-      s += T(ax+wpx/2, sy0+sech/2+2.4, l.name, {size:6.2, anchor:'middle', fill:'#3B4248'});
+      s += T(ax+wpx/2, sy0+sech/2+2.4, l.name, {size:6.8, anchor:'middle', fill:'#3B4248', weight:600});
     } else {
-      s += `<g transform="rotate(-90 ${n(ax+wpx/2)} ${n(sy0+sech/2)})">${T(ax+wpx/2, sy0+sech/2+2, l.name, {size:5.2, anchor:'middle', fill:'#3B4248'})}</g>`;
+      s += `<g transform="rotate(-90 ${n(ax+wpx/2)} ${n(sy0+sech/2)})">${T(ax+wpx/2, sy0+sech/2+2, l.name, {size:5.8, anchor:'middle', fill:'#3B4248', weight:600})}</g>`;
     }
-    s += T(ax+wpx/2, sy0+sech+11, l.t, {size:5.6, anchor:'middle', mono:true, fill:DIMC});
+    s += T(ax+wpx/2, sy0+sech+11, l.t, {size:6.4, anchor:'middle', mono:true, fill:DIMC, weight:700});
     ax += wpx;
   });
-  s += dimH(sx0, sx0+120*pxPerMm, sy0+sech+24, '120', {size:8.4});
+  s += dimH(sx0, sx0+CFG.FIN*pxPerMm, sy0+sech+24, String(CFG.FIN), {size:8.4});
   s += T(sx0-6, sy0+sech/2, '외부', {size:6, anchor:'end', fill:SOFT});
-  s += T(sx0+120*pxPerMm+8, sy0+sech/2, '내부', {size:6, fill:SOFT});
+  s += T(sx0+CFG.FIN*pxPerMm+8, sy0+sech/2, '내부', {size:6, fill:SOFT});
   s += T(sx0, sy0-6, '고밀도 흡음재 2겹은 PB 틀 안쪽에 충진', {size:5.6, fill:'#7B8389'});
 
   /* ---------- 문 면 상세 입면 ---------- */
