@@ -2657,7 +2657,7 @@ function verifyHTML(m){
      wall:14, resid:['380','278'], note:'벽체 600×1000 = 14장'}
   ];
   const hit = refs.find(r=> r.w===m.W && r.d===m.D);
-  const splitLine = `<p style="margin:8px 0 0;color:#7B8389">원판 <b>600×2400</b> · 길이 2400 초과 시 <b>${splitModeName(m.lenSplit)}</b> — `
+  const splitLine = `<p style="margin:8px 0 0;color:#7B8389">원판 <b>600×2400</b> · <b>천장 2400 초과 ${ceilSplitName} 지그재그</b> · 바닥·알판 2400 초과 <b>${splitModeName(m.lenSplit)}</b> — `
     + m.lenSplits.map(o=>`${o.label} ${o.length}${o.lens.length>1? ' → '+o.lens.join('+') : ''}`).join(' · ')
     + `</p>`;
   if(!hit) return `<p style="margin:0 0 6px">현재 <b>${m.W}×${m.D}</b>는 손도면에 없는 규격입니다. 600 모듈·자투리·조인트 여유 규칙을 그대로 적용해 산출했습니다.</p>
