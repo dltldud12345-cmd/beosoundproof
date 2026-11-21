@@ -1855,6 +1855,33 @@ function sheetFloorCeil(m){
   s += T(M+16, sy2+13, '원판 기준 (STOCK 600 × 2400)', {size:6, weight:800, fill:'#1F7A69', ls:'0.1em'});
   stock.forEach((tx,i)=> s += T(M+16, sy2+27+i*11, tx, {size:6.4, fill:'#2E353B'}));
 
+  /* COB 타공 가이드 — 천장 바깥 끝에서 줄자로 바로 점찍는 치수 (벽체 110 포함)   */
+  const gbY = Math.min(sy2 + stockH + 10, 998 - 46);
+  const gbH = 46;
+  const gbX = M+8, gbW = SW-2*M-16;
+  const faceLen = (m.lineFace==='front' || m.lineFace==='back') ? m.W : m.D;   // 타공면 방향 천장 외경
+  const gx1 = CFG.FIN + Math.round(m.cobPos[0]);
+  const gx2 = CFG.FIN + Math.round(m.cobPos[1]);
+  const gx1r = faceLen - gx2;                                                 // 반대쪽 끝에서 첫 점
+  const gd  = CFG.FIN + Math.round(m.cobInset);
+  const cMid1 = CFG.FIN + Math.round(m.innerW/2), cMid2 = CFG.FIN + Math.round(m.innerD/2);
+  const faceTxt = m.sideName[m.lineFace];
+  s += R(gbX, gbY, gbW, gbH, {fill:'#F3F8F6', stroke:'#9FC6BC', sw:0.9});
+  if(m.lightMode === 'rail'){
+    const rs = CFG.FIN + Math.round(m.railInset), rd = CFG.FIN + Math.round(m.railGap);
+    s += T(gbX+8, gbY+13, '레일등 가이드 — 천장 바깥 끝 기준 (줄자로 바로 점찍기)', {size:6.2, weight:800, fill:'#1F7A69', ls:'0.04em'});
+    s += T(gbX+gbW-8, gbY+13, 'A4 1:1 인쇄 · 실척', {size:5.8, weight:700, fill:'#1F7A69', anchor:'end', ls:'0.04em'});
+    s += T(gbX+8, gbY+28, '깊이 '+fmt(rs)+' ㎜ (벽 안쪽면 '+fmt(m.railInset)+' 이격) · 레일 '+fmt(m.railLen)+' ㎜ 는 '+fmt(rd)+' / '+fmt(rd+m.railLen)+' ㎜ (양 끝 '+fmt(rd)+' ㎜)', {size:8, weight:700, mono:true, fill:'#14171A'});
+    s += T(gbX+8, gbY+40, '= 벽체 110 + 이격·여백 · 천장 끝에서 '+fmt(cMid1)+' / '+fmt(cMid2)+' ㎜ = 중앙등 중심 (내부 '+fmt(m.innerW)+'·'+fmt(m.innerD)+' ÷ 2)', {size:5.7, fill:'#5C666D'});
+  } else {
+    s += T(gbX+8, gbY+13, 'COB 타공 가이드 — 천장 바깥 끝 기준 (줄자로 바로 점찍기)', {size:6.2, weight:800, fill:'#1F7A69', ls:'0.04em'});
+    s += T(gbX+gbW-8, gbY+13, 'A4 1:1 인쇄 · 실척', {size:5.8, weight:700, fill:'#1F7A69', anchor:'end', ls:'0.04em'});
+    s += T(gbX+8, gbY+28, '깊이 '+fmt(gd)+' ㎜ · 가로 '+fmt(gx1)+' / '+fmt(gx2)+' ㎜ (양 끝에서 '+fmt(gx1r)+' ㎜) · Ø'+m.cobDia+' ㎜',
+      {size:8.2, weight:700, mono:true, fill:'#14171A'});
+    s += T(gbX+8, gbY+40, '= 벽체 110 + 내부 '+fmt(m.cobPos[0])+' / '+fmt(m.cobPos[1])+' ㎜ (내부 '+fmt(m.lineLen)+' ÷ 3) · 타공면 '+faceTxt+' · 벽 안쪽면 '+m.cobInset+' ㎜ · 중앙등 '+fmt(cMid1)+' / '+fmt(cMid2)+' ㎜',
+      {size:5.7, fill:'#5C666D'});
+  }
+
   s += titleBlock(m,{no:'A-102',title:'바닥·천장 분할도',scale:'N.T.S'});
   return sheetShell(s);
 }
