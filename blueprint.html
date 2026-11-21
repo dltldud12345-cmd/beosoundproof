@@ -279,7 +279,7 @@
     </section>
 
     <section class="card">
-      <h2>라인타공 · COB 조명</h2>
+      <h2>라인타공 · 조명</h2>
       <div class="field"><label>라인타공 설치 면</label>
         <div class="seg" id="lineFace">
           <button data-v="back" aria-pressed="true">뒷면</button>
@@ -287,12 +287,26 @@
           <button data-v="right" aria-pressed="false">우측</button>
         </div>
       </div>
-      <div class="row2">
-        <div class="field"><label for="cobDia">타공 Ø <span class="hint">mm</span></label><input type="number" id="cobDia" value="75" min="40" max="150" step="1"></div>
-        <div class="field"><label for="cobInset">벽 안쪽면에서 <span class="hint">mm</span></label><input type="number" id="cobInset" value="100" min="0" max="400" step="10"></div>
+      <div class="field"><label>조명 방식</label>
+        <div class="seg" id="lightMode">
+          <button data-v="cob" aria-pressed="true">COB 2구</button>
+          <button data-v="rail" aria-pressed="false">레일등</button>
+        </div>
+      </div>
+      <div class="row2" id="cobRow">
+        <div class="field"><label for="cobDia">타공 Ø <span class="hint">mm · 2인치 COB</span></label><input type="number" id="cobDia" value="55" min="40" max="150" step="1"></div>
+        <div class="field"><label for="cobInset">벽 안쪽면에서 <span class="hint">mm</span></label><input type="number" id="cobInset" value="200" min="0" max="400" step="10"></div>
+      </div>
+      <div class="field" id="railRow" style="display:none"><label for="railSpec">레일 길이 <span class="hint">벽 안쪽면 400㎜ 이격</span></label>
+        <select id="railSpec">
+          <option value="auto">자동 추천 (내부 길이 기준)</option>
+          <option value="1000">1m (1,000㎜)</option>
+          <option value="1500">1.5m (1,500㎜)</option>
+          <option value="2000">2m (2,000㎜)</option>
+        </select>
       </div>
       <p class="note-small" id="cobNote">—</p>
-      <p class="note-small">COB 매립등 <b>2구</b>는 항상 <b>라인타공 면 상단 천장</b>에 두고, 그 면의 <b>내부 유효 길이 1/3 · 2/3</b> 지점에 놓습니다. 발주표는 라인타공 면을 빼고 <b>나머지 3면 + 천장</b>만 산출합니다.</p>
+      <p class="note-small">COB 매립등 <b>2구</b>(Ø55 · 2인치)는 항상 <b>라인타공 면 상단 천장</b>에 두고, <b>벽 안쪽면에서 200㎜(20cm)</b> 띄운 뒤 그 면의 <b>내부 유효 길이 1/3 · 2/3</b> 지점에 놓습니다. <b>레일등</b>은 같은 면에서 <b>벽 안쪽면 400㎜(40cm)</b> 이격해 내부 길이 가운데에 걸고, 길이는 내부 <b>2100 미만 → 1m · 2100~2699 → 1.5m · 2700 이상 → 2m</b>로 자동 추천합니다. <b>천장 정중앙</b>에는 두 방식 모두 <b>중앙등 1구</b>를 표시하고, 발주표는 라인타공 면을 빼고 <b>나머지 3면 + 천장</b>만 산출합니다.</p>
     </section>
 
     <section class="card">
@@ -475,13 +489,29 @@ function buildModel(inp){
      1/3 · 2/3 지점에 COB 매립등 2구의 천장 타공 중심을 둔다.
      예) 2000 부스 → 내부 유효 1780 ÷ 3 = 593 ㎜ 간격 · 타공 중심 593 / 1187. */
   const lineFace = ['back','left','right','front'].indexOf(inp.lineFace)>=0 ? inp.lineFace : 'back';
-  const cobDia   = Math.max(40, Math.min(150, Math.round(+inp.cobDia || 75)));
-  const cobInset = Math.max(0,  Math.min(400, Math.round(+inp.cobInset===0 ? 0 : (+inp.cobInset || 100))));
+  const cobDia   = Math.max(40, Math.min(150, Math.round(+inp.cobDia || 55)));
+  const cobInset = Math.max(0,  Math.min(400, Math.round(+inp.cobInset===0 ? 0 : (+inp.cobInset || 200))));
   const lineLen  = Math.max(300, (lineFace==='front'||lineFace==='back') ? innerW : innerD);
   const cobThird = lineLen/3;
   const cobPos   = [Math.round(cobThird), Math.round(cobThird*2)];                  // 면 시작(좌·상)에서 ㎜
   const cobSegs  = [cobPos[0], cobPos[1]-cobPos[0], Math.round(lineLen)-cobPos[1]];  // 593 · 594 · 593
   const cobGap   = Math.round(cobThird);
+
+  /* --- 라인타공 면 조명 방식 : COB 2구 / 레일등 -------------------------
+     레일등은 라인타공 면 내부 길이로 1m / 1.5m / 2m 를 자동 추천하고
+     (2100 미만 → 1m · 2100~2699 → 1.5m · 2700 이상 → 2m),
+     벽 안쪽면에서 400 ㎜ 띄운 선 위에 가운데 정렬한다. 전선 시작 여백 =
+     (내부 길이 − 레일 길이) ÷ 2 — 양쪽 여백 치수로 표기한다.            */
+  const lightMode = (inp.lightMode === 'rail') ? 'rail' : 'cob';
+  const railAuto  = lineLen >= 2700 ? 2000 : (lineLen >= 2100 ? 1500 : 1000);
+  const railKind  = String(inp.railSpec || 'auto');
+  const railWant  = railKind === 'auto' ? railAuto : Math.max(600, Math.min(2400, Math.round(+railKind || railAuto)));
+  const railLen   = Math.max(400, Math.min(railWant, Math.max(400, lineLen - 80)));   // 내부보다 길면 줄여서 그린다
+  const railClamp = railLen !== railWant;
+  const railInset = 400;
+  const railGap   = Math.round((lineLen - railLen)/2);
+  const railGapB  = lineLen - railLen - railGap;
+  const railTight = railGap < 60;
 
   /* --- 시창 자리 · 좌우 대칭 계산 --------------------------------------
      문 폭·벽두께를 뺀 '연속된 남은 공간'의 정중앙에 시창을 놓고, 좌우 채움판을
@@ -779,6 +809,7 @@ function buildModel(inp){
     cut: cutList, bom, boardTotal, stockCount,
     perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
     lineFace, lineLen, cobDia, cobInset, cobGap, cobPos, cobSegs,
+    lightMode, railAuto, railKind, railLen, railInset, railGap, railGapB, railTight, railClamp,
     extRows
   };
 }
@@ -1095,15 +1126,72 @@ function sheetPlan(m){
     s += R(lb.x, lb.y, lb.w, lb.h, {fill:'none', stroke:ACC, sw:1.8});
 
     const horiz = (m.lineFace==='front' || m.lineFace==='back');
-    const dt = m.cobInset*sc;
-    /* 면 시작(좌·상)에서 t ㎜, 벽 안쪽면에서 ex ㎜ 들어간 점 */
-    const pt = (tmm, ex) => {
-      const tx = tmm*sc, e = (ex||0);
-      if(m.lineFace==='back')  return [ox+t+tx, oy+t+dt+e];
-      if(m.lineFace==='front') return [ox+t+tx, oy+ph-t-dt-e];
-      if(m.lineFace==='left')  return [ox+t+dt+e, oy+t+tx];
-      return [ox+pw-t-dt-e, oy+t+tx];
+    /* 면 시작(좌·상)에서 t ㎜, 벽 안쪽면에서 inn ㎜ 들어간 점 */
+    const ptAt = (tmm, inn) => {
+      const tx = tmm*sc, ii = (inn||0)*sc;
+      if(m.lineFace==='back')  return [ox+t+tx, oy+t+ii];
+      if(m.lineFace==='front') return [ox+t+tx, oy+ph-t-ii];
+      if(m.lineFace==='left')  return [ox+t+ii, oy+t+tx];
+      return [ox+pw-t-ii, oy+t+tx];
     };
+    const pt = (tmm, ex) => ptAt(tmm, m.cobInset + (ex||0));
+
+    if(m.lightMode === 'rail'){
+      /* 레일등 — 벽 안쪽면 400 ㎜ 이격선 위에 내부 길이 가운데 정렬 ---- */
+      const rl = m.railLen*sc;
+      const a = ptAt((m.lineLen-m.railLen)/2, m.railInset);
+      const b = ptAt((m.lineLen+m.railLen)/2, m.railInset);
+      const inward = (m.lineFace==='back' || m.lineFace==='left') ? 1 : -1;   // 벽→방 안쪽 방향
+      if(horiz){
+        s += R(a[0], a[1]-2.2, rl, 4.4, {fill:'#EFF7F5', stroke:ACC, sw:1.05, rx:1.4});
+        s += L(a[0], a[1], b[0], b[1], {stroke:ACC, sw:0.55, opacity:.85});
+        s += L(a[0], a[1]-4.8, a[0], a[1]+4.8, {stroke:ACC, sw:1.05});
+        s += L(b[0], b[1]-4.8, b[0], b[1]+4.8, {stroke:ACC, sw:1.05});
+        [1,2,3].forEach(i=> s += C(a[0]+rl*i/4, a[1], 1.05, {fill:'#fff', stroke:ACC, sw:0.65}));
+      } else {
+        s += R(a[0]-2.2, a[1], 4.4, rl, {fill:'#EFF7F5', stroke:ACC, sw:1.05, rx:1.4});
+        s += L(a[0], a[1], b[0], b[1], {stroke:ACC, sw:0.55, opacity:.85});
+        s += L(a[0]-4.8, a[1], a[0]+4.8, a[1], {stroke:ACC, sw:1.05});
+        s += L(b[0]-4.8, b[1], b[0]+4.8, b[1], {stroke:ACC, sw:1.05});
+        [1,2,3].forEach(i=> s += C(a[0], a[1]+rl*i/4, 1.05, {fill:'#fff', stroke:ACC, sw:0.65}));
+      }
+      /* 양쪽 여백 = 전선 시작 여백 (내부 길이 − 레일 길이) ÷ 2 — 벽 쪽에 치수선 */
+      const w0 = ptAt(0, 0), w1 = ptAt(m.lineLen, 0);
+      if(horiz){
+        const yy = a[1] - inward*15;
+        s += dimH(w0[0], a[0], yy, String(m.railGap), {size:6.4, color:ACC, ext1: w0[1], ext2: a[1], labelY: yy + (inward>0? 8 : -2.4)});
+        s += dimH(b[0], w1[0], yy, String(m.railGapB), {size:6.4, color:ACC, ext1: b[1], ext2: w1[1], labelY: yy + (inward>0? 8 : -2.4)});
+      } else {
+        const xx = a[0] - inward*15;
+        s += dimV(w0[1], a[1], xx, String(m.railGap), {size:6.4, color:ACC, ext1: w0[0], ext2: a[0], labelX: xx + (inward>0? 2.6 : -2.6)});
+        s += dimV(b[1], w1[1], xx, String(m.railGapB), {size:6.4, color:ACC, ext1: b[0], ext2: w1[0], labelX: xx + (inward>0? 2.6 : -2.6)});
+      }
+      /* 라벨 — 레일 안쪽(방 쪽)으로. 방 깊이가 짧아 중앙등과 부딪히면 한 줄로 압축 */
+      const lp = ptAt(m.lineLen/2, m.railInset);
+      const roomToCtr = (horiz ? m.innerD : m.innerW)/2 - m.railInset;
+      const compact = roomToCtr < 130;
+      const lx = horiz ? lp[0] : lp[0] + inward*15;
+      const ly2 = horiz ? lp[1] + inward*15 : lp[1];
+      const lbl = compact
+        ? '레일등 '+m.railLen+' · 여백 ('+m.lineLen+'−'+m.railLen+')÷2 = '+m.railGap
+        : '레일등 '+m.railLen+' ㎜ · 벽 안쪽면 '+m.railInset+' ㎜';
+      s += horiz ? tag(lx, ly2, lbl, {size:7.4, fill:ACC, weight:800, bg:'#fff', bgop:0.95, stroke:'#9BD6C7', sw:0.5})
+                 : tag(lx, ly2, lbl, {size:7.4, fill:ACC, weight:800, bg:'#fff', bgop:0.95, stroke:'#9BD6C7', sw:0.5, rot:-90});
+      if(!compact){
+        const ftxt = '전선 시작 여백 ('+m.lineLen+' − '+m.railLen+') ÷ 2 = '+m.railGap+' ㎜';
+        const fx = horiz ? lp[0] : lp[0] + inward*24;
+        const fy = horiz ? lp[1] + inward*26 : lp[1];
+        s += horiz ? T(fx, fy, ftxt, {size:6.2, anchor:'middle', fill:'#2E353B', weight:700})
+                   : T(fx, fy, ftxt, {size:6.2, anchor:'middle', fill:'#2E353B', weight:700, rotate:-90});
+        if(m.railTight){
+          const wx = horiz ? lp[0] : lp[0] + inward*36;
+          const wy = horiz ? lp[1] + inward*36 : lp[1];
+          s += horiz ? T(wx, wy, '여백 부족 — 짧은 레일 권장', {size:6.0, anchor:'middle', fill:WARN, weight:700})
+                     : T(wx, wy, '여백 부족 — 짧은 레일 권장', {size:6.0, anchor:'middle', fill:WARN, weight:700, rotate:-90});
+        }
+      }
+    } else {
+
     const rCob = Math.max(3.4, (m.cobDia/2)*sc);
     m.cobPos.forEach(tp=>{
       const cc = pt(tp);
@@ -1119,11 +1207,33 @@ function sheetPlan(m){
       const xx = (m.lineFace==='left') ? p1[0] + rCob + 7 : p1[0] - rCob - 7;
       s += dimV(p1[1], p2[1], xx, String(m.cobSegs[1]), {size:6.8, color:ACC, labelX: xx + (m.lineFace==='left'? 3.4 : -3.4)});
     }
-    /* 라벨 — 벽 안쪽으로 한 줄 */
-    const lp = pt(m.lineLen/2, 26);
+    /* 라벨 — 벽 안쪽으로 한 줄 (26 px 안쪽) */
+    const lp0 = ptAt(m.lineLen/2, m.cobInset);
+    const dirIn = (m.lineFace==='back'||m.lineFace==='left') ? 1 : -1;
+    const lp = horiz ? [lp0[0], lp0[1] + dirIn*26] : [lp0[0] + dirIn*26, lp0[1]];
     const lbl = '라인타공 1면 · COB 2구 Ø'+m.cobDia;
     s += horiz ? tag(lp[0], lp[1], lbl, {size:7.6, fill:ACC, weight:800, bg:'#fff', bgop:0.95, stroke:'#9BD6C7', sw:0.5})
                : tag(lp[0], lp[1], lbl, {size:7.6, fill:ACC, weight:800, bg:'#fff', bgop:0.95, stroke:'#9BD6C7', sw:0.5, rot:-90});
+    }
+  }
+
+  /* 천장 정중앙 중앙등 — 내부 가로 ÷ 2 · 내부 세로 ÷ 2 지점에 원형 LED 1구 ----- */
+  {
+    const cw = Math.round(m.innerW/2), cd = Math.round(m.innerD/2);
+    const cx = ox+pw/2, cy = oy+ph/2;                       // 좌·우 벽 110 대칭 → 내부 정중앙
+    const r0 = Math.max(7.6, Math.min(10.4, 8.2 + sc*2));
+    s += C(cx, cy, r0, {fill:'#fff', stroke:ACC, sw:1.35});
+    s += C(cx, cy, r0*0.5, {fill:'none', stroke:ACC, sw:0.65, dash:'1.7 1.1'});
+    s += C(cx, cy, Math.max(1.2, r0*0.19), {fill:ACC, stroke:'none'});
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+      s += L(cx+d[0]*(r0+1.8), cy+d[1]*(r0+1.8), cx+d[0]*(r0+4.8), cy+d[1]*(r0+4.8), {stroke:ACC, sw:0.8});
+    });
+    s += T(cx + r0 + 8, cy + 1.4, '중앙등', {size:8.2, weight:800, fill:ACC});
+    s += T(cx + r0 + 8, cy + 11.6, '중심 '+cw+' / '+cd+' ㎜', {size:6.3, weight:700, fill:'#2E353B'});
+    /* 중심 치수 — 라인타공 면 반대쪽 내부 면에서 중심까지 (내부 ÷ 2) */
+    const dy = cy + r0 + 13, ex = cy + r0 + 4;
+    if(m.lineFace==='left') s += dimH(cx, ox+pw-t, dy, String(cw), {size:6.6, color:ACC, ext1:ex, ext2:ex, labelY:dy-3.6});
+    else                    s += dimH(ox+t, cx, dy, String(cw), {size:6.6, color:ACC, ext1:ex, ext2:ex, labelY:dy-3.6});
   }
 
   /* 시창 — 도면 위에서 면 방향으로 끌어 위치를 옮길 수 있다 */
@@ -1197,9 +1307,11 @@ function sheetPlan(m){
     }
   }
 
-  /* 내부 유효 표기 */
-  s += T(ox+pw/2, oy+ph/2-3, m.innerW+' × '+m.innerD, {size:13, weight:800, anchor:'middle', fill:'#DAD4C6', ls:'0.02em'});
-  s += T(ox+pw/2, oy+ph/2+11, '내부 유효 (㎜)', {size:6.2, anchor:'middle', fill:'#DAD4C6', ls:'0.12em'});
+  /* 내부 유효 표기 — 정중앙은 중앙등 기호 자리라 비우고, COB 2구가 있는 면 반대쪽으로 내린다 */
+  const ctrX = ox+pw/2, ctrY = oy+ph/2;
+  const wmY = ctrY + ph*(m.lineFace==='front' ? -0.22 : 0.22);
+  s += T(ctrX, wmY, m.innerW+' × '+m.innerD, {size:13, weight:800, anchor:'middle', fill:'#DAD4C6', ls:'0.02em'});
+  s += T(ctrX, wmY+14, '내부 유효 (㎜)', {size:6.2, anchor:'middle', fill:'#DAD4C6', ls:'0.12em'});
 
   /* 치수 — 외경 전체 + 면별 합 체인. 문이 있는 면은 호 바깥으로 치수선을 밀어 겹치지 않게 */
   const dOff = k => (m.doorSide===k ? R0 : 0);
@@ -1245,13 +1357,24 @@ function sheetPlan(m){
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
     ['hSlat','라인타공 1면 ('+m.sideName[m.lineFace]+') · 슬랫 마감 · 발주표에서 제외'],
     ['hGlass','시창 '+(m.winCount? m.winW+'×'+m.winH : '400×800')+' 아크릴 3T · 드래그로 위치 이동'],
-    ['cob','COB 매립등 2구 Ø'+m.cobDia+' 타공 — 내부 '+m.lineLen+' ÷ 3 = '+m.cobGap+' (1/3·2/3 지점)']
+    m.lightMode==='rail'
+      ? ['rail','레일등 '+m.railLen+' ㎜ — 벽 안쪽면 '+m.railInset+' ㎜ 이격, 내부 길이 가운데 정렬']
+      : ['cob','COB 매립등 2구 Ø'+m.cobDia+' 타공 — 내부 '+m.lineLen+' ÷ 3 = '+m.cobGap+' (1/3·2/3 지점)'],
+    ['ctr','중앙등 1구 — 천장 정중앙 (내부 가로·세로 ÷ 2), COB 2구와 별도']
   ];
   items.forEach((it,i)=>{
     const yy = ly+26+i*16;
     if(it[0]==='cob'){
       s += C(M+29, yy+5.4, 4.4, {fill:'#fff', stroke:ACC, sw:1.0, dash:'2.2 1.2'});
       s += C(M+29, yy+5.4, 0.8, {fill:ACC, stroke:'none'});
+    } else if(it[0]==='rail'){
+      s += R(M+20, yy+4.2, 18, 2.6, {fill:'#EFF7F5', stroke:ACC, sw:0.9, rx:0.8});
+      s += L(M+20, yy+2.2, M+20, yy+8.8, {stroke:ACC, sw:0.8});
+      s += L(M+38, yy+2.2, M+38, yy+8.8, {stroke:ACC, sw:0.8});
+    } else if(it[0]==='ctr'){
+      s += C(M+29, yy+5.4, 4.6, {fill:'#fff', stroke:ACC, sw:1.1});
+      s += C(M+29, yy+5.4, 4.6, {fill:'none', stroke:ACC, sw:0.5, dash:'1.4 0.9'});
+      s += C(M+29, yy+5.4, 1.0, {fill:ACC, stroke:'none'});
     } else {
       s += R(M+20, yy, 18, 10, {fill:'url(#'+it[0]+')', stroke: it[0]==='hGlass'?DIMC:(it[0]==='hSlat'?ACC:LINE), sw:0.7});
     }
@@ -1276,9 +1399,13 @@ function sheetPlan(m){
       + '. 시창 열 '+m.winStackTxt+' = '+CFG.HEAD+'.');
   }
   notes.push((m.winCount>0? '8. ':'7. ')+'라인타공 1면 = '+m.sideName[m.lineFace]
-    + ' (내부 '+m.lineLen+') — COB 매립등 2구 천장 타공 중심 '+m.cobPos[0]+' / '+m.cobPos[1]
-    + ' ㎜. 벽 안쪽면에서 '+m.cobInset+' ㎜, 면 1/3·2/3 지점 · 타공 Ø'+m.cobDia+'.');
-  notes.forEach((tx,i)=> s += T(M+300, ly+26+i*11.4, tx, {size:6.05, fill:'#4F585F'}));
+    + ' (내부 '+m.lineLen+') — '+(m.lightMode==='rail'
+        ? '레일등 '+m.railLen+' ㎜ 를 벽 안쪽면 '+m.railInset+' ㎜ 이격, 가운데 정렬. 전선 시작 여백 ('+m.lineLen+' − '+m.railLen+') ÷ 2 = '+m.railGap+' ㎜ (양쪽).'
+        : 'COB 매립등 2구 천장 타공 중심 '+m.cobPos[0]+' / '+m.cobPos[1]
+          + ' ㎜. 벽 안쪽면에서 '+m.cobInset+' ㎜, 면 1/3·2/3 지점 · 타공 Ø'+m.cobDia+'.'));
+  notes.push((m.winCount>0? '9. ':'8. ')+'천장 정중앙 중앙등 1구 — 중심 '+Math.round(m.innerW/2)+' / '+Math.round(m.innerD/2)
+    + ' ㎜ (내부 '+m.innerW+'·'+m.innerD+' ÷ 2). COB 2구와 별도 1구.');
+  notes.forEach((tx,i)=> s += T(M+300, ly+24+i*11.0, tx, {size:6.05, fill:'#4F585F'}));
 
   s += titleBlock(m,{no:'A-101',title:'평면도',scale:'1 : '+Math.round(3.7795/sc)});
   s += scaleBar(M+24, 1002, sc);
@@ -1379,8 +1506,9 @@ function cobCeilPanel(m, x, y, w, h){
   const f = m.lineFace;
   const horiz = (f==='front' || f==='back');
   let s = R(x, y, w, h, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
-  s += T(x+9, y+13, '천장 마감 평면 · COB 2구', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
-  s += T(x+9, y+22, '라인타공 면 상단 천장 · 내부 유효 3등분 지점', {size:5.9, fill:'#7B8389'});
+  s += T(x+9, y+13, '천장 마감 평면 · '+(m.lightMode==='rail'? '레일등':'COB 2구')+' + 중앙등', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
+  s += T(x+9, y+22, m.lightMode==='rail'? '라인타공 면 상단 천장 · 벽 안쪽면 400㎜ 이격 · 가운데 정렬 · 정중앙 중앙등'
+                                        : '라인타공 면 상단 천장 · 내부 유효 3등분 지점 · 정중앙 중앙등', {size:5.9, fill:'#7B8389'});
 
   /* 도면 영역 (왼쪽) — 치수선 자리를 면 방향에 맞춰 비워 둔다 */
   const chA = (f==='back'), chB = (f==='front'), chL = (f==='left'), chR = (f==='right');
@@ -1404,11 +1532,16 @@ function cobCeilPanel(m, x, y, w, h){
     right: {x:ox+iw, y:oy-bw, w:bw, h:ih+2*bw}
   }[f];
   s += R(band.x, band.y, band.w, band.h, {fill:'url(#hSlat)', stroke:ACC, sw:1.2});
-  const tagPos = {
-    back:  [ox+iw/2, oy+bw+11, 0],
-    front: [ox+iw/2, oy+ih-bw-11, 0],
-    left:  [ox+bw+30, oy+ih/2, 0],
-    right: [ox+iw-bw-30, oy+ih/2, 0]
+  const tagPos = (m.lightMode==='rail') ? {
+    back:  [ox+iw/2, oy-bw-7, 0],
+    front: [ox+iw/2, oy+ih+bw+7, 0],
+    left:  [ox-bw-14, oy+ih/2, 0],
+    right: [ox+iw+bw+14, oy+ih/2, 0]
+  }[f] : {
+    back:  [ox+iw/2, oy+m.cobInset*sc+12, 0],
+    front: [ox+iw/2, oy+ih-m.cobInset*sc-12, 0],
+    left:  [ox+m.cobInset*sc+12, oy+ih/2, 0],
+    right: [ox+iw-m.cobInset*sc-12, oy+ih/2, 0]
   }[f];
   s += tag(tagPos[0], tagPos[1], '라인타공', {size:5.6, fill:ACC, weight:800, rot:tagPos[2], bg:'#fff', bgop:0.92});
 
@@ -1421,13 +1554,62 @@ function cobCeilPanel(m, x, y, w, h){
     return                 [ox+iw-ii, oy+tt];
   };
   const rCob = Math.max(3.0, (m.cobDia/2)*sc);
+  if(m.lightMode === 'rail'){
+    /* 레일등 — 벽 안쪽면 400 ㎜ 이격선 위에 가운데 정렬, 양쪽 여백 치수 */
+    const rl = m.railLen*sc;
+    const ra = pt((m.lineLen-m.railLen)/2, m.railInset);
+    const rb = pt((m.lineLen+m.railLen)/2, m.railInset);
+    const inward = (f==='back' || f==='left') ? 1 : -1;
+    if(horiz){
+      s += R(ra[0], ra[1]-1.5, rl, 3.0, {fill:'#EFF7F5', stroke:ACC, sw:0.9, rx:0.9});
+      s += L(ra[0], ra[1]-3.2, ra[0], ra[1]+3.2, {stroke:ACC, sw:0.85});
+      s += L(rb[0], rb[1]-3.2, rb[0], rb[1]+3.2, {stroke:ACC, sw:0.85});
+    } else {
+      s += R(ra[0]-1.5, ra[1], 3.0, rl, {fill:'#EFF7F5', stroke:ACC, sw:0.9, rx:0.9});
+      s += L(ra[0]-3.2, ra[1], ra[0]+3.2, ra[1], {stroke:ACC, sw:0.85});
+      s += L(rb[0]-3.2, rb[1], rb[0]+3.2, rb[1], {stroke:ACC, sw:0.85});
+    }
+    const q0 = pt(0,0), q1 = pt(m.lineLen,0);
+    /* 여백이 좁으면(90 ㎜ 등) 치수선이 읽히지 않아 라벨·값 목록으로 대신한다 */
+    if(m.railGap*sc >= 13){
+      if(horiz){
+        const gy = ra[1] - inward*6;
+        s += dimH(q0[0], ra[0], gy, String(m.railGap),  {size:4.4, color:ACC, labelY: gy + (inward>0? 5.0 : -1.8)});
+        s += dimH(rb[0], q1[0], gy, String(m.railGapB), {size:4.4, color:ACC, labelY: gy + (inward>0? 5.0 : -1.8)});
+      } else {
+        const gx = ra[0] - inward*6;
+        s += dimV(q0[1], ra[1], gx, String(m.railGap),  {size:4.4, color:ACC, labelX: gx + (inward>0? 1.8 : -1.8)});
+        s += dimV(rb[1], q1[1], gx, String(m.railGapB), {size:4.4, color:ACC, labelX: gx + (inward>0? 1.8 : -1.8)});
+      }
+    }
+    const mid = pt(m.lineLen/2, m.railInset);
+    const rlb = '레일등 '+m.railLen+' · 여백 '+m.railGap+'/'+m.railGapB;
+    if(horiz) s += T(mid[0], mid[1] + inward*8, rlb, {size:4.6, anchor:'middle', weight:800, fill:ACC});
+    else      s += T(mid[0] + inward*8, mid[1], rlb, {size:4.6, anchor:'middle', weight:800, fill:ACC, rotate:-90});
+  } else {
   m.cobPos.forEach(tp=>{
     const cc = pt(tp, m.cobInset);
     s += C(cc[0], cc[1], rCob, {fill:'#fff', stroke:ACC, sw:1.1, dash:'2.2 1.2'});
     s += C(cc[0], cc[1], Math.max(0.8, rCob*0.18), {fill:ACC, stroke:'none'});
   });
+  }
 
-  /* 치수선 — 면 시작 ~ 1/3 ~ 2/3 ~ 끝 */
+  /* 천장 정중앙 — 중앙등 1구 (내부 가로 ÷ 2 · 내부 세로 ÷ 2) */
+  const ctw = Math.round(m.innerW/2), ctd = Math.round(m.innerD/2);
+  {
+    const cx = ox+iw/2, cy = oy+ih/2;
+    const rc = Math.max(3.2, Math.min(5.2, rCob*0.72));
+    s += C(cx, cy, rc, {fill:'#fff', stroke:ACC, sw:1.05});
+    s += C(cx, cy, Math.max(0.8, rc*0.26), {fill:ACC, stroke:'none'});
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+      s += L(cx+d[0]*(rc+0.9), cy+d[1]*(rc+0.9), cx+d[0]*(rc+2.4), cy+d[1]*(rc+2.4), {stroke:ACC, sw:0.7});
+    });
+    s += T(cx + rc + 3.4, cy - 0.2, '중앙등', {size:5.6, weight:800, fill:ACC});
+    s += T(cx + rc + 3.4, cy + 6.2, ctw+' / '+ctd, {size:4.7, weight:700, fill:'#4F585F', mono:true});
+  }
+
+  /* 치수선 — COB: 면 시작 ~ 1/3 ~ 2/3 ~ 끝 */
+  if(m.lightMode !== 'rail'){
   const p0 = pt(0, 0), p1 = pt(m.cobPos[0], 0), p2 = pt(m.cobPos[1], 0), p3 = pt(Math.round(m.lineLen), 0);
   const segs = [m.cobSegs[0], m.cobSegs[1], m.cobSegs[2]];
   if(horiz){
@@ -1443,29 +1625,39 @@ function cobCeilPanel(m, x, y, w, h){
     s += dimV(p1[1], p2[1], xx, String(segs[1]), {size:5.8, color:ACC, ext1:ext, ext2:ext, labelX:xx-2.4});
     s += dimV(p2[1], p3[1], xx, String(segs[2]), {size:5.8, color:ACC, labelX:xx-2.4});
   }
+  }
 
   /* 오른쪽 값 목록 */
   const tx0 = x + Math.min(160, w*0.45) + 6, tx1 = x + w - 10;
-  const rows = [
+  const rows = m.lightMode==='rail' ? [
+    ['라인타공 면', m.sideName[f]],
+    ['내부 유효', m.lineLen + ' ㎜'],
+    ['레일등', m.railLen + ' ㎜ (추천 ' + (m.railAuto>=2000?'2m':(m.railAuto>=1500?'1.5m':'1m')) + ')'],
+    ['이격', '벽 안쪽면 ' + m.railInset + ' ㎜'],
+    ['전선 시작', m.railGap + ' / ' + m.railGapB + ' ㎜'],
+    ['중앙등', '내부 ' + ctw + ' / ' + ctd + ' ㎜ (정중앙)'],
+    ['관통', '9T 아트보드 + 65T 천장']
+  ] : [
     ['라인타공 면', m.sideName[f]],
     ['내부 유효', m.lineLen + ' ㎜'],
     ['타공 중심', m.cobPos[0] + ' / ' + m.cobPos[1] + ' ㎜'],
     ['간격', m.cobGap + ' ㎜ (' + m.lineLen + ' ÷ 3)'],
     ['타공', 'Ø' + m.cobDia + ' · 벽 안쪽면 ' + m.cobInset + ' ㎜'],
+    ['중앙등', '내부 ' + ctw + ' / ' + ctd + ' ㎜ (정중앙)'],
     ['관통', '9T 아트보드 + 65T 천장']
   ];
-  let ry = y + 40;
+  let ry = y + 36;
   rows.forEach(r=>{
     s += T(tx0, ry, r[0], {size:5.8, fill:SOFT, weight:700});
     s += T(tx1, ry, r[1], {size:6.2, fill:'#2E353B', weight:700, anchor:'end', mono:true});
     ry += 11.4;
   });
-  s += T(tx0, ry+4, '면 1/3 · 2/3 지점에 2구를 나란히', {size:5.6, fill:'#8A939A'});
+  s += T(tx0, ry+4, m.lightMode==='rail'? '내부 길이 가운데 정렬 · 양쪽 여백 = 전선 시작점' : '면 1/3 · 2/3 지점에 2구를 나란히', {size:5.6, fill:'#8A939A'});
   return s;
 }
 
 function sheetFloorCeil(m){
-  let s = sheetHead('A-102','바닥 2겹 · 천장 65T 분할도','FLOOR 2 LAYERS (CROSS) & CEILING 65T · 원판 600×2400 · 길이 2400 초과 '+splitModeName(m.lenSplit)+' · 천장 COB 매립등 2구 위치');
+  let s = sheetHead('A-102','바닥 2겹 · 천장 65T 분할도','FLOOR 2 LAYERS (CROSS) & CEILING 65T · 원판 600×2400 · 길이 2400 초과 '+splitModeName(m.lenSplit)+' · 천장 '+(m.lightMode==='rail'? '레일등':'COB 매립등 2구')+' + 중앙등 위치');
   s += pageNo('A-102',2,4);
   const boxW = (SW-2*M-30)/2;
   const xL = M+8, xR = M+8+boxW+14;
@@ -2112,7 +2304,19 @@ async function copyBnb(){
   toast(ok ? '카톡 발주 양식을 복사했습니다' : '복사 실패 — 미리보기를 길게 눌러 직접 복사해 주세요');
 }
 function syncCobUI(m){
+  const cobRow = $('#cobRow'), railRow = $('#railRow');
+  if(cobRow) cobRow.style.display = m.lightMode==='rail' ? 'none' : '';
+  if(railRow) railRow.style.display = m.lightMode==='rail' ? '' : 'none';
   const el = $('#cobNote'); if(!el) return;
+  if(m.lightMode==='rail'){
+    const nm = m.railAuto>=2000 ? '2m' : (m.railAuto>=1500 ? '1.5m' : '1m');
+    el.innerHTML = '<b>'+m.sideName[m.lineFace]+'</b> 내부 <b>'+m.lineLen+'</b> → 자동 추천 <b>'+nm+'</b>'
+      + ' · 레일 <b>'+m.railLen+'</b> ㎜ (벽 안쪽면 <b>'+m.railInset+'</b> ㎜ 이격, 가운데 정렬)'
+      + (m.railClamp? ' <span style="color:#B4622A">· 내부에 맞춰 축소</span>' : '')
+      + ' — 전선 시작 여백 <b>('+m.lineLen+' − '+m.railLen+') ÷ 2 = '+m.railGap+'</b> ㎜'
+      + (m.railTight? ' <span style="color:#B4622A">· 여백 부족 — 짧은 레일 권장</span>' : '');
+    return;
+  }
   el.innerHTML = '<b>'+m.sideName[m.lineFace]+'</b> 내부 <b>'+m.lineLen+'</b> ÷ 3 = <b>'+m.cobGap+'</b> ㎜'
     + ' — 타공 중심 <b>'+m.cobPos[0]+'</b> / <b>'+m.cobPos[1]+'</b> ㎜ (면 시작 기준)';
 }
@@ -2150,8 +2354,10 @@ function readInputs(){
     ceilDir: $('#ceilDir').value,
     lenSplit: $('#lenSplit').value,
     lineFace: state.lineFace || 'back',
-    cobDia: +$('#cobDia').value || 75,
-    cobInset: ($('#cobInset').value === '' ? 100 : (+$('#cobInset').value || 0)),
+    lightMode: state.lightMode || 'cob',
+    railSpec: $('#railSpec').value || 'auto',
+    cobDia: +$('#cobDia').value || 55,
+    cobInset: ($('#cobInset').value === '' ? 200 : (+$('#cobInset').value || 0)),
     bbColor: ($('#bbColor').value || '연베이지').trim(),
     bbFlame: state.bbFlame || 'non',
     bbAddr: ($('#bbAddr').value || '').trim()
@@ -2440,6 +2646,7 @@ function init(){
   segInit('#doorAlign','doorAlign','center');
   segInit('#doorHinge','doorHinge','right');
   segInit('#lineFace','lineFace','back');
+  segInit('#lightMode','lightMode','cob');
   segInit('#bbFlame','bbFlame','non');
   segInit('#winSpec','winSpec','none', ()=>{ state.winCenter = null; });
 
@@ -2450,7 +2657,7 @@ function init(){
   });
 
   ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
-   '#cobDia','#cobInset','#bbColor','#bbAddr']
+   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr']
     .forEach(s=>{ const el=$(s); el.addEventListener('input', render); el.addEventListener('change', render); });
 
   /* 시창 위치 슬라이더 · 중앙 정렬 */
@@ -2496,6 +2703,10 @@ function init(){
   if(qSplit==='max' || qSplit==='even') $('#lenSplit').value = qSplit;
   const qLf = q.get('lf') || src.lineFace;
   if(qLf==='back' || qLf==='left' || qLf==='right') setSeg('#lineFace','lineFace', qLf);
+  const qLm = q.get('lm') || src.lightMode;
+  if(qLm==='cob' || qLm==='rail') setSeg('#lightMode','lightMode', qLm);
+  const qRs = q.get('rs') || src.railSpec;
+  if(qRs==='auto' || qRs==='1000' || qRs==='1500' || qRs==='2000') $('#railSpec').value = qRs;
 
   render();
 }
