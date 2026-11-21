@@ -266,7 +266,7 @@
    ===================================================================== */
 const CFG = {
   PB: 95,          // 벽체 PB 두께
-  CORNER: 110,     // 코너 합판 기둥
+  CORNER: 110,     // 외벽 모서리 110 합판 (자재표 전용 · 평면도·전개도에는 표기하지 않음)
   FIN: 110,        // 벽체 액자틀 두께 (15T 원판 + 95T 날개 = 110, 안쪽 45T 마블 2겹 충전)
                    // 외부 9T 알판 · 내부 9T 마감재는 액자틀 위에 붙는 마감층
   HEAD: 2000,      // 문 상단 레벨 (벽판 1000 × 2단)
@@ -398,8 +398,7 @@ function buildModel(inp){
   else { for(let i=0;i<Math.max(1,cN-1);i++) cWidths.push(MOD); cWidths.push(MOD - JOINT*Math.max(1,cN-1)); }
   const ceilPieces = cWidths.map(w=>({w, l:cLen}));
 
-  /* --- 코너 · 외벽 알판 ---------------------------------------------- */
-  const cornerPosts = 4;
+  /* --- 외벽 알판 ---------------------------------------------- */
   const extRows = [];
   sides.forEach(s=>{
     const label = sideName[s.k];
@@ -441,11 +440,9 @@ function buildModel(inp){
     add('문·개구부', winW, upDown, winCount*2, '시창 상·하 채움');
     if(MOD-winW > 40) add('문·개구부', MOD-winW, 1000, winCount, '시창 옆 채움');
   }
-  /* 코너 110 */
-  add('코너 110 합판', 110, 110, 4, '코너 기둥 · 높이 ' + H);
   /* 외벽 알판 */
   merge2(extRows.filter(r=>r.w>40)).forEach(p=>add('외벽 알판', p.w, p.l, p.qty, p.note));
-  add('외벽 알판', 110, H, 4, '코너 마감 스트립');
+  add('외벽 알판', 110, H, 4, '모서리 마감 스트립');
 
   /* --- 자재 산출 ------------------------------------------------------ */
   const perimSpan = sum(sides.map(s=>s.span));
@@ -461,7 +458,6 @@ function buildModel(inp){
     {mat:'PB 18T — 바닥 (2겹)', spec:'1220×2440', amount: n(floorArea*2), unit:'㎡', sheets: sheets(floorArea*2), note:'1층·2층 교차 재단'},
     {mat:'PB 95T — 벽판 (액자틀 날개)', spec:'95T 적층', amount: n(wallArea), unit:'㎡', sheets: Math.ceil(wallArea*5*1.12/sheetArea), note:'15T 원판 + 95T 날개 · 18T×5 기준'},
     {mat:'천장 65T', spec:'600 모듈', amount: n(sum(ceilPieces.map(p=>p.w*p.l))/1e6), unit:'㎡', sheets: null, note:'조인트 여유 '+JOINT+'㎜'},
-    {mat:'합판 18T — 코너 110', spec:'110×110', amount: String(cornerPosts)+' 개', unit:'', sheets: 1, note:'4개 코너 기둥'},
     {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H, amount: n(extArea), unit:'㎡', sheets: sheets(extArea), note:'외부 마감 9T'},
     {mat:'9T 마감재 — 내부', spec:'3면 + 천장', amount: n(artArea), unit:'㎡', sheets: Math.ceil(artArea*1.12/sheetArea), note:'아트보드 · 1면 라인타공'},
     {mat:'45T 마블 — 액자틀 충전', spec:'2겹', amount: n(wallArea*2), unit:'㎡', sheets: null, note:'액자틀 안쪽 충진 45T × 2'},
@@ -476,7 +472,7 @@ function buildModel(inp){
     winCount, winSide, winSideKey, winMoved, winW, winH, winPositions, winSideObj,
     floor:{l1:f1, l2:f2}, ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan},
     cut, bom, perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
-    cornerPosts, extRows
+    extRows
   };
 }
 
@@ -670,7 +666,7 @@ function sheetPlan(m){
   const pw = m.W*sc, ph = m.D*sc;
   const ox = regionX + (regionW-pw)/2;
   const oy = regionY + (regionH-ph)/2;
-  const t = CFG.FIN*sc, cw = CFG.CORNER*sc;
+  const t = CFG.FIN*sc;
 
   /* 벽체 밴드 — 좌·우 벽은 외경 끝~끝 전길이, 문 면·반대 면은 좌·우 벽(110) 안쪽에 끼움 */
   const EDGE = '#14171A';
@@ -718,19 +714,9 @@ function sheetPlan(m){
       else if(kind==='left'){   rx=ox; ry=a1;       rw=t;  rh=ln; }
       else {                    rx=ox+pw-t; ry=a1;  rw=t;  rh=ln; }
 
-      /* 문 면·반대 면의 양 끝 110 = 좌·우 벽 두께 (길이에 더하지 않고 외경 안쪽에 포함) */
-      if(it.kind==='wall'){
-        out += R(rx,ry,rw,rh,{fill:'#E9E7E1',stroke:'none'});
-        out += R(rx,ry,rw,rh,{fill:'url(#hWall)',stroke:'none'});
-        out += L(rx,ry,rx,ry+rh,{stroke:EDGE,sw:1.5});
-        out += L(rx+rw,ry,rx+rw,ry+rh,{stroke:EDGE,sw:1.5});
-        const sz = Math.min(t*0.34, ln*0.5, 8.4);
-        if(ln >= tagWidth('110', sz)*0.95){
-          out += isH ? tag(rx+rw/2, ry+rh/2, '110', {size:sz, fill:'#5C666D'})
-                     : tag(rx+rw/2, ry+rh/2, '110', {size:sz, fill:'#5C666D', rot:-90});
-        }
-        return;
-      }
+      /* 문 면·반대 면의 양 끝 110 = 좌·우 벽 두께 — 밴드 밖(모서리)은 마주 보는 벽의
+         전길이 밴드가 이미 덮으므로 여기서는 그리지 않는다 (치수 체인에만 사용) */
+      if(it.kind==='wall'){ return; }
 
       if(it.kind==='door'){
         out += R(rx,ry,rw,rh,{fill:'#FFFDF7',stroke:'none'});
@@ -746,18 +732,13 @@ function sheetPlan(m){
       /* 분할 경계선 — 굵은 진한 실선 */
       if(isH) out += L(rx,ry,rx,ry+rh,{stroke:EDGE,sw:2.1});
       else    out += L(rx,ry,rx+rw,ry,{stroke:EDGE,sw:2.1});
-      /* 폭 라벨 — 끝단 코너 기둥(110)과 겹치면 안쪽으로 밀고, 자리가 없으면 생략 */
+      /* 폭 라벨 — 패널 한가운데, 폭이 모자라면 생략 */
       const span = isH? rw : rh;
       const size = Math.min(t*0.36, span*0.34, 13);
       const lbl = String(Math.round(it.w));
       const tw = tagWidth(lbl, size);
-      const ctr = it.at + it.w/2;
-      let cMid = ctr, okLbl = tw <= it.w*sc*0.92;
-      if(okLbl && sd.span===sd.len && (ctr - tw/2/sc < CFG.CORNER || ctr + tw/2/sc > sd.len - CFG.CORNER)){
-        const c0 = Math.max(it.at, CFG.CORNER), c1 = Math.min(it.at+it.w, sd.len-CFG.CORNER);
-        cMid = (c0+c1)/2;
-        okLbl = tw <= (c1-c0)*sc*0.92;
-      }
+      const cMid = it.at + it.w/2;
+      const okLbl = tw <= it.w*sc*0.92;
       if(okLbl){
         const cc = isH ? ox + cMid*sc : oy + cMid*sc;
         out += isH ? tag(cc, ry+rh/2, lbl, {size, fill:'#101619'})
@@ -769,22 +750,7 @@ function sheetPlan(m){
     return out;
   };
 
-  /* 코너 110 합판 기둥 — 전길이 벽 끝단 110 구간 안에 포함 (길이 추가 없음) */
-  const drawCorners = () => {
-    let out = '';
-    [[ox,oy],[ox+pw-cw,oy],[ox,oy+ph-cw],[ox+pw-cw,oy+ph-cw]].forEach(([cx,cy])=>{
-      out += R(cx,cy,cw,cw,{fill:'#F7E3D2',stroke:'none'});
-      out += R(cx,cy,cw,cw,{fill:'url(#hCorner)',stroke:'#7A3B12',sw:2.0});
-      const csz = Math.min(cw*0.30, 7.6);
-      if(cw >= tagWidth('코너', csz)*0.9){
-        out += tag(cx+cw/2, cy+cw/2, '코너', {size:csz, fill:'#7A3B12', weight:800, bg:'#FFF9F3', bgop:0.94, mono:false});
-      }
-    });
-    return out;
-  };
-
   s += drawBand('top', S('back')) + drawBand('bottom', S('front')) + drawBand('left', S('left')) + drawBand('right', S('right'));
-  s += drawCorners();
 
   /* 시창 */
   if(m.winCount>0 && m.winSideObj){
@@ -882,12 +848,11 @@ function sheetPlan(m){
   s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
-    ['hCorner','코너 110 합판 기둥 · 좌·우 벽 끝단 110 구간에 포함'],
     ['hGlass','시창 400×800 아크릴 3T']
   ];
   items.forEach((it,i)=>{
     const yy = ly+26+i*16;
-    s += R(M+20, yy, 18, 10, {fill:'url(#'+it[0]+')', stroke: it[0]==='hCorner'?WARN:(it[0]==='hGlass'?DIMC:LINE), sw:0.7});
+    s += R(M+20, yy, 18, 10, {fill:'url(#'+it[0]+')', stroke: it[0]==='hGlass'?DIMC:LINE, sw:0.7});
     s += T(M+44, yy+7.6, it[1], {size:6.6});
   });
   s += T(M+300, ly+14, 'NOTE', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
@@ -897,7 +862,7 @@ function sheetPlan(m){
     '1. ㎜ 단위, 외경 기준. 좌·우 벽은 외경 끝~끝 전길이, 문 면·반대 면은 좌·우 벽 110 안쪽에 끼움.',
     '2. '+m.sideName[longSide.k]+' '+sumOf(longSide)+' = '+longSide.len+' (전길이).',
     '3. '+m.sideName[m.doorSide]+' '+sumOf(S(m.doorSide))+' = '+S(m.doorSide).len+' (좌·우 벽 안쪽 '+S(m.doorSide).span+').',
-    '4. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공. 코너 110 기둥은 좌·우 벽 끝단에 포함(길이 추가 없음).',
+    '4. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공. 좌·우 벽은 모서리까지 전길이 한 줄로 세움.',
     '5. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000).'
   ];
   notes.forEach((tx,i)=> s += T(M+300, ly+28+i*12.4, tx, {size:6.2, fill:'#4F585F'}));
@@ -1041,18 +1006,6 @@ function sheetElevation(m){
       if(i>0) o += L(a, y, a, y+hh, {stroke:EDGE_E, sw:2.0});
     });
 
-    /* 코너 110 합판 기둥 — 전길이 벽 양 끝단 (전길이 안에 포함) */
-    if(inset <= 0.5){
-      [x, x+fullW-CFG.CORNER*sc].forEach(cx=>{
-        o += R(cx, y, CFG.CORNER*sc, hh, {fill:'#F7E3D2', stroke:'none'});
-        o += R(cx, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:'#7A3B12', sw:1.8});
-        const cz = Math.min(CFG.CORNER*sc*0.40, 6.2);
-        if(CFG.CORNER*sc >= tagWidth('코너', cz)*0.95){
-          o += `<g transform="rotate(-90 ${n(cx+CFG.CORNER*sc/2)} ${n(y+hh*0.18)})">${tag(cx+CFG.CORNER*sc/2, y+hh*0.18, '코너', {size:cz, fill:'#7A3B12', mono:false})}</g>`;
-        }
-      });
-    }
-
     /* 문 */
     const doorP = side.pieces.find(p=>p.kind==='door');
     if(doorP){
@@ -1179,7 +1132,7 @@ function sheetElevation(m){
   s += R(M+16, ny, SW-2*M-32, 82, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
   s += T(M+24, ny+27, '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.', {size:6.4});
-  s += T(M+24, ny+38, '· 코너는 110 합판 기둥으로 세로를 잡고, 문 면은 좌·우 벽 안쪽(내폭 −220)에 끼워 시공.', {size:6.4});
+  s += T(M+24, ny+38, '· 좌·우 벽은 외경 끝~끝 전길이(600×3)로 세우고, 문 면은 좌·우 벽 안쪽(내폭 −220)에 끼워 시공.', {size:6.4});
   s += T(M+24, ny+49, '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨.', {size:6.4});
   s += T(M+24, ny+60, '· 벽체·바닥·천장 접합부는 실링 처리로 기밀 유지. 내부 1면 라인타공 아트보드.', {size:6.4});
   s += T(M+24, ny+71, '· 마루 '+CFG.MARU+'㎜ · 천장 65T · 몰딩 45T 마감. 문턱·개폐 방향은 현장 확인.', {size:6.4});
@@ -1231,7 +1184,7 @@ function sheetTables(m){
   let s = sheetHead('A-104','재단 치수표 · 자재 산출표','CUT LIST & BILL OF MATERIALS · 600 모듈 기준 자동 산출');
   s += pageNo('A-104',4,4);
 
-  const groups = ['바닥 PB (2겹 교차)','천장 65T','벽판 95T PB','문·개구부','코너 110 합판','외벽 알판'];
+  const groups = ['바닥 PB (2겹 교차)','천장 65T','벽판 95T PB','문·개구부','외벽 알판'];
   const rows = [];
   groups.forEach(g=>{
     const items = m.cut.filter(c=>c.group===g);
@@ -1299,16 +1252,16 @@ function sheetTables(m){
   const cy0 = wy + 62;
   s += R(M+10, cy0, SW-2*M-20, 96, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+18, cy0+14, '발주 · 준비 체크리스트', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
+  const B = k => m.bom.find(b=>b.mat.indexOf(k)>=0) || {};
   const chk = [
-    ['PB 18T (바닥 2겹)', m.bom[0].sheets+'장'],
-    ['PB 95T (벽판 액자틀)', m.bom[1].sheets+'장'],
-    ['천장 65T', m.bom[2].amount+'㎡'],
-    ['합판 18T (코너)', '1장'],
-    ['백색 알판 9T', m.bom[4].sheets+'장'],
-    ['9T 마감재 (내부)', m.bom[5].sheets+'장'],
-    ['45T 마블 (2겹)', m.bom[6].amount+'㎡'],
-    ['강화마루', m.bom[7].note],
-    ['45T 몰딩', m.bom[8].sheets+'개'],
+    ['PB 18T (바닥 2겹)', (B('바닥').sheets||'')+'장'],
+    ['PB 95T (벽판 액자틀)', (B('벽판').sheets||'')+'장'],
+    ['천장 65T', (B('천장').amount||'')+'㎡'],
+    ['백색 알판 9T', (B('알판').sheets||'')+'장'],
+    ['9T 마감재 (내부)', (B('마감재').sheets||'')+'장'],
+    ['45T 마블 (2겹)', (B('마블').amount||'')+'㎡'],
+    ['강화마루', B('마루').note||''],
+    ['45T 몰딩', (B('몰딩').sheets||'')+'개'],
     ['시스템도어', '1세트'],
     ['시창 아크릴', m.winCount? m.winCount+'개':'—'],
     ['실리콘·피스·압착', '현장 준비']
