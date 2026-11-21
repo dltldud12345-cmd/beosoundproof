@@ -499,10 +499,10 @@ const SW=794, SH=1123, M=16;
 function defs(){
   return `<defs>
     <pattern id="hWall" width="5.2" height="5.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <line x1="0" y1="0" x2="0" y2="5.2" stroke="#B9C0C5" stroke-width="0.55"/>
+      <line x1="0" y1="0" x2="0" y2="5.2" stroke="#A6AFB6" stroke-width="0.72"/>
     </pattern>
     <pattern id="hCorner" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-      <line x1="0" y1="0" x2="0" y2="4" stroke="${WARN}" stroke-width="0.75" opacity="0.85"/>
+      <line x1="0" y1="0" x2="0" y2="4" stroke="${WARN}" stroke-width="0.8" opacity="0.9"/>
     </pattern>
     <pattern id="hFinish" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
       <line x1="0" y1="0" x2="0" y2="3.2" stroke="${ACC}" stroke-width="0.45" opacity="0.55"/>
@@ -713,11 +713,11 @@ function sheetPlan(m){
 
   /* 치수 */
   s += dimH(ox, ox+pw, oy+ph+26, m.W, {ext1:oy+ph, ext2:oy+ph, size:7.6, labelY:oy+ph+22.4});
-  s += dimV(oy, oy+ph, ox-34, m.D, {ext1:ox, ext2:ox, size:7.6, labelX:ox-38});
+  s += dimV(oy, oy+ph, ox-42, m.D, {ext1:ox, ext2:ox, size:7.6, labelX:ox-46});
   s += dimH(ox+t, ox+pw-t, oy+ph+48, (m.W-CFG.FIN*2), {size:6.4});
-  s += dimV(oy+t, oy+ph-t, ox-56, (m.D-CFG.FIN*2), {size:6.4});
+  s += dimV(oy+t, oy+ph-t, ox-68, (m.D-CFG.FIN*2), {size:6.4, labelX:ox-72});
   s += dimH(ox, ox+t, oy-20, '120', {size:6, labelY:oy-23.5});
-  s += dimV(oy, oy+cw, ox-12, '110', {size:5.6, labelX:ox-15});
+  s += dimV(oy, oy+cw, ox-14, '110', {size:5.6, labelX:ox-17});
 
   /* 범례 */
   const ly = 872, lw = SW-2*M-24;
@@ -743,7 +743,7 @@ function sheetPlan(m){
   notes.forEach((tx,i)=> s += T(M+300, ly+28+i*12.6, tx, {size:6.4, fill:'#4F585F'}));
 
   s += titleBlock(m,{no:'A-101',title:'평면도',scale:'1 : '+Math.round(3.7795/sc)});
-  s += scaleBar(SW-M-6-104-14, 968, sc);
+  s += scaleBar(M+24, 972, sc);
   return sheetShell(s);
 }
 
@@ -821,7 +821,7 @@ function sheetFloorCeil(m){
 
   s += svgTable(M+8+boxW+14, M+330, boxW, [
       {label:'부위', w:1.05},{label:'규격 (㎜)', w:1.5},{label:'수량', w:.8},{label:'비고', w:1.2}
-    ], rows, {rowH:13, fs:6.6});
+    ], rows, {rowH:13, fs:6.6}).svg;
 
   // 계산 근거 박스
   const ny = M+590;
@@ -845,128 +845,128 @@ function sheetElevation(m){
   let s = sheetHead('A-103','벽체 전개도 · 벽체 단면','ELEVATION (UNFOLDED) · 벽판 95T PB 1000 2단 · 문 상단 '+m.fillH+' 채움판');
   s += pageNo('A-103',3,4);
 
-  const totalSpan = sum(m.sides.map(x=>x.span));
-  const availW = SW-2*M-24, availH = 250;
-  const sc = Math.min(availW/(totalSpan+120), availH/(m.H+60));
-  const gap = 10;
-  const heights = m.H*sc;
-  let x = M+16, y = M+96;
-  // 좌우 벽이 먼저, 문 면 순서: 앞 → 우 → 뒤 → 좌 (전개)
-  const order = ['front','right','back','left'];
-  order.forEach(k=>{
-    const side = m.sides.find(v=>v.k==k);
-    const sw = side.span*sc;
-    // 벽체
-    s += R(x,y,sw,heights,{fill:'#fff',stroke:INK,sw:1.1});
-    // 1000 2단 + 상단 밴드
-    const y1 = y + heights - CFG.HEAD*sc;   // 문 상단 레벨 (바닥 기준 2000)
-    s += L(x, y1, x+sw, y1, {stroke:'#B9C0C5', sw:0.55, dash:'4 2'});
-    s += T(x+2, y1-1.4, '2000 (문 상단)', {size:4.6, fill:SOFT, mono:true});
-    const y2 = y + heights - 1000*sc;
-    s += L(x, y2, x+sw, y2, {stroke:'#D5D0C6', sw:0.4, dash:'3 2'});
-    // 600 모듈 수직선
-    let acc=0;
-    side.pieces.forEach(p=>{
-      const w = p.w*sc;
-      if(acc>0) s += L(x+acc*sc, y, x+acc*sc, y+heights, {stroke:'#D5D0C6', sw:0.45});
+  /* ---------- 벽면 1개 그리기 ---------- */
+  const drawWall = (side, x, y, sc, opts={}) => {
+    const H = m.H, hh = H*sc, sw = side.span*sc;
+    let o = '';
+    o += R(x,y,sw,hh,{fill:'#fff',stroke:INK,sw:1.15});
+    // 상단 밴드 / 문 상단 / 1000 2단
+    const yHead = y + hh - CFG.HEAD*sc;
+    o += L(x, yHead, x+sw, yHead, {stroke:'#B0B8BE', sw:0.6, dash:'5 2.4'});
+    o += L(x, y+hh-1000*sc, x+sw, y+hh-1000*sc, {stroke:'#D8D3C9', sw:0.45, dash:'3 2'});
+    // 천장 65 라인
+    o += R(x, y, sw, CFG.CEIL*sc, {fill:'#F1EDE4', stroke:'none'});
+    o += L(x, y+CFG.CEIL*sc, x+sw, y+CFG.CEIL*sc, {stroke:'#C9C2B4', sw:0.5});
+    // 모듈 분할선
+    let acc = (side.len - side.span)/2;
+    side.pieces.forEach((p,i)=>{
+      if(i>0) o += L(x+(acc)*sc, y, x+(acc)*sc, y+hh, {stroke:'#D8D3C9', sw:0.5});
       acc += p.w;
     });
+    // 코너 기둥
+    o += R(x, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:WARN, sw:0.6});
+    o += R(x+sw-CFG.CORNER*sc, y, CFG.CORNER*sc, hh, {fill:'url(#hCorner)', stroke:WARN, sw:0.6});
     // 문
     const doorP = side.pieces.find(p=>p.kind==='door');
     if(doorP){
-      const free = side.span*sc - doorP.w*sc;
-      const off = m.doorAlign==='left'?0:(m.doorAlign==='right'?free:free/2);
-      const dx = x+off, dwp = doorP.w*sc, dh = m.dh*sc;
-      s += R(dx, y+heights-dh, dwp, dh, {fill:'#F6F3EC', stroke:WARN, sw:1.1});
-      s += R(dx, y+heights-dh, dwp, dh, {fill:'none', stroke:WARN, sw:0.5, dash:'3 2'});
-      s += T(dx+dwp/2, y+heights-dh/2, '방음문', {size:5.6, anchor:'middle', fill:WARN, weight:700});
-      s += T(dx+dwp/2, y+heights-dh/2+8, m.dw+'×'+m.dh, {size:5.4, anchor:'middle', fill:WARN, mono:true});
-      // 상단 채움판
-      s += R(dx, y+heights-dh-m.fillH*sc, dwp, m.fillH*sc, {fill:'#FBEFE4', stroke:WARN, sw:0.8});
-      s += T(dx+dwp/2, y+heights-dh-m.fillH*sc/2+1.6, m.dw+'×'+m.fillH, {size:5, anchor:'middle', fill:WARN, mono:true});
+      const free = side.span - doorP.w;
+      const off = (side.len - side.span)/2 + (m.doorAlign==='left'?0:(m.doorAlign==='right'?free:free/2));
+      const dx = x+off*sc, dwp = doorP.w*sc, dhp = m.dh*sc, fhp = m.fillH*sc;
+      o += R(dx, y+hh-dhp, dwp, dhp, {fill:'#F7F4ED', stroke:WARN, sw:1.1});
+      o += R(dx, y+hh-dhp-fhp, dwp, fhp, {fill:'#FBEFE4', stroke:WARN, sw:0.85});
+      o += T(dx+dwp/2, y+hh-dhp/2-2, '방음문 '+(m.dw)+'×'+(m.dh), {size: opts.big?6.6:5, anchor:'middle', fill:WARN, weight:700});
+      o += T(dx+dwp/2, y+hh-dhp/2+7, '시스템도어', {size: opts.big?5.4:4.2, anchor:'middle', fill:'#B4622A'});
+      o += T(dx+dwp/2, y+hh-dhp-fhp/2+2, m.dw+'×'+m.fillH, {size: opts.big?5.4:4.2, anchor:'middle', fill:WARN, mono:true});
+      // 손잡이
+      o += C(dx+dwp-10*sc*3, y+hh-dhp*0.45, Math.max(1.2, 2*sc*3), {fill:INK, stroke:INK, sw:0.4});
     }
     // 시창
-    if(m.winCount>0 && k===m.winSide){
+    if(m.winCount>0 && side.k===m.winSide){
+      const off0 = (side.len - side.span)/2;
       m.winPositions.forEach(wp=>{
-        const availStart = (side.len*sc - side.span*sc)/2;
-        const c = availStart + wp.c*sc;
-        const ww = wp.w*sc, wh = wp.h*sc;
-        const wy = y + heights - CFG.HEAD*sc + (1000*sc - wh)/2; // 1000 밴드 중앙
-        s += R(x+c-ww/2, wy, ww, wh, {fill:'url(#hGlass)', stroke:DIMC, sw:1});
-        s += T(x+c, wy-2.4, wp.w+'×'+wp.h, {size:4.8, anchor:'middle', fill:DIMC, mono:true});
+        const c = (off0+wp.c)*sc - x + x; // 절대
+        const cx = x + (off0+wp.c)*sc, ww = wp.w*sc, wh = wp.h*sc;
+        const wy = y + hh - CFG.HEAD*sc + (1000*sc - wh)/2;
+        o += R(cx-ww/2, wy, ww, wh, {fill:'url(#hGlass)', stroke:DIMC, sw:1});
+        o += T(cx, wy-2.6, wp.w+'×'+wp.h, {size: opts.big?5.4:4.4, anchor:'middle', fill:DIMC, mono:true});
       });
     }
-    // 코너 기둥
-    s += R(x, y, 110*sc, heights, {fill:'url(#hCorner)', stroke:WARN, sw:0.6});
-    s += R(x+sw-110*sc, y, 110*sc, heights, {fill:'url(#hCorner)', stroke:WARN, sw:0.6});
-    // 라벨
-    s += T(x+sw/2, y+heights+12, m.sideName[k]+' · '+side.span, {size:6.4, anchor:'middle', weight:700});
-    const modN = side.pieces.filter(p=>p.kind==='mod').length;
-    const residN = side.pieces.filter(p=>p.kind==='resid').map(p=>Math.round(p.w));
-    const doorPc = side.pieces.find(p=>p.kind==='door');
-    const parts = [];
-    if(doorPc) parts.push(Math.round(doorPc.w)+' 문');
-    if(modN) parts.push(modN+'×600');
-    residN.forEach(r=>parts.push(String(r)));
-    s += T(x+sw/2, y+heights+20, parts.join(' + '), {size:5.6, anchor:'middle', fill:'#7B8389', mono:true});
-    x += sw + gap;
-  });
-  // 전체 높이 치수
-  s += dimV(y, y+heights, M+8, m.H+'', {size:6.4});
+    if(opts.labels!==false){
+      const modN = side.pieces.filter(p=>p.kind==='mod').length;
+      const residN = side.pieces.filter(p=>p.kind==='resid').map(p=>Math.round(p.w));
+      const parts = [];
+      if(doorP) parts.push(Math.round(doorP.w)+' 문');
+      if(modN) parts.push(modN+'×600');
+      residN.forEach(r=>parts.push(String(r)));
+      o += T(x+sw/2, y+hh+13, m.sideName[side.k]+' · '+side.span, {size:6.6, anchor:'middle', weight:700});
+      o += T(x+sw/2, y+hh+21, parts.join(' + '), {size:5.8, anchor:'middle', fill:'#7B8389', mono:true});
+    }
+    return o;
+  };
 
-  /* --- 벽체 단면 (수평) ---- */
-  const sy = M+400;
-  s += T(M+16, sy-6, '벽체 단면 (HORIZONTAL SECTION) · 완성 120㎜', {size:8, weight:800});
-  s += T(M+16, sy+4, '외부 → 내부 5겹 구성', {size:6, fill:'#7B8389'});
+  /* ---------- 4면 전개 ---------- */
+  const totalSpan = sum(m.sides.map(x=>x.span));
+  const availW = SW-2*M-40, availH = 236;
+  const sc = Math.min(availW/(totalSpan+54), availH/(m.H+70));
+  const gap = 12;
+  let x = M+20, y = M+96;
+  const order = ['front','right','back','left'];
+  order.forEach(k=>{
+    const side = m.sides.find(v=>v.k==k);
+    s += drawWall(side, x, y, sc);
+    x += side.span*sc + gap;
+  });
+  s += dimV(y, y+m.H*sc, M+10, m.H, {size:6.6});
+  s += T(M+20, y-8, '전개도 — 외부에서 본 4면 (좌→우 : 앞 · 우 · 뒤 · 좌)', {size:6.4, fill:'#7B8389'});
+  s += T(M+20, y-16, '축척 약 1 : '+Math.round(3.7795/sc), {size:5.8, fill:SOFT});
+
+  /* ---------- 벽체 단면 (수평) ---------- */
+  const sy = y + m.H*sc + 54;
+  s += T(M+20, sy, '벽체 단면 · 완성 120㎜ (외부 → 내부)', {size:8.4, weight:800});
+  s += T(M+20, sy+10, 'PB 95T 5겹(18T×5) + 9T 알판(외부) + 9T 아트보드(내부)', {size:6, fill:'#7B8389'});
 
   const layers = [
-    {t:9,   name:'9T 알판 (외부 마감)',   fill:'#FBF6EC'},
-    {t:95,  name:'95T PB 5겹 (18T×5)',    fill:'url(#hWall)'},
-    {t:9,   name:'9T 아트보드 (내부)',    fill:'#EDE7DC'},
-    {t:7,   name:'실링·마감 여유',        fill:'#F3E3D6'}
+    {t:9,  name:'9T 알판',        fill:'#FBF6EC', hatch:''},
+    {t:95, name:'95T PB 5겹',     fill:'url(#hWall)', hatch:''},
+    {t:9,  name:'9T 아트보드',    fill:'#EDE7DC'},
+    {t:7,  name:'여유',           fill:'#F3E3D6'}
   ];
-  const tot = sum(layers.map(l=>l.t));
-  const sc2 = 420/tot;   // 단면 확대
-  let yy = sy+26;
-  let acc2=0;
+  const sx0 = M+60, sy0 = sy+28, pxPerMm = 3.3, sech = 116;
+  let ax = sx0;
   layers.forEach(l=>{
-    const hh = l.t*sc2;
-    s += R(M+16, yy, tot*sc2, hh, {fill:l.fill, stroke:INK, sw:0.7});
-    acc2 += l.t;
+    const wpx = l.t*pxPerMm;
+    s += R(ax, sy0, wpx, sech, {fill:l.fill, stroke:INK, sw:0.7});
+    const lab = l.name+' ('+l.t+')';
+    if(wpx > 60) s += T(ax+wpx/2, sy0+sech/2+2.4, l.name, {size:6.2, anchor:'middle', fill:'#3B4248'});
+    s += T(ax+wpx/2, sy0+sech+11, l.t, {size:5.6, anchor:'middle', mono:true, fill:DIMC});
+    ax += wpx;
   });
-  // 라벨 + 치수
-  let ay = yy;
-  layers.forEach((l,i)=>{
-    const hh = l.t*sc2;
-    s += T(M+16+tot*sc2+34, ay+hh/2+2, l.name+' ('+l.t+')', {size:6.4, weight: i===3?700:400});
-    s += dimH(M+16, M+16+tot*sc2, yy+hh-0.2, '', {size:5});
-    ay += hh;
-  });
-  s += dimH(M+16, M+16+tot*sc2, yy+sum(layers.map(l=>l.t*sc2))+12, '120 (완성 두께)', {size:6.4});
-  s += T(M+16, yy - 6, '외부', {size:5.6, fill:SOFT});
-  s += T(M+16+tot*sc2, yy - 6, '내부', {size:5.6, fill:SOFT, anchor:'end'});
+  s += dimH(sx0, sx0+120*pxPerMm, sy0+sech+24, '120', {size:6.6});
+  s += T(sx0-6, sy0+sech/2, '외부', {size:6, anchor:'end', fill:SOFT});
+  s += T(sx0+120*pxPerMm+8, sy0+sech/2, '내부', {size:6, fill:SOFT});
+  s += T(sx0, sy0-6, '고밀도 흡음재 2겹은 PB 틀 안쪽에 충진', {size:5.6, fill:'#7B8389'});
 
-  /* --- 문 측 상세 ---- */
-  const dx0 = M+16+tot*sc2+150, dy0 = sy+16;
-  s += T(dx0, dy0-6, '문 개구부 상세', {size:8, weight:800});
-  const dsc = Math.min(190/ (m.dw), 190/(m.dh+m.fillH));
-  const dwp = m.dw*dsc, dhp = (m.dh+m.fillH)*dsc;
-  s += R(dx0, dy0+6, dwp, dhp, {fill:'#fff', stroke:INK, sw:1});
-  s += R(dx0, dy0+6, dwp, m.fillH*dsc, {fill:'#FBEFE4', stroke:WARN, sw:0.9});
-  s += T(dx0+dwp/2, dy0+6+m.fillH*dsc/2+1.8, m.dw+'×'+m.fillH, {size:5.4, anchor:'middle', fill:WARN, mono:true});
-  s += R(dx0, dy0+6+m.fillH*dsc, dwp, m.dh*dsc, {fill:'#F6F3EC', stroke:WARN, sw:1.1});
-  s += T(dx0+dwp/2, dy0+6+m.fillH*dsc+m.dh*dsc/2, '시스템도어 '+m.dw+'×'+m.dh, {size:5.6, anchor:'middle', fill:WARN, weight:700});
-  s += dimV(dy0+6, dy0+6+dhp, dx0-10, (m.dh+m.fillH)+'', {size:5.6});
-  s += dimH(dx0, dx0+dwp, dy0+dhp+16, m.dw+'', {size:5.6});
+  /* ---------- 문 면 상세 입면 ---------- */
+  const dside = m.sides.find(v=>v.k===m.doorSide);
+  const dsc = Math.min(230/(dside.span), 340/(m.H));
+  const ddx = 470, ddy = sy+22;
+  s += T(ddx, sy, '문 면 상세 입면 (1 : '+Math.round(3.7795/dsc)+')', {size:8.4, weight:800});
+  s += drawWall(dside, ddx, ddy, dsc, {big:true, labels:false});
+  s += dimH(ddx, ddx+dside.span*dsc, ddy+m.H*dsc+14, dside.span, {size:6.2});
+  s += dimV(ddy, ddy+m.H*dsc, ddx-12, m.H, {size:6.2, labelX:ddx-15});
+  // 주요 레벨
+  s += dimV(ddy+m.H*dsc-m.dh*dsc, ddy+m.H*dsc, ddx+dside.span*dsc+16, m.dh, {size:5.6});
+  s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+34, m.fillH, {size:5.4});
 
-  /* --- 노트 ---- */
-  const ny = M+560;
-  s += R(M+16, ny, SW-2*M-32, 74, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  /* ---------- 시공 메모 ---------- */
+  const ny = 902;
+  s += R(M+16, ny, SW-2*M-32, 82, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
-  s += T(M+24, ny+27, '· 벽판은 95T PB 1000×600 2단(1000+1000)으로 세우고, 상단 '+ (m.H-CFG.HEAD) +'은 상부 밴드로 마감.', {size:6.4});
+  s += T(M+24, ny+27, '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.', {size:6.4});
   s += T(M+24, ny+38, '· 코너는 110 합판 기둥으로 세로를 잡고, 문 면은 좌우 벽 사이(내폭 −190)에 끼워 시공.', {size:6.4});
-  s += T(M+24, ny+49, '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' (문 상단 2000 레벨).', {size:6.4});
-  s += T(M+24, ny+60, '· 벽체 사이·바닥·천장 접합부는 실링 처리하여 기밀 유지. 내부 1면 라인타공 아트보드.', {size:6.4});
+  s += T(M+24, ny+49, '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨.', {size:6.4});
+  s += T(M+24, ny+60, '· 벽체·바닥·천장 접합부는 실링 처리로 기밀 유지. 내부 1면 라인타공 아트보드.', {size:6.4});
+  s += T(M+24, ny+71, '· 마루 '+CFG.MARU+'㎜ · 천장 65T · 몰딩 45T 마감. 문턱·개폐 방향은 현장 확인.', {size:6.4});
 
   s += titleBlock(m,{no:'A-103',title:'전개도·단면',scale:'1 : '+Math.round(3.7795/sc)});
   return sheetShell(s);
