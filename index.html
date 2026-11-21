@@ -635,6 +635,173 @@
     .mbar a.primary{flex:1.5;background:var(--accent);color:#fff}
     .site-foot{padding-bottom:100px}
   }
+
+  /* ============ used market (supabase) ============ */
+  .mk{margin-top:clamp(26px,3.4vw,38px)}
+  .mk-top{display:flex;align-items:flex-end;justify-content:space-between;gap:14px 18px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
+  .mk-top-l{display:flex;flex-direction:column;gap:5px}
+  .mk-h{font-size:clamp(18px,2.1vw,22px);letter-spacing:-.03em}
+  .mk-h em{font-style:normal;color:var(--accent-dark)}
+  .mk-sub{font-size:13.5px;color:var(--muted);line-height:1.65}
+  .mk-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 20px}
+  .mk-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .mk-field>span{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted)}
+  .mk-control{
+    width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;
+    font:inherit;font-size:14.5px;color:var(--ink);line-height:1.4;min-height:46px;
+    -webkit-appearance:none;appearance:none;transition:border-color .2s,box-shadow .2s;
+  }
+  textarea.mk-control{min-height:96px;resize:vertical}
+  .mk-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,156,134,.16)}
+  .mk-control::placeholder{color:#A7ADB2}
+  select.mk-control{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234F585F' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 13px center;background-size:13px;padding-right:36px;
+  }
+  .mk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:clamp(14px,1.8vw,20px)}
+  .mk-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s var(--ease),border-color .2s}
+  .mk-card:hover{transform:translateY(-3px);box-shadow:0 22px 40px -30px rgba(20,23,26,.55);border-color:rgba(46,156,134,.4)}
+  .mk-card-btn{display:flex;flex-direction:column;text-align:left;background:none;border:0;padding:0;width:100%;cursor:pointer;font:inherit;color:inherit}
+  .mk-card-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .mk-thumb{position:relative;aspect-ratio:4/3;background:var(--cream);overflow:hidden}
+  .mk-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+  .mk-card:hover .mk-thumb img{transform:scale(1.035)}
+  .mk-thumb .mk-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#B7B0A2;font-size:12.5px;letter-spacing:.06em;background:repeating-linear-gradient(135deg,var(--cream) 0 12px,var(--cream-2) 12px 24px)}
+  .mk-badge{position:absolute;left:12px;top:12px;display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:-.01em;backdrop-filter:blur(6px)}
+  .mk-badge.active{background:rgba(46,156,134,.92);color:#fff}
+  .mk-badge.reserved{background:rgba(20,23,26,.86);color:#fff}
+  .mk-badge.sold{background:rgba(120,126,131,.9);color:#fff}
+  .mk-badge.pending{background:#F3EAD3;color:#7A5B18}
+  .mk-badge.hidden{background:#E7E4DE;color:#5C6166}
+  html.mk-open{overflow:hidden}
+  .mk-body{display:flex;flex-direction:column;gap:7px;padding:15px 16px 17px}
+  .mk-meta{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--accent-dark);letter-spacing:-.01em}
+  .mk-meta span.dotsep{width:3px;height:3px;border-radius:50%;background:var(--line);display:inline-block}
+  .mk-meta .loc{color:var(--muted);font-weight:600}
+  .mk-title{font-size:15.5px;font-weight:800;letter-spacing:-.03em;line-height:1.42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .mk-spec{font-size:12.5px;color:var(--body);line-height:1.5}
+  .mk-price{margin-top:2px;font-size:17px;font-weight:800;letter-spacing:-.03em}
+  .mk-price small{font-size:12px;font-weight:600;color:var(--muted);margin-left:4px}
+  .mk-state{margin:6px 0 4px;padding:26px 0;text-align:center;font-size:14px;color:var(--muted)}
+  .mk-state[hidden]{display:none}
+  .mk-spin{display:inline-block;width:15px;height:15px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:mkspin .8s linear infinite;vertical-align:-3px;margin-right:8px}
+  @keyframes mkspin{to{transform:rotate(360deg)}}
+  .mk-empty{margin-top:2px;padding:clamp(30px,5vw,48px) clamp(20px,4vw,32px);text-align:center;border:1px dashed var(--line);border-radius:22px;background:linear-gradient(180deg,#fff,var(--paper))}
+  .mk-empty[hidden]{display:none}
+  .mk-empty .mk-empty-ic{width:54px;height:54px;margin:0 auto 16px;border-radius:16px;background:var(--accent-tint);display:flex;align-items:center;justify-content:center;color:var(--accent-dark)}
+  .mk-empty b{display:block;font-size:17px;letter-spacing:-.03em}
+  .mk-empty p{margin:10px auto 0;max-width:44em;font-size:14px;line-height:1.8;color:var(--body)}
+  .mk-empty .btn{margin-top:20px}
+  .mk-help{margin-top:18px;font-size:12.5px;line-height:1.75;color:var(--muted)}
+  .mk-admin{margin-top:clamp(30px,4vw,44px);display:flex;justify-content:center}
+  .mk-admin-link{background:none;border:0;padding:8px 10px;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted);cursor:pointer;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+  .mk-admin-link:hover{color:var(--ink-2);border-color:var(--line)}
+
+  /* modal */
+  .mk-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vw,32px)}
+  .mk-modal[hidden]{display:none}
+  .mk-modal-bg{position:absolute;inset:0;background:rgba(14,17,19,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .25s}
+  .mk-modal.is-open .mk-modal-bg{opacity:1}
+  .mk-sheet{position:relative;width:min(760px,100%);max-height:min(92vh,860px);overflow:auto;-webkit-overflow-scrolling:touch;background:var(--paper);border-radius:24px;box-shadow:0 40px 90px -30px rgba(0,0,0,.55);transform:translateY(14px) scale(.99);opacity:0;transition:transform .28s var(--ease),opacity .28s var(--ease)}
+  .mk-modal.is-open .mk-sheet{transform:none;opacity:1}
+  .mk-sheet-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:22px clamp(18px,3vw,28px) 16px;background:rgba(252,250,246,.96);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+  .mk-sheet-head h3{font-size:clamp(18px,2.2vw,21px);letter-spacing:-.03em}
+  .mk-sheet-head p{margin-top:6px;font-size:13px;line-height:1.65;color:var(--muted)}
+  .mk-x{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,border-color .2s}
+  .mk-x:hover{background:var(--cream);border-color:var(--cream-2)}
+  .mk-x svg{width:17px;height:17px}
+  .mk-sheet-body{padding:clamp(18px,3vw,28px)}
+  .mk-form{display:grid;gap:14px}
+  .mk-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mk-row.three{grid-template-columns:repeat(3,1fr)}
+  .mk-label{display:block;font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--muted);min-width:0}
+  .mk-label > .mk-control, .mk-label > .mk-pick, .mk-label > textarea, .mk-label > input{margin-top:7px}
+  .mk-label > .mk-hint{display:block;margin-top:5px;font-weight:600}
+  .mk-label .req{color:var(--accent-dark)}
+  .mk-check{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:var(--ink-2);letter-spacing:-.01em;padding-top:24px}
+  .mk-check input{width:18px;height:18px;accent-color:var(--accent)}
+  .mk-hint{font-size:12px;line-height:1.7;color:var(--muted);letter-spacing:0}
+  .mk-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .mk-pick figure{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--cream);border:1px solid var(--line)}
+  .mk-pick img{width:100%;height:100%;object-fit:cover}
+  .mk-pick figure button{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(20,23,26,.75);color:#fff;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .mk-add{aspect-ratio:1;border:1px dashed var(--line);border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer}
+  .mk-add:hover{border-color:var(--accent);color:var(--accent-dark)}
+  .mk-foot{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .mk-foot .btn{width:100%}
+  .mk-msg{padding:12px 14px;border-radius:12px;font-size:13.5px;line-height:1.65}
+  .mk-msg.err{background:#FCEFEC;color:#A03A26}
+  .mk-msg.ok{background:var(--accent-tint);color:var(--accent-dark)}
+  .mk-msg[hidden]{display:none}
+  .mk-done{text-align:center;padding:18px 6px 6px}
+  .mk-done .ic{width:56px;height:56px;margin:0 auto 16px;border-radius:50%;background:var(--accent-tint);color:var(--accent-dark);display:flex;align-items:center;justify-content:center}
+  .mk-done b{display:block;font-size:18px;letter-spacing:-.03em}
+  .mk-done p{margin:10px auto 0;max-width:34em;font-size:13.8px;line-height:1.8;color:var(--body)}
+  .mk-done .btn{margin-top:20px}
+
+  /* detail */
+  .mk-gal{position:relative;border-radius:16px;overflow:hidden;background:var(--cream);aspect-ratio:4/3;max-height:min(46vh,380px)}
+  .mk-gal img{width:100%;height:100%;object-fit:cover}
+  .mk-gal .mk-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#B7B0A2;font-size:13px;background:repeating-linear-gradient(135deg,var(--cream) 0 12px,var(--cream-2) 12px 24px)}
+  .mk-gal-nav{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px}
+  .mk-gal-nav button{width:7px;height:7px;border-radius:50%;border:0;background:rgba(255,255,255,.55);cursor:pointer;padding:0}
+  .mk-gal-nav button[aria-current="true"]{background:#fff;width:18px;border-radius:99px}
+  .mk-arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:0;background:rgba(20,23,26,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .mk-arrow.prev{left:10px}.mk-arrow.next{right:10px}
+  .mk-arrow svg{width:16px;height:16px}
+  .mk-dl{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:18px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:14px;overflow:hidden}
+  .mk-dl div{background:#fff;padding:12px 14px}
+  .mk-dl div:last-child:nth-child(odd){grid-column:1/-1}
+  .mk-dl dt{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted)}
+  .mk-dl dd{margin-top:4px;font-size:14px;font-weight:700;letter-spacing:-.02em}
+  .mk-desc{margin-top:16px;font-size:14.2px;line-height:1.85;color:var(--body);white-space:pre-wrap}
+  .mk-sec{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+  .mk-sec h4{font-size:16px;letter-spacing:-.03em}
+  .mk-sec>p{margin-top:7px;font-size:13px;line-height:1.7;color:var(--muted)}
+
+  /* admin */
+  .mk-adm-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .mk-tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .mk-tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+  .mk-tab[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .mk-adm-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:14px 16px;margin-bottom:10px}
+  .mk-adm-card .t{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .mk-adm-card .t b{font-size:15px;letter-spacing:-.02em;line-height:1.45}
+  .mk-adm-card .kv{margin-top:8px;display:grid;gap:3px;font-size:13px;color:var(--body);line-height:1.65}
+  .mk-adm-card .kv b{color:var(--ink-2);font-weight:700}
+  .mk-adm-card .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .mk-mini{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s,border-color .18s}
+  .mk-mini:hover{background:var(--cream)}
+  .mk-mini.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .mk-mini.danger{color:#A03A26;border-color:#EFCFC7}
+  .mk-mini.danger:hover{background:#FCEFEC}
+  .mk-inq{border-left:3px solid var(--accent);padding:2px 0 2px 11px;margin-top:12px;font-size:13px;line-height:1.7;color:var(--body)}
+  .mk-inq b{color:var(--ink)}
+  .mk-empty-line{padding:26px 0;text-align:center;font-size:13.5px;color:var(--muted)}
+
+  @media (max-width:900px){
+    .mk-filters{grid-template-columns:1fr 1fr}
+    .mk-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  }
+  @media (max-width:640px){
+    .mk-top{align-items:flex-start}
+    .mk-top> .btn{width:100%}
+    .mk-grid{grid-template-columns:1fr 1fr;gap:12px}
+    .mk-body{padding:12px 13px 14px;gap:5px}
+    .mk-title{font-size:14px}
+    .mk-price{font-size:15.5px}
+    .mk-spec{font-size:11.8px}
+    .mk-badge{left:9px;top:9px;padding:5px 9px;font-size:10.5px}
+    .mk-row,.mk-row.three{grid-template-columns:1fr}
+    .mk-pick{grid-template-columns:repeat(4,1fr)}
+    .mk-dl{grid-template-columns:1fr 1fr}
+    .mk-sheet{max-height:95vh;border-radius:20px}
+    .mk-modal{padding:0}
+    .mk-sheet{width:100%;max-height:100vh;min-height:100%;border-radius:0}
+  }
+  @media (max-width:420px){
+    .mk-grid{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -1411,15 +1578,95 @@
           <p>개인 간 거래에서 가장 자주 멈추는 곳은 가격이 아니라 해체·운반·재설치입니다. 11년간 타사 부스를 옮겨온 베오방음이 매물 연결과 이전설치를 한 번에 맡습니다.</p>
         </div>
 
-        <div class="used-status rv" style="margin-top:clamp(30px,4vw,44px)">
-          <span class="dot" aria-hidden="true"></span>
-          <div>
-            <b>위탁·매칭 접수 중</b>
-            <p>이 페이지에 공개된 확정 매물은 아직 없습니다. 접수해 주신 규격·예산·지역을 기준으로 매물이 들어오는 대로 먼저 연락드리고, 파실 부스는 사진을 받은 뒤 등록 가능 여부와 이전 비용부터 안내드립니다.</p>
+        <!-- ===== 중고 매물 마켓 (Supabase 연동) ===== -->
+        <div class="mk" id="mk-market">
+          <div class="mk-top">
+            <div class="mk-top-l">
+              <b class="mk-h">등록된 매물 <em id="mk-total">0</em>건</b>
+              <span class="mk-sub" id="mk-sub">사장님이 사진과 정보를 확인한 매물만 공개됩니다.</span>
+            </div>
+            <button type="button" class="btn btn-primary" id="mk-register">+ 내 부스 무료 등록</button>
           </div>
+
+          <div class="mk-filters" role="group" aria-label="매물 필터">
+            <label class="mk-field"><span>브랜드</span>
+              <select class="mk-control" id="mk-brand">
+                <option value="">전체 브랜드</option>
+                <option value="드림디자인">드림디자인</option>
+                <option value="조용한청년들">조용한청년들</option>
+                <option value="탐소리큐브">탐소리큐브</option>
+                <option value="뮤트홈">뮤트홈</option>
+                <option value="도피오">도피오</option>
+                <option value="베오방음">베오방음</option>
+                <option value="기타">기타</option>
+              </select>
+            </label>
+            <label class="mk-field"><span>지역</span>
+              <select class="mk-control" id="mk-region">
+                <option value="">전체 지역</option>
+                <option value="서울">서울</option>
+                <option value="경기">경기</option>
+                <option value="인천">인천</option>
+                <option value="부산">부산</option>
+                <option value="대구">대구</option>
+                <option value="광주">광주</option>
+                <option value="대전">대전</option>
+                <option value="울산">울산</option>
+                <option value="세종">세종</option>
+                <option value="강원">강원</option>
+                <option value="충북">충북</option>
+                <option value="충남">충남</option>
+                <option value="전북">전북</option>
+                <option value="전남">전남</option>
+                <option value="경북">경북</option>
+                <option value="경남">경남</option>
+                <option value="제주">제주</option>
+              </select>
+            </label>
+            <label class="mk-field"><span>상태</span>
+              <select class="mk-control" id="mk-status">
+                <option value="">전체 상태</option>
+                <option value="active">판매중</option>
+                <option value="reserved">예약중</option>
+                <option value="sold">거래완료</option>
+              </select>
+            </label>
+            <label class="mk-field"><span>정렬</span>
+              <select class="mk-control" id="mk-sort">
+                <option value="new">최신 등록순</option>
+                <option value="price_asc">낮은 가격순</option>
+                <option value="price_desc">높은 가격순</option>
+              </select>
+            </label>
+          </div>
+
+          <p class="mk-state" id="mk-loading"><span class="mk-spin" aria-hidden="true"></span>매물을 불러오는 중입니다…</p>
+
+          <div class="mk-grid" id="mk-grid" hidden></div>
+
+          <div class="mk-empty" id="mk-empty" hidden>
+            <span class="mk-empty-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5"/><path d="M5 10v9h14v-9"/><path d="M9.5 19v-5h5v5"/></svg>
+            </span>
+            <b id="mk-empty-title">아직 공개된 매물이 없습니다</b>
+            <p id="mk-empty-text">첫 매물의 주인이 되어 주세요. 사진과 규격·희망가를 올려 주시면 사장님이 확인한 뒤 공개하고, 사는 분이 문의하면 해체·운반·재설치까지 같은 팀이 맡습니다.</p>
+            <button type="button" class="btn btn-primary" id="mk-register-2">+ 첫 매물 무료 등록하기</button>
+          </div>
+
+          <p class="mk-help">매물 정보는 등록자 책임으로 올라오며, 베오방음은 매물을 직접 보증 판매하지 않고 <b>매물 연결과 해체·운반·재설치</b>를 맡습니다. 판매자·구매자 연락처는 사장님만 볼 수 있고 방문자 화면에는 표시되지 않습니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-cream">
+      <div class="wrap">
+        <div class="sec-head rv">
+          <span class="eyebrow">Sell &amp; Find</span>
+          <h2>부스를 팔아도, 구해도<br>여기서 한 번에</h2>
+          <p>매물만 올리고 끝나는 장터가 아니라, 해체·운반·재설치까지 같은 팀이 맡는 중고 방음부스 거래입니다.</p>
         </div>
 
-        <div class="used-grid" style="margin-top:clamp(18px,2.4vw,26px)">
+        <div class="used-grid" style="margin-top:clamp(22px,3vw,30px)">
           <article class="used-card rv">
             <span class="used-num">01</span>
             <h3>내 부스 위탁 · 처분 신청</h3>
@@ -1457,7 +1704,7 @@
       </div>
     </section>
 
-    <section class="band band-cream">
+    <section class="band">
       <div class="wrap">
         <div class="sec-head rv">
           <span class="eyebrow">Why BEO</span>
@@ -1483,7 +1730,7 @@
       </div>
     </section>
 
-    <section class="band">
+    <section class="band band-cream">
       <div class="wrap">
         <div class="sec-head rv">
           <span class="eyebrow">Process</span>
@@ -1508,6 +1755,10 @@
             <a class="btn btn-ghost-dark" href="#contact">상담 신청서 작성</a>
           </div>
           <p class="fine">보내주실 것 — 부스 사진, 제조사·규격, 지금 위치와 옮길 위치, 층수·엘리베이터 여부.</p>
+        </div>
+
+        <div class="mk-admin">
+          <button type="button" class="mk-admin-link" id="mk-admin-open">관리자</button>
         </div>
       </div>
     </section>
@@ -1935,6 +2186,735 @@
   show(routeFromHash(), {keepScroll:true});
 })();
 </script>
+<div class="mk-modal" id="mk-modal" hidden>
+  <div class="mk-modal-bg" data-mk-close></div>
+  <div class="mk-sheet" role="dialog" aria-modal="true" aria-labelledby="mk-modal-title">
+    <div class="mk-sheet-head">
+      <div>
+        <h3 id="mk-modal-title">매물</h3>
+        <p id="mk-modal-desc"></p>
+      </div>
+      <button type="button" class="mk-x" id="mk-modal-x" aria-label="닫기" data-mk-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="mk-sheet-body" id="mk-modal-body"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     Supabase 설정 — anon public key만 넣습니다.
+     service_role 키는 절대로 이 파일에 넣지 않습니다.
+     ============================================================ */
+  var SB = {
+    url: "https://jbqilpvxdzizumjvzgvm.supabase.co",
+    key: "sb_publishable_4JZK0mjoMFnkU8A_QbW-Iw_hcd_F3ce"
+  };
+
+  var BRANDS = ["드림디자인","조용한청년들","탐소리큐브","뮤트홈","도피오","베오방음","기타"];
+  var SIDO = ["서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충북","충남","전북","전남","경북","경남","제주"];
+  var LABEL = {active:"판매중", reserved:"예약중", sold:"거래완료", pending:"검수 대기", hidden:"숨김"};
+  var ADMIN_KEY_STORE = "beo_market_admin_key";
+
+  var state = { all: [], tab: "pending", adminKey: "", admin: null, cur: null, curIdx: 0, picked: [] };
+  var sbReady = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SB.url) && SB.key.indexOf("__") !== 0;
+
+  /* ---------- utils ---------- */
+  function $(id){ return document.getElementById(id); }
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function won(p){
+    p = Number(p) || 0;
+    if (p <= 0) return "가격 협의";
+    if (p % 10000 === 0) return (p / 10000).toLocaleString("ko-KR") + "만원";
+    return p.toLocaleString("ko-KR") + "원";
+  }
+  function spec(l){
+    var d = [l.width_mm, l.depth_mm, l.height_mm].map(function(v){ return v ? Number(v).toLocaleString("ko-KR") : "?"; });
+    return d[0] + " × " + d[1] + " × " + d[2];
+  }
+  function shortDate(s){
+    if (!s) return "";
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return "";
+    return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,"0") + "." + String(d.getDate()).padStart(2,"0");
+  }
+  function place(l){
+    return [l.region, l.region_detail].filter(Boolean).join(" ");
+  }
+  function floorLine(l){
+    var bits = [];
+    if (l.floor_info) bits.push(l.floor_info);
+    if (l.elevator) bits.push("엘리베이터 있음");
+    return bits.join(" · ");
+  }
+  function uid(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){
+      var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+
+  /* ---------- Supabase REST ---------- */
+  function api(path, opts){
+    opts = opts || {};
+    var headers = {"apikey": SB.key, "Authorization": "Bearer " + SB.key};
+    if (opts.headers) { for (var k in opts.headers) headers[k] = opts.headers[k]; }
+    if (opts.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+    return fetch(SB.url + path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: opts.body,
+      cache: "no-store"
+    }).then(function(res){
+      return res.text().then(function(t){
+        var data = null;
+        try { data = t ? JSON.parse(t) : null; } catch (e) { data = null; }
+        if (!res.ok) {
+          var m = (data && (data.message || data.error || data.hint)) || ("요청이 처리되지 않았습니다. (" + res.status + ")");
+          throw new Error(m);
+        }
+        return data;
+      });
+    });
+  }
+  function rpc(name, body){
+    return api("/rest/v1/rpc/" + name, {method: "POST", body: JSON.stringify(body || {})});
+  }
+
+  /* ---------- 목록 ---------- */
+  function setLoading(on){
+    var el = $("mk-loading");
+    if (el) el.hidden = !on;
+  }
+  function load(){
+    if (!sbReady) {
+      setLoading(false);
+      showEmpty("마켓을 준비하고 있습니다", "매물 등록과 조회 기능을 연결하는 중입니다. 급하시면 아래 전화·상담 신청서로 바로 접수해 주세요.", true);
+      return;
+    }
+    setLoading(true);
+    rpc("market_listings", {}).then(function(rows){
+      state.all = Array.isArray(rows) ? rows : [];
+      render();
+    }).catch(function(e){
+      setLoading(false);
+      showEmpty("매물을 불러오지 못했습니다", "잠시 후 다시 시도해 주세요. 계속되면 전화·상담 신청서로 접수해 주시면 바로 확인해 드립니다.", true);
+      var sub = $("mk-sub");
+      if (sub) sub.textContent = "연결 오류: " + e.message;
+    }).then(function(){ setLoading(false); });
+  }
+  function showEmpty(title, text, keepCount){
+    var empty = $("mk-empty"), grid = $("mk-grid");
+    var t = $("mk-empty-title"), p = $("mk-empty-text");
+    if (t) t.textContent = title;
+    if (p) p.textContent = text;
+    if (grid) { grid.hidden = true; grid.innerHTML = ""; }
+    if (empty) empty.hidden = false;
+    if (!keepCount) {
+      var total = $("mk-total");
+      if (total) total.textContent = "0";
+    }
+  }
+  function render(){
+    var list = state.all.slice();
+    var f = {
+      brand: ($("mk-brand") || {}).value || "",
+      region: ($("mk-region") || {}).value || "",
+      status: ($("mk-status") || {}).value || "",
+      sort: ($("mk-sort") || {}).value || "new"
+    };
+    if (f.brand) list = list.filter(function(l){ return l.brand === f.brand; });
+    if (f.region) list = list.filter(function(l){ return String(l.region || "").indexOf(f.region) === 0; });
+    if (f.status) list = list.filter(function(l){ return l.status === f.status; });
+    if (f.sort === "price_asc") list.sort(function(a,b){ return (a.price||0) - (b.price||0); });
+    else if (f.sort === "price_desc") list.sort(function(a,b){ return (b.price||0) - (a.price||0); });
+    else list.sort(function(a,b){ return new Date(b.created_at) - new Date(a.created_at); });
+
+    var total = $("mk-total");
+    if (total) total.textContent = String(state.all.length);
+    var sub = $("mk-sub");
+    if (sub) sub.textContent = state.all.length ? "사장님이 사진과 정보를 확인한 매물만 공개됩니다." : "사장님이 사진과 정보를 확인한 매물만 공개됩니다.";
+
+    if (!state.all.length) {
+      showEmpty("아직 공개된 매물이 없습니다", "첫 매물의 주인이 되어 주세요. 사진과 규격·희망가를 올려 주시면 사장님이 확인한 뒤 공개하고, 사는 분이 문의하면 해체·운반·재설치까지 같은 팀이 맡습니다.");
+      return;
+    }
+    var grid = $("mk-grid"), empty = $("mk-empty");
+    if (!list.length) {
+      if (empty) empty.hidden = true;
+      if (grid) {
+        grid.hidden = false;
+        grid.innerHTML = '<p class="mk-empty-line" style="grid-column:1/-1">선택하신 조건에 맞는 매물이 없습니다. 조건을 바꿔 보시거나, 원하시는 규격·예산을 남겨 주시면 들어오는 대로 연락드립니다.</p>';
+      }
+      return;
+    }
+    if (empty) empty.hidden = true;
+    if (!grid) return;
+    grid.hidden = false;
+    grid.innerHTML = list.map(cardHTML).join("");
+  }
+  function cardHTML(l){
+    var photos = Array.isArray(l.photos) ? l.photos : [];
+    var thumb = photos.length
+      ? '<img src="' + esc(photos[0]) + '" alt="' + esc(l.title) + ' 사진" loading="lazy">'
+      : '<span class="mk-ph">사진 준비 중</span>';
+    var cls = l.status === "reserved" ? "reserved" : (l.status === "sold" ? "sold" : "active");
+    return '<article class="mk-card">'
+      + '<button type="button" class="mk-card-btn" data-id="' + esc(l.id) + '" aria-label="' + esc(l.title) + ' 상세 보기">'
+        + '<div class="mk-thumb">' + thumb + '<span class="mk-badge ' + cls + '">' + esc(LABEL[l.status] || l.status) + '</span></div>'
+        + '<div class="mk-body">'
+          + '<div class="mk-meta"><span>' + esc(l.brand || "기타") + '</span><span class="dotsep"></span><span class="loc">' + esc(place(l)) + '</span></div>'
+          + '<b class="mk-title">' + esc(l.title) + '</b>'
+          + '<span class="mk-spec">' + esc(spec(l)) + (floorLine(l) ? ' · ' + esc(floorLine(l)) : '') + '</span>'
+          + '<b class="mk-price">' + esc(won(l.price)) + '</b>'
+        + '</div>'
+      + '</button>'
+    + '</article>';
+  }
+
+  /* ---------- 모달 ---------- */
+  var modal = $("mk-modal");
+  function openModal(title, desc, html){
+    if (!modal) return;
+    $("mk-modal-title").textContent = title;
+    $("mk-modal-desc").textContent = desc || "";
+    $("mk-modal-desc").hidden = !desc;
+    $("mk-modal-body").innerHTML = html;
+    modal.hidden = false;
+    document.documentElement.classList.add("mk-open");
+    void modal.offsetWidth;
+    modal.classList.add("is-open");
+    var x = $("mk-modal-x");
+    if (x) x.focus();
+  }
+  function closeModal(){
+    if (!modal || modal.hidden) return;
+    modal.classList.remove("is-open");
+    document.documentElement.classList.remove("mk-open");
+    setTimeout(function(){
+      if (!modal.classList.contains("is-open")) {
+        modal.hidden = true;
+        $("mk-modal-body").innerHTML = "";
+      }
+    }, 220);
+  }
+  if (modal) {
+    modal.addEventListener("click", function(e){
+      if (e.target.closest("[data-mk-close]")) { closeModal(); }
+    });
+    document.addEventListener("keydown", function(e){
+      if (e.key === "Escape" && !modal.hidden) { closeModal(); }
+    });
+  }
+
+  /* ---------- 사진 ---------- */
+  function compress(file){
+    return new Promise(function(resolve, reject){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        try {
+          var MAX = 1600, w = img.naturalWidth, h = img.naturalHeight;
+          var s = Math.min(1, MAX / Math.max(w, h));
+          var cv = document.createElement("canvas");
+          cv.width = Math.max(1, Math.round(w * s));
+          cv.height = Math.max(1, Math.round(h * s));
+          var ctx = cv.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, cv.width, cv.height);
+          ctx.drawImage(img, 0, 0, cv.width, cv.height);
+          cv.toBlob(function(blob){
+            URL.revokeObjectURL(url);
+            blob ? resolve(blob) : reject(new Error("사진 변환에 실패했습니다."));
+          }, "image/jpeg", 0.84);
+        } catch (err) { URL.revokeObjectURL(url); reject(err); }
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error("사진을 읽지 못했습니다.")); };
+      img.src = url;
+    });
+  }
+  function uploadPhoto(blob){
+    var path = "listings/" + new Date().getFullYear() + "/" + uid() + ".jpg";
+    return fetch(SB.url + "/storage/v1/object/listing-photos/" + path, {
+      method: "POST",
+      headers: {
+        "apikey": SB.key,
+        "Authorization": "Bearer " + SB.key,
+        "Content-Type": "image/jpeg",
+        "x-upsert": "false"
+      },
+      body: blob
+    }).then(function(res){
+      if (!res.ok) {
+        return res.text().then(function(t){ throw new Error("사진 업로드에 실패했습니다. (" + res.status + ")"); });
+      }
+      return SB.url + "/storage/v1/object/public/listing-photos/" + path;
+    });
+  }
+
+  /* ---------- 등록 ---------- */
+  function openRegister(){
+    state.picked = [];
+    openModal("내 부스 무료 등록", "등록하면 바로 공개되지 않고, 사장님이 사진과 내용을 확인한 뒤 공개됩니다.", registerHTML());
+    wireRegister();
+  }
+  function optionsHTML(arr, sel){
+    return arr.map(function(v){ return '<option value="' + esc(v) + '"' + (v === sel ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join("");
+  }
+  function registerHTML(){
+    return '<form class="mk-form" id="rg-form" novalidate>'
+      + '<div class="mk-label">사진 <span class="mk-hint">최대 5장 · 대표 사진이 목록에 보입니다 · 휴대폰 사진 그대로 올리시면 됩니다</span>'
+        + '<div class="mk-pick" id="rg-pick"></div>'
+        + '<input type="file" id="rg-file" accept="image/*" multiple hidden>'
+      + '</div>'
+      + '<div class="mk-row">'
+        + '<label class="mk-label">매물 제목 <span class="req">*</span><input class="mk-control" id="rg-title" maxlength="60" placeholder="예: 드림디자인 1200×1000 부스 팝니다"></label>'
+        + '<label class="mk-label">브랜드 <select class="mk-control" id="rg-brand">' + optionsHTML(BRANDS, "드림디자인") + '</select></label>'
+      + '</div>'
+      + '<div class="mk-row three">'
+        + '<label class="mk-label">가로(mm)<input class="mk-control" id="rg-w" inputmode="numeric" placeholder="1200"></label>'
+        + '<label class="mk-label">세로(mm)<input class="mk-control" id="rg-d" inputmode="numeric" placeholder="1000"></label>'
+        + '<label class="mk-label">높이(mm)<input class="mk-control" id="rg-h" inputmode="numeric" placeholder="2100"></label>'
+      + '</div>'
+      + '<div class="mk-row">'
+        + '<label class="mk-label">지역 <span class="req">*</span><select class="mk-control" id="rg-sido">' + optionsHTML(SIDO, "서울") + '</select></label>'
+        + '<label class="mk-label">상세 지역<input class="mk-control" id="rg-detail" maxlength="30" placeholder="예: 강남구 역삼동"></label>'
+      + '</div>'
+      + '<div class="mk-row">'
+        + '<label class="mk-label">층수 · 위치<input class="mk-control" id="rg-floor" maxlength="30" placeholder="예: 3층 사무실"></label>'
+        + '<label class="mk-check"><input type="checkbox" id="rg-elev"> 엘리베이터 있음</label>'
+      + '</div>'
+      + '<div class="mk-row">'
+        + '<label class="mk-label">희망가(만원)<input class="mk-control" id="rg-price" inputmode="numeric" placeholder="예: 180 (비우면 가격 협의)"></label>'
+        + '<label class="mk-label">판매자 성함 <span class="req">*</span><input class="mk-control" id="rg-name" maxlength="20" placeholder="예: 김민수"></label>'
+      + '</div>'
+      + '<div class="mk-row">'
+        + '<label class="mk-label">연락처 <span class="req">*</span><input class="mk-control" id="rg-contact" inputmode="tel" maxlength="30" placeholder="010-0000-0000">'
+          + '<span class="mk-hint">연락처는 사장님만 볼 수 있고 방문자 화면에는 나오지 않습니다.</span></label>'
+        + '<label class="mk-label">수정용 PIN(숫자 4자리) <span class="req">*</span><input class="mk-control" id="rg-pin" inputmode="numeric" maxlength="4" placeholder="1234">'
+          + '<span class="mk-hint">나중에 매물을 고치거나 내릴 때 쓰는 번호입니다.</span></label>'
+      + '</div>'
+      + '<label class="mk-label">설명<textarea class="mk-control" id="rg-desc" maxlength="2000" placeholder="구매 시기, 사용 기간, 이전 설치 희망 여부, 눈에 보이는 하자 등 사는 분이 궁금해할 내용을 적어 주세요."></textarea></label>'
+      + '<label class="mk-check" style="padding-top:2px"><input type="checkbox" id="rg-agree"> 매물 정보와 개인정보(성함·연락처) 수집·이용에 동의합니다. <span class="req">*</span></label>'
+      + '<p class="mk-msg" id="rg-msg" hidden></p>'
+      + '<div class="mk-foot"><button class="btn btn-primary" type="submit" id="rg-submit">등록 신청하기</button>'
+        + '<span class="mk-hint" style="text-align:center">등록은 무료입니다. 검수 후 공개되면 문의가 사장님께 바로 전달됩니다.</span></div>'
+    + '</form>';
+  }
+  function wireRegister(){
+    renderPick();
+    var file = $("rg-file");
+    if (file) {
+      file.addEventListener("change", function(){
+        var files = Array.prototype.slice.call(file.files || []);
+        files.forEach(function(f){
+          if (state.picked.length >= 5) return;
+          state.picked.push({file: f, url: URL.createObjectURL(f)});
+        });
+        file.value = "";
+        renderPick();
+      });
+    }
+    var form = $("rg-form");
+    if (form) form.addEventListener("submit", submitRegister);
+  }
+  function renderPick(){
+    var box = $("rg-pick");
+    if (!box) return;
+    var html = state.picked.map(function(p, i){
+      return '<figure><img src="' + esc(p.url) + '" alt="첨부 사진 ' + (i+1) + '"><button type="button" data-remove="' + i + '" aria-label="사진 삭제">×</button></figure>';
+    }).join("");
+    if (state.picked.length < 5) {
+      html += '<button type="button" class="mk-add" id="rg-add"><span style="font-size:17px;line-height:1">+</span>사진 추가</button>';
+    }
+    box.innerHTML = html;
+    var add = $("rg-add");
+    if (add) add.addEventListener("click", function(){ var f = $("rg-file"); if (f) f.click(); });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-remove]"), function(b){
+      b.addEventListener("click", function(){
+        var i = Number(b.getAttribute("data-remove"));
+        var p = state.picked.splice(i, 1)[0];
+        if (p && p.url) URL.revokeObjectURL(p.url);
+        renderPick();
+      });
+    });
+  }
+  function msg(el, text, kind){
+    if (!el) return;
+    el.textContent = text;
+    el.className = "mk-msg " + (kind || "");
+    el.hidden = !text;
+  }
+  function num(v){ var n = Number(String(v || "").replace(/[^0-9]/g, "")); return n > 0 ? n : null; }
+  function submitRegister(e){
+    e.preventDefault();
+    var box = $("rg-msg"), btn = $("rg-submit");
+    var title = ($("rg-title").value || "").trim();
+    var sid = $("rg-sido").value;
+    var detail = ($("rg-detail").value || "").trim();
+    var name = ($("rg-name").value || "").trim();
+    var contact = ($("rg-contact").value || "").trim();
+    var pin = ($("rg-pin").value || "").trim();
+    var agree = $("rg-agree").checked;
+
+    if (!title) { msg(box, "매물 제목을 입력해 주세요.", "err"); $("rg-title").focus(); return; }
+    if (!name) { msg(box, "판매자 성함을 입력해 주세요.", "err"); $("rg-name").focus(); return; }
+    if (contact.replace(/[^0-9]/g, "").length < 8) { msg(box, "연락처를 정확히 입력해 주세요.", "err"); $("rg-contact").focus(); return; }
+    if (!/^[0-9]{4}$/.test(pin)) { msg(box, "수정용 PIN을 숫자 4자리로 정해 주세요.", "err"); $("rg-pin").focus(); return; }
+    if (!agree) { msg(box, "개인정보 수집·이용 동의에 체크해 주세요.", "err"); $("rg-agree").focus(); return; }
+    if (!sbReady) { msg(box, "지금은 등록 연결을 준비 중입니다. 전화·상담 신청서로 접수해 주세요.", "err"); return; }
+
+    btn.disabled = true;
+    btn.textContent = "등록 중…";
+    var photos = [];
+    var chain = Promise.resolve();
+    state.picked.forEach(function(p, i){
+      chain = chain.then(function(){
+        msg(box, "사진 업로드 중… (" + (i+1) + "/" + state.picked.length + ")", "ok");
+        return compress(p.file).then(uploadPhoto).then(function(url){ photos.push(url); });
+      });
+    });
+    chain.then(function(){
+      msg(box, "매물을 저장하는 중…", "ok");
+      return rpc("market_create_listing", {p: {
+        title: title,
+        brand: $("rg-brand").value,
+        width_mm: num($("rg-w").value),
+        depth_mm: num($("rg-d").value),
+        height_mm: num($("rg-h").value),
+        region: sid,
+        region_detail: detail,
+        floor_info: ($("rg-floor").value || "").trim(),
+        elevator: $("rg-elev").checked,
+        price: num($("rg-price").value) ? num($("rg-price").value) * 10000 : 0,
+        description: ($("rg-desc").value || "").trim(),
+        photos: photos,
+        seller_name: name,
+        seller_contact: contact,
+        edit_pin: pin
+      }});
+    }).then(function(res){
+      if (!res || !res.ok) throw new Error((res && res.error) || "등록에 실패했습니다.");
+      $("mk-modal-body").innerHTML = '<div class="mk-done">'
+        + '<span class="ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span>'
+        + '<b>등록이 접수됐습니다</b>'
+        + '<p>사장님이 사진과 내용을 확인한 뒤 공개합니다. 보통 하루 안에 확인하고, 연락처로 먼저 안내드립니다. 수정용 PIN은 <b>' + esc(pin) + '</b> 입니다.</p>'
+        + '<button type="button" class="btn btn-line" data-mk-close>닫기</button></div>';
+      load();
+    }).catch(function(err){
+      msg(box, err.message || "등록에 실패했습니다.", "err");
+    }).then(function(){
+      btn.disabled = false;
+      btn.textContent = "등록 신청하기";
+    });
+  }
+
+  /* ---------- 상세 + 문의 ---------- */
+  function openDetail(id){
+    var l = state.all.filter(function(x){ return x.id === id; })[0];
+    if (!l) return;
+    state.cur = l;
+    state.curIdx = 0;
+    openModal(l.title, (LABEL[l.status] || "") + " · " + l.brand + " · " + place(l), detailHTML(l));
+    wireDetail();
+  }
+  function galleryHTML(l){
+    var photos = Array.isArray(l.photos) ? l.photos : [];
+    if (!photos.length) return '<div class="mk-gal"><span class="mk-ph">사진 준비 중</span></div>';
+    var main = '<img id="mk-gal-img" src="' + esc(photos[0]) + '" alt="' + esc(l.title) + ' 사진 1">';
+    var nav = photos.length > 1
+      ? '<button type="button" class="mk-arrow prev" id="mk-gal-prev" aria-label="이전 사진"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 5-7 7 7 7"/></svg></button>'
+        + '<button type="button" class="mk-arrow next" id="mk-gal-next" aria-label="다음 사진"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 5 7 7-7 7"/></svg></button>'
+        + '<div class="mk-gal-nav">' + photos.map(function(_, i){ return '<button type="button" data-gal="' + i + '" aria-label="사진 ' + (i+1) + '"' + (i === 0 ? ' aria-current="true"' : '') + '></button>'; }).join("") + '</div>'
+      : '';
+    return '<div class="mk-gal">' + main + nav + '</div>';
+  }
+  function detailHTML(l){
+    var d = [
+      ["브랜드", l.brand || "기타"],
+      ["규격(가로×세로×높이)", spec(l) + " mm"],
+      ["지역", place(l)],
+      ["층수·이동", floorLine(l) || "등록자에게 확인"],
+      ["상태", LABEL[l.status] || l.status],
+      ["희망가", won(l.price)],
+      ["등록일", shortDate(l.created_at)]
+    ].map(function(p){ return '<div><dt>' + esc(p[0]) + '</dt><dd>' + esc(p[1]) + '</dd></div>'; }).join("");
+    return galleryHTML(l)
+      + '<dl class="mk-dl">' + d + '</dl>'
+      + (l.description ? '<p class="mk-desc">' + esc(l.description) + '</p>' : '')
+      + '<div class="mk-sec">'
+        + '<h4>이 부스 구매 · 이전설치 견적 문의</h4>'
+        + '<p>문의를 남겨 주시면 사장님이 매물 상태와 이전 비용을 확인해 연락드립니다. 해체·운반·재설치가 필요하면 같은 팀이 함께 진행합니다.</p>'
+        + '<form class="mk-form" id="inq-form" style="margin-top:14px" novalidate>'
+          + '<div class="mk-row">'
+            + '<label class="mk-label">성함 <span class="req">*</span><input class="mk-control" id="inq-name" maxlength="20" placeholder="예: 김민수"></label>'
+            + '<label class="mk-label">연락처 <span class="req">*</span><input class="mk-control" id="inq-contact" inputmode="tel" maxlength="30" placeholder="010-0000-0000"></label>'
+          + '</div>'
+          + '<div class="mk-row">'
+            + '<label class="mk-label">설치할 지역<select class="mk-control" id="inq-region"><option value="">선택 안 함</option>' + optionsHTML(SIDO, "") + '</select></label>'
+            + '<label class="mk-label">설치할 층수<input class="mk-control" id="inq-floor" maxlength="30" placeholder="예: 2층, 엘리베이터 없음"></label>'
+          + '</div>'
+          + '<label class="mk-label">문의 내용<textarea class="mk-control" id="inq-msg-text" maxlength="1500" placeholder="이전설치까지 필요한지, 희망하는 거래 시기 등을 적어 주세요."></textarea></label>'
+          + '<p class="mk-msg" id="inq-msg" hidden></p>'
+          + '<div class="mk-foot"><button class="btn btn-primary" type="submit" id="inq-submit">구매 · 이전설치 문의 보내기</button>'
+            + '<span class="mk-hint" style="text-align:center">연락처는 사장님만 확인합니다.</span></div>'
+        + '</form>'
+      + '</div>';
+  }
+  function wireDetail(){
+    var l = state.cur;
+    var photos = (l && Array.isArray(l.photos)) ? l.photos : [];
+    function gal(i){
+      if (!photos.length) return;
+      state.curIdx = (i + photos.length) % photos.length;
+      var img = $("mk-gal-img");
+      if (img) { img.src = photos[state.curIdx]; img.alt = l.title + " 사진 " + (state.curIdx+1); }
+      Array.prototype.forEach.call(document.querySelectorAll("[data-gal]"), function(b){
+        b.setAttribute("aria-current", Number(b.getAttribute("data-gal")) === state.curIdx ? "true" : "false");
+      });
+    }
+    var prev = $("mk-gal-prev"), next = $("mk-gal-next");
+    if (prev) prev.addEventListener("click", function(){ gal(state.curIdx - 1); });
+    if (next) next.addEventListener("click", function(){ gal(state.curIdx + 1); });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-gal]"), function(b){
+      b.addEventListener("click", function(){ gal(Number(b.getAttribute("data-gal"))); });
+    });
+    var form = $("inq-form");
+    if (form) form.addEventListener("submit", submitInquiry);
+  }
+  function submitInquiry(e){
+    e.preventDefault();
+    var box = $("inq-msg"), btn = $("inq-submit");
+    var name = ($("inq-name").value || "").trim();
+    var contact = ($("inq-contact").value || "").trim();
+    if (!name) { msg(box, "성함을 입력해 주세요.", "err"); $("inq-name").focus(); return; }
+    if (contact.replace(/[^0-9]/g, "").length < 8) { msg(box, "연락처를 정확히 입력해 주세요.", "err"); $("inq-contact").focus(); return; }
+    btn.disabled = true;
+    btn.textContent = "보내는 중…";
+    rpc("market_submit_inquiry", {p: {
+      listing_id: state.cur.id,
+      buyer_name: name,
+      buyer_contact: contact,
+      target_region: $("inq-region").value,
+      target_floor: ($("inq-floor").value || "").trim(),
+      message: ($("inq-msg-text").value || "").trim()
+    }}).then(function(res){
+      if (!res || !res.ok) throw new Error((res && res.error) || "문의 접수에 실패했습니다.");
+      var sec = btn.closest(".mk-sec");
+      if (sec) {
+        sec.innerHTML = '<div class="mk-done" style="padding-top:4px">'
+          + '<span class="ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span>'
+          + '<b>문의가 접수됐습니다</b>'
+          + '<p>사장님이 확인 후 <b>' + esc(contact) + '</b> 로 연락드립니다. 이전설치 비용은 매물 상태와 층수·거리를 보고 견적서로 먼저 안내드립니다.</p>'
+          + '<button type="button" class="btn btn-line" data-mk-close>닫기</button></div>';
+      }
+    }).catch(function(err){
+      msg(box, err.message || "문의 접수에 실패했습니다.", "err");
+      btn.disabled = false;
+      btn.textContent = "구매 · 이전설치 문의 보내기";
+    });
+  }
+
+  /* ---------- 관리자 ---------- */
+  function openAdmin(){
+    state.adminKey = state.adminKey || (function(){ try { return localStorage.getItem(ADMIN_KEY_STORE) || ""; } catch (e) { return ""; } })();
+    if (!state.adminKey) {
+      openModal("관리자", "사장님 전용 화면입니다.", adminLoginHTML());
+      wireAdminLogin();
+      return;
+    }
+    openModal("관리자", "매물 검수 · 문의 확인", '<p class="mk-state" id="mk-adm-loading"><span class="mk-spin"></span>불러오는 중입니다…</p>');
+    adminFetch(true);
+  }
+  function adminLoginHTML(){
+    return '<form class="mk-form" id="adm-form" novalidate>'
+      + '<label class="mk-label">관리자 키<input class="mk-control" id="adm-key" type="password" autocomplete="off" placeholder="관리자 키를 입력하세요"></label>'
+      + '<p class="mk-msg" id="adm-msg" hidden></p>'
+      + '<div class="mk-foot"><button class="btn btn-ink" type="submit">확인</button></div>'
+      + '<p class="mk-hint">이 기기에서는 한 번 입력하면 기억합니다. 공용 기기에서는 사용 후 로그아웃해 주세요.</p>'
+    + '</form>';
+  }
+  function wireAdminLogin(){
+    var form = $("adm-form");
+    if (!form) return;
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var key = ($("adm-key").value || "").trim();
+      if (!key) { msg($("adm-msg"), "관리자 키를 입력해 주세요.", "err"); return; }
+      state.adminKey = key;
+      msg($("adm-msg"), "확인 중…", "ok");
+      adminFetch(false, function(ok){
+        if (ok) {
+          try { localStorage.setItem(ADMIN_KEY_STORE, key); } catch (err) {}
+          renderAdmin();
+        } else {
+          state.adminKey = "";
+          msg($("adm-msg"), "관리자 키가 맞지 않습니다.", "err");
+        }
+      });
+    });
+  }
+  function adminFetch(fromSaved, done){
+    rpc("market_admin", {p_key: state.adminKey, p_action: "list"}).then(function(res){
+      if (!res || !res.ok) {
+        if (done) return done(false);
+        try { localStorage.removeItem(ADMIN_KEY_STORE); } catch (e) {}
+        state.adminKey = "";
+        openModal("관리자", "사장님 전용 화면입니다.", adminLoginHTML());
+        wireAdminLogin();
+        msg($("adm-msg"), res && res.error === "unauthorized" ? "관리자 키가 만료되었거나 맞지 않습니다. 다시 입력해 주세요." : "불러오지 못했습니다. 다시 시도해 주세요.", "err");
+        return;
+      }
+      state.admin = res;
+      if (done) return done(true);
+      renderAdmin();
+    }).catch(function(err){
+      if (done) return done(false);
+      var loading = $("mk-adm-loading");
+      if (loading) loading.outerHTML = '<p class="mk-msg err" style="display:block">불러오지 못했습니다. ' + esc(err.message) + '</p>';
+    });
+  }
+  function renderAdmin(){
+    var d = state.admin || { listings: [], inquiries: [] };
+    var pend = d.listings.filter(function(l){ return l.status === "pending"; });
+    var news = d.inquiries.filter(function(i){ return i.status === "new"; });
+    var tabs = [
+      ["pending", "검수 대기 " + pend.length],
+      ["all", "전체 매물 " + d.listings.length],
+      ["inq", "문의 " + news.length]
+    ];
+    var head = '<div class="mk-adm-bar">'
+      + '<div class="mk-tabs">' + tabs.map(function(t){ return '<button type="button" class="mk-tab" data-tab="' + t[0] + '" aria-pressed="' + (state.tab === t[0] ? "true" : "false") + '">' + t[1] + '</button>'; }).join("") + '</div>'
+      + '<button type="button" class="mk-mini" id="adm-refresh">새로고침</button>'
+      + '<button type="button" class="mk-mini danger" id="adm-logout">로그아웃</button>'
+    + '</div>';
+    var body = "";
+    if (state.tab === "pending") {
+      body = pend.length ? pend.map(function(l){ return adminCard(l); }).join("") : '<p class="mk-empty-line">검수 대기 중인 매물이 없습니다.</p>';
+    } else if (state.tab === "all") {
+      body = d.listings.length ? d.listings.map(function(l){ return adminCard(l); }).join("") : '<p class="mk-empty-line">등록된 매물이 없습니다.</p>';
+    } else {
+      body = d.inquiries.length ? d.inquiries.map(inqCard).join("") : '<p class="mk-empty-line">들어온 문의가 없습니다.</p>';
+    }
+    $("mk-modal-title").textContent = "관리자";
+    $("mk-modal-desc").textContent = "매물 검수 · 문의 확인";
+    $("mk-modal-desc").hidden = false;
+    var box = $("mk-modal-body");
+    box.innerHTML = head + body;
+    Array.prototype.forEach.call(box.querySelectorAll("[data-tab]"), function(b){
+      b.addEventListener("click", function(){ state.tab = b.getAttribute("data-tab"); renderAdmin(); });
+    });
+    var rf = $("adm-refresh");
+    if (rf) rf.addEventListener("click", function(){ accountRefresh(); });
+    var lo = $("adm-logout");
+    if (lo) lo.addEventListener("click", function(){
+      try { localStorage.removeItem(ADMIN_KEY_STORE); } catch (e) {}
+      state.adminKey = ""; state.admin = null;
+      closeModal();
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-set]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-id");
+        var st = b.getAttribute("data-set");
+        b.disabled = true;
+        rpc("market_admin", {p_key: state.adminKey, p_action: "status", p_payload: {id: id, status: st}}).then(function(res){
+          if (!res || !res.ok) throw new Error((res && res.error) || "변경 실패");
+          accountRefresh();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-del]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-del");
+        if (!confirm("이 매물을 완전히 삭제할까요? 되돌릴 수 없습니다.")) return;
+        b.disabled = true;
+        rpc("market_admin", {p_key: state.adminKey, p_action: "delete", p_payload: {id: id}}).then(function(res){
+          if (!res || !res.ok) throw new Error((res && res.error) || "삭제 실패");
+          accountRefresh();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-inq]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-inq");
+        var st = b.getAttribute("data-inq-status");
+        b.disabled = true;
+        rpc("market_admin", {p_key: state.adminKey, p_action: "inquiry", p_payload: {id: id, status: st}}).then(function(res){
+          if (!res || !res.ok) throw new Error((res && res.error) || "변경 실패");
+          accountRefresh();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+  }
+  function accountRefresh(){
+    adminFetch(false);
+    load();
+  }
+  function adminCard(l){
+    var acts = ["active","reserved","sold","hidden","pending"].map(function(st){
+      return '<button type="button" class="mk-mini' + (l.status === st ? " on" : "") + '" data-set="' + st + '" data-id="' + esc(l.id) + '">' + esc(LABEL[st]) + '</button>';
+    }).join("");
+    var photos = Array.isArray(l.photos) ? l.photos : [];
+    return '<div class="mk-adm-card">'
+      + '<div class="t"><b>' + esc(l.title) + '</b><span class="mk-badge ' + esc(l.status === "active" ? "active" : l.status === "reserved" ? "reserved" : l.status === "sold" ? "sold" : l.status === "hidden" ? "hidden" : "pending") + '" style="position:static">' + esc(LABEL[l.status] || l.status) + '</span></div>'
+      + '<div class="kv">'
+        + '<span><b>브랜드</b> ' + esc(l.brand || "기타") + ' · <b>규격</b> ' + esc(spec(l)) + ' mm</span>'
+        + '<span><b>위치</b> ' + esc(place(l)) + (l.floor_info ? ' · ' + esc(l.floor_info) : '') + (l.elevator ? ' · 엘리베이터 있음' : '') + '</span>'
+        + '<span><b>희망가</b> ' + esc(won(l.price)) + ' · <b>등록</b> ' + esc(shortDate(l.created_at)) + ' · 사진 ' + photos.length + '장</span>'
+        + '<span><b>판매자</b> ' + esc(l.seller_name || "-") + ' · <a href="tel:' + esc(String(l.seller_contact || "").replace(/[^0-9+]/g, "")) + '">' + esc(l.seller_contact || "-") + '</a></span>'
+      + '</div>'
+      + '<div class="acts">' + acts + '<button type="button" class="mk-mini danger" data-del="' + esc(l.id) + '">삭제</button></div>'
+    + '</div>';
+  }
+  function inqCard(i){
+    var st = i.status === "replied" ? "replied" : "new";
+    return '<div class="mk-adm-card">'
+      + '<div class="t"><b>' + esc(i.listing_title || "(삭제된 매물)") + '</b>'
+        + '<span class="mk-badge ' + (st === "new" ? "active" : "sold") + '" style="position:static">' + (st === "new" ? "새 문의" : "확인 완료") + '</span></div>'
+      + '<div class="kv">'
+        + '<span><b>문의자</b> ' + esc(i.buyer_name) + ' · <a href="tel:' + esc(String(i.buyer_contact || "").replace(/[^0-9+]/g, "")) + '">' + esc(i.buyer_contact) + '</a></span>'
+        + '<span><b>설치 희망</b> ' + esc([i.target_region, i.target_floor].filter(Boolean).join(" ") || "미기재") + ' · ' + esc(shortDate(i.created_at)) + '</span>'
+      + '</div>'
+      + (i.message ? '<div class="mk-inq">' + esc(i.message) + '</div>' : '')
+      + '<div class="acts"><button type="button" class="mk-mini' + (st === "replied" ? " on" : "") + '" data-inq="' + esc(i.id) + '" data-inq-status="' + (st === "replied" ? "new" : "replied") + '">' + (st === "replied" ? "미확인으로 되돌리기" : "연락 완료로 표시") + '</button></div>'
+    + '</div>';
+  }
+
+  /* ---------- 이벤트 연결 ---------- */
+  var grid = $("mk-grid");
+  if (grid) {
+    grid.addEventListener("click", function(e){
+      var b = e.target.closest("[data-id]");
+      if (b) openDetail(b.getAttribute("data-id"));
+    });
+  }
+  ["mk-brand","mk-region","mk-status","mk-sort"].forEach(function(id){
+    var el = $(id);
+    if (el) el.addEventListener("change", render);
+  });
+  ["mk-register","mk-register-2"].forEach(function(id){
+    var el = $(id);
+    if (el) el.addEventListener("click", openRegister);
+  });
+  var admOpen = $("mk-admin-open");
+  if (admOpen) admOpen.addEventListener("click", openAdmin);
+
+  /* ---------- 최초 로드 · 새로고침 ---------- */
+  load();
+  window.addEventListener("hashchange", function(){
+    if ((location.hash || "").replace("#", "") === "used") load();
+  });
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden) load();
+  });
+})();
+</script>
+
 <noscript>
   <style>
     .page{display:block !important}
