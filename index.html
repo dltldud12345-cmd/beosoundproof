@@ -78,8 +78,8 @@
   .nav a[aria-current]::after{transform:scaleX(1)}
   /* 두 서비스 진입 메뉴(신규 설치 견적 · 이전설치 견적)를 같은 톤·같은 크기의 필로 묶어 균형을 맞춤 */
   .nav a.nav-pill{
-    display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
-    padding:7px 13px;border-radius:999px;background:var(--accent-tint);
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;
+    min-width:122px;padding:7px 13px;border-radius:999px;background:var(--accent-tint);
     color:var(--accent-dark);font-weight:800;transition:background .2s,color .2s;
   }
   .nav a.nav-pill::after{display:none}
