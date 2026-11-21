@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D 견적 시뮬레이터 | 베오방음 맞춤 방음부스</title>
+<meta name="description" content="베오방음 신규 방음부스를 3D로 돌려보고 규격·아트보드 색·라인타공·조명·마루·시창·프로젝트창을 눌러 바꿔 보세요. 선택한 사양 그대로 견적 상담으로 이어집니다.">
+<meta property="og:title" content="베오방음 3D 견적 시뮬레이터">
+<meta property="og:description" content="규격과 마감을 눌러 바꾸면 3D 부스가 바로 바뀝니다. 시그니처 내부(1면 라인타공 · 3면 아트보드 · COB 매립등)를 그대로 확인하세요.">
+<meta property="og:image" content="assets/interior-academy.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314171A'/%3E%3Cg fill='%232E9C86'%3E%3Crect x='15' y='26' width='6' height='12' rx='3'/%3E%3Crect x='29' y='17' width='6' height='30' rx='3'/%3E%3Crect x='43' y='23' width='6' height='18' rx='3'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/configurator.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="back" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="back-tx">홈페이지로</span>
+  </a>
+  <div class="wordmark"><b>BEO SOUNDPROOF</b><span>3D 견적 시뮬레이터</span></div>
+  <a class="top-tel" href="tel:01030015906">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+    010-3001-5906
+  </a>
+</header>
+
+<main class="app">
+  <section class="stage" id="stage" aria-label="방음부스 3D 미리보기">
+    <canvas id="scene"></canvas>
+    <div class="hs-layer" id="hsLayer" aria-hidden="true"></div>
+
+    <div class="stage-badge">
+      <span class="dot" aria-hidden="true"></span>
+      <b id="badgeModel">슈퍼싱글</b>
+      <i aria-hidden="true"></i>
+      <em id="badgeDim">1,500 × 1,800</em>
+    </div>
+
+    <div class="stage-legend" id="legend" aria-hidden="true"></div>
+
+    <div class="views" role="group" aria-label="시점 전환">
+      <button type="button" data-view="exterior" aria-pressed="true"><span class="vlong">전체 외관</span><span class="vshort">외관</span></button>
+      <button type="button" data-view="interior" aria-pressed="false"><span class="vlong">내부 보기</span><span class="vshort">내부</span></button>
+      <button type="button" data-view="door" aria-pressed="false"><span class="vlong">문 쪽</span><span class="vshort">문</span></button>
+      <button type="button" data-view="top" aria-pressed="false"><span class="vlong">위에서</span><span class="vshort">위</span></button>
+    </div>
+
+    <div class="stage-foot">
+      <span class="hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0M3 12a9 9 0 0 0 18 0"/><path d="M12 3v18"/></svg>
+        드래그로 회전 · 스크롤로 확대
+      </span>
+      <button type="button" class="mini" id="doorToggle" aria-pressed="false">문 열기</button>
+      <button type="button" class="mini" id="hsToggle" aria-pressed="true">부위 안내</button>
+      <button type="button" class="mini" id="resetView">시점 초기화</button>
+    </div>
+
+    <div class="stage-load" id="stageLoad"><div style="text-align:center"><div class="ring"></div>3D 모델을 준비하고 있습니다</div></div>
+
+    <div class="stage-fallback" id="stageFallback">
+      <img src="assets/interior-academy.jpg" alt="베오방음 방음부스 내부 시공 사례">
+      <p>이 브라우저에서는 3D 미리보기를 열 수 없습니다. 실제 시공 사진으로 확인하시고, 아래 사양으로 상담해 주세요.</p>
+      <p style="margin-top:4px"><a class="btn btn-ink2" href="tel:01030015906" style="color:#EDE9E1;border-color:rgba(255,255,255,.3);background:transparent">전화 상담 010-3001-5906</a></p>
+    </div>
+  </section>
+
+  <aside class="panel" aria-label="옵션 선택">
+    <div class="panel-head">
+      <span class="eyebrow">Build your booth</span>
+      <h1>신규 방음부스<span>3D 견적 시뮬레이터</span></h1>
+      <p class="sub">옵션을 누르면 3D 부스가 바로 바뀝니다. 마음에 드는 사양을 그대로 견적 상담에 넘겨 드립니다.</p>
+    </div>
+
+    <div class="panel-body" id="panelBody"></div>
+
+    <div class="panel-foot">
+      <div class="pf-price">
+        <span>예상 견적</span>
+        <b id="footPrice">상담 시 확정</b>
+      </div>
+      <button type="button" class="btn btn-primary" id="ctaMain">
+        이 사양으로 견적 상담
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </aside>
+</main>
+
+<div class="modal" id="specModal" role="dialog" aria-modal="true" aria-labelledby="specTitle">
+  <div class="modal-card">
+    <h3 id="specTitle">선택하신 사양입니다</h3>
+    <p class="msub">사양이 복사되었습니다. 전화 상담 때 그대로 읽어 주시거나, 상담 신청서 내용 칸에 붙여넣어 주세요. 사진과 설치 위치를 함께 주시면 바로 견적을 안내드립니다.</p>
+    <textarea id="specText" readonly aria-label="선택한 사양 텍스트"></textarea>
+    <div class="modal-acts">
+      <a class="btn btn-primary" href="tel:01030015906" id="modalTel">전화 상담 010-3001-5906</a>
+      <div class="two">
+        <button type="button" class="btn btn-ink2" id="copyAgain">다시 복사</button>
+        <a class="btn btn-ink2" href="https://forms.gle/JEH16k8NPBRPMs7DA" target="_blank" rel="noopener">상담 신청서</a>
+      </div>
+      <button type="button" class="btn btn-ink2" id="modalClose">닫기</button>
+    </div>
+    <p class="modal-tip">방문 실측은 신규 설치 · 수도권에 한해 무료로 진행합니다(선택). 금액은 현장 조건을 확인한 뒤 견적서로 먼저 보여드리고, 견적서에 없는 비용을 나중에 붙이지 않습니다.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="assets/configurator.js"></script>
+<noscript>
+  <style>.panel-body{display:none}.panel-foot{display:none}</style>
+  <p style="padding:20px">3D 견적 시뮬레이터는 자바스크립트가 필요합니다. 전화 상담 <a href="tel:01030015906">010-3001-5906</a> 으로 문의해 주세요.</p>
+</noscript>
+</body>
+</html>
