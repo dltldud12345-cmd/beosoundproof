@@ -644,8 +644,10 @@
     lab.addEventListener("pointerdown", mark);
     r.addEventListener("keydown", mark);
     r.addEventListener("click", function(e){
-      if (r.dataset.on === "1") { r.checked = false; r.dataset.on = "0"; e.preventDefault(); }
-      else { r.dataset.on = "1"; }
+      if (r.dataset.on === "1") {
+        e.preventDefault();
+        setTimeout(function(){ r.checked = false; r.dataset.on = "0"; }, 0);
+      } else { r.dataset.on = "1"; }
     });
   });
 
