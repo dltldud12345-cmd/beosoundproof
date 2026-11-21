@@ -100,6 +100,7 @@
   .sheet-wrap{background:#fff;border-radius:6px;box-shadow:0 2px 10px rgba(20,23,26,.10),0 0 0 1px rgba(20,23,26,.05);overflow:hidden}
   .sheet-bar{display:flex;align-items:center;gap:10px;padding:7px 12px;background:#F7F4EE;border-bottom:1px solid var(--line2);font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.03em}
   .sheet-bar .spacer{flex:1}
+  .sheet-bar .hint{display:none;color:#9AA4AC;font-weight:500}
   .sheet-bar .btn{color:#2E353B;border-color:#DED8CC;background:#fff}
   .sheet-bar .btn:hover{background:var(--accent-t);border-color:var(--accent);color:var(--accent-d)}
   .sheet-bar .tagno{font-variant-numeric:tabular-nums;color:var(--ink2);letter-spacing:.08em}
@@ -111,6 +112,9 @@
   .foot b{color:#3F3A31}
 
   @media (max-width:600px){
+    .sheet{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .sheet svg{min-width:540px}
+    .sheet-bar .hint{display:inline}
     .topbar{padding:8px 10px;gap:7px}
     .brand{gap:6px}
     .brand span{display:none}
@@ -1207,7 +1211,7 @@ function render(){
     <div class="sheet-wrap" data-sheet="${sh.id}">
       <div class="sheet-bar">
         <span class="tagno">${sh.label}</span>
-        <span class="lbl">· A4 210×297㎜ · 1:1 인쇄</span>
+        <span class="lbl">· A4 210×297㎜ · 1:1 인쇄</span><span class="hint">· 좌우로 밀어 확대</span>
         <span class="spacer"></span>
         <button class="btn sm ghost" data-png="${sh.id}">PNG</button>
       </div>
