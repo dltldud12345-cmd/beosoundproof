@@ -897,7 +897,7 @@ function sheetPlan(m){
     '1. ㎜ 단위, 외경 기준. 좌·우 벽은 외경 끝~끝 전길이, 문 면·반대 면은 좌·우 벽 110 안쪽에 끼움.',
     '2. '+m.sideName[longSide.k]+' '+sumOf(longSide)+' = '+longSide.len+' (전길이).',
     '3. '+m.sideName[m.doorSide]+' '+sumOf(S(m.doorSide))+' = '+S(m.doorSide).len+' (좌·우 벽 안쪽 '+S(m.doorSide).span+').',
-    '4. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공. 코너 110 기둥은 끝단 600 안에 포함.',
+    '4. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공. 코너 110 기둥은 좌·우 벽 끝단에 포함(길이 추가 없음).',
     '5. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000).'
   ];
   notes.forEach((tx,i)=> s += T(M+300, ly+28+i*12.4, tx, {size:6.2, fill:'#4F585F'}));
