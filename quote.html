@@ -99,13 +99,13 @@
   .subopt .lb{display:block;font-size:12.5px;font-weight:700;color:var(--ink2)}
   .subopt .lb em{font-style:normal;font-weight:600;color:var(--muted);margin-left:4px}
   .subopt .chips{margin-top:9px}
-  .subopt .chip span{min-height:44px;padding:10px 13px;font-size:14px}
+  .subopt .chip > span{min-height:44px;padding:10px 13px;font-size:14px}
 
   /* ---------- chips ---------- */
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
   .chip{position:relative;display:block}
   .chip input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-  .chip span{display:flex;align-items:center;justify-content:center;min-height:46px;padding:11px 15px;
+  .chip > span{display:flex;align-items:center;justify-content:center;min-height:46px;padding:11px 15px;
     border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14.5px;font-weight:600;
     color:var(--ink2);transition:border-color .15s,background .15s,color .15s}
   .chip input:checked+span{border-color:var(--accent);background:var(--accent-t);color:var(--accent-d);font-weight:800;
@@ -113,8 +113,8 @@
   .chip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
   .chip .s{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-top:2px}
   .chip input:checked+span .s{color:var(--accent-d)}
-  .chip.big span{flex-direction:column;align-items:flex-start;text-align:left;min-height:58px;padding:10px 13px;line-height:1.35}
-  .chip.big span b{font-size:14.5px;font-weight:800}
+  .chip.big > span{flex-direction:column;align-items:flex-start;text-align:left;min-height:58px;padding:10px 13px;line-height:1.35}
+  .chip.big > span b{font-size:14.5px;font-weight:800}
   .combo .chip{flex:1 1 calc(50% - 4px)}
 
   /* ---------- inputs ---------- */
