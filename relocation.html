@@ -84,6 +84,21 @@
   .step-h .req{color:var(--accent);font-size:13px;font-weight:800;margin-left:-4px}
   .hint{margin-top:7px;font-size:12.5px;line-height:1.55;color:var(--muted)}
 
+  /* ---------- notice / payment ---------- */
+  .notice{margin-top:12px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;
+    background:#fff;padding:11px 12px;font-size:12.5px;line-height:1.65;color:var(--body)}
+  .notice b{color:var(--ink);font-weight:800}
+  .notice ul{margin-top:7px;display:grid;gap:4px}
+  .notice li{position:relative;padding-left:12px}
+  .notice li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:999px;background:var(--accent)}
+  .notice .foot{display:block;margin-top:7px;font-size:12px;color:var(--muted)}
+  .pay{margin-top:14px;border:1px solid var(--line2);border-radius:14px;background:var(--paper);padding:12px 13px;text-align:center}
+  .pay .t{font-size:10.5px;font-weight:800;letter-spacing:.14em;color:var(--accent-d)}
+  .pay ul{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+  .pay li{font-size:12.5px;font-weight:700;color:var(--ink2);background:#fff;border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px}
+  .pay .d{margin-top:8px;font-size:12px;line-height:1.6;color:var(--muted)}
+
   /* ---------- chips ---------- */
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
   .chip{position:relative;display:block}
@@ -329,6 +344,14 @@
           </div>
         </div>
       </div>
+      <div class="notice">
+        <b>사다리차 이용 시 비용은 별도입니다 (해체지 · 설치지 각각).</b>
+        <ul>
+          <li>엘리베이터 없는 <b>3층 이상</b> — 사다리차 이용이 필요합니다.</li>
+          <li>엘리베이터 없는 <b>2층</b> — 계단 폭 · 부스 크기에 따라 양중비가 더해질 수 있습니다.</li>
+        </ul>
+        <span class="foot">현장에 맞는 내용은 견적서에 따로 적어 미리 안내드립니다.</span>
+      </div>
       <p class="hint">정확한 주소(번지·호수)는 견적 안내 후 통화 때 알려주셔도 됩니다.</p>
     </section>
 
@@ -375,6 +398,15 @@
 
     <button class="submit" type="submit" id="submit">견적 신청하기</button>
     <p class="msg" id="msg" aria-live="polite" hidden></p>
+    <div class="pay">
+      <p class="t">결제 · 증빙 안내</p>
+      <ul>
+        <li>카드결제</li>
+        <li>세금계산서 발행</li>
+        <li>현금영수증 발행</li>
+      </ul>
+      <p class="d">견적 확정 후 편하신 방법으로 결제하시면 되고, 증빙도 그에 맞춰 발행해 드립니다.</p>
+    </div>
     <p class="hint" style="text-align:center;margin-top:10px">접수 후 사장님이 직접 사진을 보고 연락드립니다. 급하시면 <a href="tel:01030015906" style="color:var(--accent-d);font-weight:800">010-3001-5906</a>으로 전화 주셔도 됩니다.</p>
   </form>
 
@@ -386,6 +418,7 @@
     <h2>견적 신청이 접수됐습니다</h2>
     <p class="no" id="done-no"></p>
     <p>사장님이 보내주신 사진과 장소를 확인한 뒤 <b>견적서로 안내드립니다.</b> 보통 하루 안에 연락드리고, 층수·거리·부스 상태에 따라 비용이 달라지는 부분은 통화 때 자세히 설명드립니다.</p>
+    <p class="hint" style="margin-top:10px">결제는 <b>카드결제 · 세금계산서 · 현금영수증</b> 모두 가능합니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이며, 엘리베이터가 없는 3층 이상은 사다리차로 진행합니다.</p>
     <div class="acts">
       <a class="btn btn-accent" href="tel:01030015906">전화로 바로 상담 · 010-3001-5906</a>
       <button class="btn btn-line" type="button" id="again">새로 접수하기</button>
@@ -396,7 +429,7 @@
   <details class="sms">
     <summary><span>링크 입력이 번거로우시면, 이 양식을 복사해 문자로 보내주세요</span><span class="chev">▾</span></summary>
     <div class="inner">
-      <p class="hint">아래 7가지를 채워 문자로 보내주시면 똑같이 접수해 드립니다.</p>
+      <p class="hint">아래 7가지를 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
       <pre class="tmpl" id="tmpl">[베오방음 이전설치 견적 문의]
 1. 부스 유형: 싱글 / 세미더블 / 더블 (모르면 '모름')
 2. 제조사:
@@ -415,6 +448,7 @@
 
   <footer class="foot">
     <p class="co">베오방음 · 방음부스 신규 설치 · 이전설치<br>수도권 전역 직접 시공 · 010-3001-5906</p>
+    <p class="co" style="margin-top:6px">카드결제 · 세금계산서 · 현금영수증 발행 가능</p>
     <a class="adm" href="#admin" id="adm-open">관리자</a>
   </footer>
 </div>
