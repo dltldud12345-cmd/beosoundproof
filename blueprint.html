@@ -714,11 +714,11 @@ function sheetPlan(m){
 
   /* 치수 */
   s += dimH(ox, ox+pw, oy+ph+26, m.W, {ext1:oy+ph, ext2:oy+ph, size:7.6, labelY:oy+ph+22.4});
-  s += dimV(oy, oy+ph, ox-42, m.D, {ext1:ox, ext2:ox, size:7.6, labelX:ox-46});
+  s += dimV(oy, oy+ph, ox-38, m.D, {ext1:ox, ext2:ox, size:7.8, labelX:ox-42});
   s += dimH(ox+t, ox+pw-t, oy+ph+48, (m.W-CFG.FIN*2), {size:6.4});
-  s += dimV(oy+t, oy+ph-t, ox-68, (m.D-CFG.FIN*2), {size:6.4, labelX:ox-72});
+  s += dimV(oy+t, oy+ph-t, ox-74, (m.D-CFG.FIN*2), {size:6.6, labelX:ox-78});
   s += dimH(ox, ox+t, oy-20, '120', {size:6, labelY:oy-23.5});
-  s += dimV(oy, oy+cw, ox-14, '110', {size:5.6, labelX:ox-17});
+  s += dimH(ox, ox+cw, oy+ph+72, '110', {size:5.6});
 
   /* 범례 */
   const ly = 872, lw = SW-2*M-24;
@@ -897,7 +897,8 @@ function sheetElevation(m){
       const residN = side.pieces.filter(p=>p.kind==='resid').map(p=>Math.round(p.w));
       const parts = [];
       if(doorP) parts.push(Math.round(doorP.w)+' 문');
-      if(modN) parts.push(modN+'×600');
+      if(modN===1) parts.push('600');
+    else if(modN>1) parts.push(modN+'×600');
       residN.forEach(r=>parts.push(String(r)));
       o += dimH(x, x+sw, y+hh+7, side.span, {size:5.6, labelY:y+hh+4.4});
       o += T(x+sw/2, y+hh+16, m.sideName[side.k], {size:6.6, anchor:'middle', weight:700});
