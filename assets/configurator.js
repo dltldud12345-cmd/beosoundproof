@@ -107,7 +107,7 @@ const PRESETS = [
   { id:'dark',   label:'모던 다크',       sw:['#737A82','#5B483A','#584234'], set:{ artboard:'gray_d', slat:'dark',      floor:'walnut', light:'cob3000' } },
   { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C9A472'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
 ];
-const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000', door:'center' };
+const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000', door:'right' };
 const INCLUDED = ['세로 2구 콘센트','강화마루','3면 아트보드','1면 라인타공','COB 매립등·중앙 LED등','시스템도어'];
 const PHONE = '010-3001-5906';
 const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
@@ -115,7 +115,7 @@ const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
 const state = {
   model:'ss', w:1500, d:1800,
   artboard:'beige', slat:'maple', light:'cob3000', floor:'oak', ledTemp:'4000',
-  door:'center', hinge:'right', open:false, window:'none', project:'none', ac:false,
+  door:'right', hinge:'right', open:false, window:'none', project:'none', ac:false,
   view:'exterior'
 };
 
