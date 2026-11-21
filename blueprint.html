@@ -933,7 +933,7 @@ function sheetElevation(m){
     {t:9,  name:'9T 아트보드',    fill:'#EDE7DC'},
     {t:7,  name:'여유',           fill:'#F3E3D6'}
   ];
-  const sx0 = M+54, sy0 = sy+28, pxPerMm = 2.95, sech = 112;
+  const sx0 = M+54, sy0 = sy+30, pxPerMm = 3.15, sech = 148;
   let ax = sx0;
   layers.forEach(l=>{
     const wpx = l.t*pxPerMm;
@@ -953,7 +953,7 @@ function sheetElevation(m){
 
   /* ---------- 문 면 상세 입면 ---------- */
   const dside = m.sides.find(v=>v.k===m.doorSide);
-  const dsc = Math.min(224/(dside.span), 352/(m.H));
+  const dsc = Math.min(268/(dside.span), 404/(m.H));
   const ddx = 508, ddy = sy+26;
   s += T(ddx, sy, '문 면 상세 입면 (1 : '+Math.round(3.7795/dsc)+')', {size:8.4, weight:800});
   s += drawWall(dside, ddx, ddy, dsc, {big:true, labels:false});
@@ -964,7 +964,7 @@ function sheetElevation(m){
   s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+34, m.fillH, {size:5.4});
 
   /* ---------- 시공 메모 ---------- */
-  const ny = 872;
+  const ny = 1000;
   s += R(M+16, ny, SW-2*M-32, 82, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
   s += T(M+24, ny+27, '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.', {size:6.4});
