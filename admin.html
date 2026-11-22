@@ -1359,19 +1359,23 @@ function drawContract(c, W, H, d, q, logo){
   var totalW = Math.round(CW * 0.44), subW = (CW - totalW - gap * 2) / 2;
   if (H){
     c.fillStyle = NVY; c.beginPath(); c.roundRect(PAD, y, totalW, boxH, 14); c.fill();
-    c.textAlign = "left"; c.fillStyle = "rgba(255,255,255,.62)"; c.font = F(700, 14);
-    c.fillText("총 계약 금액 (부가세 포함)", PAD + 22, y + 38);
-    c.fillStyle = WHITE; c.font = F(900, 32);
-    c.fillText(won0(d.total) + "원", PAD + 22, y + 88);
-    [[cardPay ? "계약금 (카드결제 링크)" : "계약금 (예약 확정 시)", d.deposit],
-     [cardPay ? "잔금 (카드결제 링크)" : "잔금 (공사 완료 후)", d.balance]].forEach(function(r, i){
+    c.textAlign = "left"; c.fillStyle = "rgba(255,255,255,.72)"; c.font = F(800, 14);
+    c.fillText("총 계약 금액", PAD + 22, y + 34);
+    c.fillStyle = "rgba(255,255,255,.52)"; c.font = F(700, 12);
+    c.fillText("부가세 포함", PAD + 22, y + 53);
+    c.fillStyle = WHITE; c.font = F(900, 30);
+    c.fillText(won0(d.total) + "원", PAD + 22, y + 96);
+    [[ "계약금", cardPay ? "카드결제 링크" : "예약 확정 시", d.deposit ],
+     [ "잔금",   cardPay ? "카드결제 링크" : "공사 완료 후", d.balance ]].forEach(function(r, i){
       var bxx = PAD + totalW + gap + i * (subW + gap);
       c.fillStyle = ACCL; c.beginPath(); c.roundRect(bxx, y, subW, boxH, 14); c.fill();
       c.strokeStyle = "#BBD6D0"; c.lineWidth = 1.2; c.stroke();
-      c.textAlign = "left"; c.fillStyle = ACC; c.font = F(800, 13);
-      c.fillText(r[0], bxx + 18, y + 38);
+      c.textAlign = "left"; c.fillStyle = ACC; c.font = F(800, 14);
+      c.fillText(r[0], bxx + 18, y + 34);
+      c.fillStyle = MUT; c.font = F(700, 12);
+      c.fillText(r[1], bxx + 18, y + 53);
       c.fillStyle = INK; c.font = F(900, 24);
-      c.fillText(won0(r[1]) + "원", bxx + 18, y + 86);
+      c.fillText(won0(r[2]) + "원", bxx + 18, y + 96);
     });
   }
   y += boxH;
@@ -1379,15 +1383,15 @@ function drawContract(c, W, H, d, q, logo){
   /* ── 입금 계좌 ── (카드결제면 페이히어 비대면 결제 링크 안내로 대체) */
   y += 18;
   var cardLines = cardPay ? cardLine(d).split("\n") : [];
-  var accH = cardPay ? (56 + cardLines.length * 26 + 12) : 86;
+  var accH = cardPay ? (52 + cardLines.length * 24 + 12) : 86;
   if (H){
     c.fillStyle = cardPay ? ACCL : SOFT; c.beginPath(); c.roundRect(PAD, y, CW, accH, 12); c.fill();
     c.strokeStyle = cardPay ? "#BBD6D0" : LINE; c.lineWidth = 1.2; c.stroke();
     c.textAlign = "left"; c.fillStyle = MUT; c.font = F(800, 13);
     if (cardPay){
-      c.fillText("결제 방법 · 카드결제", PAD + 20, y + 30);
-      c.fillStyle = INK; c.font = F(800, 17);
-      cardLines.forEach(function(l, i){ c.fillText(l, PAD + 20, y + 58 + i * 26); });
+      c.fillText("결제 방법 · 페이히어(PayHere) 비대면 카드결제", PAD + 20, y + 29);
+      c.fillStyle = INK; c.font = F(700, 15.5);
+      cardLines.forEach(function(l, i){ c.fillText(l, PAD + 20, y + 55 + i * 24); });
     } else {
       c.fillText("입금 계좌", PAD + 20, y + 32);
       c.fillStyle = INK; c.font = F(800, 19);
