@@ -987,10 +987,11 @@ function contractData(q){
   };
 }
 function payVatLine(d){
-  var out = [];
-  if (d.supply !== "") out.push("• 공급가액: " + won0(d.supply) + "원");
-  if (d.vat !== "") out.push("• 부가세 (10%): " + won0(d.vat) + "원");
-  if (d.total !== "") out.push("• 합계 (부가세 포함): " + won0(d.total) + "원");
+  var out = [
+    "• 공급가액: " + won0(d.supply) + "원",
+    "• 부가세 (10%): " + won0(d.vat) + "원",
+    "• 합계 (부가세 포함): " + won0(d.total) + "원"
+  ];
   if (d.pay) out.push("• 결제 증빙: " + d.pay);
   return out;
 }
