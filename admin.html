@@ -200,6 +200,9 @@
   .inst-in:focus{outline:0;border-color:var(--accent)}
 
   .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
+  .abtn.undo{background:#FFF9EC;border-color:#EFD9A6;color:#8A5A00;font-weight:800}
+  .sabtn.undo{background:#FFF9EC;border-color:#EFD9A6}
+  .stage-hint{margin-top:7px;font-size:11px;font-weight:700;color:#8A5A00;background:#FFF9EC;border:1px dashed #EFD9A6;border-radius:9px;padding:7px 10px;line-height:1.45}
 
   /* 계약 금액 + 계약 안내서 */
   .money-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;padding:11px 12px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
@@ -1433,7 +1436,9 @@ function openContractModal(q){
         + '  <div class="sacts">'
         + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
         + (q.to_region ? '<a class="sabtn" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : '')
-        + (i.stage !== "done" ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>' : '')
+        + (i.stage !== "done"
+            ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>'
+            : '<button type="button" class="sabtn undo" data-qundone="' + esc(q.id) + '" aria-label="완료 취소">↩️</button>')
         + '  </div>'
         + '</div>';
     };
@@ -1458,6 +1463,16 @@ function openContractModal(q){
         b.disabled = true;
         Promise.resolve(saveStage(id, "done")).then(function(){
           toast("설치 완료로 마감했습니다");
+          loadAll();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qundone]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-qundone");
+        b.disabled = true;
+        Promise.resolve(saveStage(id, "reserved")).then(function(){
+          toast("설치 완료를 예약중으로 되돌렸습니다");
           loadAll();
         }).catch(function(err){ alert(err.message); b.disabled = false; });
       });
@@ -1633,6 +1648,7 @@ function openContractModal(q){
       + '  </div>'
       + '</div>'
       + '<div class="stage-bar">' + statusBtns + '</div>'
+      + (st === "done" ? '<div class="stage-hint">완료된 건입니다 — 단계 버튼이나 ↩️ 완료 취소로 언제든 되돌릴 수 있고, 금액·설치일·결제 증빙은 그대로 수정할 수 있습니다.</div>' : '')
       + (alerts.length ? '<div class="alerts">' + alerts.join("") + '</div>' : '')
       + '<div class="spec-grid">'
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
@@ -1655,6 +1671,7 @@ function openContractModal(q){
       + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
       + '  </div>'
       + '  <div class="qacts">'
+      + (st === "done" ? '<button type="button" class="abtn undo" data-qundone="' + esc(q.id) + '">↩️ 완료 취소 (예약중으로)</button>' : '')
       + (st !== "done" ? '<button type="button" class="abtn done" data-qdone="' + esc(q.id) + '">✅ 설치 완료</button>' : '')
       + '    <button type="button" class="abtn danger" data-qdel="' + esc(q.id) + '">삭제</button>'
       + '  </div>'
@@ -1816,6 +1833,17 @@ function openContractModal(q){
         b.disabled = true;
         Promise.resolve(saveStage(id, "done")).then(function(){
           toast("설치 완료로 마감했습니다");
+          loadAll();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qundone]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-qundone");
+        b.disabled = true;
+        Promise.resolve(saveStage(id, "reserved")).then(function(){
+          toast("설치 완료를 예약중으로 되돌렸습니다 — 금액·설치일을 다시 수정할 수 있습니다");
           loadAll();
         }).catch(function(err){ alert(err.message); b.disabled = false; });
       });
