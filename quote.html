@@ -241,6 +241,8 @@
   .add{aspect-ratio:1;border:1.5px dashed var(--line);border-radius:12px;background:#fff;color:var(--muted);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:700}
   .add b{font-size:19px;line-height:1;font-weight:400;color:var(--ink2)}
+  .add.wide{grid-column:1/-1;aspect-ratio:auto;min-height:86px;flex-direction:row;gap:9px;font-size:12.5px}
+  .add.wide b{font-size:20px}
 
   /* ---------- submit ---------- */
   .submit{width:100%;height:56px;margin-top:4px;border:0;border-radius:15px;background:var(--accent);color:#fff;
@@ -602,9 +604,17 @@
       <p class="hint">견적 확정 후 편하신 방법으로 결제하시면 되고, 증빙도 그에 맞춰 발행해 드립니다. 고르지 않으셔도 접수되고, 한 번 더 누르면 선택이 풀립니다.</p>
     </section>
 
-    <!-- 06 연락처 -->
+    <!-- 06 설치할 공간 사진 (선택) -->
     <section class="card">
-      <div class="step-h"><span class="n">6</span><b>성함 · 연락처 · 추가 메모</b><span class="req">*</span></div>
+      <div class="step-h"><span class="n">6</span><b>설치할 공간 사진</b><span class="opt">선택 · 최대 4장</span></div>
+      <p class="hint">방이나 설치 예정 공간 사진을 올려 주시면 상담이 더 빨라져요. 없으시면 건너뛰셔도 됩니다.</p>
+      <div class="shots" id="shots"></div>
+      <input type="file" id="file" accept="image/*" multiple hidden>
+    </section>
+
+    <!-- 07 연락처 -->
+    <section class="card">
+      <div class="step-h"><span class="n">7</span><b>성함 · 연락처 · 추가 메모</b><span class="req">*</span></div>
       <div class="field" style="margin-top:10px">
         <label class="lb" for="name">성함 <span class="req">*</span></label>
         <input class="in" id="name" maxlength="20" autocomplete="name" placeholder="예: 김민수">
@@ -616,12 +626,6 @@
       <div class="field">
         <label class="lb" for="memo">추가 메모 <em>선택</em></label>
         <textarea class="in" id="memo" maxlength="1000" placeholder="예: 용도(피아노·보컬·청력검사실 등) / 실측 희망 요일 / 주차 가능 여부"></textarea>
-      </div>
-      <div class="subopt">
-        <span class="lb">설치 공간 사진 <em>선택 · 최대 4장</em></span>
-        <p class="hint" style="margin-top:6px">부스를 세울 자리를 찍어 주시면 천장 높이·문 위치까지 보고 견적이 정확해집니다. 없어도 접수됩니다.</p>
-        <div class="shots" id="shots"></div>
-        <input type="file" id="file" accept="image/*" multiple hidden>
       </div>
       <label class="agree">
         <input type="checkbox" id="agree">
@@ -802,7 +806,7 @@
         + '<button type="button" class="rm" data-rm="' + i + '" aria-label="사진 삭제">×</button></figure>';
     }).join("");
     if (state.picked.length < MAX_PHOTOS) {
-      html += '<button type="button" class="add" id="add-shot"><b>+</b>사진 추가<div>' + state.picked.length + "/" + MAX_PHOTOS + '</div></button>';
+      html += '<button type="button" class="add' + (state.picked.length ? "" : " wide") + '" id="add-shot"><b>+</b>사진 추가<div>' + state.picked.length + "/" + MAX_PHOTOS + '</div></button>';
     }
     box.innerHTML = html;
     var add = $("add-shot");
