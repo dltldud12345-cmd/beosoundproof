@@ -442,6 +442,7 @@ function totalPrice(){
 function syncUI(){
   /* 규격이 2,400mm 이상이면 레일등 필수 */
   enforceLightRule();
+  syncPhotoOutHinge();
 
   panel.querySelectorAll('[data-group]').forEach(b => {
     const on = state[b.dataset.group] === b.dataset.value;
@@ -2732,6 +2733,13 @@ function renderPhotoStage(){
   });
 }
 
+/* 실사 외부: 좌경첩 기준으로 촬영한 외관 사진을 우경첩에서는 좌우 반전해 보여줍니다 */
+function syncPhotoOutHinge(){
+  const po = $('#photoOutStage');
+  if (!po) return;
+  po.style.transformOrigin = 'center center';
+  po.style.transform = state.hinge === 'right' ? 'scaleX(-1)' : 'none';
+}
 function setView(name, force = false){
   state.view = name;
   const isPhotoIn = name === 'photo';
@@ -2747,6 +2755,7 @@ function setView(name, force = false){
   const po = $('#photoOutStage');
   if (ps) { ps.hidden = !isPhotoIn; ps.style.display = isPhotoIn ? 'block' : 'none'; }
   if (po) { po.hidden = !isPhotoOut; po.style.display = isPhotoOut ? 'block' : 'none'; }
+  if (isPhotoOut) syncPhotoOutHinge();
   const hs = $('#hsLayer');
   if (hs) hs.style.display = isAnyPhoto ? 'none' : '';
   ['doorToggle', 'hsToggle', 'resetView'].forEach(id => {
