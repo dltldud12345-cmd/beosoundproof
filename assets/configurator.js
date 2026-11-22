@@ -2345,7 +2345,7 @@ function preloadPhotoWins(){
     '800x800': 'assets/win-800.png?v=3',
     '1200x800': 'assets/win-1200.png?v=3',
     'double1200': 'assets/win-double.png',
-    'rail_ceiling': 'assets/ceiling-rail.png?v=4',
+    'rail_ceiling': 'assets/ceiling-rail.png?v=5',
     'slat_nocob': 'assets/slat-nocob.png?v=4'
   };
   Object.keys(map).forEach(k => {
