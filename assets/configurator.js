@@ -2341,12 +2341,12 @@ function photoHexToRgb(hex){
 const photoWinImgs = {};
 function preloadPhotoWins(){
   const map = {
-    '600x800': 'assets/win-600.png?v=2',
-    '800x800': 'assets/win-800.png?v=2',
-    '1200x800': 'assets/win-1200.png?v=2',
+    '600x800': 'assets/win-600.png?v=3',
+    '800x800': 'assets/win-800.png?v=3',
+    '1200x800': 'assets/win-1200.png?v=3',
     'double1200': 'assets/win-double.png',
     'rail_ceiling': 'assets/ceiling-rail.png?v=4',
-    'slat_nocob': 'assets/slat-nocob.png?v=3'
+    'slat_nocob': 'assets/slat-nocob.png?v=4'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
