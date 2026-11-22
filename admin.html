@@ -907,6 +907,8 @@ function contractText(q){
     "• " + d.route,
     "• 작업일자: " + d.date,
     "",
+    "위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.",
+    "",
     "베오방음 (BEOSOUNDPROOF)",
     "문의: 010-3001-5906"
   ].filter(Boolean).join("\n");
@@ -995,8 +997,9 @@ function contractImage(q){
 
   /* 푸터 */
   c.strokeStyle = LINE; c.lineWidth = 1;
-  c.beginPath(); c.moveTo(48, H-140); c.lineTo(W-48, H-140); c.stroke();
+  c.beginPath(); c.moveTo(48, H-170); c.lineTo(W-48, H-170); c.stroke();
   c.textAlign = "left";
+  c.fillStyle = INK; c.font = font(700, 14.5); c.fillText("위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.", 48, H-140);
   c.fillStyle = INK; c.font = font(800, 18); c.fillText("베오방음 (BEOSOUNDPROOF)", 48, H-104);
   c.fillStyle = MUT; c.font = font(600, 14); c.fillText("문의 010-3001-5906", 48, H-78);
   c.textAlign = "right"; c.font = font(600, 12);
@@ -1465,6 +1468,12 @@ function openContractModal(q){
         var k = inp.getAttribute("data-inst-k");
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
+        /* 날짜 칸에 6자리 연도 같은 잘못된 값이 남는 걸 막는다 — 형식이 맞을 때만 저장 */
+        if (k === "date" && inp.value && !/^\d{4}-\d{2}-\d{2}$/.test(inp.value)){
+          inp.value = pipeOf(id).installDate || "";
+          toast("연도 4자리 · 월·일 2자리로 입력해 주세요");
+          return;
+        }
         var patch = {};
         patch[k === "date" ? "installDate" : "installTime"] = inp.value || "";
         setPipe(id, patch);
