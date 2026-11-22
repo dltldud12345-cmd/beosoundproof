@@ -2351,11 +2351,12 @@ function preloadPhotoWins(){
     '600x800': 'assets/win-600.png',
     '800x800': 'assets/win-800.png',
     '1200x800': 'assets/win-1200.png',
-    'double1200': 'assets/win-double.png'
+    'double1200': 'assets/win-double.png',
+    'rail_ceiling': 'assets/ceiling-rail.png'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
-    im.onload = () => { if (state.view === 'photo' && state.window === k) renderPhotoStage(); };
+    im.onload = () => { if (state.view === 'photo' && (state.window === k || (k === 'rail_ceiling' && state.light === 'rail'))) renderPhotoStage(); };
     im.src = map[k];
     photoWinImgs[k] = im;
   });
@@ -2420,35 +2421,10 @@ function drawPhotoWindow(ctx, W, H, winVal){
 }
 function drawPhotoRailLight(ctx, W, H){
   if (state.light !== 'rail') return;
-  ctx.save();
-  // 천장 타공벽 앞쪽 가로 레일 트랙
-  const x1 = 0.395 * W, x2 = 0.625 * W, y = 0.332 * H;
-  ctx.strokeStyle = '#191C1F';
-  ctx.lineWidth = 6;
-  ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
-  ctx.strokeStyle = '#383E45';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(x1, y - 1); ctx.lineTo(x2, y - 1); ctx.stroke();
-
-  // 블랙 원통 레일 스포트라이트 3구
-  [0.445, 0.510, 0.575].forEach(fx => {
-    const cx = fx * W;
-    // 지지대
-    ctx.fillStyle = '#181A1D';
-    ctx.fillRect(cx - 2, y, 4, 8);
-    // 원통 헤드
-    ctx.beginPath();
-    ctx.roundRect(cx - 7, y + 6, 14, 18, 4);
-    ctx.fill();
-    // 따뜻한 빛 글로우
-    const gl = ctx.createRadialGradient(cx, y + 24, 1, cx, y + 28, 22);
-    gl.addColorStop(0, 'rgba(255,244,214,0.85)');
-    gl.addColorStop(1, 'rgba(255,244,214,0)');
-    ctx.fillStyle = gl;
-    ctx.beginPath(); ctx.arc(cx, y + 26, 22, 0, Math.PI * 2); ctx.fill();
-  });
-  ctx.restore();
+  const im = photoWinImgs.rail_ceiling;
+  if (im && im.complete && im.naturalWidth){
+    ctx.drawImage(im, 0, 0, W, H);
+  }
 }
 function renderPhotoStage(){
   const cvs = $('#photoStage');
