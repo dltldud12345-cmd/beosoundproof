@@ -119,6 +119,29 @@
   .chip.off > span{border-style:dashed;color:var(--muted);text-decoration:line-through}
   .combo .chip{flex:1 1 calc(50% - 4px)}
 
+  /* ---------- 에어컨 상담 접이식 ---------- */
+  .ac-box{margin-top:14px;padding-top:13px;border-top:1px solid var(--line2)}
+  .ac-toggle{display:flex;align-items:center;gap:9px;width:100%;min-height:46px;padding:11px 12px;
+    border:1px solid var(--line);border-radius:12px;background:#fff;text-align:left;
+    font-size:14px;font-weight:700;color:var(--ink2);transition:border-color .15s,background .15s,color .15s}
+  .ac-toggle:hover{border-color:#D3CABA}
+  .ac-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .ac-toggle .ic{flex:0 0 auto;width:20px;height:20px;border-radius:6px;border:1px solid var(--line);
+    display:grid;place-items:center;font-size:12px;font-weight:800;line-height:1;color:var(--muted);
+    background:#fff;transition:background .18s,border-color .18s,color .18s}
+  .ac-toggle .t{flex:1 1 auto}
+  .ac-toggle .chev{flex:0 0 auto;color:var(--muted);font-size:12px;font-weight:800;transition:transform .22s ease}
+  .ac-box.open .ac-toggle{border-color:var(--accent);background:var(--accent-t);color:var(--accent-d)}
+  .ac-box.open .ac-toggle .ic{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ac-box.open .ac-toggle .chev{transform:rotate(180deg);color:var(--accent-d)}
+  .ac-panel{max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .3s ease,opacity .22s ease}
+  .ac-panel .in-pad{padding:2px 1px 1px}
+  .ac-chips{display:grid;gap:8px;margin-top:10px}
+  .ac-chips .chip > span{justify-content:flex-start;text-align:left;line-height:1.45;min-height:44px;padding:10px 13px;font-size:14px}
+  .ac-chips .chip em{font-style:normal;font-weight:600;color:var(--muted);margin-left:5px}
+  .ac-chips .chip input:checked+span em{color:var(--accent-d)}
+
   /* ---------- 실제 자재 색상(아트보드·라인타공) ---------- */
   .swgrid{display:grid;gap:7px;margin-top:10px}
   .swgrid.board{grid-template-columns:repeat(3,1fr)}
@@ -498,14 +521,35 @@
         <p class="hint"><b>시창</b>은 창틀이 벽 두께 안에 들어가는 고정창이라 방음력이 가장 좋고, 안·밖으로 돌출되지 않습니다. 기본은 <b>400×800</b>이고 벽이 넓으면 <b>800×800 · 1,200×800</b>으로 키울 수 있습니다. <b>이중창(1,200×800)</b>은 방음은 우수하나 창틀이 벽체보다 두꺼워 안·밖으로 돌출될 수 있습니다. <b>케시먼트창(600×600)</b>은 600 벽판 모듈에 맞춘 개폐창으로, 손잡이를 돌려 열어 실내 공기 교환과 채광에 쓰기 좋습니다. 필요한 창을 여러 개 고르셔도 됩니다.</p>
       </div>
 
-      <div class="subopt">
-        <span class="lb">냉방 · 시공 옵션 <em>복수 선택</em></span>
-        <div class="chips" id="opt-chips">
-          <label class="chip"><input type="checkbox" name="opt" value="천장 프로젝트창 (시스템에어컨 연동)"><span>천장 프로젝트창 (시스템에어컨 연동)</span></label>
-          <label class="chip"><input type="checkbox" name="opt" value="에어컨 라인 벽체 매설"><span>에어컨 라인 벽체 매설</span></label>
+      <div class="ac-box" id="ac-box">
+        <button class="ac-toggle" type="button" id="ac-toggle" aria-expanded="false" aria-controls="ac-panel">
+          <span class="ic" aria-hidden="true">+</span>
+          <span class="t">에어컨 관련 상담이 필요해요</span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
+        <div class="ac-panel" id="ac-panel" role="region" aria-labelledby="ac-toggle" hidden inert>
+          <div class="in-pad">
+            <div class="subopt" style="margin-top:12px;padding-top:0;border-top:0">
+              <span class="lb">방과 실외기 위치 <em>하나 선택</em></span>
+              <div class="chips ac-chips" id="ac-chips">
+                <label class="chip"><input type="radio" name="ac" value="창문·실외기 가까운 방 (일반 벽걸이)"><span>창문·실외기 가까운 방 <em>(일반 벽걸이)</em></span></label>
+                <label class="chip"><input type="radio" name="ac" value="실외기실과 먼 방 (복도 쪽 방 등)"><span>실외기실과 먼 방 <em>(복도 쪽 방 등)</em></span></label>
+                <label class="chip"><input type="radio" name="ac" value="신축 아파트 등 외벽 실외기 불가"><span>신축 아파트 등 외벽 실외기 불가</span></label>
+                <label class="chip"><input type="radio" name="ac" value="잘 모르겠어요 (상담 시 확인)"><span>잘 모르겠어요 <em>(상담 시 확인)</em></span></label>
+              </div>
+              <p class="hint">부스 안에 에어컨을 쓰실 계획이면, 방과 실외기 위치에 가장 가까운 항목을 하나 골라 주세요. 상담 때 현장에 맞는 방법을 함께 정합니다.</p>
+            </div>
+            <div class="subopt">
+              <span class="lb">시공 옵션 <em>복수 선택</em></span>
+              <div class="chips" id="opt-chips">
+                <label class="chip"><input type="checkbox" name="opt" value="천장 프로젝트창 (시스템에어컨 연동)"><span>천장 프로젝트창 (시스템에어컨 연동)</span></label>
+                <label class="chip"><input type="checkbox" name="opt" value="에어컨 라인 벽체 매설"><span>에어컨 라인 벽체 매설</span></label>
+              </div>
+              <p class="hint"><b>천장 프로젝트창</b>은 천장에 시스템에어컨이 있는 집에서, 창을 열면 방 천장 바람을 부스 안에서 함께 쓰는 구성입니다. 창이 90°로 수직으로 열리지 않고 약 45° 각도로 열려, 머리에 부딪히는 간섭을 줄이면서 시스템에어컨 바람을 받기에 좋습니다. 창을 닫으면 원래의 방음 상태로 돌아갑니다.</p>
+              <p class="hint"><b>에어컨 라인 벽체 매설</b>은 실외기 자리가 마땅치 않은 곳에 냉매관·배수 라인을 벽체 안으로 넣는 시공입니다. 필요하시면 에어컨 설치 전문 협력업체 연계도 가능하며, 기기 구매·설치 범위와 값은 상담에서 안내드립니다.</p>
+            </div>
+          </div>
         </div>
-        <p class="hint"><b>천장 프로젝트창</b>은 천장에 시스템에어컨이 있는 집에서, 창을 열면 방 천장 바람을 부스 안에서 함께 쓰는 구성입니다. 창이 90°로 수직으로 열리지 않고 약 45° 각도로 열려, 머리에 부딪히는 간섭을 줄이면서 시스템에어컨 바람을 받기에 좋습니다. 창을 닫으면 원래의 방음 상태로 돌아갑니다.</p>
-        <p class="hint"><b>에어컨 라인 벽체 매설</b>은 실외기 자리가 마땅치 않은 곳에 냉매관·배수 라인을 벽체 안으로 넣는 시공입니다. 필요하시면 에어컨 설치 전문 협력업체 연계도 가능하며, 기기 구매·설치 범위와 값은 상담에서 안내드립니다.</p>
       </div>
 
       <div class="subopt">
@@ -626,6 +670,7 @@
 6. 중앙 LED 등: 주백색(4000K) / 주광색(6500K) / 상담 후 결정
 7. 창문(복수): 벽면 시창(400×800·기본 추천) / 벽면 시창(800×800) / 벽면 시창(1,200×800) / 이중창(1,200×800) / 케시먼트창(600×600)
 8. 추가 옵션(복수): 천장 프로젝트창(시스템에어컨 연동) / 에어컨 라인 벽체 매설 / 방염 자재 적용(학원·관공서·상업시설용)
+8-1. 에어컨 상담(필요한 경우): 창문·실외기 가까운 방(일반 벽걸이) / 실외기실과 먼 방(복도 쪽 방 등) / 신축 아파트 등 외벽 실외기 불가 / 잘 모르겠어요(상담 시 확인)
 9. 설치 지역: 서울·경기·인천 / 충청·강원·지방
 10. 상세 지역·층수: (엘리베이터 있음·없음)
 11. 희망 설치 시기:
@@ -783,6 +828,41 @@
       renderShots();
     });
   }
+
+  /* ---------- 에어컨 상담 접이식 (기본 접힘) ---------- */
+  var acBox = $("ac-box"), acToggle = $("ac-toggle"), acPanel = $("ac-panel"), acTimer = 0;
+  function acOpenState(){
+    return !!(acBox && acBox.classList.contains("open"));
+  }
+  function openAc(){
+    if (!acBox || !acPanel || !acToggle) return;
+    clearTimeout(acTimer);
+    acBox.classList.add("open");
+    acToggle.setAttribute("aria-expanded", "true");
+    acPanel.hidden = false;
+    acPanel.removeAttribute("inert");
+    requestAnimationFrame(function(){
+      acPanel.style.maxHeight = acPanel.scrollHeight + "px";
+      acPanel.style.opacity = "1";
+    });
+  }
+  function closeAc(clearPick){
+    if (!acBox || !acPanel || !acToggle) return;
+    acBox.classList.remove("open");
+    acToggle.setAttribute("aria-expanded", "false");
+    acPanel.style.maxHeight = "0px";
+    acPanel.style.opacity = "0";
+    acPanel.setAttribute("inert", "");
+    clearTimeout(acTimer);
+    acTimer = setTimeout(function(){ if (!acOpenState()) acPanel.hidden = true; }, 320);
+    if (clearPick) Array.prototype.forEach.call(document.querySelectorAll('input[name="ac"]'), function(r){ r.checked = false; });
+  }
+  if (acToggle) acToggle.addEventListener("click", function(){
+    if (acOpenState()) closeAc(true); else openAc();
+  });
+  window.addEventListener("resize", function(){
+    if (acOpenState() && acPanel) acPanel.style.maxHeight = acPanel.scrollHeight + "px";
+  });
 
   /* ---------- 규격 → 맞춤 입력 ---------- */
   var SPEC = {
@@ -1119,6 +1199,10 @@
     lines.push("[중앙등] " + cen);
     if (wins.length) lines.push("[창문] " + wins.join(", "));
     if (opts.length) lines.push("[추가 옵션] " + opts.join(", "));
+    if (acOpenState()){
+      var acPick = checkedValue("ac");
+      lines.push("[에어컨 상담] " + (acPick || "필요 · 현장 조건은 상담 때 확인"));
+    }
     if (fires.length) lines.push("[방염 자재] " + fires.join(", "));
     lines.push("[지역] " + region);
     if (floorTxt) lines.push("[층수·엘리베이터] " + floorTxt);
@@ -1189,6 +1273,7 @@
   var again = $("again");
   if (again) again.addEventListener("click", function(){
     form.reset();
+    closeAc(true);
     state.picked.forEach(function(p){ if (p.url) URL.revokeObjectURL(p.url); });
     state.picked = [];
     renderShots();
