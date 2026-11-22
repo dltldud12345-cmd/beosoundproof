@@ -1067,6 +1067,19 @@ function icsAddDays(ymd, n){
   var p = function(v){ return String(v).padStart(2, "0"); };
   return String(dt.getUTCFullYear()) + p(dt.getUTCMonth() + 1) + p(dt.getUTCDate());
 }
+/* 75바이트 넘는 줄은 RFC 5545에 맞춰 접는다 */
+function icsFold(line){
+  var enc = new TextEncoder();
+  var out = [], cur = "", len = 0;
+  for (var i = 0; i < line.length; i++){
+    var ch = line.charAt(i);
+    var bl = enc.encode(ch).length;
+    if (len + bl > 73){ out.push(cur); cur = " " + ch; len = 1 + bl; }
+    else { cur += ch; len += bl; }
+  }
+  out.push(cur);
+  return out.join("\r\n");
+}
 function icsFor(q){
   var inst = installOf(q);
   if (!inst.date) return "";
@@ -1101,7 +1114,7 @@ function icsFor(q){
   L.push("TRANSP:OPAQUE");
   L.push("BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc("내일 베오방음 " + d.kind + " 일정"), "END:VALARM");
   L.push("END:VEVENT", "END:VCALENDAR");
-  return L.join("\r\n");
+  return L.map(icsFold).join("\r\n");
 }
 var CONTRACT_LOGO_SRC = "assets/logo-horizontal-white.png?v=2";
 var LOGO_CACHE = {};
