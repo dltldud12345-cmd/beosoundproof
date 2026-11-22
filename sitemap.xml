@@ -35,4 +35,14 @@
       <image:title>베오방음 방음부스 이전설치</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://beosoundproof.com/configurator.html</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://beosoundproof.com/assets/clinic-interior-cob.jpg</image:loc>
+      <image:title>베오방음 3D 견적 시뮬레이터</image:title>
+    </image:image>
+  </url>
 </urlset>

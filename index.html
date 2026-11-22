@@ -122,6 +122,12 @@
   .drawer a.drawer-pill{color:var(--accent-dark);font-weight:800}
   .drawer a.drawer-pill span{display:inline-block;margin-left:2px;transition:transform .2s var(--ease)}
   .drawer a.drawer-pill:hover span{transform:translateX(3px)}
+  .drawer a.drawer-3d{
+    margin-top:6px;padding:12px 16px;border:0;border-radius:12px;
+    background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;
+    font-size:15px;font-weight:800;letter-spacing:-.01em;
+  }
+  .drawer a.drawer-3d span{color:#8CDFCB}
 
   /* ============ buttons ============ */
   .btn{
@@ -279,6 +285,117 @@
   .p-card.dark dd{color:#E6EAEC}
   .p-card.dark .foot{color:#8CDFCB}
   .p-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+  /* ============ 3D 커스텀 체험 (Build your own) ============ */
+  .cfg-band{
+    position:relative;overflow:hidden;color:#fff;background:#0E1113;
+    padding:clamp(58px,7vw,104px) 0;
+    border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .cfg-band::before{
+    content:"";position:absolute;left:-18%;top:-38%;width:78%;height:96%;pointer-events:none;
+    background:radial-gradient(ellipse at 26% 40%,rgba(46,156,134,.30),rgba(46,156,134,0) 62%);
+  }
+  .cfg-band::after{
+    content:"";position:absolute;right:-14%;bottom:-46%;width:56%;height:88%;pointer-events:none;
+    background:radial-gradient(circle at 60% 50%,rgba(140,223,203,.12),rgba(140,223,203,0) 64%);
+  }
+  .cfg-in{
+    position:relative;z-index:1;
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.03fr);grid-template-rows:auto 1fr;
+    grid-template-areas:"head vis" "act vis";
+    column-gap:clamp(28px,4.4vw,64px);row-gap:clamp(20px,2.6vw,30px);
+  }
+  .cfg-head{grid-area:head}
+  .cfg-eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-size:10.5px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:#8CDFCB;
+  }
+  .cfg-eyebrow i{width:26px;height:1px;background:linear-gradient(90deg,#8CDFCB,rgba(140,223,203,0))}
+  .cfg-head h2{margin-top:20px;font-size:clamp(27px,3.5vw,44px);line-height:1.2;letter-spacing:-.04em;color:#fff}
+  .cfg-head h2 em{font-style:normal;color:#8CDFCB}
+  .cfg-lead{margin-top:18px;max-width:31em;font-size:15.5px;line-height:1.8;color:#AEB7BC}
+  .cfg-act{grid-area:act;align-self:end}
+  .cfg-tabs{display:flex;flex-wrap:wrap;gap:8px}
+  .cfg-tabs li{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:7px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.045);color:#CFD8DB;font-size:12px;font-weight:600;letter-spacing:-.01em;
+  }
+  .cfg-tabs li b{color:#8CDFCB;font-weight:800}
+  .cfg-btns{display:flex;flex-wrap:wrap;align-items:center;gap:11px;margin-top:22px}
+  .cfg-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    padding:16px 26px;border-radius:999px;
+    background:linear-gradient(180deg,#37B79D 0%,#2E9C86 100%);color:#fff;
+    font-size:15.5px;font-weight:800;letter-spacing:-.015em;line-height:1.25;
+    box-shadow:0 16px 34px -14px rgba(46,156,134,.8),inset 0 1px 0 rgba(255,255,255,.22);
+    transition:transform .22s var(--ease),box-shadow .22s,background .22s;
+  }
+  .cfg-btn:hover{transform:translateY(-2px);box-shadow:0 22px 42px -16px rgba(46,156,134,.95),inset 0 1px 0 rgba(255,255,255,.3)}
+  .cfg-btn .ar{transition:transform .24s var(--ease)}
+  .cfg-btn:hover .ar{transform:translateX(4px)}
+  .cfg-btn:focus-visible{outline:2px solid #8CDFCB;outline-offset:3px}
+  .cfg-tel{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:15px 21px;border-radius:999px;border:1px solid rgba(255,255,255,.28);
+    color:#fff;font-size:14px;font-weight:700;letter-spacing:-.01em;
+    transition:background .22s,border-color .22s,transform .22s var(--ease);
+  }
+  .cfg-tel:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.5);transform:translateY(-2px)}
+  .cfg-tel:focus-visible{outline:2px solid #8CDFCB;outline-offset:3px}
+  .cfg-note{margin-top:14px;font-size:12px;line-height:1.6;color:#7E8A90}
+
+  .cfg-visual{
+    grid-area:vis;position:relative;display:block;overflow:hidden;
+    border-radius:22px;border:1px solid rgba(255,255,255,.14);background:#141A1D;
+    aspect-ratio:4/3.4;align-self:center;
+    box-shadow:0 34px 70px -40px rgba(0,0,0,.95);
+    transition:border-color .3s,box-shadow .3s,transform .3s var(--ease);
+  }
+  .cfg-visual:hover{border-color:rgba(140,223,203,.45);transform:translateY(-3px)}
+  .cfg-visual:focus-visible{outline:2px solid #8CDFCB;outline-offset:4px}
+  .cfg-visual img{width:100%;height:100%;object-fit:cover;object-position:50% 54%;transition:transform .9s var(--ease)}
+  .cfg-visual:hover img{transform:scale(1.04)}
+  .cfg-visual::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(14,17,19,0) 44%,rgba(10,13,15,.78) 100%);
+  }
+  .cfg-flag{
+    position:absolute;left:16px;top:16px;z-index:2;
+    display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;
+    background:rgba(14,17,19,.62);border:1px solid rgba(255,255,255,.2);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    font-size:10px;font-weight:800;letter-spacing:.18em;color:#EAF3F0;
+  }
+  .cfg-flag i{width:6px;height:6px;border-radius:50%;background:#8CDFCB;animation:cfgPulse 2.6s ease-out infinite}
+  @keyframes cfgPulse{
+    0%{box-shadow:0 0 0 0 rgba(140,223,203,.55)}
+    70%{box-shadow:0 0 0 7px rgba(140,223,203,0)}
+    100%{box-shadow:0 0 0 0 rgba(140,223,203,0)}
+  }
+  .cfg-strip{
+    position:absolute;left:0;right:0;bottom:0;z-index:2;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+    padding:clamp(16px,2vw,24px);
+  }
+  .cfg-model b{display:block;font-size:10.5px;font-weight:800;letter-spacing:.22em;color:#8CDFCB}
+  .cfg-model span{display:block;margin-top:6px;font-size:13.5px;font-weight:700;color:#F0F4F2;letter-spacing:-.01em}
+  .cfg-strip-r{display:flex;align-items:center;gap:12px}
+  .cfg-sw{display:flex;gap:6px}
+  .cfg-sw i{width:17px;height:17px;border-radius:50%;border:1px solid rgba(255,255,255,.45);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  .cfg-open{
+    display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    font-size:12px;font-weight:800;color:#fff;letter-spacing:-.01em;white-space:nowrap;
+  }
+  .cfg-open em{font-style:normal;transition:transform .24s var(--ease)}
+  .cfg-visual:hover .cfg-open em{transform:translateX(4px)}
+  @media (prefers-reduced-motion:reduce){
+    .cfg-flag i{animation:none}
+    .cfg-visual,.cfg-visual img,.cfg-btn,.cfg-tel{transition:none}
+  }
 
   /* ============ faq ============ */
   .faq-list{margin-top:38px;border-top:1px solid var(--line);max-width:900px}
@@ -605,6 +722,9 @@
     .used-points{grid-template-columns:1fr;gap:0}
     .used-points div{padding:16px 0 18px;border-top:1px solid var(--line)}
     .used-points div:last-child{border-bottom:1px solid var(--line)}
+    .cfg-in{grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"head" "vis" "act";row-gap:clamp(22px,3.4vw,32px)}
+    .cfg-act{align-self:start}
+    .cfg-visual{aspect-ratio:4/3.15}
   }
   @media (max-width:880px){
     .nav{display:none}
@@ -661,6 +781,16 @@
     .mbar a svg{width:19px;height:19px}
     .mbar a.primary{flex:1.5;background:var(--accent);color:#fff}
     .site-foot{padding-bottom:100px}
+    .cfg-band{padding:clamp(50px,10vw,72px) 0}
+    .cfg-lead{font-size:15px}
+    .cfg-tabs li{font-size:11.5px;padding:6px 11px}
+    .cfg-btns{margin-top:20px}
+    .cfg-btn,.cfg-tel{flex:1 1 100%;padding:15px 18px;font-size:15px}
+    .cfg-visual{aspect-ratio:4/3.4;border-radius:18px}
+    .cfg-strip{padding:15px 16px;gap:10px}
+    .cfg-sw{display:none}
+    .cfg-open{padding:7px 12px;font-size:11.5px}
+    .cfg-note{font-size:11.5px}
   }
 
   /* ============ used market (supabase) ============ */
@@ -861,6 +991,7 @@
     <a href="#products">제품안내</a>
     <a href="#used">중고매물</a>
     <a href="#reviews">사용후기</a>
+    <a class="drawer-pill drawer-3d" href="configurator.html">3D 커스텀 체험 <span aria-hidden="true">→</span></a>
     <a class="drawer-pill" href="quote.html">신규 간편 견적 <span aria-hidden="true">→</span></a>
     <a class="drawer-pill" href="relocation.html">이전설치 간편 견적 <span aria-hidden="true">→</span></a>
     <a class="btn btn-primary drawer-cta" href="tel:01030015906">전화 상담 010-3001-5906</a>
@@ -1037,6 +1168,46 @@
             </dl>
             <span class="foot">이전 안내 보기 <span aria-hidden="true">→</span></span>
           </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3D 커스텀 체험 — 포르쉐 Build Your Own 감성의 다크 배너 -->
+    <section class="cfg-band" id="home-3d" aria-labelledby="cfgTitle">
+      <div class="wrap">
+        <div class="cfg-in">
+          <div class="cfg-head rv">
+            <span class="cfg-eyebrow"><i aria-hidden="true"></i>Build Your Own · 3D Configurator</span>
+            <h2 id="cfgTitle">내 부스를, <em>3D로 먼저</em><br>완성해 보세요</h2>
+            <p class="cfg-lead">색상 · 타공 · 조명 · 시창 위치까지. 부스를 돌려 보고 눌러서 바꾸면, 그 조합 그대로 견적 상담까지 이어집니다.</p>
+          </div>
+
+          <a class="cfg-visual rv" href="configurator.html" aria-label="3D 커스텀 체험 열기 — 나만의 방음부스 조합하기">
+            <img src="assets/clinic-interior-cob.jpg" alt="화이트 라인타공 한 면과 베이지 아트보드, COB 매립등 2구로 마감한 부스 내부." loading="lazy" decoding="async">
+            <span class="cfg-flag"><i aria-hidden="true"></i>3D CONFIGURATOR</span>
+            <div class="cfg-strip">
+              <div class="cfg-model"><b>SUPER SINGLE</b><span>1,500 × 1,800</span></div>
+              <div class="cfg-strip-r">
+                <span class="cfg-sw" aria-hidden="true"><i style="background:#DCC9A9"></i><i style="background:#E0CBA6"></i><i style="background:#2E9C86"></i></span>
+                <span class="cfg-open">3D 커스텀 체험 <em aria-hidden="true">→</em></span>
+              </div>
+            </div>
+          </a>
+
+          <div class="cfg-act rv">
+            <ul class="cfg-tabs" aria-label="3D에서 바꿔 볼 수 있는 항목">
+              <li>아트보드 <b>12색</b></li>
+              <li>라인타공 <b>8종</b></li>
+              <li>타공 위치 <b>좌 · 후 · 우</b></li>
+              <li>조명 <b>COB · 레일</b></li>
+              <li>시창 <b>· 이중창</b></li>
+            </ul>
+            <div class="cfg-btns">
+              <a class="cfg-btn" href="configurator.html">나만의 방음부스 3D로 조합해 보기 <span class="ar" aria-hidden="true">→</span></a>
+              <a class="cfg-tel" href="tel:01030015906">전화 상담 010-3001-5906</a>
+            </div>
+            <p class="cfg-note">설치 없이 브라우저에서 바로 열립니다 · 만든 사양은 그대로 상담에 넘어갑니다</p>
+          </div>
         </div>
       </div>
     </section>
@@ -1932,6 +2103,7 @@
         <a href="#used">중고매물</a>
         <a href="#reviews">사용후기</a>
         <a href="#contact">상담문의</a>
+        <a href="configurator.html">3D 커스텀 체험</a>
       </nav>
     </div>
     <div class="foot-info">
