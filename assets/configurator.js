@@ -103,6 +103,14 @@ const PROJECTS = [
   { v:'none', label:'없음' },
   { v:'in',   label:'포함' }
 ];
+/* 시창·타공판을 놓을 수 있는 세 벽 (문은 항상 정면) */
+const WALLS3 = [
+  { v:'left',  label:'좌측' },
+  { v:'back',  label:'후면' },
+  { v:'right', label:'우측' }
+];
+const WALL_LABEL = { left:'좌측', back:'후면', right:'우측' };
+const FREE_ORDER = ['back', 'left', 'right'];
 const PRESETS = [
   { id:'studio', label:'스튜디오 베스트', sw:['#D8C6A6','#E0CBA6','#C6A47E'], set:{ artboard:'beige',  slat:'maple',     floor:'oak',   light:'cob4000' } },
   { id:'clean',  label:'클린 화이트',     sw:['#E7E5E1','#DFDBD0','#E4DDD0'], set:{ artboard:'white',  slat:'whitewash', floor:'pine',  light:'cob4000' } },
@@ -117,7 +125,7 @@ const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
 const state = {
   model:'ss', w:1500, d:1800,
   artboard:'beige', slat:'maple', slatPos:'back', light:'cob4000', floor:'oak', ledTemp:'4000',
-  door:'right', hinge:'right', open:false, window:'none', project:'none', ac:false,
+  door:'right', hinge:'right', open:false, window:'none', winPos:'left', project:'none', ac:false,
   view:'photo'
 };
 
@@ -142,6 +150,44 @@ const pick = (arr, v) => arr.find(o => o.v === v) || arr[0];
 
 /* ============================ [3] UI ============================ */
 const panel = $('#panelBody');
+
+/* 문(정면) 기준 배치도 — 지금 고른 벽을 진하게, 같이 놓는 다른 요소는 연하게 */
+function miniPlan(kind){
+  const slat = state.slatPos || 'back';
+  const win = state.winPos || 'left';
+  const mine = kind === 'slat' ? slat : win;
+  const other = kind === 'slat' ? win : slat;
+  const mineCol = kind === 'slat' ? '#9A7448' : '#2E9C86';
+  const otherCol = kind === 'slat' ? '#2E9C86' : '#9A7448';
+  const line = (wall) => {
+    if (wall === 'back')  return 'x1="8" y1="8" x2="52" y2="8"';
+    if (wall === 'left')  return 'x1="8" y1="8" x2="8" y2="64"';
+    if (wall === 'right') return 'x1="52" y1="8" x2="52" y2="64"';
+    return 'x1="8" y1="64" x2="52" y2="64"';
+  };
+  return `<svg class="plan" viewBox="0 0 60 78" aria-hidden="true">
+    <rect x="8" y="8" width="44" height="56" rx="3" fill="#FBF8F2" stroke="#DDD7C9" stroke-width="1.5"/>
+    <line x1="8" y1="64" x2="23" y2="64" stroke="#DDD7C9" stroke-width="1.5"/>
+    <line x1="37" y1="64" x2="52" y2="64" stroke="#DDD7C9" stroke-width="1.5"/>
+    <line ${line(other)} stroke="${otherCol}" stroke-width="3" stroke-linecap="round" opacity=".32"/>
+    <line ${line(mine)} stroke="${mineCol}" stroke-width="5.5" stroke-linecap="round"/>
+    <text x="30" y="74" text-anchor="middle" font-size="7.5" fill="#8A867E">문</text>
+  </svg>`;
+}
+function posBlock(kind){
+  const isSlat = kind === 'slat';
+  const group = isSlat ? 'slatPos' : 'winPos';
+  return `<div class="pos-block">
+    <span class="planwrap" data-plan="${kind}">${miniPlan(kind)}</span>
+    <div class="pos-body">
+      <div class="pos-h"><b>${isSlat ? '타공판 위치' : '시창 위치'}</b><small>문 기준 · 좌/후/우</small></div>
+      <div class="seg three">
+        ${WALLS3.map(w => `<button type="button" data-group="${group}" data-value="${w.v}" aria-pressed="false">${w.label}</button>`).join('')}
+      </div>
+      <p class="pos-note" data-posnote="${kind}"></p>
+    </div>
+  </div>`;
+}
 
 function buildPanel(){
   panel.innerHTML = `
@@ -193,12 +239,7 @@ function buildPanel(){
           <span class="cc" style="--c:${s.hex}"></span><span class="cl">${s.label}</span>
         </button>`).join('')}
       </div>
-      <div style="margin-top:10px;font-size:12px;color:#5c656b;font-weight:600">타공판 위치</div>
-      <div class="seg three" style="margin-top:6px">
-        <button type="button" data-group="slatPos" data-value="left" aria-pressed="false">좌측</button>
-        <button type="button" data-group="slatPos" data-value="back" aria-pressed="true">후면</button>
-        <button type="button" data-group="slatPos" data-value="right" aria-pressed="false">우측</button>
-      </div>
+      ${posBlock('slat')}
       <p class="note">RG-LT3203 라인타공 8종. 슬랫 사이로는 검정 흡음 펠트가 보입니다.</p>
     </section>
 
@@ -248,6 +289,7 @@ function buildPanel(){
         <div class="seg three">
           ${WINDOWS.map(w => `<button type="button" data-group="window" data-value="${w.v}" aria-pressed="false">${w.label}</button>`).join('')}
         </div>
+        ${posBlock('win')}
       </div>
 
       <div class="row" style="display:block">
@@ -292,6 +334,22 @@ function onPanelClick(e){
   if (group === 'model'){
     const m = MODELS.find(x => x.id === value);
     if (m){ state.model = m.id; state.w = m.w; state.d = m.d; syncUI(); rebuild(); }
+    return;
+  }
+  if (group === 'slatPos' || group === 'winPos'){
+    state[group] = value;
+    /* 시창과 타공판은 같은 벽에 함께 시공할 수 없습니다 — 방금 고른 쪽을 남기고 다른 쪽을 빈 벽으로 옮깁니다 */
+    if ((state.winPos || 'left') === (state.slatPos || 'back')){
+      const moveKey = group === 'slatPos' ? 'winPos' : 'slatPos';
+      const target = FREE_ORDER.find(w => w !== value) || 'back';
+      state[moveKey] = target;
+      showToast(`${group === 'slatPos' ? '시창' : '타공판'}을 ${WALL_LABEL[target]} 벽으로 함께 옮겼습니다. 같은 벽에는 같이 시공할 수 없습니다.`);
+    }
+    if (group === 'winPos' && state.window === 'none'){
+      showToast(`${WALL_LABEL[value]} 벽으로 지정했습니다. 시창 종류를 고르면 그 벽에 시공됩니다.`);
+    }
+    syncUI();
+    rebuild();
     return;
   }
   if (group === 'window') state.window = value;
@@ -339,7 +397,8 @@ function specRows(){
   rows.push({ k:'바닥', v:f.label, chg:state.floor !== DEFAULTS.floor, chip:f.hex, sub:'강화마루' });
   rows.push({ k:'문', v:`${d.label} · ${state.hinge === 'right' ? '우경첩' : '좌경첩'}`, chg:(state.door !== DEFAULTS.door || state.hinge !== 'right'), chip:'', sub:'시스템도어' });
   const winSpec = pick(WINDOWS, state.window);
-  rows.push({ k:'시창', v:(state.window === 'none' ? '없음' : (winSpec.isDouble ? '이중창 1,200×800' : `${winSpec.label} 시창`)), chg:state.window !== 'none', chip:'', sub:winSpec.sub || '' });
+  const winPosLabel = WALL_LABEL[state.winPos || 'left'];
+  rows.push({ k:'시창', v:(state.window === 'none' ? '없음' : (winSpec.isDouble ? '이중창 1,200×800' : `${winSpec.label} 시창`) + ` · ${winPosLabel}`), chg:(state.window !== 'none' || (state.winPos && state.winPos !== 'left')), chip:'', sub:(state.window === 'none' ? '' : `${winPosLabel} 벽`) });
   rows.push({ k:'프로젝트창', v:(state.project === 'in' ? '포함' : '없음'), chg:state.project === 'in', chip:'', sub:'천장 개폐형' });
   return rows;
 }
@@ -376,6 +435,15 @@ function syncUI(){
     const on = state[b.dataset.group] === b.dataset.value;
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.classList.toggle('on', on);
+  });
+  /* 배치도·안내문도 현재 선택을 따라갑니다 */
+  panel.querySelectorAll('[data-plan]').forEach(el => { el.innerHTML = miniPlan(el.dataset.plan); });
+  panel.querySelectorAll('[data-posnote]').forEach(el => {
+    el.textContent = el.dataset.posnote === 'slat'
+      ? '시창과 같은 벽이 되면 시창이 옆 벽으로 이동합니다.'
+      : (state.window === 'none'
+          ? '시창 종류를 고르면 선택한 벽에 시공됩니다.'
+          : '타공판과 같은 벽이 되면 타공판이 옆 벽으로 이동합니다.');
   });
   const lockRail = railRequired();
   panel.querySelectorAll('[data-group="light"]').forEach(b => {
@@ -1825,13 +1893,15 @@ function rebuild(){
   const W = state.w/1000, D = state.d/1000;
   const doorName = 'front';
   const slatName = state.slatPos || 'back';
-  const winWall = (slatName === 'left') ? 'right' : 'left';
+  const winWall = (state.winPos && state.winPos !== slatName) ? state.winPos : (slatName === 'left' ? 'right' : 'left');
   const perp = ['left','right'];
 
   const doorX0 = doorX0Of(), doorW = DOOR_W;
   const doorOpen = { x0: doorX0, y0: 0, w: doorW, h: H };
   const wSpec = pick(WINDOWS, state.window);
-  const winW = (wSpec && wSpec.w > 0) ? Math.min(wSpec.w, Math.max(0.4, D - 0.36)) : 0;
+  /* 시창 폭은 그 벽의 안쪽 폭에 맞춰 줄입니다 (후면은 가로, 옆벽은 세로 기준) */
+  const winAvail = Math.max(0.4, (wallDesc(winWall).innerW || D) - 0.36);
+  const winW = (wSpec && wSpec.w > 0) ? Math.min(wSpec.w, winAvail) : 0;
   const winOpen = winW > 0 ? { x0: -winW/2, y0: 1.08, w: winW, h: wSpec.h } : null;
 
   const walls = {};
@@ -1950,7 +2020,7 @@ function rebuild(){
 
   parts.walls = walls;
   booth.updateMatrixWorld(true);
-  buildHotspots(walls, slatName, doorName, perp);
+  buildHotspots(walls, slatName, doorName, perp, winWall);
   buildDimensions(W, D);
   applyViewState();
   scene.add(booth);
@@ -2260,7 +2330,7 @@ function addHotspot(pos, label, scope = 'all'){
   $('#hsLayer').appendChild(el);
   hotspots.push({ el, pos, scope });
 }
-function buildHotspots(walls, slatName, doorName, perp){
+function buildHotspots(walls, slatName, doorName, perp, winWall){
   const slat = walls[slatName];
   if (slat){
     const inward = new THREE.Vector3(0,0,1).applyQuaternion(slat.quaternion);
@@ -2276,7 +2346,8 @@ function buildHotspots(walls, slatName, doorName, perp){
   if (state.window !== 'none'){
     const wSpec = pick(WINDOWS, state.window);
     const wLabel = wSpec.isDouble ? '이중창 1,200×800' : `시창 ${wSpec.label}`;
-    addHotspot(wallPoint(perp[0], 0, 1.52, T/2).addScaledVector(wallInward(perp[0]), 0.05), wLabel);
+    const wall = winWall || perp[0];
+    addHotspot(wallPoint(wall, 0, 1.52, T/2).addScaledVector(wallInward(wall), 0.05), wLabel);
   }
   if (state.project === 'in' && parts.projectAnchor) addHotspot(parts.projectAnchor.clone(), '프로젝트창', 'in');
   if (state.ac){
@@ -2357,7 +2428,11 @@ function preloadPhotoWins(){
     'slat_nocob': 'assets/slat-nocob.png?v=4',
     'side_left': 'assets/side-slat-left.png?v=1',
     'side_right': 'assets/side-slat-right.png?v=1',
-    'back_art': 'assets/back-artboard.png?v=1'
+    'back_art': 'assets/back-artboard.png?v=1',
+    'back_600x800': 'assets/win-600x800-back.png?v=1',
+    'back_800x800': 'assets/win-800x800-back.png?v=1',
+    'back_1200x800': 'assets/win-1200x800-back.png?v=1',
+    'back_double1200': 'assets/win-double-back.png?v=1'
   };
   const dataTargets = {
     'slat_nocob': 'nocobOrig',
@@ -2430,11 +2505,17 @@ function initPhotoCache(cb){
 }
 function drawPhotoWindow(ctx, W, H, winVal){
   if (!winVal || winVal === 'none') return;
-  const im = photoWinImgs[winVal];
+  /* 시창 위치: 좌측은 오른쪽 벽용 원본을 좌우 반대로, 후면은 후면 벽용으로 미리 만든 이미지를 썺니다 */
+  const pos = state.winPos || 'left';
+  const im = photoWinImgs[pos === 'back' ? `back_${winVal}` : winVal];
   if (!im || !im.complete || !im.naturalWidth) return;
   ctx.save();
   if (winVal === 'double1200') ctx.filter = 'drop-shadow(-4px 4px 6px rgba(0,0,0,0.28))';
   else ctx.filter = 'drop-shadow(-2px 2px 3px rgba(0,0,0,0.14))';
+  if (pos === 'left'){
+    ctx.translate(W, 0);
+    ctx.scale(-1, 1);
+  }
   ctx.drawImage(im, 0, 0, W, H);
   ctx.restore();
 }
