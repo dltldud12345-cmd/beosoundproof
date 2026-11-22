@@ -2457,12 +2457,12 @@ function drawPhotoWindow(ctx, W, H, winVal){
   ctx.closePath();
   ctx.fill();
 
-  // 이중창이면 중간 미닫이 프레임 바 추가
+  // 이중창이면 중간 미닫이 프레임 바 추가 (유리 안쪽 높이 정확히 맞춤)
   if (isDouble){
-    const mTop = [(gTL[0] + gTR[0]) * 0.48, (gTL[1] + gTR[1]) * 0.48];
-    const mBot = [(gBL[0] + gBR[0]) * 0.48, (gBL[1] + gBR[1]) * 0.48];
+    const mTop = [gTL[0] + (gTR[0] - gTL[0]) * 0.48, gTL[1] + (gTR[1] - gTL[1]) * 0.48];
+    const mBot = [gBL[0] + (gBR[0] - gBL[0]) * 0.48, gBL[1] + (gBR[1] - gBL[1]) * 0.48];
     ctx.strokeStyle = '#ECE9E2';
-    ctx.lineWidth = 7;
+    ctx.lineWidth = 6;
     ctx.beginPath(); ctx.moveTo(mTop[0], mTop[1]); ctx.lineTo(mBot[0], mBot[1]); ctx.stroke();
     ctx.strokeStyle = '#8F897D';
     ctx.lineWidth = 1.5;
