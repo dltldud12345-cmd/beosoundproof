@@ -445,7 +445,7 @@
           <p class="rsub" id="ref-sub">연베이지 3면 · 005 메이플 1면</p>
           <p class="rpoint" id="ref-point">가장 많이 찾는 조합입니다. 조합을 고르시면 그 조합의 실제 시공 사진으로 바뀝니다.</p>
           <div class="rgal" id="ref-gallery" hidden></div>
-          <a class="rbtn" id="ref-3d" href="configurator.html" target="_blank" rel="noopener" hidden>3D로 직접 입혀보기 <span aria-hidden="true">→</span></a>
+          <a class="rbtn" id="ref-3d" href="configurator.html" target="_blank" rel="noopener">3D로 직접 입혀보기 <span aria-hidden="true">→</span></a>
         </div>
       </aside>
 
@@ -1121,7 +1121,7 @@
       refPhoto(item);
       if (pill) pill.textContent = item.pill;
       if (g) g.hidden = true;
-      if (btn) btn.hidden = true;
+      if (btn) btn.hidden = false;
     }
     if (name) name.textContent = titleText;
     if (sub) sub.textContent = subText;
