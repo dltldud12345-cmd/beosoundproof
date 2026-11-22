@@ -419,6 +419,9 @@
   @media (max-width:680px){
     .kpi-row{grid-template-columns:repeat(2,1fr)}
     .spec-grid{grid-template-columns:repeat(2,1fr)}
+    /* 크기(1,600 × 1,800 × 2,800 mm) 값이 'mm'만 다음 줄로 떨어지지 않게 전체 폭 사용 */
+    .spec-item.spec-wide{grid-column:1 / -1}
+    .spec-item.spec-wide .sv{white-space:nowrap}
     .route{grid-template-columns:1fr;gap:6px}
     .rarrow{display:none}
     /* 진행 단계 5버튼(신규·상담중·계약금 입금·예약중·설치 완료)을 한 줄에 유지 */
@@ -1956,7 +1959,7 @@ function openContractModal(q){
       + '<div class="spec-grid">'
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
-      + '  <div class="spec-item"><div class="sl">크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
+      + '  <div class="spec-item spec-wide"><div class="sl">크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv" data-inst-sv="' + esc(q.id) + '">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
       + routeHtml
