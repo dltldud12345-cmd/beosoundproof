@@ -1916,8 +1916,8 @@ function openContractModal(q){
       + '  <div class="qacts">'
       + (phoneDigits ? '<a class="abtn solid" href="tel:' + esc(phoneDigits) + '">📞 전화</a>' : '')
       + (phoneDigits ? '<a class="abtn" href="sms:' + esc(phoneDigits) + '">💬 문자</a>' : '')
-      + '    <a class="abtn" href="configurator.html?' + simQ + '" target="_blank" rel="noopener">🎨 시뮬레이터</a>'
-      + '    <a class="abtn" href="blueprint.html?' + simQ + '" target="_blank" rel="noopener">📐 설계도</a>'
+      + (isNewTab ? '    <a class="abtn" href="configurator.html?' + simQ + '" target="_blank" rel="noopener">🎨 시뮬레이터</a>' : '')
+      + (isNewTab ? '    <a class="abtn" href="blueprint.html?' + simQ + '" target="_blank" rel="noopener">📐 설계도</a>' : '')
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
       + '    <button type="button" class="abtn" data-qcontract="' + esc(q.id) + '">📋 계약 안내 복사</button>'
       + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
