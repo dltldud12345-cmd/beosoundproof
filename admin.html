@@ -892,33 +892,97 @@
 
 /* ---------- 📋 계약 안내 복사 · 🖼️ 계약서 이미지 ---------- */
   var BANK_LINE = "베오방음(기업은행) 301-115608-04-019";
+  /* 공급자(사업자) 정보 — 실제 견적서 기준 */
+  var SUPPLIER = {
+    name: "베오방음",
+    rep: "이시영",
+    regNo: "412-29-01799",
+    addr: "경기도 김포시 김포한강10로133번길 127, 530-AC06호(구래동)",
+    biz: "건설업 / 인테리어 방음부스",
+    tel: "010-3001-5906",
+    bank: BANK_LINE
+  };
 function won0(v){ return (v === "" || v == null || isNaN(v)) ? "___" : Number(v).toLocaleString("ko-KR"); }
+function memoField(q, label){
+  var l = String(label).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  var m = String(q.memo || "").match(new RegExp("\\[" + l + "\\]\\s*([^\\n\\r]+)"));
+  return m ? m[1].trim() : "";
+}
+/* 신규설치 사양표 — 외부/내부 규격 + 색상·문·바닥·조명·창·옵션 */
+function specRowsFor(q){
+  var pm = parseMemo(q.memo), sim = pm.sim || null;
+  var w = Number(q.width_mm || (sim && sim.w) || 0);
+  var dp = Number(q.depth_mm || (sim && sim.d) || 0);
+  var hg = Number(q.height_mm || 0);
+  var rows = [], mm = function(v){ return Number(v).toLocaleString("ko-KR"); };
+  if (w && dp){
+    rows.push(["외부 규격", mm(w) + " × " + mm(dp) + (hg ? " × " + mm(hg) : "") + " mm"]);
+    rows.push(["내부 규격", mm(Math.max(0, w - 240)) + " × " + mm(Math.max(0, dp - 240)) + " × 2,000 mm (외부 −240mm 기준)"]);
+  }
+  var ab = (sim && sim.ab ? (ARTBOARD_LABEL[sim.ab] || sim.ab) : "") || memoField(q, "아트보드 3면");
+  var sl = (sim && sim.sl ? (SLAT_LABEL[sim.sl] || sim.sl) : "") || memoField(q, "라인타공 1면");
+  if (ab || sl){
+    var fin = [];
+    if (ab) fin.push("아트보드 3면 " + ab);
+    if (sl) fin.push("라인타공 1면 " + sl + (sim && sim.sp ? " (" + (WALL_LABEL[sim.sp] || "") + "면)" : ""));
+    rows.push(["마감 색상", fin.join(" · ")]);
+  }
+  var door = "";
+  if (sim && sim.door) door = (DOOR_LABEL[sim.door] || sim.door) + " · " + (sim.hg === "left" ? "좌경첩" : "우경첩");
+  else door = memoField(q, "문");
+  if (door) rows.push(["출입문", door]);
+  var fl = (sim && sim.fl ? (FLOOR_LABEL[sim.fl] || sim.fl) : "") || memoField(q, "바닥마감재");
+  if (fl) rows.push(["바닥 마감재", fl]);
+  var light = sim ? (sim.light === "rail" ? "레일등" : "COB 매립등 2구") : memoField(q, "조명");
+  var cen = sim && sim.lt ? (sim.lt === "6500" ? "중앙등 주광색 6500K" : "중앙등 주백색 4000K")
+    : (memoField(q, "중앙등") ? "중앙등 " + memoField(q, "중앙등") : "");
+  if (light || cen) rows.push(["조명", [light, cen].filter(Boolean).join(" · ")]);
+  var win = sim ? ((sim.win && sim.win !== "none") ? ((WIN_LABEL[sim.win] || sim.win) + " · " + (WALL_LABEL[sim.wp] || "좌") + "면") : "없음")
+    : memoField(q, "창문");
+  if (win) rows.push(["창문", win]);
+  var extra = [];
+  var opt = memoField(q, "추가 옵션");
+  if (opt) extra.push(opt);
+  if (memoField(q, "방염 자재")) extra.push("방염 자재 적용");
+  if (sim && sim.pr === "in") extra.push("프로젝트창 포함");
+  if (memoField(q, "에어컨 상담")) extra.push("에어컨 상담");
+  rows.push(["추가 옵션", extra.join(" · ") || "없음"]);
+  rows.push(["스위치 · 콘센트", "세로 2구 콘센트 기본 포함"]);
+  return rows;
+}
+/* 공통 안내(비고) — 신규는 제작·취소·환불 문구 포함, 이전은 제외 */
+function notesFor(isNewB){
+  var n = [
+    "본 견적서의 유효기간은 견적일로부터 7일간입니다.",
+    "우천·폭설 등 기상 상황에 따라 일정이 연기될 수 있습니다.",
+    "부득이하게 사다리차 사용이 필요한 경우 해당 비용은 고객 부담입니다."
+  ];
+  if (isNewB) n.push("주문 확정 후 약 14일 이후 공급(시공)되며, 맞춤 제작 특성상 입금 후 제작 시작 시 취소·환불이 불가합니다.");
+  n.push("사후 관리는 시공 완료일로부터 1년간 제공됩니다.");
+  return n;
+}
 function contractData(q){
   var isNewB = isNewBoothQuote(q);
-  var pm = parseMemo(q.memo);
   var inst = installOf(q);
   var m = moneyOf(q);
   var pay = payOf(q);
-  var work;
-  if (isNewB){
-    var sim = pm.sim || { w: q.width_mm, d: q.depth_mm };
-    var bits = [];
-    if (sim && sim.w) bits.push(Number(sim.w).toLocaleString("ko-KR") + "×" + Number(sim.d).toLocaleString("ko-KR") + " 신규 부스");
-    simBadges(sim).slice(1).forEach(function(b){ bits.push(b[0] + " " + b[1]); });
-    work = "신규 부스 사양: " + (bits.join(" · ") || "상담 확정 사양");
-  } else {
-    work = "이전 제품: " + (q.booth_type || "유형 미상") + (q.brand ? " (" + q.brand + ")" : "") + " · " + sizeLine(q);
-  }
+  var work = isNewB
+    ? "신규 부스 맞춤 제작 · 설치"
+    : ("이전 제품: " + (q.booth_type || "유형 미상") + (q.brand ? " (" + q.brand + ")" : "") + " · " + sizeLine(q));
   var route = isNewB
     ? (q.to_region || "설치 주소 미기재")
     : ((q.from_region || "출발지 미기재") + " → " + (q.to_region || "도착지 미기재"));
   return {
     kind: isNewB ? "신규설치" : "이전설치",
+    isNew: isNewB,
     name: q.customer_name || "-",
     phone: q.customer_phone || "-",
     supply: m.supply, vat: m.vat, total: m.total, deposit: m.deposit, balance: m.balance,
     pay: pay,
     work: work, route: route,
+    specs: isNewB ? specRowsFor(q) : [],
+    notes: notesFor(isNewB),
+    supplier: SUPPLIER,
     date: inst.date ? fmtDay(inst.date) + (inst.time ? " " + inst.time : "") : (q.desired_date ? fmtDay(q.desired_date) + " (희망)" : "확정 예정")
   };
 }
@@ -932,26 +996,40 @@ function payVatLine(d){
 }
 function contractText(q){
   var d = contractData(q);
-  return [
-    "[방음부스 " + d.kind + " 계약 안내]",
-    "",
-    payVatLine(d).join("\n"),
-    "• 결제 방식",
-    "1. 계약금: " + won0(d.deposit) + "원 (예약 확정 시)",
-    "2. 잔금: " + won0(d.balance) + "원 (공사 완료 후 현장 지급)",
-    "",
-    "• 입금 계좌: " + BANK_LINE,
-    "",
-    "[작업 정보]",
-    "• " + d.work,
-    "• " + d.route,
-    "• 작업일자: " + d.date,
-    "",
-    "위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.",
-    "",
-    "베오방음 (BEOSOUNDPROOF)",
-    "문의: 010-3001-5906"
-  ].filter(Boolean).join("\n");
+  var out = [];
+  out.push("[베오방음 방음부스 " + d.kind + " 견적·계약 안내서]");
+  out.push("");
+  out.push("■ 공급자");
+  out.push("• 상호: " + SUPPLIER.name + " · 대표: " + SUPPLIER.rep);
+  out.push("• 사업자등록번호: " + SUPPLIER.regNo);
+  out.push("• 주소: " + SUPPLIER.addr);
+  out.push("• 업태/종목: " + SUPPLIER.biz);
+  out.push("• 연락처: " + SUPPLIER.tel);
+  out.push("");
+  out.push("■ 고객 정보");
+  out.push("• 고객명: " + d.name + "    연락처: " + d.phone);
+  out.push("• 작업 구분: " + d.kind + "    작업일자: " + d.date);
+  out.push("• 설치 장소: " + d.route);
+  if (!d.isNew) out.push("• 작업 내용: " + d.work);
+  if (d.specs.length){
+    out.push("");
+    out.push("■ 사양 · 옵션");
+    d.specs.forEach(function(r){ out.push("• " + r[0] + ": " + r[1]); });
+  }
+  out.push("");
+  out.push("■ 계약 금액");
+  payVatLine(d).forEach(function(l){ out.push(l); });
+  out.push("• 결제 방식");
+  out.push("1. 계약금: " + won0(d.deposit) + "원 (예약 확정 시)");
+  out.push("2. 잔금: " + won0(d.balance) + "원 (공사 완료 후 현장 지급)");
+  out.push("• 입금 계좌: " + SUPPLIER.bank);
+  out.push("");
+  out.push("■ 유의 사항");
+  d.notes.forEach(function(n, i){ out.push((i + 1) + ". " + n); });
+  out.push("");
+  out.push("위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.");
+  out.push("베오방음 (BEOSOUNDPROOF) · " + SUPPLIER.tel);
+  return out.join("\n");
 }
 /* 🖼️ 전자 계약서 이미지 — 공식 로고 PNG를 먼저 불러온 뒤 그린다 (비율 유지) */
 var CONTRACT_LOGO_SRC = "assets/logo-horizontal-white.png?v=2";
@@ -1108,6 +1186,35 @@ function drawContract(c, W, H, d, q, logo){
   y = infoRow(y, [{ l: "작업 내용", v: d.work }]);
   y = infoRow(y, [{ l: "설치 장소", v: d.route }]);
 
+  /* ── 사양 · 옵션 표 (신규설치) ── */
+  function kvTable(yy, rows, lw){
+    lw = lw || 196;
+    rows.forEach(function(r, i){
+      var lines = wrap(r[1], CW - lw - 34, F(700, 16));
+      var h = Math.max(44, lines.length * 24 + 20);
+      if (H){
+        c.fillStyle = SOFT; c.fillRect(PAD, yy, lw, h);
+        c.fillStyle = i % 2 ? "#FCFBF8" : WHITE; c.fillRect(PAD + lw, yy, CW - lw, h);
+        c.strokeStyle = LINE; c.lineWidth = 1;
+        c.strokeRect(PAD + .5, yy + .5, lw - 1, h - 1);
+        c.strokeRect(PAD + lw + .5, yy + .5, CW - lw - 1, h - 1);
+        var base0 = lines.length === 1 ? yy + h / 2 + 6 : yy + 27;
+        c.textAlign = "left"; c.fillStyle = MUT; c.font = F(700, 14);
+        c.fillText(r[0], PAD + 14, base0 - 1);
+        c.fillStyle = INK; c.font = F(700, 16);
+        lines.forEach(function(line, li){ c.fillText(line, PAD + lw + 16, base0 + li * 24); });
+      }
+      yy += h;
+    });
+    return yy;
+  }
+  if (d.specs && d.specs.length){
+    y += 32;
+    y = sectionLabel("사양 · 옵션", y);
+    y += 10;
+    y = kvTable(y, d.specs, 196);
+  }
+
   /* ── 계약 금액 표 ── */
   y += 34;
   y = sectionLabel("계약 금액", y);
@@ -1174,6 +1281,36 @@ function drawContract(c, W, H, d, q, logo){
     c.fillText("301-115608-04-019", RIGHT - 20, y + 60);
   }
   y += accH;
+
+  /* ── 유의 사항 ── */
+  y += 30;
+  y = sectionLabel("유의 사항", y);
+  y += 10;
+  (d.notes || []).forEach(function(n, i){
+    var lines = wrap(n, CW - 30, F(600, 15));
+    if (H){
+      c.textAlign = "left"; c.fillStyle = ACC; c.font = F(800, 14.5);
+      c.fillText((i + 1) + ".", PAD + 2, y + 16);
+      c.fillStyle = BODY; c.font = F(600, 15);
+      lines.forEach(function(line, li){ c.fillText(line, PAD + 28, y + 16 + li * 23); });
+    }
+    y += lines.length * 23 + 8;
+  });
+
+  /* ── 공급자 정보 ── */
+  y += 22;
+  var supH = 120;
+  if (H){
+    c.fillStyle = "#FBFAF7"; c.beginPath(); c.roundRect(PAD, y, CW, supH, 10); c.fill();
+    c.strokeStyle = LINE; c.lineWidth = 1; c.stroke();
+    c.textAlign = "left"; c.fillStyle = MUT; c.font = F(700, 12);
+    c.fillText("공급자 정보", PAD + 16, y + 24);
+    c.fillStyle = INK; c.font = F(700, 15);
+    c.fillText("상호 " + SUPPLIER.name + "  ·  대표자 " + SUPPLIER.rep + "  ·  사업자등록번호 " + SUPPLIER.regNo, PAD + 16, y + 50);
+    c.fillText("주소 " + SUPPLIER.addr, PAD + 16, y + 74);
+    c.fillText("업태·종목 " + SUPPLIER.biz + "  ·  연락처 " + SUPPLIER.tel, PAD + 16, y + 98);
+  }
+  y += supH;
 
   /* ── 확정 문구 · 공식 확인(직인) ── */
   var footTop = y + 36, footH = 178;
