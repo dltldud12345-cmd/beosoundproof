@@ -476,6 +476,44 @@
   </div>
 </div>
 
+<div class="lb" id="edit-modal" hidden style="z-index:96">
+  <div style="width:min(500px,94vw);max-height:90dvh;overflow:auto;background:#fff;border-radius:18px;padding:16px;display:grid;gap:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <b style="font-size:15px;font-weight:800">✏️ 사양 · 주소 수정</b>
+      <button type="button" class="tbtn" id="edit-close">닫기</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;font-weight:700;color:var(--muted)">
+      <label style="display:grid;gap:4px">고객명<input id="ed-name" class="inst-in" style="text-align:left;padding:0 10px"></label>
+      <label style="display:grid;gap:4px">연락처<input id="ed-phone" class="inst-in" style="text-align:left;padding:0 10px"></label>
+      <label style="display:grid;gap:4px">부스 유형<input id="ed-type" class="inst-in" style="text-align:left;padding:0 10px" placeholder="싱글 / 세미더블 / 더블"></label>
+      <label style="display:grid;gap:4px">제조사 · 구분<input id="ed-brand" class="inst-in" style="text-align:left;padding:0 10px"></label>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:12px;font-weight:700;color:var(--muted)">
+      <label style="display:grid;gap:4px">가로(mm)<input id="ed-w" type="number" class="inst-in"></label>
+      <label style="display:grid;gap:4px">세로(mm)<input id="ed-d" type="number" class="inst-in"></label>
+      <label style="display:grid;gap:4px">높이(mm)<input id="ed-h" type="number" class="inst-in"></label>
+    </div>
+    <div id="ed-from-wrap" style="display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#FAF9F6;font-size:12px;font-weight:700;color:var(--muted)">
+      <label style="display:grid;gap:4px">해체(출발지) 주소<input id="ed-from" class="inst-in" style="text-align:left;padding:0 10px"></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <label style="display:grid;gap:4px">층수<input id="ed-ffl" class="inst-in" style="text-align:left;padding:0 10px"></label>
+        <label style="display:grid;gap:4px">엘리베이터<select id="ed-fel" class="inst-in"><option value="">미확인</option><option value="true">있음</option><option value="false">없음</option></select></label>
+      </div>
+    </div>
+    <div style="display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#F3FAF7;font-size:12px;font-weight:700;color:var(--muted)">
+      <label style="display:grid;gap:4px">설치(도착지) 주소<input id="ed-to" class="inst-in" style="text-align:left;padding:0 10px"></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <label style="display:grid;gap:4px">층수<input id="ed-tfl" class="inst-in" style="text-align:left;padding:0 10px"></label>
+        <label style="display:grid;gap:4px">엘리베이터<select id="ed-tel" class="inst-in"><option value="">미확인</option><option value="true">있음</option><option value="false">없음</option></select></label>
+      </div>
+    </div>
+    <label style="display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--muted)">고객 추가 메모
+      <textarea id="ed-note" rows="3" style="border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit"></textarea>
+    </label>
+    <button type="button" class="abtn solid" id="edit-save" style="width:100%;padding:12px;font-size:14px">💾 수정 내용 저장 (계약서·일정 자동 반영)</button>
+  </div>
+</div>
+
 <div class="lb" id="lb" hidden>
   <img id="lb-img" alt="사진 크게 보기">
   <div class="lb-bar">
@@ -526,6 +564,11 @@
     var o = readPipe();
     o[id] = Object.assign({}, o[id] || {}, patch, { at: new Date().toISOString() });
     writePipe(o);
+  }
+  function effectiveQuote(q){
+    var ov = pipeOf(q.id).ov;
+    if (!ov) return q;
+    return Object.assign({}, q, ov);
   }
   function stageOf(q){
     var p = pipeOf(q.id);
@@ -766,6 +809,7 @@
   }
   function stageLabel(v){ return (STAGE_BY_V[v] || STAGE_BY_V.new).label; }
   function formatCopyText(q){
+    q = effectiveQuote(q);
     var pm = parseMemo(q.memo);
     var isNewB = isNewBoothQuote(q);
     var out = [
@@ -1034,6 +1078,7 @@ function notesFor(isNewB){
   return n;
 }
 function contractData(q){
+  q = effectiveQuote(q);
   var isNewB = isNewBoothQuote(q);
   var inst = installOf(q);
   var m = moneyOf(q);
@@ -1517,7 +1562,8 @@ function openContractModal(q){
     return "일월화수목금토".charAt(d.getDay());
   }
   function schedItems(){
-    return state.quotes.map(function(q){
+    return state.quotes.map(function(rawQ){
+      var q = effectiveQuote(rawQ);
       var inst = installOf(q);
       var stage = stageOf(q);
       var date = inst.date || q.desired_date || "";
@@ -1786,6 +1832,7 @@ function openContractModal(q){
   }
 
   function renderQuoteCard(q, isNewTab){
+    q = effectiveQuote(q);
     var st = q.__stage || stageOf(q);
     var pm = parseMemo(q.memo);
     var inst = installOf(q);
@@ -1889,11 +1936,12 @@ function openContractModal(q){
 
     return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '" data-stage="' + st + '">'
       + '<div class="qs-head">'
-      + '  <div>'
+      + '  <div style="width:100%">'
       + '    <div class="qs-who">'
       + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
       + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
       + '      <span class="stage-tag" data-st="' + st + '">' + stageLabel(st) + '</span>'
+      + '      <button type="button" class="pay-chip" style="margin-left:auto" data-qedit="' + esc(q.id) + '">✏️ 수정</button>'
       + '    </div>'
       + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
       + '  </div>'
@@ -1911,7 +1959,7 @@ function openContractModal(q){
       + simHtml
       + instHtml
       + moneyHtml
-      + (pm.note ? '<div class="memo-box"><b style="display:block;font-size:11px;color:#8A6A1F;margin-bottom:3px">📝 고객 추가 메모</b>' + linkify(pm.note) + '</div>' : '')
+      + ((q.__noteOverride != null ? q.__noteOverride : pm.note) ? '<div class="memo-box"><b style="display:block;font-size:11px;color:#8A6A1F;margin-bottom:3px">📝 고객 추가 메모</b>' + linkify(q.__noteOverride != null ? q.__noteOverride : pm.note) + '</div>' : '')
       + (pm.listingUrl ? '<div class="memo-box"><b style="display:block;font-size:11px;color:#8A6A1F;margin-bottom:3px">🔗 매물 링크</b>' + linkify(pm.listingUrl) + '</div>' : '')
       + photosHtml
       + '<div class="qs-foot">'
@@ -2235,6 +2283,33 @@ function openContractModal(q){
         openContractModal(q);
       });
     });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qedit]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-qedit");
+        var raw = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!raw) return;
+        var q = effectiveQuote(raw);
+        var pm = parseMemo(q.memo);
+        var em = document.getElementById("edit-modal");
+        em.setAttribute("data-edit-id", id);
+        document.getElementById("ed-name").value = q.customer_name || "";
+        document.getElementById("ed-phone").value = q.customer_phone || "";
+        document.getElementById("ed-type").value = q.booth_type || "";
+        document.getElementById("ed-brand").value = q.brand || "";
+        document.getElementById("ed-w").value = q.width_mm || "";
+        document.getElementById("ed-d").value = q.depth_mm || "";
+        document.getElementById("ed-h").value = q.height_mm || "";
+        document.getElementById("ed-from-wrap").style.display = isNewBoothQuote(q) ? "none" : "grid";
+        document.getElementById("ed-from").value = q.from_region || "";
+        document.getElementById("ed-ffl").value = q.from_floor || "";
+        document.getElementById("ed-fel").value = q.from_elevator === true ? "true" : (q.from_elevator === false ? "false" : "");
+        document.getElementById("ed-to").value = q.to_region || "";
+        document.getElementById("ed-tfl").value = q.to_floor || "";
+        document.getElementById("ed-tel").value = q.to_elevator === true ? "true" : (q.to_elevator === false ? "false" : "");
+        document.getElementById("ed-note").value = q.__noteOverride != null ? q.__noteOverride : (pm.note || "");
+        em.hidden = false;
+      });
+    });
 
     Array.prototype.forEach.call(app.querySelectorAll("[data-qcopy]"), function(b){
       b.addEventListener("click", function(){
@@ -2351,6 +2426,37 @@ function openContractModal(q){
   document.getElementById("ct-close").addEventListener("click", function(){ document.getElementById("ct-modal").hidden = true; });
   document.getElementById("ct-modal").addEventListener("click", function(e){
     if (e.target === document.getElementById("ct-modal")) e.currentTarget.hidden = true;
+  });
+  document.getElementById("edit-close").addEventListener("click", function(){ document.getElementById("edit-modal").hidden = true; });
+  document.getElementById("edit-modal").addEventListener("click", function(e){
+    if (e.target === document.getElementById("edit-modal")) e.currentTarget.hidden = true;
+  });
+  document.getElementById("edit-save").addEventListener("click", function(){
+    var em = document.getElementById("edit-modal");
+    var id = em.getAttribute("data-edit-id");
+    if (!id) return;
+    var fel = document.getElementById("ed-fel").value;
+    var tel = document.getElementById("ed-tel").value;
+    var ov = {
+      customer_name: document.getElementById("ed-name").value.trim(),
+      customer_phone: document.getElementById("ed-phone").value.trim(),
+      booth_type: document.getElementById("ed-type").value.trim(),
+      brand: document.getElementById("ed-brand").value.trim(),
+      width_mm: Number(document.getElementById("ed-w").value) || null,
+      depth_mm: Number(document.getElementById("ed-d").value) || null,
+      height_mm: Number(document.getElementById("ed-h").value) || null,
+      from_region: document.getElementById("ed-from").value.trim(),
+      from_floor: document.getElementById("ed-ffl").value.trim(),
+      from_elevator: fel === "true" ? true : (fel === "false" ? false : null),
+      to_region: document.getElementById("ed-to").value.trim(),
+      to_floor: document.getElementById("ed-tfl").value.trim(),
+      to_elevator: tel === "true" ? true : (tel === "false" ? false : null),
+      __noteOverride: document.getElementById("ed-note").value.trim()
+    };
+    setPipe(id, { ov: ov });
+    em.hidden = true;
+    toast("수정 저장 완료! 계약서·일정에도 바로 반영됐습니다");
+    render();
   });
 
   Array.prototype.forEach.call(bottomNav.querySelectorAll("[data-nav]"), function(b){
