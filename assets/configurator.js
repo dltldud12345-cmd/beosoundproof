@@ -2879,9 +2879,9 @@ function photoHexToRgb(hex){
 const photoWinImgs = {};
 /* 클린 화이트 전용 타공판 오버레이 — 메이플 원본에서 우드 색을 빼고 화이트 도장으로 리컬러링한 PNG */
 const WHITE_SLATS = {
-  'slat_nocob': 'assets/slat-nocob-white.png?v=1',
-  'side_left':  'assets/side-slat-white-left.png?v=1',
-  'side_right': 'assets/side-slat-white-right.png?v=1'
+  'slat_nocob': 'assets/slat-nocob-white.png?v=2',
+  'side_left':  'assets/side-slat-white-left.png?v=2',
+  'side_right': 'assets/side-slat-white-right.png?v=2'
 };
 function preloadPhotoWins(){
   const map = {
