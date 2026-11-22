@@ -2456,7 +2456,7 @@ function viewSettings(name){
   }
 }
 /* ---- 실사 보기: 실제 시공 사진(interior-academy.jpg) 기반 실시간 컬러 체인저 ---- */
-const photoCache = { ready: false, loading: false, w: 960, h: 720, orig: null, mask: null };
+const photoCache = { ready: false, loading: false, w: 1500, h: 1125, orig: null, cov: null };
 function photoHexToRgb(hex){
   const n = parseInt(String(hex || '#D8C6A6').replace('#',''), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -2491,13 +2491,14 @@ function preloadPhotoWins(){
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
+    im.crossOrigin = 'anonymous';
     im.onload = () => {
       if (dataTargets[k] && im.naturalWidth){
         const c = document.createElement('canvas');
-        c.width = 960; c.height = 720;
-        const cx = c.getContext('2d');
-        cx.drawImage(im, 0, 0, 960, 720);
-        photoCache[dataTargets[k]] = cx.getImageData(0, 0, 960, 720).data;
+        c.width = photoCache.w; c.height = photoCache.h;
+        const cx = c.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(im, 0, 0, photoCache.w, photoCache.h);
+        photoCache[dataTargets[k]] = cx.getImageData(0, 0, photoCache.w, photoCache.h).data;
       }
       if (state.view === 'photo') renderPhotoStage();
     };
@@ -2511,6 +2512,7 @@ function initPhotoCache(cb){
   photoCache.loading = true;
   preloadPhotoWins();
   const img = new Image();
+  img.crossOrigin = 'anonymous';
   img.onload = () => {
     const W = photoCache.w, H = photoCache.h;
     const c = document.createElement('canvas');
@@ -2519,33 +2521,45 @@ function initPhotoCache(cb){
     ctx.drawImage(img, 0, 0, W, H);
     photoCache.orig = ctx.getImageData(0, 0, W, H).data;
 
-    const mc = document.createElement('canvas');
-    mc.width = W; mc.height = H;
-    const mctx = mc.getContext('2d', { willReadFrequently: true });
-    const poly = (pts, col) => {
-      mctx.fillStyle = col;
-      mctx.beginPath();
-      pts.forEach(([px, py], i) => i ? mctx.lineTo(px * W, py * H) : mctx.moveTo(px * W, py * H));
-      mctx.closePath();
-      mctx.fill();
+    /* 영역별 커버리지를 따로 뽑아 경계를 흐리게(페더링) — 픽셀 계단 없이 색이 얹힙니다 */
+    const REGIONS = {
+      art:   [[[0,0],[1,0],[0.6407,0.3511],[0.3753,0.3520]],
+              [[0,0],[0.3753,0.3520],[0.3760,0.6667],[0.1020,1],[0,1]]],   // 천장 + 좌벽
+      back:  [[[0.3753,0.3520],[0.6407,0.3511],[0.6407,0.6667],[0.3760,0.6667]]],  // 정면 뒷벽
+      floor: [[[0.3760,0.6667],[0.6407,0.6667],[0.9573,1],[0.1020,1]]],           // 강화마루
+      right: [[[1,0],[0.6407,0.3511],[0.6407,0.6667],[0.9573,1],[1,1]]]            // 우벽
     };
-    // 1 = 아트보드(천장+좌벽), 4 = 우벽, 2 = 정면 뒷벽, 3 = 바닥
-    poly([[0,0],[1,0],[0.6407,0.3511],[0.3753,0.3520]], 'rgb(1,0,0)');
-    poly([[0,0],[0.3753,0.3520],[0.3760,0.6667],[0.1020,1],[0,1]], 'rgb(1,0,0)');
-    poly([[1,0],[0.6407,0.3511],[0.6407,0.6667],[0.9573,1],[1,1]], 'rgb(4,0,0)');
-    // 2 = 정면 뒷벽
-    poly([[0.3753,0.3520],[0.6407,0.3511],[0.6407,0.6667],[0.3760,0.6667]], 'rgb(2,0,0)');
-    // 3 = 강화마루 (바닥)
-    poly([[0.3760,0.6667],[0.6407,0.6667],[0.9573,1],[0.1020,1]], 'rgb(3,0,0)');
-    // 0 = 제외 영역 (중앙 LED등, 뒷벽 콘센트 1개)
-    const zero = 'rgb(0,0,0)';
-    poly([[0.4520,0.1129],[0.5880,0.1129],[0.5660,0.2222],[0.4747,0.2222]], zero);
-    poly([[0.5340,0.6089],[0.5447,0.6089],[0.5447,0.6338],[0.5340,0.6338]], zero);
-
-    const md = mctx.getImageData(0, 0, W, H).data;
-    const mask = new Uint8Array(W * H);
-    for (let i = 0; i < W * H; i++) mask[i] = md[i * 4];
-    photoCache.mask = mask;
+    const EXCL = [
+      [[0.4520,0.1129],[0.5880,0.1129],[0.5660,0.2222],[0.4747,0.2222]],  // 중앙 LED등
+      [[0.5340,0.6089],[0.5447,0.6089],[0.5447,0.6338],[0.5340,0.6338]]   // 뒷벽 콘센트
+    ];
+    const trace = (x, pts) => {
+      x.beginPath();
+      pts.forEach(([px, py], i) => i ? x.lineTo(px * W, py * H) : x.moveTo(px * W, py * H));
+      x.closePath();
+    };
+    const buildCov = (polys) => {
+      const raw = document.createElement('canvas'); raw.width = W; raw.height = H;
+      const rx = raw.getContext('2d', { willReadFrequently: true });
+      rx.fillStyle = '#fff';
+      polys.forEach(pts => { trace(rx, pts); rx.fill(); });
+      rx.fillStyle = '#000';
+      EXCL.forEach(pts => { trace(rx, pts); rx.fill(); });
+      const bl = document.createElement('canvas'); bl.width = W; bl.height = H;
+      const bx = bl.getContext('2d', { willReadFrequently: true });
+      bx.filter = 'blur(2px)';
+      bx.drawImage(raw, 0, 0);
+      const d = bx.getImageData(0, 0, W, H).data;
+      const cov = new Uint8Array(W * H);
+      for (let i = 0; i < W * H; i++) cov[i] = d[i * 4];
+      return cov;
+    };
+    photoCache.cov = {
+      art: buildCov(REGIONS.art),
+      back: buildCov(REGIONS.back),
+      floor: buildCov(REGIONS.floor),
+      right: buildCov(REGIONS.right)
+    };
     photoCache.ready = true;
     photoCache.loading = false;
     cb();
@@ -2604,59 +2618,94 @@ function renderPhotoStage(){
     const sideL = (slatPos === 'left' && photoCache.sideLeftOrig) ? photoCache.sideLeftOrig : null;
     const sideR = (slatPos === 'right' && photoCache.sideRightOrig) ? photoCache.sideRightOrig : null;
     const backArt = (slatPos !== 'back' && photoCache.backArtOrig) ? photoCache.backArtOrig : null;
-    const mask = photoCache.mask;
+    const cA = photoCache.cov.art, cB = photoCache.cov.back, cF = photoCache.cov.floor, cR = photoCache.cov.right;
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
     const sRgb = photoHexToRgb(pick(SLAT, state.slat).hex);
     const fRgb = photoHexToRgb(pick(FLOOR, state.floor).hex);
     const isPine = state.floor === 'pine';
+    const n = W * H;
 
-    for (let i = 0, p = 0; i < mask.length; i++, p += 4){
-      const rawM = mask[i];
-      if (rawM === 0){
+    for (let i = 0, p = 0; i < n; i++, p += 4){
+      const wA = cA[i], wB = cB[i], wF = cF[i], wR = cR[i];
+      if (!(wA | wB | wF | wR)){
         dst[p] = src[p]; dst[p+1] = src[p+1]; dst[p+2] = src[p+2]; dst[p+3] = 255;
         continue;
       }
-      let m = rawM;
-      let r = src[p], g = src[p+1], b = src[p+2];
-      if (rawM === 1){
-        if (sideL && sideL[p+3] > 200){ m = 2; r = sideL[p]; g = sideL[p+1]; b = sideL[p+2]; }
-      } else if (rawM === 4){
-        if (sideR && sideR[p+3] > 200){ m = 2; r = sideR[p]; g = sideR[p+1]; b = sideR[p+2]; }
-        else { m = 1; }
-      } else if (rawM === 2){
-        if (backArt && backArt[p+3] > 200){ m = 1; r = backArt[p]; g = backArt[p+1]; b = backArt[p+2]; }
-        else if (nocob && nocob[p+3] > 200){ r = nocob[p]; g = nocob[p+1]; b = nocob[p+2]; }
+      const sr = src[p], sg = src[p+1], sb = src[p+2];
+      let tr = 0, tg = 0, tb = 0, tw = 0;
+      let wArt = 0, wSlat = 0, wFloor = 0;
+
+      /* 천장 + 좌벽 (아트보드 / 슬랫 오버레이가 있으면 그 픽셀은 슬랫) */
+      if (wA){
+        let r = sr, g = sg, b = sb, k = 0;
+        if (sideL){ const a = sideL[p+3]; if (a){ k = a / 255; r = r*(1-k) + sideL[p]*k; g = g*(1-k) + sideL[p+1]*k; b = b*(1-k) + sideL[p+2]*k; } }
+        wArt += wA * (1-k); wSlat += wA * k;
+        tr += wA*r; tg += wA*g; tb += wA*b; tw += wA;
       }
-      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      if (m === 1){
-        // 아트보드: 기본 사진 밝기(~0.68)를 기준으로 목표 색상 입히기 (질감·조명 보존)
+      /* 우벽 */
+      if (wR){
+        let r = sr, g = sg, b = sb, k = 0;
+        if (sideR){ const a = sideR[p+3]; if (a){ k = a / 255; r = r*(1-k) + sideR[p]*k; g = g*(1-k) + sideR[p+1]*k; b = b*(1-k) + sideR[p+2]*k; } }
+        wArt += wR * (1-k); wSlat += wR * k;
+        tr += wR*r; tg += wR*g; tb += wR*b; tw += wR;
+      }
+      /* 정면 뒷벽 (기본 슬랫 / 아트보드 오버레이 / 레일등용 COB 제거 패치) */
+      if (wB){
+        let r = sr, g = sg, b = sb, kA = 0;
+        if (backArt){
+          const a = backArt[p+3];
+          if (a){ kA = a / 255; r = r*(1-kA) + backArt[p]*kA; g = g*(1-kA) + backArt[p+1]*kA; b = b*(1-kA) + backArt[p+2]*kA; }
+        } else if (nocob){
+          const a = nocob[p+3];
+          if (a){ const k = a / 255; r = r*(1-k) + nocob[p]*k; g = g*(1-k) + nocob[p+1]*k; b = b*(1-k) + nocob[p+2]*k; }
+        }
+        wArt += wB * kA; wSlat += wB * (1-kA);
+        tr += wB*r; tg += wB*g; tb += wB*b; tw += wB;
+      }
+      /* 바닥 */
+      if (wF){
+        wFloor += wF;
+        tr += wF*sr; tg += wF*sg; tb += wF*sb; tw += wF;
+      }
+
+      if (tw > 0){ tr /= tw; tg /= tw; tb /= tw; }
+      wArt /= 255; wSlat /= 255; wFloor /= 255;
+      const nw = wArt + wSlat + wFloor || 1;
+      wArt /= nw; wSlat /= nw; wFloor /= nw;
+
+      const lum = (0.299 * tr + 0.587 * tg + 0.114 * tb) / 255;
+      let orr = 0, og = 0, ob = 0;
+
+      if (wArt > 0.002){
+        /* 아트보드: 기본 사진 밝기(~0.68)를 기준으로 목표 색상 입히기 (질감·조명 보존) */
         const gain = Math.min(1.42, lum / 0.68);
-        dst[p]   = Math.min(255, Math.round(aRgb[0] * gain));
-        dst[p+1] = Math.min(255, Math.round(aRgb[1] * gain));
-        dst[p+2] = Math.min(255, Math.round(aRgb[2] * gain));
-      } else if (m === 2){
-        // 라인타공: 어두운 틈새(lum < 0.28)는 유지하고 나무 살만 톤 변경
+        orr += wArt * aRgb[0] * gain; og += wArt * aRgb[1] * gain; ob += wArt * aRgb[2] * gain;
+      }
+      if (wSlat > 0.002){
+        /* 라인타공: 어두운 틈새(lum < 0.28)는 유지하고 나무 살만 톤 변경 */
         if (lum < 0.28){
-          dst[p] = r; dst[p+1] = g; dst[p+2] = b;
+          orr += wSlat * tr; og += wSlat * tg; ob += wSlat * tb;
         } else {
           const gain = Math.min(1.45, lum / 0.52);
-          const tr = sRgb[0] * gain, tg = sRgb[1] * gain, tb = sRgb[2] * gain;
-          dst[p]   = Math.min(255, Math.round(r * 0.22 + tr * 0.78));
-          dst[p+1] = Math.min(255, Math.round(g * 0.22 + tg * 0.78));
-          dst[p+2] = Math.min(255, Math.round(b * 0.22 + tb * 0.78));
-        }
-      } else {
-        // 바닥 마루: 멜로우 오크(원본) vs 화이트 파인(밝고 뉴트럴)
-        if (!isPine){
-          dst[p] = r; dst[p+1] = g; dst[p+2] = b;
-        } else {
-          const gain = Math.min(1.45, lum / 0.55);
-          dst[p]   = Math.min(255, Math.round(r * 0.18 + fRgb[0] * gain * 0.82));
-          dst[p+1] = Math.min(255, Math.round(g * 0.18 + fRgb[1] * gain * 0.82));
-          dst[p+2] = Math.min(255, Math.round(b * 0.18 + fRgb[2] * gain * 0.82));
+          orr += wSlat * (tr * 0.22 + sRgb[0] * gain * 0.78);
+          og  += wSlat * (tg * 0.22 + sRgb[1] * gain * 0.78);
+          ob  += wSlat * (tb * 0.22 + sRgb[2] * gain * 0.78);
         }
       }
+      if (wFloor > 0.002){
+        if (!isPine){
+          orr += wFloor * tr; og += wFloor * tg; ob += wFloor * tb;
+        } else {
+          const gain = Math.min(1.45, lum / 0.55);
+          orr += wFloor * (tr * 0.18 + fRgb[0] * gain * 0.82);
+          og  += wFloor * (tg * 0.18 + fRgb[1] * gain * 0.82);
+          ob  += wFloor * (tb * 0.18 + fRgb[2] * gain * 0.82);
+        }
+      }
+      dst[p]   = orr > 255 ? 255 : orr;
+      dst[p+1] = og > 255 ? 255 : og;
+      dst[p+2] = ob > 255 ? 255 : ob;
       dst[p+3] = 255;
     }
     ctx.putImageData(out, 0, 0);
