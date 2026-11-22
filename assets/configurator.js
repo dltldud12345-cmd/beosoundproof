@@ -2489,8 +2489,8 @@ function preloadPhotoWins(){
     'ceiling_clean': 'assets/ceiling-clean.webp?v=1',
     'side_light_left': 'assets/side-light-left.webp?v=1',
     'side_light_right': 'assets/side-light-right.webp?v=1',
-    'side_rail_left': 'assets/side-rail-left.webp?v=1',
-    'side_rail_right': 'assets/side-rail-right.webp?v=1',
+    'side_rail_left': 'assets/side-rail-left.webp?v=2',
+    'side_rail_right': 'assets/side-rail-right.webp?v=2',
     'glow_back_rail': 'assets/wallglow-back-rail.png?v=2'
   };
   const dataTargets = {
