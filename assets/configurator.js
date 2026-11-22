@@ -820,6 +820,8 @@ function leadMemoText(extra){
   const lines = ['[SIM_SPEC]' + JSON.stringify(spec)];
   lines.push('규격: ' + modelName() + ' ' + dimText() + ' mm');
   specRows().filter(r => r.k !== '규격').forEach(r => lines.push(r.k + ': ' + r.v));
+  const payEl = $('#leadPay');
+  if (payEl) lines.push('[결제·증빙] ' + (payEl.value || '미정/없음'));
   readSlots().forEach((sp, i) => { if (sp) lines.push('[저장 조합 ' + (i + 1) + '안] ' + specSummary(sp)); });
   lines.push('[시뮬레이터] ' + selfHref(spec));
   lines.push('[설계도] ' + absoluteBlueprint(spec));
@@ -838,6 +840,8 @@ async function submitLead(e){
   const name = ($('#leadName').value || '').trim();
   const phone = ($('#leadPhone').value || '').trim();
   const addr = ($('#leadAddr').value || '').trim();
+  const payEl = $('#leadPay');
+  const pay = payEl ? payEl.value : '';
   const note = ($('#leadMemo').value || '').trim();
   const agree = $('#leadAgree').checked;
   if (!name){ leadMsg('성함을 입력해 주세요.', 'err'); $('#leadName').focus(); return; }
@@ -864,7 +868,7 @@ async function submitLead(e){
       from_elevator: '',
       to_region: addr.slice(0, 60),
       to_floor: '',
-      to_elevator: '',
+      to_elevator: pay === '카드결제' ? '카드결제' : '',
       desired_date: '',
       date_flexible: true,
       photos: [],

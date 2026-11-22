@@ -187,7 +187,13 @@
   .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
 
   /* 계약 금액 + 계약 안내서 */
-  .money-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px;padding:10px 11px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
+  .money-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:7px;margin-top:10px;padding:10px 11px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
+  .pay-item{display:grid;gap:5px;min-width:0}
+  .pay-item label{font-size:10px;font-weight:800;color:#8A6A1F}
+  .pay-chips{display:flex;gap:4px;flex-wrap:wrap}
+  .pay-chip{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:700;color:var(--ink2)}
+  .pay-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .vat-note{font-size:9.5px;font-weight:700;color:var(--muted);line-height:1.4}
   .money-item{display:grid;gap:3px;min-width:0}
   .money-item label{font-size:10px;font-weight:800;color:#8A6A1F}
   .money-item input{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font-size:12.5px;font-weight:700;color:var(--ink2);text-align:right}
@@ -227,6 +233,8 @@
   @media (max-width:680px){
     .sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .stime{flex-basis:46px;font-size:12px}
+    .money-row{grid-template-columns:1fr 1fr}
+    .pay-item{grid-column:1 / -1}
   }
 
   .alerts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -477,7 +485,24 @@
     }
     return { date: date, time: time };
   }
-  /* ---------- 계약 금액 (총 공사비 · 계약금 · 잔금) ---------- */
+  /* ---------- 계약 금액 (총 공사비 · 계약금 · 잔금 · 결제 증빙) ---------- */
+  var PAY_OPTS = ["카드결제", "세금계산서", "현금영수증", "현금(증빙없음)"];
+  function payOf(q){
+    var p = pipeOf(q.id);
+    if (p.pay && PAY_OPTS.indexOf(p.pay) >= 0) return p.pay;
+    var pm = parseMemo(q.memo);
+    var pay = pm.pay || "";
+    if (!pay){
+      var m = String(q.memo || "").match(/\[결제·증빙\]\s*([^\n\r]+)/);
+      if (m) pay = m[1].trim();
+    }
+    /* 접수 문구를 화면 4가지로 정규화 */
+    if (/세금계산서/.test(pay)) return "세금계산서";
+    if (/현금영수증/.test(pay)) return "현금영수증";
+    if (/카드/.test(pay)) return "카드결제";
+    if (/현금/.test(pay)) return "현금(증빙없음)";
+    return "";
+  }
   function moneyOf(q){
     var p = pipeOf(q.id);
     var total = p.total != null ? p.total : "";
@@ -496,6 +521,17 @@
     return { total: total, deposit: deposit, balance: balance };
   }
   function won(v){ return v === "" || v == null || isNaN(v) ? "—" : Number(v).toLocaleString("ko-KR") + "원"; }
+  /* 부가세 — 카드결제·세금계산서·현금영수증은 부가세 포함 총액 기준, 현금(증빙없음)은 별도 표기 없음 */
+  function vatOf(pay){
+    var has = pay === "카드결제" || pay === "세금계산서" || pay === "현금영수증";
+    return { has: has, rate: has ? 0.1 : 0 };
+  }
+  function vatBreakdown(total, pay){
+    var v = vatOf(pay);
+    if (!v.has || total === "" || total == null || isNaN(total)) return null;
+    var supply = Math.round(total / (1 + v.rate));
+    return { supply: supply, vat: total - supply };
+  }
 
   var state = {
     adminKey: "",
@@ -750,10 +786,10 @@
   }
 
   /* ---------- 진행 단계 저장 (DB status + 메모 태그 + 기기 저장) ---------- */
-  function buildTaggedMemo(q, stage, inst, money){
+  function buildTaggedMemo(q, stage, inst, money, pay){
     var base = String(q.memo || "").split(/\r?\n/).filter(function(l){
       var t = l.trim();
-      return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0 || t.indexOf("[금액]") === 0);
+      return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0 || t.indexOf("[금액]") === 0 || t.indexOf("[결제·증빙]") === 0);
     }).join("\n").trim();
     var lines = [];
     if (base) lines.push(base);
@@ -761,6 +797,7 @@
     if (inst && inst.date) lines.push("[설치일]" + inst.date + (inst.time ? " " + inst.time : ""));
     if (money && (money.total !== "" || money.deposit !== ""))
       lines.push("[금액]총 " + (money.total || 0).toLocaleString("ko-KR") + " / 계약금 " + (money.deposit || 0).toLocaleString("ko-KR"));
+    if (pay) lines.push("[결제·증빙] " + pay);
     return lines.join("\n").slice(0, 2000);
   }
   function memoCapable(){
@@ -774,7 +811,7 @@
   function pushMemoUpdate(q, stage){
     var cap = memoCapable();
     if (cap === "none") return;
-    var memo = buildTaggedMemo(q, stage, installOf(q), moneyOf(q));
+    var memo = buildTaggedMemo(q, stage, installOf(q), moneyOf(q), payOf(q));
     var done = function(res){
       if (res && res.ok){ markMemoCap("relocation_admin"); q.memo = memo; return true; }
       return false;
@@ -819,6 +856,8 @@ function contractData(q){
   var pm = parseMemo(q.memo);
   var inst = installOf(q);
   var m = moneyOf(q);
+  var pay = payOf(q);
+  var vat = vatBreakdown(m.total, pay);
   var work;
   if (isNewB){
     var sim = pm.sim || { w: q.width_mm, d: q.depth_mm };
@@ -837,16 +876,26 @@ function contractData(q){
     name: q.customer_name || "-",
     phone: q.customer_phone || "-",
     total: m.total, deposit: m.deposit, balance: m.balance,
+    pay: pay, vat: vat,
     work: work, route: route,
     date: inst.date ? fmtDay(inst.date) + (inst.time ? " " + inst.time : "") : (q.desired_date ? fmtDay(q.desired_date) + " (희망)" : "확정 예정")
   };
+}
+function payVatLine(d){
+  var out = [];
+  if (d.pay) out.push("• 결제 증빙: " + d.pay);
+  if (d.vat){
+    out.push("• 총 공사비 " + won0(d.total) + "원은 부가세 포함 금액입니다 (공급가액 " + won0(d.vat.supply) + "원 + 부가세 " + won0(d.vat.vat) + "원)");
+  }
+  return out;
 }
 function contractText(q){
   var d = contractData(q);
   return [
     "[방음부스 " + d.kind + " 계약 안내]",
     "",
-    "• 총 공사비: " + won0(d.total) + "원 (부가세 포함)",
+    "• 총 공사비: " + won0(d.total) + "원" + (d.vat ? " (부가세 포함)" : ""),
+    payVatLine(d).join("\n"),
     "• 결제 방식",
     "1. 계약금: " + won0(d.deposit) + "원 (예약 확정 시)",
     "2. 잔금: " + won0(d.balance) + "원 (공사 완료 후 현장 지급)",
@@ -860,7 +909,7 @@ function contractText(q){
     "",
     "베오방음 (BEOSOUNDPROOF)",
     "문의: 010-3001-5906"
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }
 function contractImage(q){
   var d = contractData(q);
@@ -892,23 +941,29 @@ function contractImage(q){
 
   /* 금액 표 */
   var ty = 280;
-  c.fillStyle = INK; c.fillRect(48, ty, W-96, 44);
-  c.fillStyle = "#fff"; c.font = font(800, 14);
-  c.fillText("총 공사비 (부가세 포함)", 68, ty+28);
-  c.textAlign = "right"; c.font = font(800, 20); c.fillText(won0(d.total) + "원", W-68, ty+30);
-  var rows = [
+  var headH = 44, rowH = 46, rows = [
     ["1. 계약금 — 예약 확정 시", won0(d.deposit) + "원"],
     ["2. 잔금 — 공사 완료 후 현장 지급", won0(d.balance) + "원"]
   ];
+  if (d.pay){
+    rows.unshift(["결제 증빙 — " + d.pay, d.vat ? "부가세 포함" : "증빙 없음"]);
+  }
+  if (d.vat){
+    rows.push(["공급가액", won0(d.vat.supply) + "원"], ["부가세 (10%)", won0(d.vat.vat) + "원"]);
+  }
+  c.fillStyle = INK; c.fillRect(48, ty, W-96, headH);
+  c.fillStyle = "#fff"; c.font = font(800, 14);
+  c.fillText("총 공사비" + (d.vat ? " (부가세 포함)" : ""), 68, ty+28);
+  c.textAlign = "right"; c.font = font(800, 20); c.fillText(won0(d.total) + "원", W-68, ty+30);
   rows.forEach(function(r, i){
-    var ry = ty + 44 + i*46;
-    c.fillStyle = i % 2 ? "#FAF8F4" : "#FFFFFF"; c.fillRect(48, ry, W-96, 46);
+    var ry = ty + headH + i*rowH;
+    c.fillStyle = i % 2 ? "#FAF8F4" : "#FFFFFF"; c.fillRect(48, ry, W-96, rowH);
     c.textAlign = "left"; c.fillStyle = "#2E353B"; c.font = font(700, 15); c.fillText(r[0], 68, ry+29);
     c.textAlign = "right"; c.fillStyle = ACCD; c.font = font(800, 17); c.fillText(r[1], W-68, ry+30);
   });
 
   /* 계좌 박스 */
-  var by = ty + 44 + 2*46 + 22;
+  var by = ty + headH + rows.length*rowH + 22;
   c.fillStyle = "#F3FAF7"; c.strokeStyle = "#9FC6BC"; c.lineWidth = 1.4;
   c.beginPath(); c.roundRect(48, by, W-96, 88, 12); c.fill(); c.stroke();
   c.textAlign = "left";
@@ -1186,8 +1241,17 @@ function openContractModal(q){
       + '</div>';
 
     var m = moneyOf(q);
+    var pay = payOf(q);
+    var vat = vatBreakdown(m.total, pay);
     var moneyHtml = '<div class="money-row">'
-      + '  <div class="money-item"><label>총 공사비 (원) · 부가세 포함</label>'
+      + '  <div class="pay-item">'
+      + '    <label>결제 증빙</label>'
+      + '    <div class="pay-chips">' + PAY_OPTS.map(function(p){
+        return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
+      }).join("") + '</div>'
+      + '    <div class="vat-note">' + (vat ? '공급가액 ' + vat.supply.toLocaleString("ko-KR") + ' + 부가세 ' + vat.vat.toLocaleString("ko-KR") + '원' : '총액 기준 · 부가세 표기 없음') + '</div>'
+      + '  </div>'
+      + '  <div class="money-item"><label>총 공사비 (원)' + (vat ? " · 부가세 포함" : "") + '</label>'
       + '    <input type="number" min="0" step="10000" data-money-id="' + esc(q.id) + '" data-money-k="total" value="' + (m.total === "" ? "" : m.total) + '" placeholder="0"></div>'
       + '  <div class="money-item"><label>계약금 (원)</label>'
       + '    <input type="number" min="0" step="10000" data-money-id="' + esc(q.id) + '" data-money-k="deposit" value="' + (m.deposit === "" ? "" : m.deposit) + '" placeholder="0"></div>'
@@ -1215,10 +1279,8 @@ function openContractModal(q){
       + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
       + simHtml
-      + routeHtml
       + instHtml
       + moneyHtml
-      + (pm.note ? '<div class="memo-box">' + linkify(pm.note) + '</div>' : '')
       + photosHtml
       + '<div class="qs-foot">'
       + '  <div class="qacts">'
