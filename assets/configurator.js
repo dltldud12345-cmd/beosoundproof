@@ -2473,24 +2473,24 @@ function photoHexToRgb(hex){
 const photoWinImgs = {};
 function preloadPhotoWins(){
   const map = {
-    '600x800': 'assets/win-600.png?v=4',
-    '800x800': 'assets/win-800.png?v=4',
-    '1200x800': 'assets/win-1200.png?v=4',
-    'double1200': 'assets/win-double.png',
+    '600x800': 'assets/win-600.png?v=6',
+    '800x800': 'assets/win-800.png?v=6',
+    '1200x800': 'assets/win-1200.png?v=6',
+    'double1200': 'assets/win-double.png?v=6',
     'rail_ceiling': 'assets/ceiling-rail.png?v=8',
     'slat_nocob': 'assets/slat-nocob.png?v=4',
     'side_left': 'assets/side-slat-left.png?v=1',
     'side_right': 'assets/side-slat-right.png?v=1',
     'back_art': 'assets/back-artboard.png?v=1',
-    'back_600x800': 'assets/win-600x800-back.png?v=1',
-    'back_800x800': 'assets/win-800x800-back.png?v=1',
-    'back_1200x800': 'assets/win-1200x800-back.png?v=1',
-    'back_double1200': 'assets/win-double-back.png?v=1',
-    'glow_back_rail': 'assets/wallglow-back-rail.png?v=1',
-    'glow_left_cob': 'assets/wallglow-left-cob.png?v=1',
-    'glow_left_rail': 'assets/wallglow-left-rail.png?v=1',
-    'glow_right_cob': 'assets/wallglow-right-cob.png?v=1',
-    'glow_right_rail': 'assets/wallglow-right-rail.png?v=1'
+    'back_600x800': 'assets/win-600x800-back.png?v=2',
+    'back_800x800': 'assets/win-800x800-back.png?v=2',
+    'back_1200x800': 'assets/win-1200x800-back.png?v=2',
+    'back_double1200': 'assets/win-double-back.png?v=2',
+    'glow_back_rail': 'assets/wallglow-back-rail.png?v=2',
+    'glow_left_cob': 'assets/wallglow-left-cob.png?v=2',
+    'glow_left_rail': 'assets/wallglow-left-rail.png?v=2',
+    'glow_right_cob': 'assets/wallglow-right-cob.png?v=2',
+    'glow_right_rail': 'assets/wallglow-right-rail.png?v=2'
   };
   const dataTargets = {
     'slat_nocob': 'nocobOrig',
