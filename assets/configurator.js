@@ -94,9 +94,9 @@ const HINGES = [
 ];
 const WINDOWS = [
   { v:'none',       label:'없음',        w:0,   h:0,   sub:'' },
-  { v:'400x800',    label:'400×800',     w:0.4, h:0.8, sub:'세로 시창' },
+  { v:'600x800',    label:'600×800',     w:0.6, h:0.8, sub:'600 모듈 1칸' },
+  { v:'1200x800',   label:'1200×800',    w:1.2, h:0.8, sub:'600 모듈 2칸' },
   { v:'800x800',    label:'800×800',     w:0.8, h:0.8, sub:'검사시창' },
-  { v:'1200x800',   label:'1200×800',    w:1.2, h:0.8, sub:'가로 시창' },
   { v:'double1200', label:'이중창 1200', w:1.2, h:0.8, sub:'1,200×800 · 돌출', isDouble:true }
 ];
 const PROJECTS = [
