@@ -1753,6 +1753,7 @@ function openContractModal(q){
         return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
       }).join("") + '</div>'
       + '    <span class="pay-hint">' + payHintTxt + '</span>'
+      + '    <button type="button" class="pay-chip" data-payhere-id="' + esc(q.id) + '" style="margin-left:auto;border-color:#0F766E;color:#0F766E;background:#E7F2EF;' + (pay === "카드결제" ? "" : "display:none") + '">💳 페이히어 열기 ↗</button>'
       + '  </div>'
       + '  <div class="money-item"><label>공급가액 (원 · 부가세 별도)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="supply" value="' + (m.supply === "" ? "" : m.supply) + '" placeholder="예: 500000">'
@@ -2079,8 +2080,25 @@ function openContractModal(q){
             ? "💳 페이히어 비대면 카드결제 링크 안내로 계약서에 반영됩니다 (계약금 · 잔금 동일)"
             : (next ? "🏦 기업은행 계좌 입금 안내 + " + next + " 발행으로 계약서에 반영됩니다" : "카드 · 세금계산서 · 현금영수증 모두 공급가액 + 부가세 10% = 합계로 같습니다");
         }
+        var phBtn = b.closest(".pay-line") && b.closest(".pay-line").querySelector("[data-payhere-id]");
+        if (phBtn) phBtn.style.display = next === "카드결제" ? "" : "none";
         pushMemoUpdate(q, stageOf(q));
         toast(next ? "결제 증빙을 ‘" + next + "’(으)로 저장했습니다" : "결제 증빙을 미정으로 비웠습니다");
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-payhere-id]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-payhere-id");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        var phone = q ? payPhoneText(q.customer_phone) : "";
+        var m = q ? moneyOf(q) : {};
+        var amt = (m.deposit !== "" && m.deposit != null) ? m.deposit : m.total;
+        if (phone && phone !== "010-XXXX-XXXX" && navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(phone).catch(function(){});
+        }
+        toast((phone && phone !== "010-XXXX-XXXX" ? phone + " 복사 · " : "") + (amt ? won0(amt) + "원 · " : "") + "페이히어를 엽니다");
+        window.open("https://web.payhere.in", "_blank", "noopener");
       });
     });
 
