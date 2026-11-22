@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="베오 관리자">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=2">
 <link rel="manifest" href="/manifest-hub.json">
 <style>
   :root{
@@ -58,7 +58,8 @@
     max-width:960px;margin:0 auto;padding:11px 16px;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
   }
-  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand{display:flex;align-items:center;gap:9px;min-width:0}
+  .brand-logo{height:24px;width:auto;max-width:190px;object-fit:contain;flex:0 0 auto}
   .brand-mark{
     width:32px;height:32px;border-radius:10px;background:var(--ink);
     display:grid;place-items:center;flex:0 0 auto;
@@ -81,6 +82,7 @@
     max-width:400px;margin:52px auto;background:#fff;border:1px solid var(--line);
     border-radius:20px;padding:28px 22px;box-shadow:var(--shadow);
   }
+  .login-logo{height:30px;width:auto;max-width:100%;margin-bottom:16px}
   .login-box h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.03em}
   .login-box p{margin:8px 0 0;font-size:13.5px;color:var(--body)}
   .in{
@@ -187,17 +189,22 @@
   .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
 
   /* 계약 금액 + 계약 안내서 */
-  .money-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:7px;margin-top:10px;padding:10px 11px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
-  .pay-item{display:grid;gap:5px;min-width:0}
-  .pay-item label{font-size:10px;font-weight:800;color:#8A6A1F}
+  .money-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:10px;padding:10px 11px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
+  .pay-line{grid-column:1 / -1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pay-line label{font-size:10px;font-weight:800;color:#8A6A1F;flex:0 0 auto}
   .pay-chips{display:flex;gap:4px;flex-wrap:wrap}
   .pay-chip{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:700;color:var(--ink2)}
   .pay-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-  .vat-note{font-size:9.5px;font-weight:700;color:var(--muted);line-height:1.4}
-  .money-item{display:grid;gap:3px;min-width:0}
+  .pay-hint{font-size:9.5px;font-weight:700;color:var(--muted)}
+  .vat-note{grid-column:1 / -1;font-size:9.5px;font-weight:700;color:var(--muted);line-height:1.4}
+  .money-item{display:grid;gap:3px;min-width:0;align-content:start}
   .money-item label{font-size:10px;font-weight:800;color:#8A6A1F}
   .money-item input{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font-size:12.5px;font-weight:700;color:var(--ink2);text-align:right}
   .money-item input:focus{outline:0;border-color:var(--accent)}
+  .money-item .amt{font-size:12.5px;font-weight:800;color:var(--ink2);text-align:right;padding:7px 2px 0;white-space:nowrap}
+  .money-item .amt.strong{font-size:13.5px;color:var(--accent-d)}
+  .money-hint{font-size:9.5px;font-weight:700;color:var(--accent-d)}
+  .money-hint:empty{display:none}
   .money-item .bal{font-size:11px;font-weight:800;color:var(--accent-d);text-align:right;padding:7px 2px 0}
   .money-item .bal small{display:block;font-size:9px;font-weight:700;color:var(--muted);text-align:right}
 
@@ -234,7 +241,7 @@
     .sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .stime{flex-basis:46px;font-size:12px}
     .money-row{grid-template-columns:1fr 1fr}
-    .pay-item{grid-column:1 / -1}
+    .pay-line{grid-column:1 / -1}
   }
 
   .alerts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -361,10 +368,7 @@
 <header class="topbar">
   <div class="topbar-in">
     <div class="brand">
-      <div class="brand-mark" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 64 64"><g fill="#2E9C86"><rect x="10" y="22" width="8" height="20" rx="4"/><rect x="28" y="10" width="8" height="44" rx="4"/><rect x="46" y="18" width="8" height="28" rx="4"/></g></svg>
-      </div>
-      <span class="brand-title">베오방음 관리자</span>
+      <img class="brand-logo" src="assets/logo-horizontal.png?v=2" alt="베오방음 BEO SOUNDPROOF">
       <span class="brand-sub" id="top-sub">통합 허브</span>
     </div>
     <div class="top-actions" id="top-actions" hidden>
@@ -485,52 +489,82 @@
     }
     return { date: date, time: time };
   }
-  /* ---------- 계약 금액 (총 공사비 · 계약금 · 잔금 · 결제 증빙) ---------- */
-  var PAY_OPTS = ["카드결제", "세금계산서", "현금영수증", "현금(증빙없음)"];
+  /* ---------- 계약 금액 (공급가액 · 부가세 10% · 합계 · 계약금 · 잔금 · 결제 증빙) ---------- */
+  /* 결제 증빙은 카드결제 · 세금계산서 · 현금영수증(및 미정)만 둔다 — 증빙 없는 현금 옵션은 두지 않는다.
+     어떤 결제수단이든 공급가액 + 부가세 10% = 합계 구조를 똑같이 적용한다. */
+  var PAY_OPTS = ["카드결제", "세금계산서", "현금영수증"];
+  var VAT_RATE = 0.1;
+  function normalizePay(v){
+    var s = String(v == null ? "" : v).trim();
+    if (!s) return "";
+    if (/현금영수증/.test(s)) return "현금영수증";
+    if (/세금계산서/.test(s)) return "세금계산서";
+    if (/카드/.test(s)) return "카드결제";
+    return "";   /* 예전 현금 표기는 더 쓰지 않는다 → 미정 */
+  }
   function payOf(q){
     var p = pipeOf(q.id);
-    if (p.pay && PAY_OPTS.indexOf(p.pay) >= 0) return p.pay;
-    var pm = parseMemo(q.memo);
-    var pay = pm.pay || "";
-    if (!pay){
-      var m = String(q.memo || "").match(/\[결제·증빙\]\s*([^\n\r]+)/);
-      if (m) pay = m[1].trim();
-    }
-    /* 접수 문구를 화면 4가지로 정규화 */
-    if (/세금계산서/.test(pay)) return "세금계산서";
-    if (/현금영수증/.test(pay)) return "현금영수증";
-    if (/카드/.test(pay)) return "카드결제";
-    if (/현금/.test(pay)) return "현금(증빙없음)";
-    return "";
+    var pay = normalizePay(p.pay);
+    if (pay) return pay;
+    var pay2 = normalizePay(parseMemo(q.memo).pay);
+    if (pay2) return pay2;
+    var m = String(q.memo || "").match(/\[결제·증빙\]\s*([^\n\r]+)/);
+    return m ? normalizePay(m[1]) : "";
   }
+  /* 금액 입력 해석 — 500000(원)은 그대로, 1000 미만 정수는 만 원 단위(예: 50 → 500,000) */
+  function amountOf(raw){
+    var t = String(raw == null ? "" : raw).replace(/[^0-9.]/g, "");
+    if (t === "" || t === ".") return "";
+    var n = Number(t);
+    if (!isFinite(n) || n < 0) return "";
+    if (n > 0 && n < 1000) return Math.round(n * 10000);
+    return Math.round(n);
+  }
+  /* 계약 금액 — 입력은 공급가액(부가세 별도). 합계 = 공급가액 + 부가세 10% */
   function moneyOf(q){
     var p = pipeOf(q.id);
-    var total = p.total != null ? p.total : "";
-    var deposit = p.deposit != null ? p.deposit : "";
-    if (total === "" || deposit === ""){
-      var tag = parseMemo(q.memo).money;
-      if (tag){
-        var mt = tag.match(/총\s*([\d,]+)/), md = tag.match(/계약금\s*([\d,]+)/);
-        if (total === "" && mt) total = Number(mt[1].replace(/,/g, ""));
-        if (deposit === "" && md) deposit = Number(md[1].replace(/,/g, ""));
-      }
+    var hasSupply = Object.prototype.hasOwnProperty.call(p, "supply");
+    var hasDeposit = Object.prototype.hasOwnProperty.call(p, "deposit");
+    var supply = (hasSupply && p.supply !== "" && p.supply != null) ? Number(p.supply) : "";
+    var deposit = (hasDeposit && p.deposit !== "" && p.deposit != null) ? Number(p.deposit) : "";
+    var tag = parseMemo(q.memo).money;
+    var mSupply = null, mTotal = null, mDeposit = null;
+    if (tag){
+      var ms = tag.match(/(?:공급가액|공급가)\s*([\d,]+)/);
+      var mt = tag.match(/(?:합계|총)\s*([\d,]+)/);
+      var md = tag.match(/계약금\s*([\d,]+)/);
+      if (ms) mSupply = Number(ms[1].replace(/,/g, ""));
+      if (mt) mTotal = Number(mt[1].replace(/,/g, ""));
+      if (md) mDeposit = Number(md[1].replace(/,/g, ""));
     }
-    total = total === "" ? "" : Number(total);
-    deposit = deposit === "" ? "" : Number(deposit);
+    if (!hasSupply){
+      if (mSupply != null && !isNaN(mSupply)) supply = mSupply;
+      /* 예전 기록은 부가세 포함 총 금액만 있어 공급가액으로 되돌린다 */
+      else if (mTotal != null && !isNaN(mTotal)) supply = Math.round(mTotal / (1 + VAT_RATE));
+      else if (p.total != null && p.total !== "") supply = Math.round(Number(p.total) / (1 + VAT_RATE));
+    }
+    if (!hasDeposit && mDeposit != null && !isNaN(mDeposit)) deposit = mDeposit;
+    supply = (supply === "" || isNaN(supply)) ? "" : Math.round(supply);
+    deposit = (deposit === "" || isNaN(deposit)) ? "" : Math.round(deposit);
+    var total = supply === "" ? "" : Math.round(supply * (1 + VAT_RATE));
+    var vat = supply === "" ? "" : total - supply;
     var balance = (total !== "" && deposit !== "") ? Math.max(0, total - deposit) : null;
-    return { total: total, deposit: deposit, balance: balance };
+    return { supply: supply, vat: vat, total: total, deposit: deposit, balance: balance };
   }
   function won(v){ return v === "" || v == null || isNaN(v) ? "—" : Number(v).toLocaleString("ko-KR") + "원"; }
-  /* 부가세 — 카드결제·세금계산서·현금영수증은 부가세 포함 총액 기준, 현금(증빙없음)은 별도 표기 없음 */
-  function vatOf(pay){
-    var has = pay === "카드결제" || pay === "세금계산서" || pay === "현금영수증";
-    return { has: has, rate: has ? 0.1 : 0 };
+  function moneyNote(m){
+    if (!m || m.supply === "") return "공급가액을 입력하면 부가세 10%가 자동으로 붙습니다 · 계약금은 직접 입력";
+    return "공급가액 " + won(m.supply) + " + 부가세 " + won(m.vat) + " = 합계 " + won(m.total) + " (부가세 포함)";
   }
-  function vatBreakdown(total, pay){
-    var v = vatOf(pay);
-    if (!v.has || total === "" || total == null || isNaN(total)) return null;
-    var supply = Math.round(total / (1 + v.rate));
-    return { supply: supply, vat: total - supply };
+  /* 화면 갱신 — 입력할 때마다 카드 전체를 다시 그리지 않고 계산값만 바꾼다 */
+  function paintMoney(card, m){
+    if (!card) return;
+    var put = function(sel, txt){ var el = card.querySelector(sel); if (el) el.textContent = txt; };
+    put('[data-amt="vat"]', won(m.vat));
+    put('[data-amt="total"]', won(m.total));
+    var bal = card.querySelector('[data-amt="balance"]');
+    if (bal) bal.innerHTML = (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small>';
+    put(".vat-note", moneyNote(m));
   }
 
   var state = {
@@ -711,7 +745,8 @@
     topSub.textContent = "로그인";
     app.innerHTML = ''
       + '<form class="login-box" id="login-form">'
-      + '  <h1>베오방음 통합 관리자</h1>'
+      + '  <img class="login-logo" src="assets/logo-horizontal.png?v=2" alt="베오방음 BEO SOUNDPROOF">'
+      + '  <h1>통합 관리자</h1>'
       + '  <p>관리자 키를 한 번 입력하면 이전설치·신규설치·중고마켓을 한 곳에서 바로 관리할 수 있습니다.</p>'
       + '  <div style="margin-top:16px">'
       + '    <input class="in" id="key-in" type="password" placeholder="관리자 키 입력" autocomplete="off">'
@@ -795,8 +830,11 @@
     if (base) lines.push(base);
     lines.push("[진행]" + stageLabel(stage));
     if (inst && inst.date) lines.push("[설치일]" + inst.date + (inst.time ? " " + inst.time : ""));
-    if (money && (money.total !== "" || money.deposit !== ""))
-      lines.push("[금액]총 " + (money.total || 0).toLocaleString("ko-KR") + " / 계약금 " + (money.deposit || 0).toLocaleString("ko-KR"));
+    if (money && (money.supply !== "" || money.deposit !== ""))
+      lines.push("[금액]공급가액 " + (money.supply || 0).toLocaleString("ko-KR")
+        + " / 부가세 " + (money.vat || 0).toLocaleString("ko-KR")
+        + " / 합계 " + (money.total || 0).toLocaleString("ko-KR")
+        + " / 계약금 " + (money.deposit || 0).toLocaleString("ko-KR"));
     if (pay) lines.push("[결제·증빙] " + pay);
     return lines.join("\n").slice(0, 2000);
   }
@@ -857,7 +895,6 @@ function contractData(q){
   var inst = installOf(q);
   var m = moneyOf(q);
   var pay = payOf(q);
-  var vat = vatBreakdown(m.total, pay);
   var work;
   if (isNewB){
     var sim = pm.sim || { w: q.width_mm, d: q.depth_mm };
@@ -875,18 +912,18 @@ function contractData(q){
     kind: isNewB ? "신규설치" : "이전설치",
     name: q.customer_name || "-",
     phone: q.customer_phone || "-",
-    total: m.total, deposit: m.deposit, balance: m.balance,
-    pay: pay, vat: vat,
+    supply: m.supply, vat: m.vat, total: m.total, deposit: m.deposit, balance: m.balance,
+    pay: pay,
     work: work, route: route,
     date: inst.date ? fmtDay(inst.date) + (inst.time ? " " + inst.time : "") : (q.desired_date ? fmtDay(q.desired_date) + " (희망)" : "확정 예정")
   };
 }
 function payVatLine(d){
   var out = [];
+  if (d.supply !== "") out.push("• 공급가액: " + won0(d.supply) + "원");
+  if (d.vat !== "") out.push("• 부가세 (10%): " + won0(d.vat) + "원");
+  if (d.total !== "") out.push("• 합계 (부가세 포함): " + won0(d.total) + "원");
   if (d.pay) out.push("• 결제 증빙: " + d.pay);
-  if (d.vat){
-    out.push("• 총 공사비 " + won0(d.total) + "원은 부가세 포함 금액입니다 (공급가액 " + won0(d.vat.supply) + "원 + 부가세 " + won0(d.vat.vat) + "원)");
-  }
   return out;
 }
 function contractText(q){
@@ -894,7 +931,6 @@ function contractText(q){
   return [
     "[방음부스 " + d.kind + " 계약 안내]",
     "",
-    "• 총 공사비: " + won0(d.total) + "원" + (d.vat ? " (부가세 포함)" : ""),
     payVatLine(d).join("\n"),
     "• 결제 방식",
     "1. 계약금: " + won0(d.deposit) + "원 (예약 확정 시)",
@@ -913,111 +949,273 @@ function contractText(q){
     "문의: 010-3001-5906"
   ].filter(Boolean).join("\n");
 }
+/* 🖼️ 전자 계약서 이미지 — 공식 로고 PNG를 먼저 불러온 뒤 그린다 (비율 유지) */
+var CONTRACT_LOGO_SRC = "assets/logo-horizontal-white.png?v=2";
+var LOGO_CACHE = {};
+function loadLogoImage(src){
+  if (LOGO_CACHE[src]) return LOGO_CACHE[src];
+  LOGO_CACHE[src] = new Promise(function(resolve){
+    var im = new Image();
+    im.onload = function(){ resolve(im); };
+    im.onerror = function(){ resolve(null); };
+    im.src = src;
+  });
+  return LOGO_CACHE[src];
+}
+/* 1패스(높이 재기) / 2패스(그리기)가 같은 함수를 쓴다 */
 function contractImage(q){
-  var d = contractData(q);
-  var W = 900, H = 1330;
-  var cv = document.createElement("canvas");
-  cv.width = W; cv.height = H;
-  var c = cv.getContext("2d");
-  var INK = "#14171A", ACC = "#2E9C86", ACCD = "#1F7A69", MUT = "#7B8389", LINE = "#E3DDD3";
-  var font = function(w, s){ return w + " 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif"; };
-  c.fillStyle = "#F4F0E8"; c.fillRect(0, 0, W, H);
-  c.fillStyle = "#FFFFFF"; c.fillRect(24, 24, W-48, H-48);
-
-  /* 헤더 */
-  c.fillStyle = INK; c.fillRect(24, 24, W-48, 118);
-  c.fillStyle = ACC;
-  [[44,78,14,40],[70,50,14,68],[96,64,14,54]].forEach(function(r){ c.fillRect(r[0], r[1], r[2], r[3]); });
-  c.fillStyle = "#FFFFFF"; c.textAlign = "left";
-  c.font = font(800, 30); c.fillText("BEOSOUNDPROOF", 130, 88);
-  c.fillStyle = "rgba(255,255,255,.72)"; c.font = font(600, 15);
-  c.fillText("방음부스 " + d.kind + " · 계약 안내서", 130, 114);
-  c.textAlign = "right"; c.fillStyle = ACC; c.font = font(800, 15);
-  c.fillText(d.kind, W-48, 88);
-
-  /* 고객 */
-  c.textAlign = "left";
-  c.fillStyle = MUT; c.font = font(700, 13); c.fillText("고객", 48, 184);
-  c.fillStyle = INK; c.font = font(800, 24); c.fillText(d.name, 48, 216);
-  c.fillStyle = ACCD; c.font = font(700, 15); c.fillText(d.phone, 48, 240);
-
-  /* 금액 표 */
-  var ty = 280;
-  var headH = 44, rowH = 46, rows = [
-    ["1. 계약금 — 예약 확정 시", won0(d.deposit) + "원"],
-    ["2. 잔금 — 공사 완료 후 현장 지급", won0(d.balance) + "원"]
-  ];
-  if (d.pay){
-    rows.unshift(["결제 증빙 — " + d.pay, d.vat ? "부가세 포함" : "증빙 없음"]);
-  }
-  if (d.vat){
-    rows.push(["공급가액", won0(d.vat.supply) + "원"], ["부가세 (10%)", won0(d.vat.vat) + "원"]);
-  }
-  c.fillStyle = INK; c.fillRect(48, ty, W-96, headH);
-  c.fillStyle = "#fff"; c.font = font(800, 14);
-  c.fillText("총 공사비" + (d.vat ? " (부가세 포함)" : ""), 68, ty+28);
-  c.textAlign = "right"; c.font = font(800, 20); c.fillText(won0(d.total) + "원", W-68, ty+30);
-  rows.forEach(function(r, i){
-    var ry = ty + headH + i*rowH;
-    c.fillStyle = i % 2 ? "#FAF8F4" : "#FFFFFF"; c.fillRect(48, ry, W-96, rowH);
-    c.textAlign = "left"; c.fillStyle = "#2E353B"; c.font = font(700, 15); c.fillText(r[0], 68, ry+29);
-    c.textAlign = "right"; c.fillStyle = ACCD; c.font = font(800, 17); c.fillText(r[1], W-68, ry+30);
+  return loadLogoImage(CONTRACT_LOGO_SRC).then(function(logo){
+    var d = contractData(q);
+    var W = 900;
+    var cv = document.createElement("canvas");
+    cv.width = W; cv.height = 2500;
+    var need = drawContract(cv.getContext("2d"), W, 0, d, q, logo);
+    var H = Math.max(1220, Math.ceil(need));
+    cv.height = H;
+    drawContract(cv.getContext("2d"), W, H, d, q, logo);
+    return cv;
   });
+}
+function drawContract(c, W, H, d, q, logo){
+  var PAD = 52, RIGHT = W - PAD, CW = RIGHT - PAD;
+  var INK = "#0E1826", NVY = "#122238", BODY = "#28313D", MUT = "#6B7280",
+      LINE = "#DBD4C5", SOFT = "#F7F4EE", ACC = "#0F766E", ACCL = "#E7F2EF",
+      GOLD = "#B99A5D", WHITE = "#FFFFFF";
+  var CONFIRM = "위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.";
+  var F = function(w, s){ return w + " " + s + "px 'Pretendard','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif"; };
+  var docNo = "BEO-" + String(q.id || "").slice(0, 8).toUpperCase();
+  var issued = new Date().toISOString().slice(0, 10);
+  function wrap(text, maxW, fnt){
+    c.font = fnt;
+    var words = String(text == null || text === "" ? "-" : text).split(/\s+/);
+    var out = [], cur = "";
+    words.forEach(function(w){
+      var t = cur ? cur + " " + w : w;
+      if (cur && c.measureText(t).width > maxW){ out.push(cur); cur = w; }
+      else cur = t;
+    });
+    if (cur) out.push(cur);
+    return out.length ? out : ["-"];
+  }
+  c.textBaseline = "alphabetic";
 
-  /* 계좌 박스 */
-  var by = ty + headH + rows.length*rowH + 22;
-  c.fillStyle = "#F3FAF7"; c.strokeStyle = "#9FC6BC"; c.lineWidth = 1.4;
-  c.beginPath(); c.roundRect(48, by, W-96, 88, 12); c.fill(); c.stroke();
-  c.textAlign = "left";
-  c.fillStyle = ACCD; c.font = font(800, 12); c.fillText("입금 계좌", 68, by+28);
-  c.fillStyle = INK; c.font = font(800, 24); c.fillText("베오방음 (기업은행)", 68, by+60);
-  c.textAlign = "right"; c.font = font(800, 26); c.fillText("301-115608-04-019", W-68, by+62);
+  /* ── 용지 · 머리글(네이비 공식 밴드) ── */
+  var headTop = 14, headH = 142;
+  if (H){
+    c.fillStyle = "#EDE9E0"; c.fillRect(0, 0, W, H);
+    c.fillStyle = WHITE; c.fillRect(14, 14, W - 28, H - 28);
+    c.strokeStyle = LINE; c.lineWidth = 1; c.strokeRect(14.5, 14.5, W - 29, H - 29);
+    var grd = c.createLinearGradient(0, headTop, W, headTop + headH);
+    grd.addColorStop(0, "#0A1421"); grd.addColorStop(1, "#1C2E49");
+    c.fillStyle = grd; c.fillRect(14, headTop, W - 28, headH);
+    c.fillStyle = GOLD; c.fillRect(14, headTop, W - 28, 3);
+  }
+  var markTop = headTop + 40;
+  if (H){
+    c.textAlign = "left";
+    /* 공식 로고 (흰색 PNG) — 비율 유지, 헤더 높이 44px */
+    if (logo && logo.width && logo.height){
+      var lh = 44, lw = lh * (logo.width / logo.height);
+      if (lw > CW * 0.46){ lw = CW * 0.46; lh = lw * (logo.height / logo.width); }
+      c.drawImage(logo, PAD, markTop, lw, lh);
+    } else {
+      c.fillStyle = WHITE; c.font = F(800, 24);
+      (function(txt, x, y, sp){
+        var cx = x;
+        for (var i = 0; i < txt.length; i++){ c.fillText(txt[i], cx, y); cx += c.measureText(txt[i]).width + sp; }
+      })("BEO SOUNDPROOF", PAD, markTop + 30, 1.4);
+    }
+    c.fillStyle = "rgba(255,255,255,.72)"; c.font = F(600, 14);
+    c.fillText("공식 시공 · 이전 계약서", PAD, markTop + 72);
+    c.textAlign = "right";
+    c.fillStyle = "rgba(255,255,255,.55)"; c.font = F(700, 12);
+    c.fillText("문서번호", RIGHT, markTop + 6);
+    c.fillStyle = WHITE; c.font = F(800, 17);
+    c.fillText(docNo, RIGHT, markTop + 30);
+    c.fillStyle = "rgba(255,255,255,.55)"; c.font = F(700, 12);
+    c.fillText("발행일 " + issued, RIGHT, markTop + 54);
+  }
 
-  /* 작업 정보 */
-  var wy = by + 88 + 34;
-  c.textAlign = "left";
-  c.fillStyle = MUT; c.font = font(800, 12); c.fillText("작업 정보", 48, wy);
-  var items = [["작업 내용", d.work], ["설치 장소", d.route], ["작업일자", d.date]];
-  var iy = wy + 26;
-  items.forEach(function(it){
-    c.fillStyle = MUT; c.font = font(700, 13); c.fillText(it[0], 48, iy);
-    c.fillStyle = INK; c.font = font(700, 15.5);
-    var lines = (function wrap(text, max){
-      var out = [], cur = "";
-      String(text).split(" ").forEach(function(w){
-        if (c.measureText(cur + " " + w).width > max){ out.push(cur); cur = w; }
-        else cur = cur ? cur + " " + w : w;
+  /* ── 문서 제목 ── */
+  var y = headTop + headH + 60;
+  var title = "방음부스 " + d.kind + " 계약 안내서";
+  if (H){
+    c.textAlign = "left"; c.fillStyle = INK; c.font = F(900, 30);
+    c.fillText(title, PAD, y);
+    c.font = F(800, 13);
+    var bw = c.measureText(d.kind).width + 34;
+    c.fillStyle = ACC;
+    c.beginPath(); c.roundRect(RIGHT - bw, y - 27, bw, 33, 16); c.fill();
+    c.fillStyle = WHITE; c.textAlign = "center"; c.font = F(800, 13);
+    c.fillText(d.kind, RIGHT - bw / 2, y - 5);
+  }
+  y += 30;
+  var meta = wrap("본 문서는 베오방음이 발행한 공식 계약 안내서이며, 아래 기재된 사양과 금액이 계약 조건입니다.", CW - 10, F(600, 14));
+  if (H){
+    c.textAlign = "left"; c.fillStyle = MUT; c.font = F(600, 14);
+    meta.forEach(function(l, i){ c.fillText(l, PAD, y + i * 20); });
+  }
+  y += meta.length * 20 + 10;
+  if (H){
+    c.strokeStyle = NVY; c.lineWidth = 2; c.beginPath(); c.moveTo(PAD, y); c.lineTo(RIGHT, y); c.stroke();
+    c.strokeStyle = GOLD; c.lineWidth = 1; c.beginPath(); c.moveTo(PAD, y + 5); c.lineTo(RIGHT, y + 5); c.stroke();
+  }
+
+  function sectionLabel(txt, yy){
+    if (H){
+      c.fillStyle = ACC; c.fillRect(PAD, yy - 15, 4, 20);
+      c.fillStyle = INK; c.font = F(800, 17); c.textAlign = "left";
+      c.fillText(txt, PAD + 14, yy + 1);
+    }
+    return yy + 20;
+  }
+
+  /* ── 고객 · 작업 정보 표 ── */
+  y += 34;
+  y = sectionLabel("고객 · 작업 정보", y);
+  y += 10;
+  var LW = 112, ROWH = 50;
+  function infoRow(yy, cells){
+    var n = cells.length;
+    var vw = n === 2 ? (CW - LW * 2) / 2 : (CW - LW);
+    var texts = cells.map(function(cell){ return wrap(cell.v, vw - 30, F(700, 18)); });
+    var ln = 1;
+    texts.forEach(function(t){ if (t.length > ln) ln = t.length; });
+    var h = Math.max(ROWH, ln * 26 + 24);
+    if (H){
+      var x = PAD;
+      cells.forEach(function(cell, i){
+        c.fillStyle = SOFT; c.fillRect(x, yy, LW, h);
+        c.fillStyle = WHITE; c.fillRect(x + LW, yy, vw, h);
+        c.strokeStyle = LINE; c.lineWidth = 1;
+        c.strokeRect(x + .5, yy + .5, LW - 1, h - 1);
+        c.strokeRect(x + LW + .5, yy + .5, vw - 1, h - 1);
+        c.textAlign = "left"; c.fillStyle = MUT; c.font = F(700, 14);
+        c.fillText(cell.l, x + 14, yy + h / 2 + 5);
+        c.fillStyle = INK; c.font = F(700, 18);
+        texts[i].forEach(function(line, li){ c.fillText(line, x + LW + 15, (ln === 1 ? yy + h / 2 + 6 : yy + 30) + li * 26); });
+        x += LW + vw;
       });
-      if (cur) out.push(cur);
-      return out;
-    })(it[1], W-96-150);
-    lines.slice(0, 2).forEach(function(l, li){ c.fillText(l, 190, iy + li*22); });
-    iy += Math.max(26, lines.slice(0,2).length*22 + 6);
-  });
+    }
+    return yy + h;
+  }
+  y = infoRow(y, [{ l: "고객명", v: d.name }, { l: "연락처", v: d.phone }]);
+  y = infoRow(y, [{ l: "작업 구분", v: d.kind }, { l: "작업일자", v: d.date }]);
+  y = infoRow(y, [{ l: "작업 내용", v: d.work }]);
+  y = infoRow(y, [{ l: "설치 장소", v: d.route }]);
 
-  /* 푸터 */
+  /* ── 계약 금액 표 ── */
+  y += 34;
+  y = sectionLabel("계약 금액", y);
+  y += 10;
+  var mrows = [];
+  if (d.supply !== "") mrows.push(["공급가액 (부가세 별도)", won0(d.supply) + "원", true]);
+  if (d.vat !== "") mrows.push(["부가세 (10%)", won0(d.vat) + "원", true]);
+  if (d.total !== "") mrows.push(["합계 (부가세 포함)", won0(d.total) + "원", true]);
+  if (d.pay) mrows.push(["결제 증빙", d.pay, false]);
+  if (!mrows.length) mrows.push(["금액", "미정", false]);
+  var tTop = y, thH = 44, trH = 54;
+  if (H){
+    c.fillStyle = NVY; c.fillRect(PAD, tTop, CW, thH);
+    c.fillStyle = "rgba(255,255,255,.88)"; c.font = F(800, 13); c.textAlign = "left";
+    c.fillText("구  분", PAD + 20, tTop + 28);
+    c.textAlign = "right"; c.fillText("금  액", RIGHT - 20, tTop + 28);
+    mrows.forEach(function(r, i){
+      var ry = tTop + thH + i * trH;
+      c.fillStyle = i % 2 ? SOFT : WHITE; c.fillRect(PAD, ry, CW, trH);
+      c.strokeStyle = LINE; c.lineWidth = 1; c.strokeRect(PAD + .5, ry + .5, CW - 1, trH - 1);
+      c.textAlign = "left"; c.fillStyle = BODY; c.font = F(700, 18);
+      c.fillText(r[0], PAD + 20, ry + 35);
+      c.textAlign = "right"; c.fillStyle = r[2] ? ACC : INK; c.font = F(800, r[2] ? 21 : 18);
+      c.fillText(r[1], RIGHT - 20, ry + 36);
+    });
+    c.strokeStyle = NVY; c.lineWidth = 1.6;
+    c.strokeRect(PAD + .5, tTop + .5, CW - 1, thH + mrows.length * trH - 1);
+  }
+  y = tTop + thH + mrows.length * trH;
+
+  /* ── 금액 강조 박스 (총액 · 계약금 · 잔금) ── */
+  y += 20;
+  var boxH = 124, gap = 12;
+  var totalW = Math.round(CW * 0.44), subW = (CW - totalW - gap * 2) / 2;
+  if (H){
+    c.fillStyle = NVY; c.beginPath(); c.roundRect(PAD, y, totalW, boxH, 14); c.fill();
+    c.textAlign = "left"; c.fillStyle = "rgba(255,255,255,.62)"; c.font = F(700, 14);
+    c.fillText("총 계약 금액 (부가세 포함)", PAD + 22, y + 38);
+    c.fillStyle = WHITE; c.font = F(900, 32);
+    c.fillText(won0(d.total) + "원", PAD + 22, y + 88);
+    [["계약금 (예약 확정 시)", d.deposit], ["잔금 (공사 완료 후)", d.balance]].forEach(function(r, i){
+      var bxx = PAD + totalW + gap + i * (subW + gap);
+      c.fillStyle = ACCL; c.beginPath(); c.roundRect(bxx, y, subW, boxH, 14); c.fill();
+      c.strokeStyle = "#BBD6D0"; c.lineWidth = 1.2; c.stroke();
+      c.textAlign = "left"; c.fillStyle = ACC; c.font = F(800, 13);
+      c.fillText(r[0], bxx + 18, y + 38);
+      c.fillStyle = INK; c.font = F(900, 24);
+      c.fillText(won0(r[1]) + "원", bxx + 18, y + 86);
+    });
+  }
+  y += boxH;
+
+  /* ── 입금 계좌 ── */
+  y += 18;
+  var accH = 86;
+  if (H){
+    c.fillStyle = SOFT; c.beginPath(); c.roundRect(PAD, y, CW, accH, 12); c.fill();
+    c.strokeStyle = LINE; c.lineWidth = 1.2; c.stroke();
+    c.textAlign = "left"; c.fillStyle = MUT; c.font = F(800, 13);
+    c.fillText("입금 계좌", PAD + 20, y + 32);
+    c.fillStyle = INK; c.font = F(800, 19);
+    c.fillText("베오방음 · 기업은행", PAD + 20, y + 62);
+    c.textAlign = "right"; c.fillStyle = ACC; c.font = F(900, 26);
+    c.fillText("301-115608-04-019", RIGHT - 20, y + 60);
+  }
+  y += accH;
+
+  /* ── 확정 문구 · 공식 확인(직인) ── */
+  var footTop = y + 36, footH = 178;
+  var needH = footTop + footH + 30;
+  if (!H) return needH;
   c.strokeStyle = LINE; c.lineWidth = 1;
-  c.beginPath(); c.moveTo(48, H-170); c.lineTo(W-48, H-170); c.stroke();
-  c.textAlign = "left";
-  c.fillStyle = INK; c.font = font(700, 14.5); c.fillText("위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.", 48, H-140);
-  c.fillStyle = INK; c.font = font(800, 18); c.fillText("베오방음 (BEOSOUNDPROOF)", 48, H-104);
-  c.fillStyle = MUT; c.font = font(600, 14); c.fillText("문의 010-3001-5906", 48, H-78);
-  c.textAlign = "right"; c.font = font(600, 12);
-  c.fillText("#" + String(q.id || "").slice(0, 8).toUpperCase() + " · " + new Date().toISOString().slice(0, 10), W-48, H-104);
-
-  return cv;
+  c.beginPath(); c.moveTo(PAD, footTop); c.lineTo(RIGHT, footTop); c.stroke();
+  c.strokeStyle = NVY; c.lineWidth = 1.6;
+  c.beginPath(); c.moveTo(PAD, footTop + 5); c.lineTo(RIGHT, footTop + 5); c.stroke();
+  c.textAlign = "left"; c.fillStyle = INK; c.font = F(800, 19);
+  c.fillText(CONFIRM, PAD, footTop + 52);
+  c.fillStyle = MUT; c.font = F(600, 13);
+  c.fillText(docNo + " · " + issued, PAD, footTop + 76);
+  c.fillStyle = INK; c.font = F(900, 20);
+  c.fillText("베오방음 (BEOSOUNDPROOF)", PAD, footTop + 116);
+  c.fillStyle = MUT; c.font = F(600, 14);
+  c.fillText("문의 010-3001-5906 · beosoundproof.com", PAD, footTop + 142);
+  var sealX = RIGHT - 58, sealY = footTop + 100, r = 46;
+  c.strokeStyle = "rgba(163,56,48,.85)"; c.lineWidth = 2.4;
+  c.beginPath(); c.arc(sealX, sealY, r, 0, Math.PI * 2); c.stroke();
+  c.lineWidth = 1.2;
+  c.beginPath(); c.arc(sealX, sealY, r - 6, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = "rgba(163,56,48,.92)"; c.textAlign = "center";
+  c.font = F(800, 16); c.fillText("베오방음", sealX, sealY - 2);
+  c.font = F(700, 10); c.fillText("계약 확인", sealX, sealY + 20);
+  return needH;
 }
 function openContractModal(q){
   var modal = document.getElementById("ct-modal");
-  var cv = contractImage(q);
-  document.getElementById("ct-img").src = cv.toDataURL("image/png");
-  document.getElementById("ct-dl").onclick = function(){
-    var a = document.createElement("a");
-    a.href = cv.toDataURL("image/png");
-    a.download = "베오방음_계약안내서_" + String(q.id || "").slice(0, 8).toUpperCase() + ".png";
-    document.body.appendChild(a); a.click(); a.remove();
-  };
+  var imgEl = document.getElementById("ct-img");
+  var dlEl = document.getElementById("ct-dl");
   modal.hidden = false;
+  imgEl.removeAttribute("src");
+  imgEl.alt = "계약 안내서 이미지를 만드는 중입니다…";
+  dlEl.disabled = true;
+  contractImage(q).then(function(cv){
+    imgEl.src = cv.toDataURL("image/png");
+    imgEl.alt = "계약 안내서 이미지";
+    dlEl.disabled = false;
+    dlEl.onclick = function(){
+      var a = document.createElement("a");
+      a.href = cv.toDataURL("image/png");
+      a.download = "베오방음_계약안내서_" + String(q.id || "").slice(0, 8).toUpperCase() + ".png";
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+  });
 }
   function pad2(n){ return String(n).padStart(2, "0"); }
   function todayStr(){
@@ -1245,21 +1443,26 @@ function openContractModal(q){
 
     var m = moneyOf(q);
     var pay = payOf(q);
-    var vat = vatBreakdown(m.total, pay);
     var moneyHtml = '<div class="money-row">'
-      + '  <div class="pay-item">'
+      + '  <div class="pay-line">'
       + '    <label>결제 증빙</label>'
       + '    <div class="pay-chips">' + PAY_OPTS.map(function(p){
         return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
       }).join("") + '</div>'
-      + '    <div class="vat-note">' + (vat ? '공급가액 ' + vat.supply.toLocaleString("ko-KR") + ' + 부가세 ' + vat.vat.toLocaleString("ko-KR") + '원' : '총액 기준 · 부가세 표기 없음') + '</div>'
+      + '    <span class="pay-hint">카드 · 세금계산서 · 현금영수증 모두 공급가액 + 부가세 10% = 합계로 같습니다</span>'
       + '  </div>'
-      + '  <div class="money-item"><label>총 공사비 (원)' + (vat ? " · 부가세 포함" : "") + '</label>'
-      + '    <input type="number" min="0" step="10000" data-money-id="' + esc(q.id) + '" data-money-k="total" value="' + (m.total === "" ? "" : m.total) + '" placeholder="0"></div>'
+      + '  <div class="money-item"><label>공급가액 (원 · 부가세 별도)</label>'
+      + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="supply" value="' + (m.supply === "" ? "" : m.supply) + '" placeholder="예: 500000">'
+      + '    <div class="money-hint" data-hint="supply"></div></div>'
+      + '  <div class="money-item"><label>부가세 (10%)</label>'
+      + '    <div class="amt" data-amt="vat">' + won(m.vat) + '</div></div>'
+      + '  <div class="money-item"><label>합계 (부가세 포함)</label>'
+      + '    <div class="amt strong" data-amt="total">' + won(m.total) + '</div></div>'
       + '  <div class="money-item"><label>계약금 (원)</label>'
-      + '    <input type="number" min="0" step="10000" data-money-id="' + esc(q.id) + '" data-money-k="deposit" value="' + (m.deposit === "" ? "" : m.deposit) + '" placeholder="0"></div>'
+      + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="deposit" value="' + (m.deposit === "" ? "" : m.deposit) + '" placeholder="0"></div>'
       + '  <div class="money-item"><label>잔금 (자동)</label>'
-      + '    <div class="bal">' + (m.balance == null ? "—" : m.balance.toLocaleString("ko-KR") + "원") + '<small>공사 완료 후 현장 지급</small></div></div>'
+      + '    <div class="bal" data-amt="balance">' + (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small></div></div>'
+      + '  <div class="vat-note">' + moneyNote(m) + '</div>'
       + '</div>';
 
     return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '" data-stage="' + st + '">'
@@ -1487,27 +1690,51 @@ function openContractModal(q){
     Array.prototype.forEach.call(app.querySelectorAll("[data-money-id]"), function(inp){
       inp.addEventListener("input", function(){
         var id = inp.getAttribute("data-money-id");
-        var k = inp.getAttribute("data-money-k");
-        var v = inp.value === "" ? "" : Number(inp.value);
-        setPipe(id, k === "total" ? { total: v } : { deposit: v });
-        /* 잔금 자동 계산 — 카드 전체를 다시 그리지 않고 이 줄만 갱신 */
+        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "supply";
+        var v = amountOf(inp.value);
+        var patch = {}; patch[k] = v;
+        setPipe(id, patch);
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
-        var m = moneyOf(q);
-        var payNow = payOf(q);
-        var vatNow = vatBreakdown(m.total, payNow);
-        var card = inp.closest(".qsheet");
-        var bal = card ? card.querySelector(".money-item .bal") : null;
-        if (bal) bal.innerHTML = (m.balance == null ? "—" : m.balance.toLocaleString("ko-KR") + "원") + '<small>공사 완료 후 현장 지급</small>';
-        var vatNote = card ? card.querySelector(".vat-note") : null;
-        if (vatNote) vatNote.textContent = vatNow ? ('공급가액 ' + vatNow.supply.toLocaleString("ko-KR") + ' + 부가세 ' + vatNow.vat.toLocaleString("ko-KR") + '원') : '총액 기준 · 부가세 표기 없음';
+        paintMoney(inp.closest(".qsheet"), moneyOf(q));
+        /* 1000 미만 입력은 만 원 단위로 읽었다고 알려 준다 (예: 50 → 50만 원) */
+        var hint = inp.parentNode.querySelector(".money-hint");
+        if (hint){
+          var rawNum = Number(String(inp.value).replace(/[^0-9.]/g, ""));
+          hint.textContent = (k === "supply" && v !== "" && rawNum > 0 && rawNum < 1000) ? ("→ " + won(v) + " (만 원 단위)") : "";
+        }
       });
       inp.addEventListener("change", function(){
         var id = inp.getAttribute("data-money-id");
+        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "supply";
+        var v = amountOf(inp.value);
+        inp.value = v === "" ? "" : String(v);
+        var patch = {}; patch[k] = v;
+        setPipe(id, patch);
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
+        paintMoney(inp.closest(".qsheet"), moneyOf(q));
+        var hint = inp.parentNode.querySelector(".money-hint");
+        if (hint) hint.textContent = "";
         pushMemoUpdate(q, stageOf(q));
         toast("계약 금액을 저장했습니다");
+      });
+    });
+
+    /* 결제 증빙 선택 — 다시 누르면 미정으로 돌린다 */
+    Array.prototype.forEach.call(app.querySelectorAll("[data-pay-id]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-pay-id");
+        var p = b.getAttribute("data-pay");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!q) return;
+        var next = payOf(q) === p ? "" : p;
+        setPipe(id, { pay: next });
+        Array.prototype.forEach.call(b.parentNode.querySelectorAll(".pay-chip"), function(x){
+          x.classList.toggle("on", !!next && x === b);
+        });
+        pushMemoUpdate(q, stageOf(q));
+        toast(next ? "결제 증빙을 ‘" + next + "’(으)로 저장했습니다" : "결제 증빙을 미정으로 비웠습니다");
       });
     });
 
