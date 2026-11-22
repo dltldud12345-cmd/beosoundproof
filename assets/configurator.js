@@ -114,7 +114,7 @@ const FREE_ORDER = ['back', 'left', 'right'];
 const PRESETS = [
   { id:'studio', label:'스튜디오 베스트', sw:['#D8C6A6','#E0CBA6','#C6A47E'], set:{ artboard:'beige',  slat:'maple',     floor:'oak',   light:'cob4000' } },
   { id:'clean',  label:'클린 화이트',     sw:['#E7E5E1','#DFDBD0','#E4DDD0'], set:{ artboard:'white',  slat:'whitewash', floor:'pine',  light:'cob4000' } },
-  { id:'dark',   label:'모던 다크',       sw:['#737A82','#5B483A','#C6A47E'], set:{ artboard:'gray_d', slat:'dark',      floor:'oak',   light:'cob4000' } },
+  { id:'dark',   label:'모던 다크',       sw:['#AEAFAC','#5B483A','#C6A47E'], set:{ artboard:'gray_l', slat:'dark',      floor:'oak',   light:'cob4000' } },
   { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C6A47E'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
 ];
 const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000', door:'right' };
@@ -2477,7 +2477,7 @@ function preloadPhotoWins(){
     '800x800': 'assets/win-800.png?v=7',
     '1200x800': 'assets/win-1200.png?v=7',
     'double1200': 'assets/win-double.png?v=7',
-    'rail_ceiling': 'assets/ceiling-rail.png?v=8',
+    'rail_ceiling': 'assets/ceiling-rail.png?v=9',
     'slat_nocob': 'assets/slat-nocob.png?v=4',
     'side_left': 'assets/side-slat-left.png?v=1',
     'side_right': 'assets/side-slat-right.png?v=1',
@@ -2486,17 +2486,19 @@ function preloadPhotoWins(){
     'back_800x800': 'assets/win-800x800-back.png?v=3',
     'back_1200x800': 'assets/win-1200x800-back.png?v=3',
     'back_double1200': 'assets/win-double-back.png?v=3',
-    'glow_back_rail': 'assets/wallglow-back-rail.png?v=2',
-    'glow_left_cob': 'assets/wallglow-left-cob.png?v=2',
-    'glow_left_rail': 'assets/wallglow-left-rail.png?v=2',
-    'glow_right_cob': 'assets/wallglow-right-cob.png?v=2',
-    'glow_right_rail': 'assets/wallglow-right-rail.png?v=2'
+    'ceiling_clean': 'assets/ceiling-clean.webp?v=1',
+    'side_light_left': 'assets/side-light-left.webp?v=1',
+    'side_light_right': 'assets/side-light-right.webp?v=1',
+    'side_rail_left': 'assets/side-rail-left.webp?v=1',
+    'side_rail_right': 'assets/side-rail-right.webp?v=1',
+    'glow_back_rail': 'assets/wallglow-back-rail.png?v=2'
   };
   const dataTargets = {
     'slat_nocob': 'nocobOrig',
     'side_left': 'sideLeftOrig',
     'side_right': 'sideRightOrig',
-    'back_art': 'backArtOrig'
+    'back_art': 'backArtOrig',
+    'ceiling_clean': 'ceilCleanOrig'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
@@ -2575,19 +2577,27 @@ function initPhotoCache(cb){
   };
   img.src = 'assets/interior-academy-clean.jpg?v=3';
 }
-function drawPhotoWallGlow(ctx, W, H){
-  /* 타공판 벽에 맺히는 따뜬한 조명 빛 — 선택한 타공판 위치를 따라갑니다 */
+function drawPhotoCeilingLight(ctx, W, H){
+  /* 천장 조명: 후면 타공판이면 사진 원본의 COB 2구를 그대로 쓰고,
+     옆벽 타공판이면 후면 COB를 지운 천장 패치 위에 그 벽 천장용 조명을 얹습니다 */
   const pos = state.slatPos || 'back';
   const rail = state.light === 'rail';
-  /* 후면 + COB는 원본 사진에 빛 웅덩이가 이미 박혀 있어 그대로 썺니다 */
-  if (pos === 'back' && !rail) return;
-  const im = photoWinImgs[`glow_${pos}_${rail ? 'rail' : 'cob'}`];
-  if (!im || !im.complete || !im.naturalWidth) return;
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.62;
-  ctx.drawImage(im, 0, 0, W, H);
-  ctx.restore();
+  if (pos === 'back'){
+    if (!rail) return;                       // COB 2구는 원본 사진에 이미 있습니다
+    const bar = photoWinImgs.rail_ceiling;
+    if (bar && bar.complete && bar.naturalWidth) ctx.drawImage(bar, 0, 0, W, H);
+    const g = photoWinImgs.glow_back_rail;
+    if (g && g.complete && g.naturalWidth){
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.62;
+      ctx.drawImage(g, 0, 0, W, H);
+      ctx.restore();
+    }
+    return;
+  }
+  const im = photoWinImgs[`side_${rail ? 'rail' : 'light'}_${pos}`];
+  if (im && im.complete && im.naturalWidth) ctx.drawImage(im, 0, 0, W, H);
 }
 function drawPhotoWindow(ctx, W, H, winVal){
   if (!winVal || winVal === 'none') return;
@@ -2605,15 +2615,6 @@ function drawPhotoWindow(ctx, W, H, winVal){
   ctx.drawImage(im, 0, 0, W, H);
   ctx.restore();
 }
-function drawPhotoRailLight(ctx, W, H){
-  if (state.light !== 'rail') return;
-  /* 실사 사진의 레일등 트랙은 뒷벽 쪽 천장에 박혀 있어, 타공판이 옆벽일 때는 그리지 않습니다 */
-  if ((state.slatPos || 'back') !== 'back') return;
-  const im = photoWinImgs.rail_ceiling;
-  if (im && im.complete && im.naturalWidth){
-    ctx.drawImage(im, 0, 0, W, H);
-  }
-}
 function renderPhotoStage(){
   const cvs = $('#photoStage');
   if (!cvs) return;
@@ -2629,6 +2630,8 @@ function renderPhotoStage(){
     const sideL = (slatPos === 'left' && photoCache.sideLeftOrig) ? photoCache.sideLeftOrig : null;
     const sideR = (slatPos === 'right' && photoCache.sideRightOrig) ? photoCache.sideRightOrig : null;
     const backArt = (slatPos !== 'back' && photoCache.backArtOrig) ? photoCache.backArtOrig : null;
+    /* 후면 COB 2구를 쓰지 않는 조합에서는 천장에서 그 구멍·빛혼적을 지운 패치를 먼저 씌웁니다 */
+    const ceilClean = ((slatPos !== 'back' || state.light === 'rail') && photoCache.ceilCleanOrig) ? photoCache.ceilCleanOrig : null;
     const cA = photoCache.cov.art, cB = photoCache.cov.back, cF = photoCache.cov.floor, cR = photoCache.cov.right;
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
@@ -2651,6 +2654,7 @@ function renderPhotoStage(){
       if (wA){
         let r = sr, g = sg, b = sb, k = 0;
         if (sideL){ const a = sideL[p+3]; if (a){ k = a / 255; r = r*(1-k) + sideL[p]*k; g = g*(1-k) + sideL[p+1]*k; b = b*(1-k) + sideL[p+2]*k; } }
+        if (ceilClean){ const a = ceilClean[p+3]; if (a){ const kc = a / 255; r = r*(1-kc) + ceilClean[p]*kc; g = g*(1-kc) + ceilClean[p+1]*kc; b = b*(1-kc) + ceilClean[p+2]*kc; } }
         wArt += wA * (1-k); wSlat += wA * k;
         tr += wA*r; tg += wA*g; tb += wA*b; tw += wA;
       }
@@ -2720,9 +2724,8 @@ function renderPhotoStage(){
       dst[p+3] = 255;
     }
     ctx.putImageData(out, 0, 0);
-    drawPhotoWallGlow(ctx, W, H);
+    drawPhotoCeilingLight(ctx, W, H);
     drawPhotoWindow(ctx, W, H, state.window);
-    drawPhotoRailLight(ctx, W, H);
   });
 }
 
