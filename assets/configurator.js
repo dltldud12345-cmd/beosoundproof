@@ -250,11 +250,6 @@ function buildPanel(){
           ${PROJECTS.map(p => `<button type="button" data-group="project" data-value="${p.v}" aria-pressed="false">${p.label}</button>`).join('')}
         </div>
       </div>
-
-      <div class="row">
-        <div class="rl"><b>에어컨 라인 벽체 매설</b><small>배관이 부스 밖으로 드러나지 않게</small></div>
-        <button type="button" class="switch" id="swAc" role="switch" aria-checked="false" aria-label="에어컨 라인 벽체 매설"></button>
-      </div>
     </section>
 
     <section class="sec" style="border-bottom:0">
@@ -275,7 +270,6 @@ function buildPanel(){
   `;
   $('#slW').addEventListener('input', onSlide);
   $('#slD').addEventListener('input', onSlide);
-  $('#swAc').addEventListener('click', () => { state.ac = !state.ac; syncUI(); rebuild(); });
   panel.addEventListener('click', onPanelClick);
 }
 
@@ -340,7 +334,6 @@ function specRows(){
   const winSpec = pick(WINDOWS, state.window);
   rows.push({ k:'시창', v:(state.window === 'none' ? '없음' : (winSpec.isDouble ? '이중창 1,200×800' : `${winSpec.label} 시창`)), chg:state.window !== 'none', chip:'', sub:winSpec.sub || '' });
   rows.push({ k:'프로젝트창', v:(state.project === 'in' ? '포함' : '없음'), chg:state.project === 'in', chip:'', sub:'천장 개폐형' });
-  rows.push({ k:'에어컨 라인', v:(state.ac ? '벽체 매설' : '미포함'), chg:state.ac, chip:'', sub:'' });
   return rows;
 }
 
@@ -456,7 +449,7 @@ function specTextValue(){
   ];
   const map = { '규격':'규격', '아트보드':'아트보드(3면)', '라인타공':'라인타공(1면)',
                 '조명':'조명', '바닥':'바닥 마루', '문':'문 위치·경첩', '시창':'벽면 시창',
-                '프로젝트창':'천장 프로젝트창', '에어컨 라인':'에어컨 라인' };
+                '프로젝트창':'천장 프로젝트창' };
   rows.filter(r => r.k !== '규격').forEach(r => lines.push(`${map[r.k] || r.k}: ${r.v}`));
   lines.push('');
   lines.push(`기본 포함: ${INCLUDED.join(' · ')}`);
@@ -2348,12 +2341,12 @@ function photoHexToRgb(hex){
 const photoWinImgs = {};
 function preloadPhotoWins(){
   const map = {
-    '600x800': 'assets/win-600.png',
-    '800x800': 'assets/win-800.png',
-    '1200x800': 'assets/win-1200.png',
+    '600x800': 'assets/win-600.png?v=2',
+    '800x800': 'assets/win-800.png?v=2',
+    '1200x800': 'assets/win-1200.png?v=2',
     'double1200': 'assets/win-double.png',
     'rail_ceiling': 'assets/ceiling-rail.png?v=4',
-    'slat_nocob': 'assets/slat-nocob.png?v=2'
+    'slat_nocob': 'assets/slat-nocob.png?v=3'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
