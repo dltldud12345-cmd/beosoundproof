@@ -2427,9 +2427,9 @@ function interiorSetup(){
   const side = slat === 'left' ? -1 : 1;
   const tx = side * (W/2 - 0.07);   // 타공판 벽면을 조준
   const dx = -side * (W - 0.44);    // 반대쪽 벽 앞에 서서
-  const dz = D/2 - 0.32;
+  const dz = D/2 - 0.62;
   const r = Math.hypot(dx, dz);
-  return { theta: Math.atan2(dx, dz), phi: Math.acos(Math.min(0.9, 0.14 / r)), r, ty, tx, tz: 0, fov: isSmall() ? 82 : 74 };
+  return { theta: Math.atan2(dx, dz), phi: Math.acos(Math.min(0.9, 0.14 / r)), r, ty, tx, tz: 0, fov: isSmall() ? 78 : 66 };
 }
 /* 시점 중심에서 방 안을 벗어나지 않는 최대 반경 */
 function maxInsideR(theta, phi, tx, ty, tz){
