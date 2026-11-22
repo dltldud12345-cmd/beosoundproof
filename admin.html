@@ -220,6 +220,10 @@
   .pay-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
   .pay-hint{font-size:10px;font-weight:700;color:var(--muted);flex:1 1 100%;line-height:1.35}
   .vat-note{grid-column:1 / -1;font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.4;min-width:0}
+  .money-profit{margin-top:2px;color:var(--ink2)}
+  .money-profit b{font-weight:800}
+  .money-profit b.plus{color:#17663C}
+  .money-profit b.loss{color:#8E2020}
   .money-item{display:grid;gap:4px;min-width:0;align-content:start}
   .money-item.span2{grid-column:span 2}
   .money-item label{font-size:10px;font-weight:800;color:#8A6A1F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -576,14 +580,14 @@
       <label style="display:grid;gap:4px">해체(출발지) 주소<input id="ed-from" class="inst-in" style="text-align:left;padding:0 10px"></label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
         <label style="display:grid;gap:4px">층수<input id="ed-ffl" class="inst-in" style="text-align:left;padding:0 10px"></label>
-        <label style="display:grid;gap:4px">엘리베이터<select id="ed-fel" class="inst-in"><option value="">미확인</option><option value="true">있음</option><option value="false">없음</option></select></label>
+        <label style="display:grid;gap:4px">엘리베이터<select id="ed-fel" class="inst-in"><option value="">미확인</option><option value="있음">있음</option><option value="없음">없음</option></select></label>
       </div>
     </div>
     <div style="display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#F3FAF7;font-size:12px;font-weight:700;color:var(--muted)">
       <label style="display:grid;gap:4px">설치(도착지) 주소<input id="ed-to" class="inst-in" style="text-align:left;padding:0 10px"></label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
         <label style="display:grid;gap:4px">층수<input id="ed-tfl" class="inst-in" style="text-align:left;padding:0 10px"></label>
-        <label style="display:grid;gap:4px">엘리베이터<select id="ed-tel" class="inst-in"><option value="">미확인</option><option value="true">있음</option><option value="false">없음</option></select></label>
+        <label style="display:grid;gap:4px">엘리베이터<select id="ed-tel" class="inst-in"><option value="">미확인</option><option value="있음">있음</option><option value="없음">없음</option></select></label>
       </div>
     </div>
     <label style="display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--muted)">고객 추가 메모
@@ -1160,33 +1164,77 @@
   function markMemoCap(ok){
     try { localStorage.setItem(CAP_KEY, ok); } catch (e) {}
   }
-  /* 서버가 memo 수정을 지원하면 DB에 남기고, 없으면 조용히 기기 저장만 쓴다.
-     ① relocation_admin 액션 'update' → ② 별도 RPC 'relocation_admin_update' → ③ 기기 저장 */
-  function pushMemoUpdate(q, stage){
+  /* ---------- 서버 저장 경로 (한 곳에서 관리) ----------
+     지금 Supabase는 relocation_admin 의 list/status/delete 만 열려 있어 수정 저장은 기기(이 브라우저)에만 남는다.
+     서버에 수정 액션이 생기면 아래 목록의 첫 성공 경로로 자동 전환된다 — 호출부는 그대로 두면 된다.
+       ① relocation_admin + p_action "update"
+       ② relocation_admin_update(p_key, p_payload)
+       ③ quote_admin + p_action "update"
+     보내는 payload 는 화면에서 고칠 수 있는 모든 항목 + 메모 태그라서, 서버가 항목을 늘려도 그대로 쓰인다. */
+  function buildQuotePatch(q, stage){
+    var inst = installOf(q);
+    var m = moneyOf(q);
+    var c = costOf(q);
+    var st = stage || stageOf(q);
+    return {
+      id: q.id,
+      customer_name: q.customer_name || "",
+      customer_phone: q.customer_phone || "",
+      booth_type: q.booth_type || "",
+      brand: q.brand || "",
+      width_mm: q.width_mm || null,
+      depth_mm: q.depth_mm || null,
+      height_mm: q.height_mm || null,
+      from_region: q.from_region || "",
+      from_floor: q.from_floor || "",
+      from_elevator: q.from_elevator || "",
+      to_region: q.to_region || "",
+      to_floor: q.to_floor || "",
+      to_elevator: q.to_elevator || "",
+      status: (STAGE_BY_V[st] || STAGE_BY_V.new).db,
+      install_date: inst.date || "",
+      install_time: inst.time || "",
+      pay: payOf(q) || "",
+      total: m.total === "" ? null : m.total,
+      vat: m.vat === "" ? null : m.vat,
+      supply: m.supply === "" ? null : m.supply,
+      deposit: m.deposit === "" ? null : m.deposit,
+      day_cost: c.day === "" ? null : c.day,
+      expense: c.expense === "" ? null : c.expense,
+      memo: buildTaggedMemo(q, st, inst, m, payOf(q))
+    };
+  }
+  var QUOTE_UPDATE_ROUTES = [
+    { key: "relocation_admin", call: function(payload){
+        return rpc("relocation_admin", { p_key: state.adminKey, p_action: "update", p_payload: payload });
+      } },
+    { key: "relocation_admin_update", call: function(payload){
+        return rpc("relocation_admin_update", { p_key: state.adminKey, p_payload: payload });
+      } },
+    { key: "quote_admin", call: function(payload){
+        return rpc("quote_admin", { p_key: state.adminKey, p_action: "update", p_payload: payload });
+      } }
+  ];
+  function pushQuoteUpdate(q, stage){
+    if (!q) return;
     var cap = memoCapable();
     if (cap === "none") return;
-    var memo = buildTaggedMemo(q, stage, installOf(q), moneyOf(q), payOf(q));
-    var done = function(res){
-      if (res && res.ok){ markMemoCap("relocation_admin"); q.memo = memo; return true; }
-      return false;
+    var payload = buildQuotePatch(q, stage);
+    var routes = cap ? QUOTE_UPDATE_ROUTES.filter(function(r){ return r.key === cap; }) : QUOTE_UPDATE_ROUTES;
+    if (!routes.length) routes = QUOTE_UPDATE_ROUTES;
+    var tryFrom = function(i){
+      if (i >= routes.length){ markMemoCap("none"); return; }
+      var r = routes[i];
+      r.call(payload).then(function(res){
+        if (res && res.ok){ markMemoCap(r.key); q.memo = payload.memo; return; }
+        if (res && res.error === "unauthorized"){ markMemoCap("none"); return; }
+        tryFrom(i + 1);
+      }).catch(function(){ tryFrom(i + 1); });
     };
-    var tryAlt = function(){
-      rpc("relocation_admin_update", { p_key: state.adminKey, p_payload: { id: q.id, memo: memo } })
-        .then(function(res){
-          if (res && res.ok){ markMemoCap("relocation_admin_update"); q.memo = memo; }
-          else markMemoCap("none");
-        })
-        .catch(function(){ markMemoCap("none"); });
-    };
-    if (cap === "relocation_admin_update"){ tryAlt(); return; }
-    rpc("relocation_admin", { p_key: state.adminKey, p_action: "update", p_payload: { id: q.id, memo: memo } })
-      .then(function(res){
-        if (done(res)) return;
-        if (res && /unknown action/i.test(String(res.error || ""))) tryAlt();
-        else markMemoCap("none");
-      })
-      .catch(function(){ tryAlt(); });
+    tryFrom(0);
   }
+  /* 예전 이름 — 저장 호출부가 그대로 부를 수 있게 남겨 둔다 */
+  function pushMemoUpdate(q, stage){ pushQuoteUpdate(q, stage); }
   function saveStage(id, stage){
     var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
     var s = STAGE_BY_V[stage] || STAGE_BY_V.new;
@@ -2003,6 +2051,35 @@ function openContractModal(q){
         renderScheduleTab();
       });
   }
+  /* 한 달 손익 — 매출 · 인건비(일당+경비) · 부가세 · 순수익 (일정 탭 상단 요약 바 하나로) */
+  function monthSum(dated, ym){
+    var out = { sales: 0, vat: 0, cost: 0, salesN: 0, costN: 0, cash: 0, taxed: 0 };
+    dated.forEach(function(i){
+      if (i.date.slice(0, 7) !== ym) return;
+      var mm = moneyOf(i.q);
+      var mt = Number(mm.total) || 0;
+      if (mt > 0){
+        out.sales += mt; out.salesN++;
+        out.vat += Number(mm.vat) || 0;
+        if (payOf(i.q) === "현금결제") out.cash += mt; else out.taxed += mt;
+      }
+      var cc = costOf(i.q);
+      if (cc.hasCost){ out.cost += cc.spend; out.costN++; }
+    });
+    out.net = out.sales - out.vat - out.cost;
+    return out;
+  }
+  function monthSumHtml(sum, mm){
+    if (!sum.salesN && !sum.costN) return "";
+    return '<div class="msum">'
+      + '<div class="mi"><span>' + mm + '월 매출</span><b>' + won(sum.sales) + '</b></div>'
+      + '<div class="mi"><span>인건비 (일당·경비)</span><b>' + won(sum.cost) + '</b></div>'
+      + '<div class="mi vat"><span>부가세</span><b>' + won(sum.vat) + '</b></div>'
+      + '<div class="mi net' + (sum.net < 0 ? " minus" : "") + '"><span>순수익</span><b>' + profitText(sum.net) + '</b></div>'
+      + '<div class="mcap">매출 = 총액 입력 ' + sum.salesN + '건 · 순수익 = 매출 − 부가세 − 인건비 (일당·경비 입력 ' + sum.costN + '건)</div>'
+      + (sum.cash || sum.taxed ? '<div class="mcap">💵 현금결제 ' + won(sum.cash) + ' (부가세 0) · 💳 그 외 ' + won(sum.taxed) + ' (부가세 = 총액÷11)</div>' : '')
+      + '</div>';
+  }
   function renderScheduleTab(){
     var items = schedItems();
     var dated = items.filter(function(i){ return i.date; })
@@ -2018,6 +2095,9 @@ function openContractModal(q){
       + '<div class="ss"><b>' + undated.length + '</b><span>일정 미정</span></div>'
       + '</div>'
       + '<div class="sched-note">⏰ 모든 일정의 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 보통 오전 9시 도착으로 안내합니다.</div>';
+
+    var ymTop = state.calMonth || today.slice(0, 7);
+    html += monthSumHtml(monthSum(dated, ymTop), parseInt(ymTop.split("-")[1], 10));
 
     if (!items.length){
       html += '<div class="empty">아직 접수된 견적 요청이 없습니다.</div>';
@@ -2067,7 +2147,7 @@ function openContractModal(q){
     };
 
     if (mode === "cal"){
-      var ym = state.calMonth || today.slice(0, 7);
+      var ym = ymTop;
       var parts = ym.split("-");
       var yy = parseInt(parts[0], 10), mm = parseInt(parts[1], 10);
       var firstDow = new Date(yy, mm - 1, 1).getDay();
@@ -2077,32 +2157,6 @@ function openContractModal(q){
       dated.forEach(function(i){ (byDate[i.date] = byDate[i.date] || []).push(i); });
       var sel = state.calSel || (dated.some(function(i){ return i.date.slice(0, 7) === ym; }) ? dated.filter(function(i){ return i.date.slice(0, 7) === ym; })[0].date : today);
       state.calSel = sel;
-
-      /* 이 달 손익 — 총액이 입력된 건 기준 매상 · 일당/경비 · 순수익 (달력 상단) */
-      var mSales = 0, mVat = 0, mCost = 0, mSalesN = 0, mCostN = 0, mCash = 0, mTaxed = 0;
-      dated.forEach(function(i){
-        if (i.date.slice(0, 7) !== ym) return;
-        var mm2 = moneyOf(i.q);
-        var mt = Number(mm2.total) || 0;
-        if (mt > 0){
-          mSales += mt; mSalesN++;
-          mVat += Number(mm2.vat) || 0;
-          if (payOf(i.q) === "현금결제") mCash += mt; else mTaxed += mt;
-        }
-        var cc = costOf(i.q);
-        if (cc.hasCost){ mCost += cc.spend; mCostN++; }
-      });
-      if (mSalesN || mCostN){
-        var mNet = mSales - mVat - mCost;
-        html += '<div class="msum">'
-          + '<div class="mi"><span>' + mm + '월 매출</span><b>' + won(mSales) + '</b></div>'
-          + '<div class="mi vat"><span>부가세</span><b>' + won(mVat) + '</b></div>'
-          + '<div class="mi"><span>일당·경비</span><b>' + won(mCost) + '</b></div>'
-          + '<div class="mi net' + (mNet < 0 ? " minus" : "") + '"><span>순수익</span><b>' + profitText(mNet) + '</b></div>'
-          + '<div class="mcap">매출 = 총액 입력 ' + mSalesN + '건 합계 · 순수익 = 매출 − 부가세 − 일당 − 경비 (일당·경비 입력 ' + mCostN + '건)</div>'
-          + (mCash || mTaxed ? '<div class="mcap">💵 현금결제 ' + won(mCash) + ' (부가세 0) · 💳 그 외 ' + won(mTaxed) + ' (부가세 = 총액÷11)</div>' : '')
-          + '</div>';
-      }
 
       html += '<div class="cal-box">'
         + '<div class="cal-head">'
@@ -2396,6 +2450,7 @@ function openContractModal(q){
 
     var m = moneyOf(q);
     var pay = payOf(q);
+    var cst = costOf(q);
     var payHintTxt = payHintFor(pay);
     var moneyHtml = '<div class="money-row">'
       + '  <div class="pay-line">'
@@ -2418,6 +2473,9 @@ function openContractModal(q){
       + '  <div class="money-item span2"><label>잔금 (자동)</label>'
       + '    <div class="bal" data-amt="balance">' + (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small></div></div>'
       + '  <div class="vat-note">' + moneyNote(m) + '</div>'
+      + (cst.hasCost
+          ? '  <div class="vat-note money-profit">일당 <b>' + won(cst.day) + '</b> · 경비 <b>' + won(cst.expense) + '</b> · 순수익 <b class="' + (cst.profit != null && cst.profit < 0 ? "loss" : "plus") + '">' + profitText(cst.profit) + '</b></div>'
+          : '')
       + '</div>';
 
     return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '" data-stage="' + st + '">'
@@ -2776,10 +2834,10 @@ function openContractModal(q){
         document.getElementById("ed-from-wrap").style.display = isNewBoothQuote(q) ? "none" : "grid";
         document.getElementById("ed-from").value = q.from_region || "";
         document.getElementById("ed-ffl").value = q.from_floor || "";
-        document.getElementById("ed-fel").value = q.from_elevator === true ? "true" : (q.from_elevator === false ? "false" : "");
+        document.getElementById("ed-fel").value = elvVal(q.from_elevator);
         document.getElementById("ed-to").value = q.to_region || "";
         document.getElementById("ed-tfl").value = q.to_floor || "";
-        document.getElementById("ed-tel").value = q.to_elevator === true ? "true" : (q.to_elevator === false ? "false" : "");
+        document.getElementById("ed-tel").value = elvVal(q.to_elevator);
         document.getElementById("ed-note").value = q.__noteOverride != null ? q.__noteOverride : (pm.note || "");
         em.hidden = false;
       });
@@ -2921,15 +2979,17 @@ function openContractModal(q){
       height_mm: Number(document.getElementById("ed-h").value) || null,
       from_region: document.getElementById("ed-from").value.trim(),
       from_floor: document.getElementById("ed-ffl").value.trim(),
-      from_elevator: fel === "true" ? true : (fel === "false" ? false : null),
+      from_elevator: fel,
       to_region: document.getElementById("ed-to").value.trim(),
       to_floor: document.getElementById("ed-tfl").value.trim(),
-      to_elevator: tel === "true" ? true : (tel === "false" ? false : null),
+      to_elevator: tel,
       __noteOverride: document.getElementById("ed-note").value.trim()
     };
     setPipe(id, { ov: ov });
+    var rq = quoteById(id);
+    if (rq) pushQuoteUpdate(effectiveQuote(rq), stageOf(effectiveQuote(rq)));
     em.hidden = true;
-    toast("수정 저장 완료! 계약서·일정에도 바로 반영됐습니다");
+    toast("수정 저장 완료! 견적·계약서·일정에 바로 반영됐습니다");
     render();
   });
 
