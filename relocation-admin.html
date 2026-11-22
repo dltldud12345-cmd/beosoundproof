@@ -159,6 +159,23 @@
   .sp.on[data-st="new"]{background:var(--accent-t);border-color:var(--accent);color:var(--accent-d)}
   .sp.on[data-st="contacted"]{background:var(--blue-bg);border-color:#93C5FD;color:var(--blue)}
   .sp.on[data-st="done"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .sp.on[data-st="talk"]{background:var(--blue-bg);border-color:#93C5FD;color:var(--blue)}
+  .sp.on[data-st="deposit"]{background:#FFF7E6;border-color:#F2C877;color:#8A5A00}
+  .sp.on[data-st="reserved"]{background:#F1EEFB;border-color:#C4B5FD;color:#5B3FB8}
+  .stage-bar{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+  .stage-bar .sp{padding:6px 11px;font-size:12.5px}
+  .stage-tag{font-size:11px;font-weight:800;padding:3px 8px;border-radius:7px;background:var(--accent-t);color:var(--accent-d)}
+  .stage-tag[data-st="talk"]{background:var(--blue-bg);color:var(--blue)}
+  .stage-tag[data-st="deposit"]{background:#FFF7E6;color:#8A5A00}
+  .stage-tag[data-st="reserved"]{background:#F1EEFB;color:#5B3FB8}
+  .stage-tag[data-st="done"]{background:var(--ink);color:#fff}
+  .inst-row{display:flex;align-items:center;gap:7px;margin-top:10px;padding:9px 11px;border:1px dashed #CFE0DA;background:#FAFDFB;border-radius:12px;flex-wrap:wrap}
+  .inst-l{display:flex;flex-direction:column;margin-right:2px}
+  .inst-l b{font-size:12px;font-weight:800;color:var(--accent-d)}
+  .inst-l small{font-size:10px;font-weight:700;color:var(--muted)}
+  .inst-in{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+  .inst-in:focus{outline:0;border-color:var(--accent)}
+  .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
 
   /* Alert badges */
   .alerts{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
@@ -309,7 +326,107 @@
     key: "sb_publishable_4JZK0mjoMFnkU8A_QbW-Iw_hcd_F3ce"
   };
   var ADMIN_STORE = "beo_relocation_admin_key";
-  var STATUS_LABEL = { new: "신규", contacted: "연락완료", done: "완료" };
+  var STATUS_LABEL = { new: "신규", contacted: "연락완료", done: "설치 완료" };
+  var PIPE_KEY = "beo-pipeline-v1";
+  var CAP_KEY = "beo-pipeline-db-cap";
+  /* 진행 단계 — 화면 5단계 ↔ DB status(new/contacted/done) 매핑 */
+  var STAGES = [
+    { v: "new",      label: "신규",       db: "new" },
+    { v: "talk",     label: "상담중",     db: "contacted" },
+    { v: "deposit",  label: "계약금 입금", db: "contacted" },
+    { v: "reserved", label: "예약중",     db: "contacted" },
+    { v: "done",     label: "설치 완료",   db: "done" }
+  ];
+  var STAGE_BY_V = {};
+  STAGES.forEach(function(s){ STAGE_BY_V[s.v] = s; });
+
+  function readPipe(){
+    try { return JSON.parse(localStorage.getItem(PIPE_KEY) || "{}") || {}; } catch (e) { return {}; }
+  }
+  function writePipe(o){
+    try { localStorage.setItem(PIPE_KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function pipeOf(id){ return readPipe()[id] || {}; }
+  function setPipe(id, patch){
+    var o = readPipe();
+    o[id] = Object.assign({}, o[id] || {}, patch, { at: new Date().toISOString() });
+    writePipe(o);
+  }
+  function stageOf(q){
+    var p = pipeOf(q.id);
+    if (p.stage && STAGE_BY_V[p.stage]) return p.stage;
+    var tag = parseMemo(q.memo).stage;
+    if (tag){
+      var hit = STAGES.filter(function(s){ return s.label === tag; })[0];
+      if (hit) return hit.v;
+    }
+    if ((q.status || "new") === "done") return "done";
+    if (q.status === "contacted") return "talk";
+    return "new";
+  }
+  function installOf(q){
+    var p = pipeOf(q.id);
+    var date = p.installDate || "";
+    var time = p.installTime || "";
+    if (!date){
+      var t = parseMemo(q.memo).install;
+      if (t){ var m = t.match(/^(\d{4}-\d{2}-\d{2})\s*(.*)$/); if (m){ date = m[1]; time = m[2] || ""; } }
+    }
+    return { date: date, time: time };
+  }
+  function stageLabel(v){ return (STAGE_BY_V[v] || STAGE_BY_V.new).label; }
+  function buildTaggedMemo(q, stage, inst){
+    var base = String(q.memo || "").split(/\r?\n/).filter(function(l){
+      var t = l.trim();
+      return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0);
+    }).join("\n").trim();
+    var lines = [];
+    if (base) lines.push(base);
+    lines.push("[진행]" + stageLabel(stage));
+    if (inst && inst.date) lines.push("[설치일]" + inst.date + (inst.time ? " " + inst.time : ""));
+    return lines.join("\n").slice(0, 2000);
+  }
+  function memoCapable(){
+    try { return localStorage.getItem(CAP_KEY) || ""; } catch (e) { return ""; }
+  }
+  function markMemoCap(ok){
+    try { localStorage.setItem(CAP_KEY, ok); } catch (e) {}
+  }
+  function pushMemoUpdate(q, stage){
+    var cap = memoCapable();
+    if (cap === "none") return;
+    var memo = buildTaggedMemo(q, stage, installOf(q));
+    var tryAlt = function(){
+      rpc("relocation_admin_update", { p_key: state.adminKey, p_payload: { id: q.id, memo: memo } })
+        .then(function(res){
+          if (res && res.ok){ markMemoCap("relocation_admin_update"); q.memo = memo; }
+          else markMemoCap("none");
+        })
+        .catch(function(){ markMemoCap("none"); });
+    };
+    if (cap === "relocation_admin_update"){ tryAlt(); return; }
+    rpc("relocation_admin", { p_key: state.adminKey, p_action: "update", p_payload: { id: q.id, memo: memo } })
+      .then(function(res){
+        if (res && res.ok){ markMemoCap("relocation_admin"); q.memo = memo; return; }
+        if (res && /unknown action/i.test(String(res.error || ""))) tryAlt();
+        else markMemoCap("none");
+      })
+      .catch(function(){ tryAlt(); });
+  }
+  function saveStage(id, stage){
+    var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+    var s = STAGE_BY_V[stage] || STAGE_BY_V.new;
+    setPipe(id, { stage: stage });
+    if (q) pushMemoUpdate(q, stage);
+    if (q && (q.status || "new") !== s.db){
+      return rpc("relocation_admin", { p_key: state.adminKey, p_action: "status", p_payload: { id: id, status: s.db } })
+        .then(function(res){
+          if (!res || !res.ok) throw new Error((res && res.error) || "상태 변경 실패");
+          q.status = s.db;
+        });
+    }
+    return Promise.resolve();
+  }
 
   var state = {
     adminKey: "",
@@ -388,6 +505,8 @@
     var listingUrl = "";
     var aircon = "";
     var pay = "";
+    var stage = "";
+    var install = "";
     var rest = [];
     lines.forEach(function(line){
       var t = line.trim();
@@ -397,6 +516,12 @@
         aircon = t.replace("[에어컨]", "").trim();
       } else if (t.indexOf("[결제·증빙]") === 0) {
         pay = t.replace("[결제·증빙]", "").trim();
+      } else if (t.indexOf("[진행]") === 0) {
+        stage = t.replace("[진행]", "").trim();
+      } else if (t.indexOf("[설치일]") === 0) {
+        install = t.replace("[설치일]", "").trim();
+      } else if (t.indexOf("[SIM_SPEC]") === 0 || t.indexOf("[시뮬레이터]") === 0 || t.indexOf("[설계도]") === 0 || t.indexOf("[저장 조합") === 0) {
+        /* 시뮬레이터 메타 줄은 이 뷰에서는 접지 않고 숨긴다 */
       } else {
         rest.push(line);
       }
@@ -405,6 +530,8 @@
       listingUrl: listingUrl,
       aircon: aircon,
       pay: pay,
+      stage: stage,
+      install: install,
       note: rest.join("\n").trim()
     };
   }
@@ -418,12 +545,14 @@
     var out = [
       "[베오방음 이전설치 상담요청서 #" + String(q.id || "").slice(0, 8).toUpperCase() + "]",
       "• 고객: " + (q.customer_name || "-") + " (" + (q.customer_phone || "-") + ")",
-      "• 상태: " + (STATUS_LABEL[q.status] || q.status || "신규") + " · 접수: " + fmtDate(q.created_at),
+      "• 상태: " + stageLabel(stageOf(q)) + " · 접수: " + fmtDate(q.created_at),
       "• 부스: " + (q.booth_type || "유형 미상") + " / " + (q.brand || "제조사 미기재") + " / " + sizeLine(q),
       "• 해체(출발): " + (q.from_region || "-") + (q.from_floor ? " " + q.from_floor : "") + (q.from_elevator ? " (엘베 " + q.from_elevator + ")" : ""),
       "• 설치(도착): " + (q.to_region || "-") + (q.to_floor ? " " + q.to_floor : "") + (q.to_elevator ? " (엘베 " + q.to_elevator + ")" : ""),
       "• 희망일: " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "")
     ];
+    var inst0 = installOf(q);
+    if (inst0.date) out.push("• 설치 예정: " + fmtDay(inst0.date) + (inst0.time ? " " + inst0.time : ""));
     if (pm.aircon) out.push("• 에어컨: " + pm.aircon);
     if (pm.pay) out.push("• 결제·증빙: " + pm.pay);
     if (pm.listingUrl) out.push("• 매물링크: " + pm.listingUrl);
@@ -490,17 +619,14 @@
     var base = state.includeNewBooth
       ? state.quotes
       : state.quotes.filter(function(q){ return !isNewBoothQuote(q); });
+    base.forEach(function(q){ q.__stage = stageOf(q); });
 
-    var counts = {
-      all: base.length,
-      "new": base.filter(function(q){ return (q.status || "new") === "new"; }).length,
-      contacted: base.filter(function(q){ return q.status === "contacted"; }).length,
-      done: base.filter(function(q){ return q.status === "done"; }).length
-    };
+    var counts = { all: base.length };
+    STAGES.forEach(function(s){ counts[s.v] = base.filter(function(q){ return q.__stage === s.v; }).length; });
 
     var qLower = state.query.trim().toLowerCase();
     var filtered = base.filter(function(q){
-      if (state.tab !== "all" && (q.status || "new") !== state.tab) return false;
+      if (state.tab !== "all" && q.__stage !== state.tab) return false;
       if (!qLower) return true;
       var hay = [
         q.customer_name, q.customer_phone, q.brand, q.booth_type,
@@ -509,15 +635,11 @@
       return hay.indexOf(qLower) !== -1;
     });
 
-    var kpis = [
-      ["all", "전체", counts.all],
-      ["new", "신규 접수", counts["new"]],
-      ["contacted", "연락완료", counts.contacted],
-      ["done", "진행완료", counts.done]
-    ].map(function(k){
-      return '<button type="button" class="kpi" data-tab="' + k[0] + '" aria-pressed="' + (state.tab === k[0] ? "true" : "false") + '">'
-        + '<div class="kl">' + k[1] + '</div><div class="kv">' + k[2] + '</div></button>';
-    }).join("");
+    var kpis = [["all", "전체", counts.all]].concat(STAGES.map(function(s){ return [s.v, s.label, counts[s.v]]; }))
+      .map(function(k){
+        return '<button type="button" class="kpi" data-tab="' + k[0] + '" aria-pressed="' + (state.tab === k[0] ? "true" : "false") + '">'
+          + '<div class="kl">' + k[1] + '</div><div class="kv">' + k[2] + '</div></button>';
+      }).join("");
 
     var cardsHtml = filtered.length
       ? filtered.map(renderCard).join("")
@@ -539,8 +661,9 @@
   }
 
   function renderCard(q){
-    var st = q.status || "new";
+    var st = q.__stage || stageOf(q);
     var pm = parseMemo(q.memo);
+    var inst = installOf(q);
     var photos = Array.isArray(q.photos) ? q.photos : [];
     var isNewB = isNewBoothQuote(q);
     var shortId = String(q.id || "").slice(0, 8).toUpperCase();
@@ -552,8 +675,8 @@
     if (pm.pay) alerts.push('<span class="abadge info">💳 ' + esc(pm.pay) + '</span>');
     if (pm.listingUrl) alerts.push('<a class="abadge link" href="' + esc(pm.listingUrl) + '" target="_blank" rel="noopener">🔗 매물 링크 열기 ↗</a>');
 
-    var statusBtns = ["new", "contacted", "done"].map(function(s){
-      return '<button type="button" class="sp' + (st === s ? " on" : "") + '" data-st="' + s + '" data-id="' + esc(q.id) + '">' + STATUS_LABEL[s] + '</button>';
+    var statusBtns = STAGES.map(function(s){
+      return '<button type="button" class="sp' + (st === s.v ? " on" : "") + '" data-qstage="' + s.v + '" data-st="' + s.v + '" data-id="' + esc(q.id) + '">' + s.label + '</button>';
     }).join("");
 
     var routeHtml = isNewB
@@ -596,19 +719,25 @@
       + '    <div class="qs-who">'
       + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
       + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
+      + '      <span class="stage-tag" data-st="' + st + '">' + stageLabel(st) + '</span>'
       + '    </div>'
       + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
       + '  </div>'
-      + '  <div class="status-pills">' + statusBtns + '</div>'
       + '</div>'
+      + '<div class="stage-bar">' + statusBtns + '</div>'
       + (alerts.length ? '<div class="alerts">' + alerts.join("") + '</div>' : '')
       + '<div class="spec-grid">'
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewB ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">제조사</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
       + '  <div class="spec-item"><div class="sl">외부 크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
-      + '  <div class="spec-item"><div class="sl">희망 설치일</div><div class="sv">' + esc(fmtDay(q.desired_date)) + (q.date_flexible ? ' <small style="color:var(--accent-d)">(조율)</small>' : '') + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
       + routeHtml
+      + '<div class="inst-row">'
+      + '  <div class="inst-l"><b>설치 예정일</b><small>현장 확정 일시</small></div>'
+      + '  <input type="date" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="date" value="' + esc(inst.date) + '" aria-label="설치 예정일">'
+      + '  <input type="time" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="time" value="' + esc(inst.time) + '" aria-label="설치 시간">'
+      + '</div>'
       + (pm.note ? '<div class="memo-box">' + linkify(pm.note) + '</div>' : '')
       + photosHtml
       + '<div class="qs-foot">'
@@ -617,7 +746,10 @@
       + (phoneDigits ? '<a class="abtn" href="sms:' + esc(phoneDigits) + '">💬 문자</a>' : '')
       + '    <button type="button" class="abtn" data-copy="' + esc(q.id) + '">📋 요청서 복사</button>'
       + '  </div>'
-      + '  <button type="button" class="abtn danger" data-del="' + esc(q.id) + '">삭제</button>'
+      + '  <div class="qacts">'
+      + (st !== "done" ? '<button type="button" class="abtn done" data-qdone="' + esc(q.id) + '">✅ 설치 완료</button>' : '')
+      + '    <button type="button" class="abtn danger" data-del="' + esc(q.id) + '">삭제</button>'
+      + '  </div>'
       + '</div>'
       + '</article>';
   }
@@ -656,18 +788,42 @@
       });
     }
 
-    Array.prototype.forEach.call(app.querySelectorAll("[data-st]"), function(b){
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qstage]"), function(b){
       b.addEventListener("click", function(){
         var id = b.getAttribute("data-id");
-        var st = b.getAttribute("data-st");
+        var st = b.getAttribute("data-qstage");
         b.disabled = true;
-        rpc("relocation_admin", { p_key: state.adminKey, p_action: "status", p_payload: { id: id, status: st } })
-          .then(function(res){
-            if (!res || !res.ok) throw new Error((res && res.error) || "상태 변경 실패");
-            toast("'" + (STATUS_LABEL[st] || st) + "'(으)로 변경했어요");
-            loadQuotes();
-          })
-          .catch(function(err){ alert(err.message); b.disabled = false; });
+        Promise.resolve(saveStage(id, st)).then(function(){
+          toast("진행 단계를 ‘" + stageLabel(st) + "’(으)로 바꿨어요");
+          loadQuotes();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qdone]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-qdone");
+        b.disabled = true;
+        Promise.resolve(saveStage(id, "done")).then(function(){
+          toast("설치 완료로 마감했습니다");
+          loadQuotes();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-inst-id]"), function(inp){
+      inp.addEventListener("change", function(){
+        var id = inp.getAttribute("data-inst-id");
+        var k = inp.getAttribute("data-inst-k");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!q) return;
+        var patch = {};
+        patch[k === "date" ? "installDate" : "installTime"] = inp.value || "";
+        setPipe(id, patch);
+        pushMemoUpdate(q, stageOf(q));
+        var inst = installOf(q);
+        toast(inst.date ? "설치 일정 " + inst.date + (inst.time ? " " + inst.time : "") + " 저장" : "설치 일정을 비웠습니다");
+        renderDashboard();
       });
     });
 

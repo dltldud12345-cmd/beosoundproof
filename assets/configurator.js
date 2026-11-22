@@ -148,6 +148,120 @@ const $ = (s, r = document) => r.querySelector(s);
 const fmt = n => Number(n).toLocaleString('ko-KR');
 const pick = (arr, v) => arr.find(o => o.v === v) || arr[0];
 
+/* ============================ [2-B] 조합 저장 · 설계도 연동 ============================
+   · 현재 옵션을 1안~3안으로 저장(이 브라우저 localStorage)
+   · 같은 옵션을 쿼리 파라미터로 blueprint.html / configurator.html 에 넘긴다
+   · 관리자(admin.html)도 같은 키로 링크를 만든다 → 한 곳에서 정의한 키만 쓰면 된다  */
+const SLOT_KEY = 'beo-sim-slots-v1';
+const BLUEPRINT_FILE = 'blueprint.html';
+
+function simSpec(){
+  return {
+    w: state.w, d: state.d, model: state.model,
+    ab: state.artboard, sl: state.slat, sp: state.slatPos || 'back',
+    light: state.light, lt: state.ledTemp, fl: state.floor,
+    door: state.door, hg: state.hinge,
+    win: state.window, wp: state.winPos || 'left', pr: state.project
+  };
+}
+function winName(sp){
+  const w = pick(WINDOWS, sp.win);
+  if(!sp.win || sp.win === 'none') return '없음';
+  return (w.isDouble ? '이중창 1,200' : w.label) + ' · ' + (WALL_LABEL[sp.wp] || '좌측');
+}
+function specSummary(sp){
+  if (!sp) return '';
+  const a = pick(ARTBOARD, sp.ab), s = pick(SLAT, sp.sl), f = pick(FLOOR, sp.fl);
+  const d = DOORS.find(x => x.v === sp.door) || DOORS[0];
+  return [
+    `${fmt(sp.w)}×${fmt(sp.d)}`,
+    `아트보드 ${a.label}`,
+    `타공 ${s.label}·${WALL_LABEL[sp.sp] || '후면'}`,
+    sp.light === 'rail' ? '레일등' : 'COB 2구',
+    `중앙등 ${sp.lt === '6500' ? '6500K' : '4000K'}`,
+    `마루 ${f.label}`,
+    `문 ${d.label}·${sp.hg === 'left' ? '좌경첩' : '우경첩'}`,
+    `시창 ${winName(sp)}`,
+    sp.pr === 'in' ? '프로젝트창 포함' : ''
+  ].filter(Boolean).join(' · ');
+}
+function simQueryStr(sp){
+  sp = sp || simSpec();
+  const q = new URLSearchParams();
+  q.set('sim', '1');
+  q.set('w', sp.w); q.set('d', sp.d);
+  q.set('da', sp.door); q.set('hg', sp.hg); q.set('lf', sp.sp);
+  q.set('lm', sp.light === 'rail' ? 'rail' : 'cob');
+  if (sp.win && sp.win !== 'none'){ q.set('ws', sp.win); q.set('wc', '1'); q.set('wn', sp.wp); }
+  if (sp.pr === 'in') q.set('pj', 'in');
+  q.set('bb', pick(ARTBOARD, sp.ab).label);
+  q.set('sl', pick(SLAT, sp.sl).label);
+  q.set('fl', pick(FLOOR, sp.fl).label);
+  if (sp.lt !== '4000') q.set('lt', sp.lt);
+  return q.toString();
+}
+function blueprintHref(sp){ return BLUEPRINT_FILE + '?' + simQueryStr(sp); }
+function selfHref(sp){
+  const base = location.origin && /^https?:/.test(location.protocol) ? location.origin + location.pathname : 'configurator.html';
+  return base + '?' + simQueryStr(sp);
+}
+
+function readSlots(){
+  try {
+    const a = JSON.parse(localStorage.getItem(SLOT_KEY) || '[]');
+    return Array.isArray(a) ? a.slice(0, 3) : [];
+  } catch (e){ return []; }
+}
+function writeSlots(a){
+  try { localStorage.setItem(SLOT_KEY, JSON.stringify(a.slice(0, 3))); } catch (e){}
+}
+function assignSpec(sp){
+  const m = MODELS.find(x => x.id === sp.model && x.w === +sp.w && x.d === +sp.d);
+  if (m){ state.model = m.id; state.w = m.w; state.d = m.d; }
+  else {
+    state.model = MODELS.find(x => x.w === +sp.w && x.d === +sp.d)?.id || 'custom';
+    state.w = +sp.w || state.w; state.d = +sp.d || state.d;
+  }
+  if (ARTBOARD.some(x => x.v === sp.ab)) state.artboard = sp.ab;
+  if (SLAT.some(x => x.v === sp.sl)) state.slat = sp.sl;
+  if (WALLS3.some(x => x.v === sp.sp)) state.slatPos = sp.sp;
+  if (LIGHT.some(x => x.v === sp.light)) state.light = sp.light;
+  if (LEDTEMP.some(x => x.v === sp.lt)) state.ledTemp = sp.lt;
+  if (FLOOR.some(x => x.v === sp.fl)) state.floor = sp.fl;
+  if (DOORS.some(x => x.v === sp.door)) state.door = sp.door;
+  if (HINGES.some(x => x.v === sp.hg)) state.hinge = sp.hg;
+  if (WINDOWS.some(x => x.v === sp.win)) state.window = sp.win;
+  if (WALLS3.some(x => x.v === sp.wp)) state.winPos = sp.wp;
+  if (PROJECTS.some(x => x.v === sp.pr)) state.project = sp.pr;
+  if (state.window !== 'none' && state.winPos === state.slatPos){
+    state.winPos = FREE_ORDER.find(w => w !== state.slatPos) || 'left';
+  }
+}
+function applySpec(sp){ assignSpec(sp); syncUI(); rebuild(); }
+
+/* 관리자·설계도에서 넘긴 쿼리 파라미터로 시작 상태를 맞춘다 */
+function applyQueryParams(){
+  const q = new URLSearchParams(location.search);
+  if (!q.has('w') && !q.has('ws') && !q.has('bb') && !q.has('sl')) return;
+  const byLabel = (arr, v) => (arr.find(x => x.label === v) || {}).v;
+  const w = +q.get('w') || state.w, d = +q.get('d') || state.d;
+  assignSpec({
+    w, d,
+    model: (MODELS.find(m => m.w === w && m.d === d) || {}).id || 'custom',
+    ab: byLabel(ARTBOARD, q.get('bb')) || state.artboard,
+    sl: byLabel(SLAT, q.get('sl')) || state.slat,
+    sp: q.get('lf') || state.slatPos,
+    light: q.get('lm') === 'rail' ? 'rail' : 'cob4000',
+    lt: q.get('lt') === '6500' ? '6500' : '4000',
+    fl: byLabel(FLOOR, q.get('fl')) || state.floor,
+    door: DOORS.some(x => x.v === q.get('da')) ? q.get('da') : state.door,
+    hg: q.get('hg') === 'left' ? 'left' : 'right',
+    win: WINDOWS.some(x => x.v === q.get('ws')) ? q.get('ws') : 'none',
+    wp: WALLS3.some(x => x.v === q.get('wn')) ? q.get('wn') : 'left',
+    pr: q.get('pj') === 'in' ? 'in' : 'none'
+  });
+}
+
 /* ============================ [3] UI ============================ */
 const panel = $('#panelBody');
 
@@ -304,8 +418,18 @@ function buildPanel(){
       </div>
     </section>
 
+    <section class="sec">
+      <div class="sec-h"><span class="n">07</span><h2>조합 저장 · 설계도</h2><span class="tag">최대 3개</span></div>
+      <div class="slots" id="slotList"></div>
+      <div class="slot-tools">
+        <button type="button" class="btn btn-ink2" id="slotSave">⭐ 현재 조합 저장</button>
+        <button type="button" class="btn btn-ink" id="goBlueprint">📐 설계도로 보기</button>
+      </div>
+      <p class="note">1안 · 2안 · 3안을 저장해 견적 상담 때 나란히 비교할 수 있습니다. 설계도는 지금 고른 사양 그대로 새 창에서 열립니다.</p>
+    </section>
+
     <section class="sec" style="border-bottom:0">
-      <div class="sec-h"><span class="n">07</span><h2>사양 요약</h2><span class="tag" id="sumCount"></span></div>
+      <div class="sec-h"><span class="n">08</span><h2>사양 요약</h2><span class="tag" id="sumCount"></span></div>
       <dl class="sum" id="sumList"></dl>
     </section>
 
@@ -323,9 +447,45 @@ function buildPanel(){
   $('#slW').addEventListener('input', onSlide);
   $('#slD').addEventListener('input', onSlide);
   panel.addEventListener('click', onPanelClick);
+  renderSlots();
 }
 
 function onPanelClick(e){
+  /* 조합 저장 슬롯 */
+  const sv = e.target.closest('[data-slot-save]');
+  if (sv){
+    const i = +sv.dataset.slotSave;
+    const a = readSlots();
+    while (a.length <= i) a.push(null);
+    a[i] = Object.assign({ savedAt: Date.now() }, simSpec());
+    writeSlots(a);
+    renderSlots();
+    showToast(`${i + 1}안에 지금 조합을 저장했습니다`);
+    return;
+  }
+  const ld = e.target.closest('[data-slot-load]');
+  if (ld){
+    const sp = readSlots()[+ld.dataset.slotLoad];
+    if (!sp) return;
+    applySpec(sp);
+    showToast(`${+ld.dataset.slotLoad + 1}안을 불러왔습니다`);
+    return;
+  }
+  const dl = e.target.closest('[data-slot-del]');
+  if (dl){
+    const i = +dl.dataset.slotDel;
+    const a = readSlots(); a[i] = null; writeSlots(a);
+    renderSlots();
+    showToast(`${i + 1}안을 지웠습니다`);
+    return;
+  }
+  if (e.target.closest('#slotCmp')){
+    const out = $('#slotCmpOut');
+    if (!out) return;
+    out.hidden = !out.hidden;
+    if (!out.hidden) renderCompare();
+    return;
+  }
   const preset = e.target.closest('[data-preset]');
   if (preset){
     const p = PRESETS.find(x => x.id === preset.dataset.preset);
@@ -385,6 +545,63 @@ let rebuildRaf = 0;
 function scheduleRebuild(){
   if (rebuildRaf) return;
   rebuildRaf = requestAnimationFrame(() => { rebuildRaf = 0; rebuild(); });
+}
+
+/* ---- 조합 저장 슬롯 UI (1안 · 2안 · 3안) ---- */
+function escHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+function renderSlots(){
+  const host = $('#slotList');
+  if (!host) return;
+  const a = readSlots();
+  const names = ['1안', '2안', '3안'];
+  const cards = names.map((nm, i) => {
+    const sp = a[i];
+    if (!sp){
+      return `<div class="slot is-empty">
+        <div class="slot-h"><b>${nm}</b><span>비어 있음</span></div>
+        <button type="button" class="slot-btn" data-slot-save="${i}">현재 조합 저장</button>
+      </div>`;
+    }
+    return `<div class="slot">
+      <div class="slot-h"><b>${nm}</b><span>${escHtml(specSummary(sp))}</span></div>
+      <div class="slot-row">
+        <button type="button" class="slot-btn on" data-slot-load="${i}">불러오기</button>
+        <button type="button" class="slot-btn" data-slot-save="${i}">덮어쓰기</button>
+        <button type="button" class="slot-btn del" data-slot-del="${i}">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+  const count = a.filter(Boolean).length;
+  host.innerHTML = cards
+    + (count > 1 ? '<button type="button" class="slot-cmp" id="slotCmp">📊 저장한 조합 나란히 비교</button>' : '')
+    + '<div class="cmp-out" id="slotCmpOut" hidden></div>';
+}
+function renderCompare(){
+  const out = $('#slotCmpOut');
+  if (!out) return;
+  const a = readSlots();
+  const cols = [];
+  a.forEach((sp, i) => { if (sp) cols.push({ sp, name: `${i + 1}안` }); });
+  const rows = [
+    ['규격', sp => `${fmt(sp.w)} × ${fmt(sp.d)}`],
+    ['아트보드', sp => pick(ARTBOARD, sp.ab).label],
+    ['라인타공', sp => `${pick(SLAT, sp.sl).label} · ${WALL_LABEL[sp.sp] || '후면'}`],
+    ['조명', sp => sp.light === 'rail' ? '레일등' : 'COB 2구 4000K'],
+    ['중앙등', sp => sp.lt === '6500' ? '주광색 6500K' : '주백색 4000K'],
+    ['바닥 마루', sp => pick(FLOOR, sp.fl).label],
+    ['문 · 경첩', sp => `${(DOORS.find(d => d.v === sp.door) || DOORS[0]).label} · ${sp.hg === 'left' ? '좌경첩' : '우경첩'}`],
+    ['시창', sp => winName(sp)],
+    ['프로젝트창', sp => sp.pr === 'in' ? '포함' : '없음']
+  ];
+  const head = `<div class="cmp-row cmp-head"><span>항목</span>${cols.map(c => `<b>${c.name}</b>`).join('')}</div>`;
+  const body = rows.map(([label, fn]) => {
+    const vals = cols.map(c => fn(c.sp));
+    const diff = new Set(vals).size > 1;
+    return `<div class="cmp-row${diff ? ' diff' : ''}"><span>${label}</span>${vals.map(v => `<i>${escHtml(v)}</i>`).join('')}</div>`;
+  }).join('');
+  out.innerHTML = `<div class="cmp-table" style="--n:${cols.length}">${head}${body}</div>`;
 }
 
 function modelName(){
@@ -573,15 +790,131 @@ async function copySpec(){
   }
 }
 
+/* ---- 견적 접수 (Supabase relocation_submit · 이전설치 폼과 같은 테이블) ----
+   상담 폼의 규약을 그대로 지킨다: brand="[신규부스]" · from_region="신규설치" · to_region=설치 주소.
+   시뮬레이터 사양은 memo 맨 앞 [SIM_SPEC] 한 줄과 사람이 읽는 사양 줄로 함께 저장된다. */
+const SB = {
+  url: 'https://jbqilpvxdzizumjvzgvm.supabase.co',
+  key: 'sb_publishable_4JZK0mjoMFnkU8A_QbW-Iw_hcd_F3ce'
+};
+let leadBusy = false;
+function sbRpc(name, body){
+  return fetch(SB.url + '/rest/v1/rpc/' + name, {
+    method: 'POST',
+    headers: { 'apikey': SB.key, 'Authorization': 'Bearer ' + SB.key, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {}),
+    cache: 'no-store'
+  }).then(res => res.text().then(t => {
+    let d = null;
+    try { d = t ? JSON.parse(t) : null; } catch (e){}
+    if (!res.ok) throw new Error((d && (d.message || d.error)) || ('요청 실패 (' + res.status + ')'));
+    return d;
+  }));
+}
+function absoluteBlueprint(sp){
+  try { return new URL(blueprintHref(sp), location.href).href; }
+  catch (e){ return 'https://beosoundproof.com/' + blueprintHref(sp); }
+}
+function leadMemoText(extra){
+  const spec = simSpec();
+  const lines = ['[SIM_SPEC]' + JSON.stringify(spec)];
+  lines.push('규격: ' + modelName() + ' ' + dimText() + ' mm');
+  specRows().filter(r => r.k !== '규격').forEach(r => lines.push(r.k + ': ' + r.v));
+  readSlots().forEach((sp, i) => { if (sp) lines.push('[저장 조합 ' + (i + 1) + '안] ' + specSummary(sp)); });
+  lines.push('[시뮬레이터] ' + selfHref(spec));
+  lines.push('[설계도] ' + absoluteBlueprint(spec));
+  const text = lines.join('\n') + (extra ? '\n\n' + extra : '');
+  return text.length > 2000 ? text.slice(0, 1997) + '…' : text;
+}
+function leadMsg(text, kind){
+  const el = $('#leadMsg');
+  if (!el) return;
+  el.textContent = text || '';
+  el.className = 'lead-msg ' + (kind || '');
+}
+async function submitLead(e){
+  e.preventDefault();
+  if (leadBusy) return;
+  const name = ($('#leadName').value || '').trim();
+  const phone = ($('#leadPhone').value || '').trim();
+  const addr = ($('#leadAddr').value || '').trim();
+  const note = ($('#leadMemo').value || '').trim();
+  const agree = $('#leadAgree').checked;
+  if (!name){ leadMsg('성함을 입력해 주세요.', 'err'); $('#leadName').focus(); return; }
+  if (phone.replace(/[^0-9]/g, '').length < 8){ leadMsg('연락처를 정확히 입력해 주세요.', 'err'); $('#leadPhone').focus(); return; }
+  if (!agree){ leadMsg('개인정보 수집·이용에 동의해 주세요.', 'err'); $('#leadAgree').focus(); return; }
+  const btn = $('#leadSend');
+  leadBusy = true;
+  btn.disabled = true;
+  btn.textContent = '접수 중…';
+  leadMsg('접수 내용을 저장하는 중…', 'ok');
+  const spec = simSpec();
+  const boothType = spec.model === 'db' ? '더블' : (spec.model === 'custom' ? '기타' : '싱글');
+  try {
+    const res = await sbRpc('relocation_submit', { p: {
+      customer_name: name,
+      customer_phone: phone,
+      booth_type: boothType,
+      brand: '[신규부스]',
+      width_mm: spec.w,
+      depth_mm: spec.d,
+      height_mm: '',
+      from_region: '신규설치',
+      from_floor: '',
+      from_elevator: '',
+      to_region: addr.slice(0, 60),
+      to_floor: '',
+      to_elevator: '',
+      desired_date: '',
+      date_flexible: true,
+      photos: [],
+      memo: leadMemoText(note)
+    } });
+    if (!res || !res.ok) throw new Error((res && res.error) || '접수에 실패했습니다.');
+    const no = String(res.id || '').slice(0, 8).toUpperCase();
+    $('#leadDoneNo').textContent = no ? '접수번호 ' + no : '';
+    $('#leadForm').hidden = true;
+    $('#leadDone').hidden = false;
+    leadMsg('', '');
+    showToast('견적 신청이 접수되었습니다');
+  } catch (err){
+    leadMsg(err.message || '접수에 실패했습니다. 잠시 후 다시 시도해 주세요.', 'err');
+  } finally {
+    leadBusy = false;
+    btn.disabled = false;
+    btn.textContent = '이 사양으로 견적 신청';
+  }
+}
+
 function initActions(){
   const open = async () => {
     const ok = await copySpec();
+    if ($('#leadDone')) $('#leadDone').hidden = true;
+    if ($('#leadForm')) $('#leadForm').hidden = false;
     $('#specModal').classList.add('on');
     document.body.style.overflow = 'hidden';
     updateSpecText();
     if (!ok) showToast('아래 사양을 길게 눌러 복사해 주세요');
   };
   $('#ctaMain').addEventListener('click', open);
+  const leadForm = $('#leadForm');
+  if (leadForm) leadForm.addEventListener('submit', submitLead);
+  const slotSave = $('#slotSave');
+  if (slotSave) slotSave.addEventListener('click', () => {
+    const a = readSlots();
+    const i = a.findIndex(x => !x);
+    if (i < 0){ showToast('1~3안이 모두 차 있습니다. 덮어쓸 칸의 [덮어쓰기]를 눌러 주세요.'); return; }
+    while (a.length <= i) a.push(null);
+    a[i] = Object.assign({ savedAt: Date.now() }, simSpec());
+    writeSlots(a);
+    renderSlots();
+    showToast(`${i + 1}안에 지금 조합을 저장했습니다`);
+  });
+  const goBp = () => window.open(blueprintHref(simSpec()), '_blank', 'noopener');
+  ['#goBlueprint', '#goBlueprint2'].forEach(sel => {
+    const b = $(sel);
+    if (b) b.addEventListener('click', goBp);
+  });
   $('#modalClose').addEventListener('click', () => {
     $('#specModal').classList.remove('on');
     document.body.style.overflow = '';
@@ -2734,11 +3067,16 @@ function renderPhotoStage(){
 }
 
 /* 실사 외부: 좌경첩 기준으로 촬영한 외관 사진을 우경첩에서는 좌우 반전해 보여줍니다 */
+/* 실사 외부 사진(exterior-clean.jpg)은 문이 왼쪽 구석에 찍혀 있다.
+   그래서 좌우 반전 여부는 '경첩'이 아니라 '문 위치'로 정한다.
+   문이 우측 구석이면 반전해 문을 오른쪽으로 옮기고, 좌측 구석이면 원본 그대로 쓴다.
+   가운데 문은 원본이 왼쪽에 있어 반전하는 쪽(우경첩일 때)이 더 자연스럽다. */
 function syncPhotoOutHinge(){
   const po = $('#photoOutStage');
   if (!po) return;
   po.style.transformOrigin = 'center center';
-  po.style.transform = state.hinge === 'right' ? 'scaleX(-1)' : 'none';
+  const flip = state.door === 'right' || (state.door === 'center' && state.hinge === 'right');
+  po.style.transform = flip ? 'scaleX(-1)' : 'none';
 }
 function setView(name, force = false){
   state.view = name;
@@ -3013,6 +3351,7 @@ function start(){
     $('#stageFallback').classList.add('on');
     return;
   }
+  applyQueryParams();
   buildPanel();
   syncUI();
   initActions();

@@ -95,7 +95,7 @@
   .login-msg{margin-top:10px;font-size:12.5px;color:var(--warn);min-height:18px}
 
   /* KPI & Toolbar */
-  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
   .kpi{
     background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 12px 10px;
     text-align:left;
@@ -156,6 +156,69 @@
   .sp.on[data-st="done"],.sp.on[data-st="sold"]{background:var(--ink);border-color:var(--ink);color:#fff}
   .sp.on[data-st="pending"]{background:var(--warn-bg);border-color:#F3CFC6;color:var(--warn)}
   .sp.on[data-st="hidden"]{background:var(--soft);border-color:var(--line);color:var(--muted)}
+  .sp.on[data-st="talk"]{background:var(--blue-bg);border-color:#93C5FD;color:var(--blue)}
+  .sp.on[data-st="deposit"]{background:#FFF7E6;border-color:#F2C877;color:#8A5A00}
+  .sp.on[data-st="reserved"]{background:#F1EEFB;border-color:#C4B5FD;color:#5B3FB8}
+  .sp.on[data-st="done"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .stage-bar{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+  .stage-bar .sp{padding:6px 11px;font-size:12.5px}
+  .stage-tag{font-size:11px;font-weight:800;padding:3px 8px;border-radius:7px;background:var(--accent-t);color:var(--accent-d)}
+  .stage-tag[data-st="talk"]{background:var(--blue-bg);color:var(--blue)}
+  .stage-tag[data-st="deposit"]{background:#FFF7E6;color:#8A5A00}
+  .stage-tag[data-st="reserved"]{background:#F1EEFB;color:#5B3FB8}
+  .stage-tag[data-st="done"]{background:var(--ink);color:#fff}
+
+  .sim-box{margin-top:10px;border:1px solid #C9E4DC;background:#F3FAF7;border-radius:12px;padding:10px 12px}
+  .sim-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .sim-h b{font-size:12.5px;font-weight:800;color:var(--accent-d)}
+  .sim-h span{font-size:11px;color:var(--muted);font-weight:700}
+  .sim-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+  .sim-item{background:#fff;border:1px solid var(--line2);border-radius:9px;padding:6px 8px;min-width:0}
+  .sim-item span{display:block;font-size:10px;font-weight:700;color:var(--muted)}
+  .sim-item b{display:block;margin-top:1px;font-size:12px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .inst-row{display:flex;align-items:center;gap:7px;margin-top:10px;padding:9px 11px;border:1px dashed #CFE0DA;background:#FAFDFB;border-radius:12px;flex-wrap:wrap}
+  .inst-l{display:flex;flex-direction:column;margin-right:2px}
+  .inst-l b{font-size:12px;font-weight:800;color:var(--accent-d)}
+  .inst-l small{font-size:10px;font-weight:700;color:var(--muted)}
+  .inst-in{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+  .inst-in:focus{outline:0;border-color:var(--accent)}
+
+  .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
+
+  /* 📅 설치 일정 */
+  .sched-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .sched-sum .ss{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 12px}
+  .sched-sum .ss b{display:block;font-size:20px;font-weight:800;letter-spacing:-.03em}
+  .sched-sum .ss span{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .sched-day{display:flex;align-items:baseline;gap:8px;margin:14px 2px 7px}
+  .sched-day b{font-size:13.5px;font-weight:800;letter-spacing:-.02em}
+  .sched-day span{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .sched-day.is-today b{color:var(--accent-d)}
+  .sched-day.is-today b::before{content:"● ";font-size:9px;vertical-align:2px}
+  .srow{display:flex;align-items:flex-start;gap:9px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
+  .srow.is-done{opacity:.62}
+  .stime{flex:0 0 54px;font-size:13px;font-weight:800;color:var(--accent-d);font-variant-numeric:tabular-nums;padding-top:1px}
+  .smain{flex:1 1 auto;min-width:0}
+  .stitle{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .stitle b{font-size:14px;font-weight:800;letter-spacing:-.02em}
+  .stitle em{font-style:normal;font-size:10px;font-weight:800;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+  .stype{font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;background:#FEF3C7;color:#92400E}
+  .stype.new{background:var(--accent-t);color:var(--accent-d)}
+  .saddr{margin-top:2px;font-size:12px;color:var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sstage{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;background:var(--accent-t);color:var(--accent-d)}
+  .sstage[data-st="talk"]{background:var(--blue-bg);color:var(--blue)}
+  .sstage[data-st="deposit"]{background:#FFF7E6;color:#8A5A00}
+  .sstage[data-st="reserved"]{background:#F1EEFB;color:#5B3FB8}
+  .sstage[data-st="done"]{background:var(--ink);color:#fff}
+  .sacts{display:flex;gap:5px;flex:0 0 auto}
+  .sabtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+  .sabtn.done{border-color:var(--accent);background:var(--accent);color:#fff}
+
+  @media (max-width:680px){
+    .sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stime{flex-basis:46px;font-size:12px}
+  }
 
   .alerts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .abadge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:4px 9px;border-radius:8px}
@@ -232,7 +295,7 @@
     padding-bottom:env(safe-area-inset-bottom);
   }
   .bottom-nav-in{
-    max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);
+    max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);
   }
   .bnav-btn{
     position:relative;border:0;background:none;padding:9px 4px 8px;
@@ -312,6 +375,9 @@
       <span class="bnav-ico">♻️</span><span>중고마켓</span>
       <span class="bnav-badge" id="badge-market" hidden>0</span>
     </button>
+    <button type="button" class="bnav-btn" data-nav="sched" aria-selected="false">
+      <span class="bnav-ico">📅</span><span>일정</span>
+    </button>
     <button type="button" class="bnav-btn" data-nav="hub" aria-selected="false">
       <span class="bnav-ico">📐</span><span>도면·사이트</span>
     </button>
@@ -340,9 +406,57 @@
   };
   var KEY_RELOC = "beo_relocation_admin_key";
   var KEY_MARKET = "beo_market_admin_key";
-  var QUOTE_LABEL = { new: "신규", contacted: "연락완료", done: "완료" };
+  var PIPE_KEY = "beo-pipeline-v1";        /* 상세 단계·설치일 — 이 기기 저장(DB status와 함께) */
+  var CAP_KEY = "beo-pipeline-db-cap";     /* update 액션이 되는 서버인지 한 번만 확인해 기억 */
+  var QUOTE_LABEL = { new: "신규", contacted: "연락완료", done: "설치 완료" };
   var MARKET_LABEL = { active: "판매중", reserved: "예약중", sold: "판매완료", hidden: "숨김", pending: "검수대기" };
   var INQ_LABEL = { new: "신규", contacted: "연락완료", done: "완료" };
+  /* 진행 단계 — 화면표시 5단계 ↔ DB status(new/contacted/done) 안전 매핑 */
+  var STAGES = [
+    { v: "new",      label: "신규",        db: "new" },
+    { v: "talk",     label: "상담중",      db: "contacted" },
+    { v: "deposit",  label: "계약금 입금",  db: "contacted" },
+    { v: "reserved", label: "예약중",      db: "contacted" },
+    { v: "done",     label: "설치 완료",    db: "done" }
+  ];
+  var STAGE_BY_V = {};
+  STAGES.forEach(function(s){ STAGE_BY_V[s.v] = s; });
+
+  /* ---------- 이 기기 저장 (진행 단계 · 설치 일시) ---------- */
+  function readPipe(){
+    try { return JSON.parse(localStorage.getItem(PIPE_KEY) || "{}") || {}; } catch (e) { return {}; }
+  }
+  function writePipe(o){
+    try { localStorage.setItem(PIPE_KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function pipeOf(id){ return readPipe()[id] || {}; }
+  function setPipe(id, patch){
+    var o = readPipe();
+    o[id] = Object.assign({}, o[id] || {}, patch, { at: new Date().toISOString() });
+    writePipe(o);
+  }
+  function stageOf(q){
+    var p = pipeOf(q.id);
+    if (p.stage && STAGE_BY_V[p.stage]) return p.stage;
+    var tag = parseMemo(q.memo).stage;
+    if (tag){
+      var hit = STAGES.filter(function(s){ return s.label === tag; })[0];
+      if (hit) return hit.v;
+    }
+    if ((q.status || "new") === "done") return "done";
+    if (q.status === "contacted") return "talk";
+    return "new";
+  }
+  function installOf(q){
+    var p = pipeOf(q.id);
+    var date = p.installDate || "";
+    var time = p.installTime || "";
+    if (!date){
+      var t = parseMemo(q.memo).install;
+      if (t){ var m = t.match(/^(\d{4}-\d{2}-\d{2})\s*(.*)$/); if (m){ date = m[1]; time = m[2] || ""; } }
+    }
+    return { date: date, time: time };
+  }
 
   var state = {
     adminKey: "",
@@ -422,23 +536,73 @@
   }
   function parseMemo(raw){
     var lines = String(raw || "").split(/\r?\n/);
-    var listingUrl = "", aircon = "", pay = "", rest = [];
+    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", sim = null, simUrl = "", bpUrl = "", rest = [];
     lines.forEach(function(line){
       var t = line.trim();
       if (t.indexOf("[매물 링크]") === 0) listingUrl = t.replace("[매물 링크]", "").trim();
       else if (t.indexOf("[에어컨]") === 0) aircon = t.replace("[에어컨]", "").trim();
       else if (t.indexOf("[결제·증빙]") === 0) pay = t.replace("[결제·증빙]", "").trim();
+      else if (t.indexOf("[진행]") === 0) stage = t.replace("[진행]", "").trim();
+      else if (t.indexOf("[설치일]") === 0) install = t.replace("[설치일]", "").trim();
+      else if (t.indexOf("[SIM_SPEC]") === 0){
+        try { sim = JSON.parse(t.replace("[SIM_SPEC]", "").trim()); } catch (e) { sim = null; }
+      }
+      else if (t.indexOf("[시뮬레이터]") === 0) simUrl = t.replace("[시뮬레이터]", "").trim();
+      else if (t.indexOf("[설계도]") === 0) bpUrl = t.replace("[설계도]", "").trim();
       else rest.push(line);
     });
-    return { listingUrl: listingUrl, aircon: aircon, pay: pay, note: rest.join("\n").trim() };
+    return { listingUrl: listingUrl, aircon: aircon, pay: pay, stage: stage, install: install,
+             sim: sim, simUrl: simUrl, bpUrl: bpUrl, note: rest.join("\n").trim() };
   }
+
+  /* ---------- 시뮬레이터 사양(SIM_SPEC) → 표시용 · 링크용 ---------- */
+  var ARTBOARD_LABEL = { beige:"연베이지", beige_d:"진베이지", white:"화이트", gray_l:"연그레이", gray_d:"진그레이",
+    black:"블랙", orange:"오렌지", melon:"메론", green:"그린", sky:"스카이블루", blue:"블루", pink:"핑크" };
+  var SLAT_LABEL = { oak:"내추럴 오크", walnut:"미디엄 월넛", white:"화이트", whitewash:"화이트워시",
+    maple:"메이플", teak:"티크", ash:"애쉬 오크", dark:"다크 월넛" };
+  var FLOOR_LABEL = { oak:"멜로우 오크", pine:"화이트 파인" };
+  var WALL_LABEL = { left:"좌측", back:"후면", right:"우측", front:"앞면" };
+  var DOOR_LABEL = { left:"좌측 구석", center:"가운데", right:"우측 구석" };
+  var WIN_LABEL = { none:"없음", "600x800":"600×800", "800x800":"800×800", "1200x800":"1200×800", double1200:"이중창 1200" };
+  function simBadges(sim){
+    if (!sim) return [];
+    var out = [];
+    var mm = function(v){ return Number(v || 0).toLocaleString("ko-KR"); };
+    out.push(["규격", mm(sim.w) + " × " + mm(sim.d)]);
+    if (sim.ab) out.push(["아트보드", ARTBOARD_LABEL[sim.ab] || sim.ab]);
+    if (sim.sl) out.push(["라인타공", (SLAT_LABEL[sim.sl] || sim.sl) + " · " + (WALL_LABEL[sim.sp] || "후면")]);
+    out.push(["조명", sim.light === "rail" ? "레일등" : "COB 매립등 2구"]);
+    out.push(["중앙등", sim.lt === "6500" ? "주광색 6500K" : "주백색 4000K"]);
+    if (sim.fl) out.push(["마루", FLOOR_LABEL[sim.fl] || sim.fl]);
+    out.push(["문", (DOOR_LABEL[sim.door] || sim.door || "-") + " · " + (sim.hg === "left" ? "좌경첩" : "우경첩")]);
+    out.push(["시창", sim.win === "none" || !sim.win ? "없음" : (WIN_LABEL[sim.win] || sim.win) + " · " + (WALL_LABEL[sim.wp] || "좌측")]);
+    out.push(["프로젝트창", sim.pr === "in" ? "포함" : "없음"]);
+    return out;
+  }
+  /* 시뮬레이터와 설계도가 같이 읽는 쿼리 — configurator.html / blueprint.html 공통 */
+  function simQuery(sim){
+    if (!sim) return "";
+    var p = [];
+    var add = function(k, v){ if (v !== undefined && v !== null && v !== "") p.push(k + "=" + encodeURIComponent(v)); };
+    add("sim", "1"); add("w", sim.w); add("d", sim.d);
+    add("da", sim.door); add("hg", sim.hg); add("lf", sim.sp);
+    add("lm", sim.light === "rail" ? "rail" : "cob");
+    if (sim.win && sim.win !== "none"){ add("ws", sim.win); add("wc", "1"); add("wn", sim.wp); }
+    if (sim.pr === "in") add("pj", "in");
+    add("bb", ARTBOARD_LABEL[sim.ab] || sim.ab);
+    add("sl", SLAT_LABEL[sim.sl] || sim.sl);
+    add("fl", FLOOR_LABEL[sim.fl] || sim.fl);
+    if (sim.lt === "6500") add("lt", "6500");
+    return p.join("&");
+  }
+  function stageLabel(v){ return (STAGE_BY_V[v] || STAGE_BY_V.new).label; }
   function formatCopyText(q){
     var pm = parseMemo(q.memo);
     var isNewB = isNewBoothQuote(q);
     var out = [
       "[베오방음 " + (isNewB ? "신규설치" : "이전설치") + " 상담요청서 #" + String(q.id || "").slice(0, 8).toUpperCase() + "]",
       "• 고객: " + (q.customer_name || "-") + " (" + (q.customer_phone || "-") + ")",
-      "• 상태: " + (QUOTE_LABEL[q.status] || q.status || "신규") + " · 접수: " + fmtDate(q.created_at),
+      "• 상태: " + stageLabel(stageOf(q)) + " · 접수: " + fmtDate(q.created_at),
       "• 부스: " + (isNewB ? "신규 부스" : (q.booth_type || "유형 미상")) + " / " + (q.brand || "-") + " / " + sizeLine(q)
     ];
     if (!isNewB) {
@@ -446,6 +610,8 @@
     }
     out.push("• 설치(도착): " + (q.to_region || "-") + (q.to_floor ? " " + q.to_floor : "") + (q.to_elevator ? " (엘베 " + q.to_elevator + ")" : ""));
     out.push("• 희망일: " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : ""));
+    var inst = installOf(q);
+    if (inst.date) out.push("• 설치 예정: " + fmtDay(inst.date) + (inst.time ? " " + inst.time : ""));
     if (pm.aircon) out.push("• 에어컨: " + pm.aircon);
     if (pm.pay) out.push("• 결제·증빙: " + pm.pay);
     if (pm.listingUrl) out.push("• 매물링크: " + pm.listingUrl);
@@ -527,8 +693,8 @@
   }
 
   function updateBadges(){
-    var relocNew = state.quotes.filter(function(q){ return !isNewBoothQuote(q) && (q.status || "new") === "new"; }).length;
-    var newBNew = state.quotes.filter(function(q){ return isNewBoothQuote(q) && (q.status || "new") === "new"; }).length;
+    var relocNew = state.quotes.filter(function(q){ return !isNewBoothQuote(q) && stageOf(q) === "new"; }).length;
+    var newBNew = state.quotes.filter(function(q){ return isNewBoothQuote(q) && stageOf(q) === "new"; }).length;
     var mkCount = state.market.listings.filter(function(l){ return l.status === "pending"; }).length
       + state.market.inquiries.filter(function(i){ return i.status === "new"; }).length;
 
@@ -541,6 +707,159 @@
     if (!el) return;
     el.textContent = n > 99 ? "99+" : String(n);
     el.hidden = n <= 0;
+  }
+
+  /* ---------- 진행 단계 저장 (DB status + 메모 태그 + 기기 저장) ---------- */
+  function buildTaggedMemo(q, stage, inst){
+    var base = String(q.memo || "").split(/\r?\n/).filter(function(l){
+      var t = l.trim();
+      return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0);
+    }).join("\n").trim();
+    var lines = [];
+    if (base) lines.push(base);
+    lines.push("[진행]" + stageLabel(stage));
+    if (inst && inst.date) lines.push("[설치일]" + inst.date + (inst.time ? " " + inst.time : ""));
+    return lines.join("\n").slice(0, 2000);
+  }
+  function memoCapable(){
+    try { return localStorage.getItem(CAP_KEY) || ""; } catch (e) { return ""; }
+  }
+  function markMemoCap(ok){
+    try { localStorage.setItem(CAP_KEY, ok); } catch (e) {}
+  }
+  /* 서버가 memo 수정을 지원하면 DB에 남기고, 없으면 조용히 기기 저장만 쓴다.
+     ① relocation_admin 액션 'update' → ② 별도 RPC 'relocation_admin_update' → ③ 기기 저장 */
+  function pushMemoUpdate(q, stage){
+    var cap = memoCapable();
+    if (cap === "none") return;
+    var memo = buildTaggedMemo(q, stage, installOf(q));
+    var done = function(res){
+      if (res && res.ok){ markMemoCap("relocation_admin"); q.memo = memo; return true; }
+      return false;
+    };
+    var tryAlt = function(){
+      rpc("relocation_admin_update", { p_key: state.adminKey, p_payload: { id: q.id, memo: memo } })
+        .then(function(res){
+          if (res && res.ok){ markMemoCap("relocation_admin_update"); q.memo = memo; }
+          else markMemoCap("none");
+        })
+        .catch(function(){ markMemoCap("none"); });
+    };
+    if (cap === "relocation_admin_update"){ tryAlt(); return; }
+    rpc("relocation_admin", { p_key: state.adminKey, p_action: "update", p_payload: { id: q.id, memo: memo } })
+      .then(function(res){
+        if (done(res)) return;
+        if (res && /unknown action/i.test(String(res.error || ""))) tryAlt();
+        else markMemoCap("none");
+      })
+      .catch(function(){ tryAlt(); });
+  }
+  function saveStage(id, stage){
+    var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+    var s = STAGE_BY_V[stage] || STAGE_BY_V.new;
+    setPipe(id, { stage: stage });
+    if (q) pushMemoUpdate(q, stage);
+    if (q && (q.status || "new") !== s.db){
+      return rpc("relocation_admin", { p_key: state.adminKey, p_action: "status", p_payload: { id: id, status: s.db } })
+        .then(function(res){
+          if (!res || !res.ok) throw new Error((res && res.error) || "변경 실패");
+          q.status = s.db;
+        });
+    }
+    return Promise.resolve();
+  }
+
+  /* ---------- 📅 설치 일정 (이전설치 + 신규설치) ---------- */
+  function pad2(n){ return String(n).padStart(2, "0"); }
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  function weekdayOf(ds){
+    var d = new Date(ds + "T00:00:00");
+    if (isNaN(d.getTime())) return "";
+    return "일월화수목금토".charAt(d.getDay());
+  }
+  function schedItems(){
+    return state.quotes.map(function(q){
+      var inst = installOf(q);
+      var stage = stageOf(q);
+      var date = inst.date || q.desired_date || "";
+      return { q: q, stage: stage, date: date, time: inst.time || "",
+               tentative: !inst.date && !!q.desired_date, isNew: isNewBoothQuote(q) };
+    });
+  }
+  function renderScheduleTab(){
+    var items = schedItems();
+    var dated = items.filter(function(i){ return i.date; })
+      .sort(function(a, b){ return (a.date + a.time).localeCompare(b.date + b.time); });
+    var undated = items.filter(function(i){ return !i.date; });
+    var today = todayStr();
+    var todayN = dated.filter(function(i){ return i.date === today && i.stage !== "done"; }).length;
+    var openN = dated.filter(function(i){ return i.stage !== "done"; }).length;
+
+    var html = '<div class="sched-sum">'
+      + '<div class="ss"><b>' + todayN + '</b><span>오늘 설치</span></div>'
+      + '<div class="ss"><b>' + openN + '</b><span>남은 일정</span></div>'
+      + '<div class="ss"><b>' + undated.length + '</b><span>일정 미정</span></div>'
+      + '</div>';
+
+    if (!items.length){
+      html += '<div class="empty">아직 접수된 견적 요청이 없습니다.</div>';
+      app.innerHTML = html;
+      return;
+    }
+
+    var groups = [];
+    dated.forEach(function(i){
+      var g = groups.filter(function(x){ return x.date === i.date; })[0];
+      if (!g){ g = { date: i.date, items: [] }; groups.push(g); }
+      g.items.push(i);
+    });
+
+    var rowHtml = function(i){
+      var q = i.q;
+      var addr = q.to_region || "설치지 미기재";
+      return '<div class="srow' + (i.stage === "done" ? " is-done" : "") + '">'
+        + '  <div class="stime">' + (i.time ? esc(i.time) : "<span style=\"color:var(--muted)\">시간 미정</span>") + '</div>'
+        + '  <div class="smain">'
+        + '    <div class="stitle"><span class="stype ' + (i.isNew ? "new" : "move") + '">' + (i.isNew ? "신규" : "이전") + '</span>'
+        + '      <b>' + esc(q.customer_name || "성함 미기재") + '</b>' + (i.tentative ? '<em>희망일</em>' : '') + '</div>'
+        + '    <div class="saddr">' + esc(addr) + (q.to_floor ? ' · ' + esc(q.to_floor) : '') + '</div>'
+        + '    <div class="sstage" data-st="' + i.stage + '">' + stageLabel(i.stage) + '</div>'
+        + '  </div>'
+        + '  <div class="sacts">'
+        + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
+        + (q.to_region ? '<a class="sabtn" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : '')
+        + (i.stage !== "done" ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>' : '')
+        + '  </div>'
+        + '</div>';
+    };
+
+    groups.forEach(function(g){
+      var openCount = g.items.filter(function(i){ return i.stage !== "done"; }).length;
+      html += '<div class="sched-day' + (g.date === today ? " is-today" : "") + '">'
+        + '<b>' + esc(fmtDay(g.date)) + ' (' + weekdayOf(g.date) + ')</b>'
+        + '<span>' + g.items.length + '건' + (openCount ? ' · 남은 ' + openCount : ' · 마감') + '</span></div>';
+      html += g.items.map(rowHtml).join("");
+    });
+
+    if (undated.length){
+      html += '<div class="sched-day"><b>일정 미정</b><span>' + undated.length + '건</span></div>';
+      html += undated.map(rowHtml).join("");
+    }
+    app.innerHTML = html;
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qdone]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-qdone");
+        b.disabled = true;
+        Promise.resolve(saveStage(id, "done")).then(function(){
+          toast("설치 완료로 마감했습니다");
+          loadAll();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
   }
 
   function render(){
@@ -561,6 +880,9 @@
     } else if (state.nav === "market") {
       topSub.textContent = "중고마켓";
       renderMarketTab();
+    } else if (state.nav === "sched") {
+      topSub.textContent = "설치 일정";
+      renderScheduleTab();
     } else {
       topSub.textContent = "도면·사이트";
       renderHubTab();
@@ -569,28 +891,21 @@
 
   function renderQuotesTab(isNewTab){
     var base = state.quotes.filter(function(q){ return isNewTab ? isNewBoothQuote(q) : !isNewBoothQuote(q); });
-    var counts = {
-      all: base.length,
-      "new": base.filter(function(q){ return (q.status || "new") === "new"; }).length,
-      contacted: base.filter(function(q){ return q.status === "contacted"; }).length,
-      done: base.filter(function(q){ return q.status === "done"; }).length
-    };
+    base.forEach(function(q){ q.__stage = stageOf(q); });
+    var counts = { all: base.length };
+    STAGES.forEach(function(s){ counts[s.v] = base.filter(function(q){ return q.__stage === s.v; }).length; });
     var qLower = state.query.trim().toLowerCase();
     var filtered = base.filter(function(q){
-      if (state.qStatus !== "all" && (q.status || "new") !== state.qStatus) return false;
+      if (state.qStatus !== "all" && q.__stage !== state.qStatus) return false;
       if (!qLower) return true;
       return [q.customer_name, q.customer_phone, q.brand, q.booth_type, q.from_region, q.to_region, q.memo, q.id].join(" ").toLowerCase().indexOf(qLower) !== -1;
     });
 
-    var kpis = [
-      ["all", "전체", counts.all],
-      ["new", "신규 접수", counts["new"]],
-      ["contacted", "연락완료", counts.contacted],
-      ["done", "진행완료", counts.done]
-    ].map(function(k){
-      return '<button type="button" class="kpi" data-qtab="' + k[0] + '" aria-pressed="' + (state.qStatus === k[0] ? "true" : "false") + '">'
-        + '<div class="kl">' + k[1] + '</div><div class="kv">' + k[2] + '</div></button>';
-    }).join("");
+    var kpis = [["all", "전체", counts.all]].concat(STAGES.map(function(s){ return [s.v, s.label, counts[s.v]]; }))
+      .map(function(k){
+        return '<button type="button" class="kpi" data-qtab="' + k[0] + '" aria-pressed="' + (state.qStatus === k[0] ? "true" : "false") + '">'
+          + '<div class="kl">' + k[1] + '</div><div class="kv">' + k[2] + '</div></button>';
+      }).join("");
 
     var cardsHtml = filtered.length
       ? filtered.map(function(q){ return renderQuoteCard(q, isNewTab); }).join("")
@@ -610,11 +925,14 @@
   }
 
   function renderQuoteCard(q, isNewTab){
-    var st = q.status || "new";
+    var st = q.__stage || stageOf(q);
     var pm = parseMemo(q.memo);
+    var inst = installOf(q);
     var photos = Array.isArray(q.photos) ? q.photos : [];
     var shortId = String(q.id || "").slice(0, 8).toUpperCase();
     var phoneDigits = digits(q.customer_phone);
+    var sim = pm.sim || (q.width_mm || q.depth_mm ? { w: q.width_mm, d: q.depth_mm } : null);
+    var simQ = simQuery(sim);
 
     var alerts = [];
     if (!isNewTab && q.from_elevator === "없음") alerts.push('<span class="abadge warn">⚠️ 해체지 엘베 없음</span>');
@@ -623,8 +941,8 @@
     if (pm.pay) alerts.push('<span class="abadge info">💳 ' + esc(pm.pay) + '</span>');
     if (pm.listingUrl) alerts.push('<a class="abadge link" href="' + esc(pm.listingUrl) + '" target="_blank" rel="noopener">🔗 매물 링크 ↗</a>');
 
-    var statusBtns = ["new", "contacted", "done"].map(function(s){
-      return '<button type="button" class="sp' + (st === s ? " on" : "") + '" data-qst="' + s + '" data-qid="' + esc(q.id) + '">' + QUOTE_LABEL[s] + '</button>';
+    var statusBtns = STAGES.map(function(s){
+      return '<button type="button" class="sp' + (st === s.v ? " on" : "") + '" data-qstage="' + s.v + '" data-qid="' + esc(q.id) + '" data-st="' + s.v + '">' + s.label + '</button>';
     }).join("");
 
     var routeHtml = isNewTab
@@ -652,6 +970,17 @@
         + '  </div>'
         + '</div>';
 
+    /* 시뮬레이터 사양 배지 (있을 때만) */
+    var badges = simBadges(pm.sim);
+    var simHtml = badges.length
+      ? '<div class="sim-box">'
+        + '  <div class="sim-h"><b>🎨 시뮬레이터 사양</b><span>고객이 고른 옵션 · 자재·재단은 📐 설계도</span></div>'
+        + '  <div class="sim-grid">' + badges.map(function(b){
+            return '<div class="sim-item"><span>' + esc(b[0]) + '</span><b>' + esc(b[1]) + '</b></div>';
+          }).join("") + '</div>'
+        + '</div>'
+      : '';
+
     var photosHtml = photos.length
       ? '<div class="photos">' + photos.map(function(u, idx){
           return '<button type="button" class="photo-btn" data-lb-type="quote" data-lb-id="' + esc(q.id) + '" data-lb-idx="' + idx + '">'
@@ -659,34 +988,48 @@
         }).join("") + '</div>'
       : '';
 
-    return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '">'
+    var instHtml = '<div class="inst-row">'
+      + '  <div class="inst-l"><b>설치 예정일</b><small>현장 확정 일시</small></div>'
+      + '  <input type="date" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="date" value="' + esc(inst.date) + '" aria-label="설치 예정일">'
+      + '  <input type="time" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="time" value="' + esc(inst.time) + '" aria-label="설치 시간">'
+      + '</div>';
+
+    return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '" data-stage="' + st + '">'
       + '<div class="qs-head">'
       + '  <div>'
       + '    <div class="qs-who">'
       + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
       + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
+      + '      <span class="stage-tag" data-st="' + st + '">' + stageLabel(st) + '</span>'
       + '    </div>'
       + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
       + '  </div>'
-      + '  <div class="status-pills">' + statusBtns + '</div>'
       + '</div>'
+      + '<div class="stage-bar">' + statusBtns + '</div>'
       + (alerts.length ? '<div class="alerts">' + alerts.join("") + '</div>' : '')
       + '<div class="spec-grid">'
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
       + '  <div class="spec-item"><div class="sl">크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
-      + '  <div class="spec-item"><div class="sl">희망 설치일</div><div class="sv">' + esc(fmtDay(q.desired_date)) + (q.date_flexible ? ' <small style="color:var(--accent-d)">(조율)</small>' : '') + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
+      + simHtml
       + routeHtml
+      + instHtml
       + (pm.note ? '<div class="memo-box">' + linkify(pm.note) + '</div>' : '')
       + photosHtml
       + '<div class="qs-foot">'
       + '  <div class="qacts">'
       + (phoneDigits ? '<a class="abtn solid" href="tel:' + esc(phoneDigits) + '">📞 전화</a>' : '')
       + (phoneDigits ? '<a class="abtn" href="sms:' + esc(phoneDigits) + '">💬 문자</a>' : '')
+      + '    <a class="abtn" href="configurator.html?' + simQ + '" target="_blank" rel="noopener">🎨 시뮬레이터</a>'
+      + '    <a class="abtn" href="blueprint.html?' + simQ + '" target="_blank" rel="noopener">📐 설계도</a>'
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
       + '  </div>'
-      + '  <button type="button" class="abtn danger" data-qdel="' + esc(q.id) + '">삭제</button>'
+      + '  <div class="qacts">'
+      + (st !== "done" ? '<button type="button" class="abtn done" data-qdone="' + esc(q.id) + '">✅ 설치 완료</button>' : '')
+      + '    <button type="button" class="abtn danger" data-qdel="' + esc(q.id) + '">삭제</button>'
+      + '  </div>'
       + '</div>'
       + '</article>';
   }
@@ -828,16 +1171,41 @@
     }
     if (clearBtn) clearBtn.addEventListener("click", function(){ state.query = ""; render(); });
 
-    Array.prototype.forEach.call(app.querySelectorAll("[data-qst]"), function(b){
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qstage]"), function(b){
       b.addEventListener("click", function(){
-        var id = b.getAttribute("data-qid"), st = b.getAttribute("data-qst");
+        var id = b.getAttribute("data-qid"), stage = b.getAttribute("data-qstage");
         b.disabled = true;
-        rpc("relocation_admin", { p_key: state.adminKey, p_action: "status", p_payload: { id: id, status: st } })
-          .then(function(res){
-            if (!res || !res.ok) throw new Error((res && res.error) || "변경 실패");
-            toast("'" + (QUOTE_LABEL[st] || st) + "'(으)로 변경했어요");
-            loadAll();
-          }).catch(function(err){ alert(err.message); b.disabled = false; });
+        Promise.resolve(saveStage(id, stage)).then(function(){
+          toast("진행 단계를 ‘" + stageLabel(stage) + "’(으)로 바꿨어요");
+          loadAll();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qdone]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-qdone");
+        b.disabled = true;
+        Promise.resolve(saveStage(id, "done")).then(function(){
+          toast("설치 완료로 마감했습니다");
+          loadAll();
+        }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-inst-id]"), function(inp){
+      inp.addEventListener("change", function(){
+        var id = inp.getAttribute("data-inst-id");
+        var k = inp.getAttribute("data-inst-k");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!q) return;
+        var patch = {};
+        patch[k === "date" ? "installDate" : "installTime"] = inp.value || "";
+        setPipe(id, patch);
+        pushMemoUpdate(q, stageOf(q));
+        var inst = installOf(q);
+        toast(inst.date ? "설치 일정 " + inst.date + (inst.time ? " " + inst.time : "") + " 저장" : "설치 일정을 비웠습니다");
+        render();
       });
     });
 

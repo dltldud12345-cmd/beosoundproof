@@ -222,6 +222,7 @@
           <button class="chip" data-w="3000" data-d="2000">3000×2000</button>
         </div>
       </div>
+      <p class="note-small" id="simNote" hidden style="color:#1F7A69">시뮬레이터/관리자에서 넘어온 사양입니다. 규격은 넘어온 값을 <b>외경</b>으로 그대로 적용했습니다.</p>
     </section>
 
     <section class="card">
@@ -256,8 +257,10 @@
         <div class="seg" id="winSpec">
           <button data-v="none" aria-pressed="true">없음</button>
           <button data-v="400x800" aria-pressed="false">400×800</button>
+          <button data-v="600x800" aria-pressed="false">600×800</button>
           <button data-v="800x800" aria-pressed="false">800×800</button>
           <button data-v="1200x800" aria-pressed="false">1200×800</button>
+          <button data-v="double1200" aria-pressed="false">이중창 1200</button>
         </div>
       </div>
       <div id="winFields" style="display:none">
@@ -275,7 +278,42 @@
         <p class="note-small" id="winFillNote"></p>
         <p class="note-small warnline" id="winWarn"></p>
       </div>
-      <p class="note-small" id="winNote">· <b>400×800</b> 세로 시창 — 상부 1000 코스 안에 100 + 800 + 100.<br>· <b>800×800</b> 검사시창 — 문 폭을 뺀 남은 공간 <b>정중앙</b>, 좌우 <b>같은 폭</b> 채움 · 아래 <b>400×400 2장</b> · 위 <b>400×398 2장</b>(샷시 2mm 여유). <b>600+200으로 쪼개지 않습니다.</b><br>· <b>1200×800</b> 가로 시창 — 600 모듈 2장 · 아래 <b>600×400 2장</b> · 위 <b>600×398 2장</b>. 위치는 드래그·슬라이더로 자유 이동.</p>
+      <p class="note-small" id="winNote">· <b>400×800</b> 세로 시창 — 상부 1000 코스 안에 100 + 800 + 100.<br>· <b>600×800</b> 시창 — 600 모듈 1칸, 400×800과 같은 100 + 800 + 100 코스.<br>· <b>800×800</b> 검사시창 — 문 폭을 뺀 남은 공간 <b>정중앙</b>, 좌우 <b>같은 폭</b> 채움 · 아래 <b>400×400 2장</b> · 위 <b>400×398 2장</b>(샷시 2mm 여유). <b>600+200으로 쪼개지 않습니다.</b><br>· <b>1200×800</b> 가로 시창 — 600 모듈 2장 · 아래 <b>600×400 2장</b> · 위 <b>600×398 2장</b>. 위치는 드래그·슬라이더로 자유 이동.<br>· <b>이중창 1200</b> — 위와 같은 600 모듈 2칸 구성에 안·밖 <b>돌출 이중창</b>으로 시공합니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>마감 사양 <span style="font-size:10px;font-weight:700;color:#2E9C86">시뮬레이터 연동</span></h2>
+      <div class="field"><label for="bbColor">아트보드 색상 <span class="hint">3면 · 12색</span></label>
+        <select id="bbColor">
+          <option>연베이지</option><option>진베이지</option><option>화이트</option><option>연그레이</option>
+          <option>진그레이</option><option>블랙</option><option>오렌지</option><option>메론</option>
+          <option>그린</option><option>스카이블루</option><option>블루</option><option>핑크</option>
+        </select>
+      </div>
+      <div class="field"><label for="slatColor">라인타공 색상 <span class="hint">1면 · 8색</span></label>
+        <select id="slatColor">
+          <option>내추럴 오크</option><option>미디엄 월넛</option><option>화이트</option><option>화이트워시</option>
+          <option>메이플</option><option>티크</option><option>애쉬 오크</option><option>다크 월넛</option>
+        </select>
+      </div>
+      <div class="field"><label for="floorColor">바닥 마루</label>
+        <select id="floorColor">
+          <option>멜로우 오크</option><option>화이트 파인</option>
+        </select>
+      </div>
+      <div class="field"><label>중앙등 색온도</label>
+        <div class="seg" id="ledTemp">
+          <button data-v="4000" aria-pressed="true">주백색 4000K</button>
+          <button data-v="6500" aria-pressed="false">주광색 6500K</button>
+        </div>
+      </div>
+      <div class="field"><label>천장 프로젝트창</label>
+        <div class="seg" id="projectWin">
+          <button data-v="none" aria-pressed="true">없음</button>
+          <button data-v="in" aria-pressed="false">포함</button>
+        </div>
+      </div>
+      <p class="note-small" id="finishNote">선택한 마감은 도면 표제부·천장 평면·자재 산출표에 그대로 표기됩니다. 시뮬레이터에서 넘어오면 이 값들이 자동으로 맞춰집니다.</p>
     </section>
 
     <section class="card">
@@ -311,13 +349,6 @@
 
     <section class="card">
       <h2>비앤비 아트보드 발주</h2>
-      <div class="field"><label for="bbColor">원단 · 색상</label>
-        <select id="bbColor">
-          <option>연베이지</option><option>진베이지</option><option>화이트</option><option>연그레이</option>
-          <option>진그레이</option><option>블랙</option><option>오렌지</option><option>메론</option>
-          <option>그린</option><option>스카이블루</option><option>블루</option><option>핑크</option>
-        </select>
-      </div>
       <div class="field"><label>방염</label>
         <div class="seg" id="bbFlame">
           <button data-v="non" aria-pressed="true">비방염</button>
@@ -325,7 +356,7 @@
         </div>
       </div>
       <div class="field"><label for="bbAddr">현장 주소</label><input type="text" id="bbAddr" placeholder="예) 김포대로 709 페스트 블루 빌딩" autocomplete="off"></div>
-      <p class="note-small">현장명은 위 <b>도면 정보</b>의 값을 그대로 씁니다. 미리보기는 도면 아래 <b>비앤비 아트보드 발주표</b> 카드에서 복사할 수 있습니다.</p>
+      <p class="note-small">색상은 위 <b>마감 사양</b>에서 고른 값을 그대로 씁니다. 현장명은 <b>도면 정보</b>의 값을 쓰고, 미리보기는 도면 아래 <b>비앤비 아트보드 발주표</b> 카드에서 복사할 수 있습니다.</p>
     </section>
 
     <section class="card">
@@ -455,17 +486,20 @@ function buildModel(inp){
      800·1200 은 아래 400 · 시창 · 위 398(샷시 2mm 여유) · 상단 밴드 402 로 쌓고,
      400×800 은 상부 1000 코스 안에 100 + 800 + 100 으로 넣는다.            */
   const WIN_SPEC = {
-    none:      {w:0,    h:0, cols:[]},
-    '400x800': {w:400,  h:800, cols:[400]},
-    '800x800': {w:800,  h:800, cols:[400,400]},
-    '1200x800':{w:1200, h:800, cols:[600,600]}
+    none:       {w:0,    h:0, cols:[]},
+    '400x800':  {w:400,  h:800, cols:[400]},
+    '600x800':  {w:600,  h:800, cols:[600]},
+    '800x800':  {w:800,  h:800, cols:[400,400]},
+    '1200x800': {w:1200, h:800, cols:[600,600]},
+    'double1200':{w:1200,h:800, cols:[600,600], double:true}
   };
   const winSpec = WIN_SPEC[inp.winSpec] ? inp.winSpec : 'none';
   const winDef = WIN_SPEC[winSpec];
   const winCount = winSpec==='none' ? 0 : Math.max(1, Math.min(4, +inp.winCount || 1));
   const winSide = ['front','back','left','right'].indexOf(inp.winSide)>=0 ? inp.winSide : 'front';
   const winW = winDef.w, winH = winDef.h, winCols = winDef.cols;
-  const winBig = (winSpec==='800x800' || winSpec==='1200x800');
+  const winDouble = !!winDef.double;
+  const winBig = (winSpec==='800x800' || winSpec==='1200x800' || winSpec==='double1200');
   const winBelow  = winBig ? 400 : Math.max(20, Math.round((1000-winH)/2));   // 시창 아래
   const winAbove  = winBig ? 400 - CFG.SHASHI : winBelow;                    // 시창 위 398 = 400 − 샷시 2
   const winTopBand = Math.max(0, CFG.HEAD - winBelow - winH - winAbove);     // 800·1200 상단 밴드 402
@@ -726,7 +760,8 @@ function buildModel(inp){
   if(winCount>0){
     const wnote = (winMoved? ' · '+sideName[winSideKey]+' 배치' : '')
                 + (winDoorMoved? ' · 문 좌우 이동' : '')
-                + (winTight? ' · 자리 부족 현장 확인' : '');
+                + (winTight? ' · 자리 부족 현장 확인' : '')
+                + (winDouble? ' · 이중창 돌출' : '');
     add('문·개구부', winW, winH, winCount, '시창 개구부 '+winW+'×'+winH+' · 아크릴 3T'+wnote);
     /* 시창 열마다 아래 400 · 위 398(샷시 2mm) · 상단 밴드 402 — 800 은 400 2장, 1200 은 600 2장 */
     winCols.forEach(cw=>{
@@ -736,6 +771,11 @@ function buildModel(inp){
         add('벽판 95T PB', cw, st.h, winCount, st.note+' '+cw+'×'+st.h+tail+' · '+sideName[winSideKey]);
       });
     });
+  }
+  /* 프로젝트창 — 천장 개폐형 개구부 600×600 */
+  const projWin = inp.projectWin === 'in' ? 'in' : 'none';
+  if(projWin === 'in'){
+    add('문·개구부', 600, 600, 1, '프로젝트창 개구부 600×600 · 천장 개폐형 · 아크릴 3T + 프레임');
   }
   /* 외벽 알판 — 층고가 2400을 넘으면 길이(높이) 방향 분할 */
   merge2(extRows.filter(r=>r.w>40)).forEach(p=>{
@@ -795,12 +835,13 @@ function buildModel(inp){
     {mat:'PB 95T — 벽판 (액자틀 날개)', spec:'95T 적층', amount: n(wallArea), unit:'㎡', boards: stockCount(cutCells('벽판 95T PB')), note:'15T 원판 + 95T 날개 · 18T×5 기준'},
     {mat:'천장 65T', spec:'600 모듈', amount: n(sum(cellsOf(ceilPieces).map(p=>p.w*p.l))/1e6), unit:'㎡', boards: stockCount(cutCells('천장 65T')), note:'15T 합판 세움 보강 '+JOINT+'㎜'},
     {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H, amount: n(extArea), unit:'㎡', boards: stockCount(cutCells('외벽 알판')), note:'외부 마감 9T'},
-    {mat:'9T 마감재 — 내부', spec:'3면 + 천장', amount: n(artArea), unit:'㎡', boards: boardF(artArea), note:'아트보드 · 1면 라인타공'},
+    {mat:'9T 마감재 — 내부', spec:'3면 + 천장', amount: n(artArea), unit:'㎡', boards: boardF(artArea), note:'아트보드 '+(inp.bbColor||'연베이지')+' · 라인타공 '+(inp.slatColor||'내추럴 오크')},
     {mat:'45T 마블 — 액자틀 충전', spec:'2겹', amount: n(wallArea*2), unit:'㎡', boards: boardF(wallArea*2), note:'액자틀 안쪽 충진 45T × 2'},
-    {mat:'강화마루', spec:'BOX(약 2.0㎡)', amount: n(innerArea)+' ㎡', unit:'', boards: null, note: Math.ceil(innerArea/2.0)+' BOX'},
+    {mat:'강화마루', spec: (inp.floorColor||'멜로우 오크')+' · BOX(약 2.0㎡)', amount: n(innerArea)+' ㎡', unit:'', boards: null, note: Math.ceil(innerArea/2.0)+' BOX'},
     {mat:'45T 몰딩', spec:'2.4m', amount: n((innerW+innerD)*2*2/1000), unit:'m', boards: null, note:'바닥+천장'},
     {mat:'시스템도어', spec: dw+'×'+dh, amount:'1 세트', unit:'', boards: null, note:'상부 트랜섬 '+(fillH+2)},
-    {mat:'시창', spec: winW+'×'+winH, amount: winCount? winCount+' 개':'—', unit:'', boards: null, note: winCount? ('아크릴 3T + 창틀 · '+(winBig?'좌우 대칭 · 샷시 2mm':'샷시 2mm')):'미적용'}
+    {mat:'시창', spec: winW+'×'+winH, amount: winCount? winCount+' 개':'—', unit:'', boards: null, note: winCount? ('아크릴 3T + 창틀 · '+(winDouble? '이중창 · 안·밖 돌출 · 샷시 2mm':(winBig?'좌우 대칭 · 샷시 2mm':'샷시 2mm'))):'미적용'},
+    {mat:'조명', spec: lightMode==='rail'? '레일등' : 'COB 매립등 2구', amount:'2구 + 중앙등 1구', unit:'', boards: null, note:'중앙등 '+(inp.ledTemp==='6500'? '주광색 6500K':'주백색 4000K') + (projWin==='in'? ' · 프로젝트창 개폐형':'')}
   ];
 
   /* 원판 600×2400 환산 총괄 */
@@ -814,7 +855,7 @@ function buildModel(inp){
 
   return {
     inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, usedAlign, doorHinge, sideName,
-    winSpec, winDef, winCount, winSide, winSideKey, winMoved, winDoorMoved, winTight,
+    winSpec, winDef, winCount, winSide, winSideKey, winMoved, winDoorMoved, winTight, winDouble, projWin,
     winW, winH, winCols, winPositions, winSideObj, winRegion, winJoints,
     winFillL, winFillR, winCenterEff, winCenterMin, winCenterMax, needW,
     winBig, winBelow, winAbove, winTopBand, winLowBand, winStack, winStackTxt, winBottomY,
@@ -1004,6 +1045,12 @@ function hingeAtEnd(sideK, hinge){
   return !!row[hinge==='left' ? 'left' : 'right'];
 }
 function hingeName(h){ return h==='left' ? '좌경첩' : '우경첩'; }
+/* 시창 한 줄 이름 — 시뮬레이터·관리자에서 넘어온 규격도 같은 표기로 보여 준다 */
+function winLabel(m){
+  if(!m || !m.winCount) return '없음';
+  const t = m.winDouble ? '이중창 1200×800' : (m.winW+'×'+m.winH);
+  return t + ' · ' + m.sideName[m.winSideKey] + (m.winCount>1? ' × '+m.winCount : '');
+}
 
 function layoutPieces(sd){
   const off0 = (sd.len - sd.span)/2;
@@ -1675,6 +1722,17 @@ function cobCeilPanel(m, x, y, w, h){
   }[f];
   s += tag(tagPos[0], tagPos[1], '라인타공', {size:5.6, fill:ACC, weight:800, rot:tagPos[2], bg:'#fff', bgop:0.92});
 
+  /* 천장 프로젝트창(개폐형) — 앞면·좌측 안쪽 모서리에서 40㎜ 띄운 600×600 */
+  if(m.projWin === 'in'){
+    const ins = 40*sc;
+    const side = Math.min(600, m.innerW, m.innerD)*sc;
+    const px = ox + ins, py = oy + ih - ins - side;
+    s += R(px, py, side, side, {fill:'#F3F8F6', stroke:ACC, sw:0.9, dash:'3 2'});
+    s += L(px, py, px+side, py+side, {stroke:ACC, sw:0.5, dash:'2 2'});
+    s += L(px+side, py, px, py+side, {stroke:ACC, sw:0.5, dash:'2 2'});
+    s += tag(px + side + 3, py + side/2, '프로젝트창 600', {size:5.2, fill:ACC, weight:800, bg:'#fff', bgop:0.9});
+  }
+
   /* 면 시작(좌·상)에서 t ㎜, 벽 안쪽면에서 안쪽으로 inn ㎜ */
   const pt = (tmm, inn) => {
     const tt = tmm*sc, ii = inn*sc;
@@ -2190,7 +2248,8 @@ function sheetTables(m){
   /* BOM */
   const by0 = M+84 + t1.height + (m.lenSplits.some(o=>o.lens.length>1)? 50 : 28);
   s += T(M+10, by0-8, '자재 산출표 (BOM)', {size:8.6, weight:800});
-  s += T(M+10, by0+2, '원판 600×2400 기준 (폭별 1열 재단 · 길이 합 2.4m 이내 묶음 · 할증 12%)', {size:6, fill:'#7B8389'});
+  s += T(M+10, by0+2, '마감 · 아트보드 '+(m.inp.bbColor||'연베이지')+' · 라인타공 '+(m.inp.slatColor||'내추럴 오크')+'('+m.sideName[m.lineFace]+') · 마루 '+(m.inp.floorColor||'멜로우 오크')
+    + ' · 중앙등 '+(m.inp.ledTemp==='6500'? '주광색 6500K':'주백색 4000K')+' · 시창 '+winLabel(m)+' · 프로젝트창 '+(m.projWin==='in'? '개폐형 포함':'없음'), {size:6, fill:'#7B8389'});
 
   const bomRows = m.bom.map(b=>({cells:[
     b.mat, b.spec, b.amount+' '+b.unit, b.boards!=null? b.boards+' 장':'-', b.note||''
@@ -2524,7 +2583,11 @@ function readInputs(){
     cobInset: ($('#cobInset').value === '' ? 200 : (+$('#cobInset').value || 0)),
     bbColor: ($('#bbColor').value || '연베이지').trim(),
     bbFlame: state.bbFlame || 'non',
-    bbAddr: ($('#bbAddr').value || '').trim()
+    bbAddr: ($('#bbAddr').value || '').trim(),
+    slatColor: ($('#slatColor').value || '내추럴 오크').trim(),
+    floorColor: ($('#floorColor').value || '멜로우 오크').trim(),
+    ledTemp: state.ledTemp || '4000',
+    projectWin: state.projectWin || 'none'
   };
 }
 
@@ -2687,6 +2750,12 @@ function syncURL(inp){
     q.set('ws', inp.winSpec); q.set('wc', inp.winCount); q.set('wn', inp.winSide);
     if(inp.winCenter!==null && inp.winCenter!==undefined && inp.winCenter!=='') q.set('wp', Math.round(inp.winCenter));
   }
+  /* 마감·조명 사양 — 시뮬레이터와 같은 키 이름으로 맞춰 둔다 */
+  if(inp.bbColor)    q.set('bb', inp.bbColor);
+  if(inp.slatColor)  q.set('sl', inp.slatColor);
+  if(inp.floorColor) q.set('fl', inp.floorColor);
+  if(inp.ledTemp && inp.ledTemp !== '4000') q.set('lt', inp.ledTemp);
+  if(inp.projectWin === 'in') q.set('pj', 'in');
   try{ history.replaceState(null,'','?'+q.toString()); }catch(e){}
 }
 
@@ -2811,6 +2880,8 @@ function init(){
   segInit('#doorHinge','doorHinge','right');
   segInit('#lineFace','lineFace','back');
   segInit('#lightMode','lightMode','cob');
+  segInit('#ledTemp','ledTemp','4000');
+  segInit('#projectWin','projectWin','none');
   segInit('#bbFlame','bbFlame','non');
   segInit('#winSpec','winSpec','none', ()=>{ state.winCenter = null; });
 
@@ -2821,7 +2892,7 @@ function init(){
   });
 
   ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
-   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr']
+   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor']
     .forEach(s=>{ const el=$(s); el.addEventListener('input', render); el.addEventListener('change', render); });
 
   /* 시창 위치 슬라이더 · 중앙 정렬 */
@@ -2856,7 +2927,7 @@ function init(){
   }
   const qWs = q.get('ws') || src.winSpec;
   state.winCenter = null;
-  if(qWs==='none' || qWs==='400x800' || qWs==='800x800' || qWs==='1200x800') setSeg('#winSpec','winSpec', qWs);
+  if(['none','400x800','600x800','800x800','1200x800','double1200'].indexOf(qWs)>=0) setSeg('#winSpec','winSpec', qWs);
   const qWc = q.get('wc') || src.winCount, qWn = q.get('wn') || src.winSide;
   if(qWc) $('#winCount').value = qWc;
   if(qWn) $('#winSide').value = qWn;
@@ -2871,6 +2942,21 @@ function init(){
   if(qLm==='cob' || qLm==='rail') setSeg('#lightMode','lightMode', qLm);
   const qRs = q.get('rs') || src.railSpec;
   if(qRs==='auto' || qRs==='1000' || qRs==='1500' || qRs==='2000') $('#railSpec').value = qRs;
+
+  /* 마감·조명 사양 파라미터 */
+  const setSel = (sel, v) => {
+    const el = $(sel); if(!el || !v) return;
+    const opt = Array.prototype.slice.call(el.options).find(o=>o.value===v || o.text===v);
+    if(opt) el.value = opt.value;
+  };
+  setSel('#bbColor',    q.get('bb') || src.bbColor);
+  setSel('#slatColor',  q.get('sl') || src.slatColor);
+  setSel('#floorColor', q.get('fl') || src.floorColor);
+  const qLt = q.get('lt') || src.ledTemp;
+  if(qLt==='4000' || qLt==='6500') setSeg('#ledTemp','ledTemp', qLt);
+  const qPj = q.get('pj') || src.projectWin;
+  if(qPj==='in' || qPj==='none') setSeg('#projectWin','projectWin', qPj);
+  if(q.get('sim') === '1' && $('#simNote')) $('#simNote').hidden = false;
 
   render();
 }
