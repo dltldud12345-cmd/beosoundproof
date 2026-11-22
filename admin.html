@@ -2246,7 +2246,7 @@ function openContractModal(q){
   Array.prototype.forEach.call(bottomNav.querySelectorAll("[data-nav]"), function(b){
     b.addEventListener("click", function(){ state.nav = b.getAttribute("data-nav"); state.qStatus = "all"; render(); window.scrollTo(0, 0); });
   });
-  document.getElementById("btn-refresh").addEventListener("click", function(){ toast("새로고침 중…"); loadAll(); });
+  document.getElementById("btn-refresh").addEventListener("click", function(){ toast("최신 화면 불러오는 중…"); location.replace(location.pathname + "?v=" + Date.now() + (location.hash || "")); });
   document.getElementById("btn-logout").addEventListener("click", function(){ clearKey(); state.adminKey = ""; renderLogin(); });
 
   state.adminKey = loadSavedKey();
