@@ -1751,8 +1751,8 @@ function openContractModal(q){
     var m = moneyOf(q);
     var pay = payOf(q);
     var payHintTxt = pay === "카드결제"
-      ? "💳 페이히어 비대면 카드결제 링크 안내로 계약서에 반영됩니다 (계약금 · 잔금 동일)"
-      : (pay ? "🏦 기업은행 계좌 입금 안내 + " + pay + " 발행으로 계약서에 반영됩니다" : "카드 · 세금계산서 · 현금영수증 모두 공급가액 + 부가세 10% = 합계로 같습니다");
+      ? "💳 페이히어 비대면 카드결제 링크로 발송됩니다.<br>(계약금 · 잔금 모두 동일 적용)"
+      : (pay ? "🏦 기업은행 계좌 입금 + " + pay + " 발행으로 반영됩니다." : "카드 · 세금계산서 · 현금영수증 모두<br>공급가액 + 부가세 10% = 합계로 같습니다.");
     var moneyHtml = '<div class="money-row">'
       + '  <div class="pay-line">'
       + '    <label>결제 증빙</label>'
@@ -2086,9 +2086,9 @@ function openContractModal(q){
         });
         var ph = b.closest(".pay-line") && b.closest(".pay-line").querySelector(".pay-hint");
         if (ph){
-          ph.textContent = next === "카드결제"
-            ? "💳 페이히어 비대면 카드결제 링크 안내로 계약서에 반영됩니다 (계약금 · 잔금 동일)"
-            : (next ? "🏦 기업은행 계좌 입금 안내 + " + next + " 발행으로 계약서에 반영됩니다" : "카드 · 세금계산서 · 현금영수증 모두 공급가액 + 부가세 10% = 합계로 같습니다");
+          ph.innerHTML = next === "카드결제"
+            ? "💳 페이히어 비대면 카드결제 링크로 발송됩니다.<br>(계약금 · 잔금 모두 동일 적용)"
+            : (next ? "🏦 기업은행 계좌 입금 + " + next + " 발행으로 반영됩니다." : "카드 · 세금계산서 · 현금영수증 모두<br>공급가액 + 부가세 10% = 합계로 같습니다.");
         }
         var phBtn = b.closest(".pay-line") && b.closest(".pay-line").querySelector("[data-payhere-wrap]");
         if (phBtn) phBtn.style.display = next === "카드결제" ? "flex" : "none";
