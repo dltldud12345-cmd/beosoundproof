@@ -242,24 +242,26 @@
   .sched-day span{font-size:11.5px;font-weight:700;color:var(--muted)}
   .sched-day.is-today b{color:var(--accent-d)}
   .sched-day.is-today b::before{content:"● ";font-size:9px;vertical-align:2px}
-  .srow{display:flex;align-items:flex-start;gap:9px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
+  .srow{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:var(--shadow)}
   .srow.is-done{opacity:.62}
-  .stime{flex:0 0 54px;font-size:13px;font-weight:800;color:var(--accent-d);font-variant-numeric:tabular-nums;padding-top:1px}
-  .smain{flex:1 1 auto;min-width:0}
-  .stitle{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .stitle b{font-size:14px;font-weight:800;letter-spacing:-.02em}
+  .srow-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .srow-left{flex:1 1 auto;min-width:0}
+  .stime{font-size:13.5px;font-weight:800;color:var(--accent-d);font-variant-numeric:tabular-nums;margin-right:4px}
+  .smain{min-width:0}
+  .stitle{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .stitle b{font-size:14.5px;font-weight:800;letter-spacing:-.02em}
   .stitle em{font-style:normal;font-size:10px;font-weight:800;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
-  .stype{font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;background:#FEF3C7;color:#92400E}
+  .stype{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:5px;background:#FEF3C7;color:#92400E}
   .stype.new{background:var(--accent-t);color:var(--accent-d)}
-  .saddr{margin-top:2px;font-size:12px;color:var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .sstage{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;background:var(--accent-t);color:var(--accent-d)}
+  .saddr{margin-top:4px;font-size:12.5px;color:var(--body);line-height:1.35}
+  .sstage{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;background:var(--accent-t);color:var(--accent-d)}
   .sstage[data-st="talk"]{background:var(--blue-bg);color:var(--blue)}
   .sstage[data-st="deposit"]{background:#FFF7E6;color:#8A5A00}
   .sstage[data-st="reserved"]{background:#F1EEFB;color:#5B3FB8}
   .sstage[data-st="done"]{background:var(--ink);color:#fff}
-  .sinline{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr) minmax(0,.85fr);gap:5px;align-items:center;margin-top:7px;max-width:100%;overflow:hidden}
-  .sinline .sin,.sstage-sel{width:100%;min-width:0;max-width:100%;height:34px;box-sizing:border-box;border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 5px;font-size:11.5px;font-weight:700;color:var(--ink2);-webkit-appearance:none;appearance:none;text-align:center}
-  .sstage-sel{font-weight:800;color:var(--ink)}
+  .sinline{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1.05fr) minmax(0,.9fr);gap:6px;align-items:center;width:100%;max-width:100%;overflow:hidden}
+  .sinline .sin,.sstage-sel{width:100%;min-width:0;max-width:100%;height:38px;box-sizing:border-box;border:1px solid var(--line);background:#FAF9F6;border-radius:9px;padding:4px 6px;font-size:12.5px;font-weight:700;color:var(--ink2);-webkit-appearance:none;appearance:none;text-align:center;font-variant-numeric:tabular-nums}
+  .sstage-sel{font-weight:800;color:var(--ink);background:#fff}
   .sacts{display:flex;gap:5px;flex:0 0 auto}
   .sabtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
   .sabtn.done{border-color:var(--accent);background:var(--accent);color:#fff}
@@ -1561,26 +1563,30 @@ function openContractModal(q){
       var q = i.q;
       var addr = q.to_region || "설치지 미기재";
       return '<div class="srow' + (i.stage === "done" ? " is-done" : "") + '">'
-        + '  <div class="stime">' + (i.time ? esc(i.time) : "<span style=\"color:var(--muted)\">시간 미정</span>") + '</div>'
-        + '  <div class="smain">'
-        + '    <div class="stitle"><span class="stype ' + (i.isNew ? "new" : "move") + '">' + (i.isNew ? "신규" : "이전") + '</span>'
-        + '      <b>' + esc(q.customer_name || "성함 미기재") + '</b>' + (i.tentative ? '<em>희망일</em>' : '') + '</div>'
-        + '    <div class="saddr">' + esc(addr) + (q.to_floor ? ' · ' + esc(q.to_floor) : '') + '</div>'
-        + '    <div class="sstage" data-st="' + i.stage + '">' + stageLabel(i.stage) + '</div>'
-        + '    <div class="sinline">'
-        + '      <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date) + '" aria-label="설치 날짜">'
-        + '      <input type="time" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="time" value="' + esc(i.time) + '" aria-label="설치 시간">'
-        + '      <select class="sstage-sel" data-sstage-id="' + esc(q.id) + '" aria-label="진행 단계">'
-        + STAGES.map(function(s){ return '<option value="' + s.v + '"' + (i.stage === s.v ? ' selected' : '') + '>' + s.label + '</option>'; }).join("")
-        + '      </select>'
+        + '  <div class="srow-top">'
+        + '    <div class="srow-left">'
+        + '      <div class="stitle">'
+        + '        <span class="stime">' + (i.time ? esc(i.time) : '<span style="color:var(--muted)">시간 미정</span>') + '</span>'
+        + '        <span class="stype ' + (i.isNew ? "new" : "move") + '">' + (i.isNew ? "신규" : "이전") + '</span>'
+        + '        <span class="sstage" data-st="' + i.stage + '">' + stageLabel(i.stage) + '</span>'
+        + '        <b>' + esc(q.customer_name || "성함 미기재") + '</b>' + (i.tentative ? '<em>희망일</em>' : '')
+        + '      </div>'
+        + '      <div class="saddr">' + esc(addr) + (q.to_floor ? ' · ' + esc(q.to_floor) : '') + '</div>'
         + '    </div>'
-        + '  </div>'
-        + '  <div class="sacts">'
+        + '    <div class="sacts">'
         + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
         + (q.to_region ? '<a class="sabtn" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : '')
         + (i.stage !== "done"
             ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>'
             : '<button type="button" class="sabtn undo" data-qundone="' + esc(q.id) + '" aria-label="완료 취소">↩️</button>')
+        + '    </div>'
+        + '  </div>'
+        + '  <div class="sinline">'
+        + '    <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date) + '" aria-label="설치 날짜">'
+        + '    <input type="time" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="time" value="' + esc(i.time) + '" aria-label="설치 시간">'
+        + '    <select class="sstage-sel" data-sstage-id="' + esc(q.id) + '" aria-label="진행 단계">'
+        + STAGES.map(function(s){ return '<option value="' + s.v + '"' + (i.stage === s.v ? ' selected' : '') + '>' + s.label + '</option>'; }).join("")
+        + '    </select>'
         + '  </div>'
         + '</div>';
     };
