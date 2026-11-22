@@ -2473,19 +2473,19 @@ function photoHexToRgb(hex){
 const photoWinImgs = {};
 function preloadPhotoWins(){
   const map = {
-    '600x800': 'assets/win-600.png?v=7',
-    '800x800': 'assets/win-800.png?v=7',
-    '1200x800': 'assets/win-1200.png?v=7',
-    'double1200': 'assets/win-double.png?v=7',
+    '600x800': 'assets/win-600.png?v=8',
+    '800x800': 'assets/win-800.png?v=8',
+    '1200x800': 'assets/win-1200.png?v=8',
+    'double1200': 'assets/win-double.png?v=8',
     'rail_ceiling': 'assets/ceiling-rail.png?v=9',
     'slat_nocob': 'assets/slat-nocob.png?v=4',
-    'side_left': 'assets/side-slat-left.png?v=1',
-    'side_right': 'assets/side-slat-right.png?v=1',
-    'back_art': 'assets/back-artboard.png?v=1',
-    'back_600x800': 'assets/win-600x800-back.png?v=3',
-    'back_800x800': 'assets/win-800x800-back.png?v=3',
-    'back_1200x800': 'assets/win-1200x800-back.png?v=3',
-    'back_double1200': 'assets/win-double-back.png?v=3',
+    'side_left': 'assets/side-slat-left.png?v=2',
+    'side_right': 'assets/side-slat-right.png?v=2',
+    'back_art': 'assets/back-artboard.png?v=2',
+    'back_600x800': 'assets/win-600x800-back.png?v=4',
+    'back_800x800': 'assets/win-800x800-back.png?v=4',
+    'back_1200x800': 'assets/win-1200x800-back.png?v=4',
+    'back_double1200': 'assets/win-double-back.png?v=4',
     'ceiling_clean': 'assets/ceiling-clean.webp?v=1',
     'side_light_left': 'assets/side-light-left.webp?v=1',
     'side_light_right': 'assets/side-light-right.webp?v=1',
@@ -2549,13 +2549,15 @@ function initPhotoCache(cb){
       pts.forEach(([px, py], i) => i ? x.lineTo(px * W, py * H) : x.moveTo(px * W, py * H));
       x.closePath();
     };
-    const buildCov = (polys) => {
+    const buildCov = (polys, excl = true) => {
       const raw = document.createElement('canvas'); raw.width = W; raw.height = H;
       const rx = raw.getContext('2d', { willReadFrequently: true });
       rx.fillStyle = '#fff';
       polys.forEach(pts => { trace(rx, pts); rx.fill(); });
-      rx.fillStyle = '#000';
-      EXCL.forEach(pts => { trace(rx, pts); rx.fill(); });
+      if (excl){
+        rx.fillStyle = '#000';
+        EXCL.forEach(pts => { trace(rx, pts); rx.fill(); });
+      }
       const bl = document.createElement('canvas'); bl.width = W; bl.height = H;
       const bx = bl.getContext('2d', { willReadFrequently: true });
       bx.filter = 'blur(2px)';
@@ -2568,6 +2570,7 @@ function initPhotoCache(cb){
     photoCache.cov = {
       art: buildCov(REGIONS.art),
       back: buildCov(REGIONS.back),
+      backFull: buildCov(REGIONS.back, false),
       floor: buildCov(REGIONS.floor),
       right: buildCov(REGIONS.right)
     };
@@ -2632,7 +2635,7 @@ function renderPhotoStage(){
     const backArt = (slatPos !== 'back' && photoCache.backArtOrig) ? photoCache.backArtOrig : null;
     /* 후면 COB 2구를 쓰지 않는 조합에서는 천장에서 그 구멍·빛혼적을 지운 패치를 먼저 씌웁니다 */
     const ceilClean = ((slatPos !== 'back' || state.light === 'rail') && photoCache.ceilCleanOrig) ? photoCache.ceilCleanOrig : null;
-    const cA = photoCache.cov.art, cB = photoCache.cov.back, cF = photoCache.cov.floor, cR = photoCache.cov.right;
+    const cA = photoCache.cov.art, cB = (backArt ? photoCache.cov.backFull : photoCache.cov.back), cF = photoCache.cov.floor, cR = photoCache.cov.right;
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
     const sRgb = photoHexToRgb(pick(SLAT, state.slat).hex);
