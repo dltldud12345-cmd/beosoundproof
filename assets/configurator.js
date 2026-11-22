@@ -2342,10 +2342,26 @@ function photoHexToRgb(hex){
   const n = parseInt(String(hex || '#D8C6A6').replace('#',''), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
+const photoWinImgs = {};
+function preloadPhotoWins(){
+  const map = {
+    '600x800': 'assets/win-600.png',
+    '800x800': 'assets/win-800.png',
+    '1200x800': 'assets/win-1200.png',
+    'double1200': 'assets/win-double.png'
+  };
+  Object.keys(map).forEach(k => {
+    const im = new Image();
+    im.onload = () => { if (state.view === 'photo' && state.window === k) renderPhotoStage(); };
+    im.src = map[k];
+    photoWinImgs[k] = im;
+  });
+}
 function initPhotoCache(cb){
   if (photoCache.ready) return cb();
   if (photoCache.loading) return;
   photoCache.loading = true;
+  preloadPhotoWins();
   const img = new Image();
   img.onload = () => {
     const W = photoCache.w, H = photoCache.h;
@@ -2387,85 +2403,16 @@ function initPhotoCache(cb){
     photoCache.loading = false;
     cb();
   };
-  img.src = 'assets/interior-academy-clean.jpg?v=2';
+  img.src = 'assets/interior-academy-clean.jpg?v=3';
 }
 function drawPhotoWindow(ctx, W, H, winVal){
   if (!winVal || winVal === 'none') return;
-  const isDouble = winVal === 'double1200';
-  // 우측 벽 원근선 기준: 앞쪽(x=0.90) ~ 뒷쪽(x=0.71~0.83)
-  const xR = 0.915;
-  const xL = winVal === '600x800' ? 0.805 : (winVal === '800x800' ? 0.765 : 0.705);
-  // 우측 벽 천장/바닥 원근 기울기: yTop(x), yBot(x)
-  const yTopAt = x => 0.3511 - (x - 0.6407) * (0.3511 / (1.0 - 0.6407));
-  const yBotAt = x => 0.6667 + (x - 0.6407) * ((1.0 - 0.6667) / (0.9573 - 0.6407));
-  const pt = (x, frac) => {
-    const yt = yTopAt(x), yb = yBotAt(x);
-    return [x * W, (yt + (yb - yt) * frac) * H];
-  };
-  // 창 높이: 벽 높이의 0.25 ~ 0.66 구간
-  const pTL = pt(xL, 0.24), pTR = pt(xR, 0.22);
-  const pBR = pt(xR, 0.64), pBL = pt(xL, 0.64);
-
+  const im = photoWinImgs[winVal];
+  if (!im || !im.complete || !im.naturalWidth) return;
   ctx.save();
-  // 돌출 그림자 (이중창은 더 깊게)
-  ctx.fillStyle = isDouble ? 'rgba(15,18,22,0.32)' : 'rgba(15,18,22,0.14)';
-  ctx.beginPath();
-  ctx.moveTo(pTL[0] - (isDouble ? 8 : 3), pTL[1] + 4);
-  ctx.lineTo(pTR[0], pTR[1] + 4);
-  ctx.lineTo(pBR[0], pBR[1] + (isDouble ? 8 : 3));
-  ctx.lineTo(pBL[0] - (isDouble ? 8 : 3), pBL[1] + (isDouble ? 8 : 3));
-  ctx.closePath();
-  ctx.fill();
-
-  // 외곽 창틀
-  ctx.fillStyle = isDouble ? '#E9E5DC' : '#F3F0E8';
-  ctx.strokeStyle = '#B8B1A3';
-  ctx.lineWidth = isDouble ? 3 : 2;
-  ctx.beginPath();
-  ctx.moveTo(pTL[0], pTL[1]); ctx.lineTo(pTR[0], pTR[1]);
-  ctx.lineTo(pBR[0], pBR[1]); ctx.lineTo(pBL[0], pBL[1]);
-  ctx.closePath();
-  ctx.fill(); ctx.stroke();
-
-  // 유리 영역 (안쪽 패딩)
-  const inset = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
-  const gTL = inset(pTL, pBR, 0.06), gTR = inset(pTR, pBL, 0.05);
-  const gBR = inset(pBR, pTL, 0.06), gBL = inset(pBL, pTR, 0.05);
-
-  const grad = ctx.createLinearGradient(gTL[0], gTL[1], gBR[0], gBR[1]);
-  grad.addColorStop(0, '#CFE2EC');
-  grad.addColorStop(0.55, '#E4EFF4');
-  grad.addColorStop(1, '#B8D0DE');
-  ctx.fillStyle = grad;
-  ctx.strokeStyle = '#22262A';
-  ctx.lineWidth = isDouble ? 2.5 : 2;
-  ctx.beginPath();
-  ctx.moveTo(gTL[0], gTL[1]); ctx.lineTo(gTR[0], gTR[1]);
-  ctx.lineTo(gBR[0], gBR[1]); ctx.lineTo(gBL[0], gBL[1]);
-  ctx.closePath();
-  ctx.fill(); ctx.stroke();
-
-  // 유리 대각선 하이라이트
-  ctx.fillStyle = 'rgba(255,255,255,0.22)';
-  ctx.beginPath();
-  ctx.moveTo(gTL[0], gTL[1]);
-  ctx.lineTo(gTL[0] + (gTR[0] - gTL[0]) * 0.45, gTL[1] + (gTR[1] - gTL[1]) * 0.45);
-  ctx.lineTo(gBL[0] + (gBR[0] - gBL[0]) * 0.20, gBL[1] + (gBR[1] - gBL[1]) * 0.20);
-  ctx.lineTo(gBL[0], gBL[1]);
-  ctx.closePath();
-  ctx.fill();
-
-  // 이중창이면 중간 미닫이 프레임 바 추가 (유리 안쪽 높이 정확히 맞춤)
-  if (isDouble){
-    const mTop = [gTL[0] + (gTR[0] - gTL[0]) * 0.48, gTL[1] + (gTR[1] - gTL[1]) * 0.48];
-    const mBot = [gBL[0] + (gBR[0] - gBL[0]) * 0.48, gBL[1] + (gBR[1] - gBL[1]) * 0.48];
-    ctx.strokeStyle = '#ECE9E2';
-    ctx.lineWidth = 6;
-    ctx.beginPath(); ctx.moveTo(mTop[0], mTop[1]); ctx.lineTo(mBot[0], mBot[1]); ctx.stroke();
-    ctx.strokeStyle = '#8F897D';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(mTop[0], mTop[1]); ctx.lineTo(mBot[0], mBot[1]); ctx.stroke();
-  }
+  if (winVal === 'double1200') ctx.filter = 'drop-shadow(-4px 4px 6px rgba(0,0,0,0.28))';
+  else ctx.filter = 'drop-shadow(-2px 2px 3px rgba(0,0,0,0.14))';
+  ctx.drawImage(im, 0, 0, W, H);
   ctx.restore();
 }
 function drawPhotoRailLight(ctx, W, H){
@@ -2564,21 +2511,26 @@ function renderPhotoStage(){
 function setView(name, force = false){
   state.view = name;
   document.querySelectorAll('.views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === name ? 'true' : 'false'));
-  const isPhoto = name === 'photo';
+  const isPhotoIn = name === 'photo';
+  const isPhotoOut = name === 'photo-out';
+  const isAnyPhoto = isPhotoIn || isPhotoOut;
   const ps = $('#photoStage');
-  if (ps) ps.hidden = !isPhoto;
+  const po = $('#photoOutStage');
+  if (ps) ps.hidden = !isPhotoIn;
+  if (po) po.hidden = !isPhotoOut;
   const hs = $('#hsLayer');
-  if (hs) hs.style.display = isPhoto ? 'none' : '';
+  if (hs) hs.style.display = isAnyPhoto ? 'none' : '';
   ['doorToggle', 'hsToggle', 'resetView'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = isPhoto ? 'none' : '';
+    if (el) el.style.display = isAnyPhoto ? 'none' : '';
   });
   const hint = document.querySelector('.stage-foot .hint');
-  if (hint) hint.style.display = isPhoto ? 'none' : '';
-  if (isPhoto){
+  if (hint) hint.style.display = isAnyPhoto ? 'none' : '';
+  if (isPhotoIn){
     renderPhotoStage();
     return;
   }
+  if (isPhotoOut) return;
   const v = viewSettings(name);
   camTarget.theta = v.theta; camTarget.phi = v.phi; camTarget.r = v.r;
   camTarget.ty = v.ty; camTarget.fov = v.fov; camTarget.tx = v.tx || 0; camTarget.tz = v.tz || 0;
