@@ -482,7 +482,10 @@
       <button type="button" class="tbtn" id="ct-close">닫기</button>
     </div>
     <img id="ct-img" alt="계약 안내서 이미지" style="width:100%;border:1px solid var(--line);border-radius:10px">
-    <button type="button" class="abtn done" id="ct-dl" style="justify-content:center;padding:12px">🖼️ 이미지 저장 (PNG)</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="abtn done" id="ct-share" style="flex:1 1 150px;justify-content:center;padding:12px;display:none">📤 사진 저장 · 공유</button>
+      <button type="button" class="abtn" id="ct-dl" style="flex:1 1 150px;justify-content:center;padding:12px">💾 이미지 저장</button>
+    </div>
   </div>
 </div>
 
@@ -1541,24 +1544,87 @@ function drawContract(c, W, H, d, q, logo){
   c.font = F(700, 10); c.fillText("계약 확인", sealX, sealY + 20);
   return needH;
 }
+function contractFileName(q){
+  return "베오방음_계약안내서_" + String((q && q.id) || "").slice(0, 8).toUpperCase() + ".png";
+}
+function canvasBlob(cv){
+  return new Promise(function(resolve, reject){
+    if (cv.toBlob){
+      cv.toBlob(function(b){ if (b) resolve(b); else reject(new Error("toBlob failed")); }, "image/png");
+      return;
+    }
+    try {
+      var b64 = String(cv.toDataURL("image/png")).split(",")[1] || "";
+      var bin = atob(b64), arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      resolve(new Blob([arr], { type: "image/png" }));
+    } catch(e){ reject(e); }
+  });
+}
+function canvasFile(cv, name){
+  return canvasBlob(cv).then(function(blob){
+    var file = null;
+    try { file = new File([blob], name, { type: "image/png" }); } catch(e){ file = null; }
+    return { blob: blob, file: file, name: name };
+  });
+}
 function openContractModal(q){
   var modal = document.getElementById("ct-modal");
   var imgEl = document.getElementById("ct-img");
   var dlEl = document.getElementById("ct-dl");
+  var shEl = document.getElementById("ct-share");
   modal.hidden = false;
   imgEl.removeAttribute("src");
   imgEl.alt = "계약 안내서 이미지를 만드는 중입니다…";
-  dlEl.disabled = true;
+  dlEl.disabled = true; shEl.disabled = true; shEl.style.display = "none";
+  dlEl.onclick = null; shEl.onclick = null;
   contractImage(q).then(function(cv){
+    var name = contractFileName(q);
     imgEl.src = cv.toDataURL("image/png");
-    imgEl.alt = "계약 안내서 이미지";
-    dlEl.disabled = false;
-    dlEl.onclick = function(){
-      var a = document.createElement("a");
-      a.href = cv.toDataURL("image/png");
-      a.download = "베오방음_계약안내서_" + String(q.id || "").slice(0, 8).toUpperCase() + ".png";
-      document.body.appendChild(a); a.click(); a.remove();
-    };
+    imgEl.alt = "계약 안내서 이미지 — 길게 눌러 사진 앱에 저장할 수도 있습니다";
+    canvasFile(cv, name).then(function(res){
+      var blob = res.blob, file = res.file;
+      var canShareFile = !!(file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
+      if (canShareFile){
+        shEl.style.display = "";
+        shEl.disabled = false;
+        shEl.onclick = function(){
+          shEl.disabled = true;
+          navigator.share({ files: [file], title: "베오방음 계약 안내서" }).catch(function(err){
+            if (err && err.name === "AbortError") return;
+            toast("공유 창을 열지 못했습니다 — ‘이미지 저장’을 이용해 주세요");
+          }).then(function(){ shEl.disabled = false; });
+        };
+      }
+      dlEl.disabled = false;
+      dlEl.onclick = function(){
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        var canDownload = ("download" in a);
+        a.href = url; a.download = name; a.rel = "noopener";
+        document.body.appendChild(a);
+        try { a.click(); } catch(e){}
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+        if (!canDownload){
+          if (canShareFile) shEl.onclick();
+          else window.open(url, "_blank", "noopener");
+        }
+      };
+    }).catch(function(){
+      // Blob 경로가 막힌 환경은 data URL로 저장
+      dlEl.disabled = false;
+      shEl.style.display = "none";
+      dlEl.onclick = function(){
+        var a = document.createElement("a");
+        a.href = cv.toDataURL("image/png");
+        a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+    });
+  }).catch(function(err){
+    imgEl.alt = "계약 안내서 이미지를 만들지 못했습니다";
+    toast("계약 안내서 이미지를 만들지 못했습니다");
   });
 }
   function pad2(n){ return String(n).padStart(2, "0"); }
