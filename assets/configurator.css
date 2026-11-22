@@ -662,6 +662,7 @@ body.fs-lock,html.fs-lock{overflow:hidden!important;overscroll-behavior:none;hei
 /* 실사는 비율 그대로, 잘림 없이 화면 안에 꽉 맞춰 보여 줍니다 */
 .stage.fs #photoStage{object-fit:contain!important;transform:none!important}
 .stage.fs #photoOutStage{object-fit:contain!important}
+.stage.fs #photoOutWin{object-fit:contain!important}
 
 @supports not (height:100dvh){
   .stage.fs{height:100vh}
