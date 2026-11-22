@@ -2352,11 +2352,21 @@ function preloadPhotoWins(){
     '800x800': 'assets/win-800.png',
     '1200x800': 'assets/win-1200.png',
     'double1200': 'assets/win-double.png',
-    'rail_ceiling': 'assets/ceiling-rail.png?v=2'
+    'rail_ceiling': 'assets/ceiling-rail.png?v=3',
+    'slat_nocob': 'assets/slat-nocob.png?v=1'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
-    im.onload = () => { if (state.view === 'photo' && (state.window === k || (k === 'rail_ceiling' && state.light === 'rail'))) renderPhotoStage(); };
+    im.onload = () => {
+      if (k === 'slat_nocob' && im.naturalWidth){
+        const c = document.createElement('canvas');
+        c.width = 960; c.height = 720;
+        const cx = c.getContext('2d');
+        cx.drawImage(im, 0, 0, 960, 720);
+        photoCache.nocobOrig = cx.getImageData(0, 0, 960, 720).data;
+      }
+      if (state.view === 'photo' && (state.window === k || ((k === 'rail_ceiling' || k === 'slat_nocob') && state.light === 'rail'))) renderPhotoStage();
+    };
     im.src = map[k];
     photoWinImgs[k] = im;
   });
@@ -2436,6 +2446,7 @@ function renderPhotoStage(){
     const out = ctx.createImageData(W, H);
     const dst = out.data;
     const src = photoCache.orig;
+    const nocob = (state.light === 'rail' && photoCache.nocobOrig) ? photoCache.nocobOrig : null;
     const mask = photoCache.mask;
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
@@ -2445,7 +2456,10 @@ function renderPhotoStage(){
 
     for (let i = 0, p = 0; i < mask.length; i++, p += 4){
       const m = mask[i];
-      const r = src[p], g = src[p+1], b = src[p+2];
+      const useNocob = (m === 2 && nocob && nocob[p+3] > 200);
+      const r = useNocob ? nocob[p] : src[p];
+      const g = useNocob ? nocob[p+1] : src[p+1];
+      const b = useNocob ? nocob[p+2] : src[p+2];
       if (m === 0){
         dst[p] = r; dst[p+1] = g; dst[p+2] = b; dst[p+3] = 255;
         continue;
