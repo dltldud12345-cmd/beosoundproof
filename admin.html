@@ -276,6 +276,10 @@
   .sched-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;background:#F3F1EC;padding:4px;border-radius:12px;border:1px solid var(--line)}
   .sched-mode button{border:0;background:transparent;border-radius:9px;padding:8px;font-size:12.5px;font-weight:800;color:var(--muted)}
   .sched-mode button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .sched-note{font-size:11px;font-weight:700;color:var(--muted);background:#FAF9F6;border:1px dashed var(--line2);border-radius:10px;padding:7px 10px;margin-bottom:10px;line-height:1.4}
+  .sched-note b{color:var(--ink2);font-weight:800}
+  .sedit-quick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10.5px;font-weight:700;color:var(--muted)}
+  .sedit-quick button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--ink2);white-space:nowrap}
   .sabtn.edit{border-color:#E3D6BF;background:#FFFCF5;color:#8A6A1F;font-weight:800;font-size:11.5px;padding:6px 8px;white-space:nowrap;gap:2px}
   .past-toggle{width:100%;margin:14px 0 7px;border:1px dashed var(--line2);background:#FAF9F6;border-radius:11px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px}
   .past-toggle i{font-style:normal;font-size:11px}
@@ -591,13 +595,19 @@
     </div>
     <div class="sedit-sub" id="sched-sub"></div>
     <div class="sedit-grid">
-      <label>설치 날짜<input id="sd-date" type="date" class="sedit-in"></label>
-      <label>설치 시간<input id="sd-time" type="time" class="sedit-in"></label>
+      <label>작업 날짜 (해체일)<input id="sd-date" type="date" class="sedit-in"></label>
+      <label>해체 시작 시간<input id="sd-time" type="time" class="sedit-in"></label>
       <label>진행 단계<select id="sd-stage" class="sedit-in"></select></label>
       <label>고객명<input id="sd-name" class="sedit-in" autocomplete="off"></label>
       <label>연락처<input id="sd-phone" type="tel" inputmode="tel" class="sedit-in" autocomplete="off"></label>
       <label>부스 유형<input id="sd-type" class="sedit-in" autocomplete="off" placeholder="싱글 / 세미더블 / 더블"></label>
       <label class="wide">제조사 · 구분<input id="sd-brand" class="sedit-in" autocomplete="off"></label>
+    </div>
+    <div class="sedit-note">⏰ 일정 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 메모 태그는 기존 ‘[설치일]’을 그대로 씁니다.</div>
+    <div class="sedit-quick">
+      <span>도착 기본</span>
+      <button type="button" class="sedit-9" data-sd-time="09:00">⏰ 09:00 도착</button>
+      <span>· 비워 두면 ‘시간 미정’으로 저장됩니다</span>
     </div>
     <div class="sedit-note" id="sd-date-hint"></div>
     <div class="sedit-box from" id="sd-from-wrap">
@@ -1997,10 +2007,11 @@ function openContractModal(q){
     var openN = dated.filter(function(i){ return i.stage !== "done"; }).length;
 
     var html = '<div class="sched-sum">'
-      + '<div class="ss"><b>' + todayN + '</b><span>오늘 설치</span></div>'
+      + '<div class="ss"><b>' + todayN + '</b><span>오늘 일정</span></div>'
       + '<div class="ss"><b>' + openN + '</b><span>남은 일정</span></div>'
       + '<div class="ss"><b>' + undated.length + '</b><span>일정 미정</span></div>'
-      + '</div>';
+      + '</div>'
+      + '<div class="sched-note">⏰ 모든 일정의 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 보통 오전 9시 도착으로 안내합니다.</div>';
 
     if (!items.length){
       html += '<div class="empty">아직 접수된 견적 요청이 없습니다.</div>';
@@ -2039,8 +2050,8 @@ function openContractModal(q){
         + '  </div>'
         + schedPayLine(q)
         + '  <div class="sinline">'
-        + '    <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date) + '" aria-label="설치 날짜">'
-        + '    <input type="time" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="time" value="' + esc(i.time) + '" aria-label="설치 시간">'
+        + '    <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date) + '" aria-label="작업 날짜 (해체일)">'
+        + '    <input type="time" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="time" value="' + esc(i.time) + '" aria-label="해체 시작 시간">'
         + '    <select class="sstage-sel" data-sstage-id="' + esc(q.id) + '" aria-label="진행 단계">'
         + STAGES.map(function(s){ return '<option value="' + s.v + '"' + (i.stage === s.v ? ' selected' : '') + '>' + s.label + '</option>'; }).join("")
         + '    </select>'
@@ -2205,7 +2216,7 @@ function openContractModal(q){
         if (!q) return;
         setPipe(id, k === "date" ? { installDate: inp.value || "" } : { installTime: inp.value || "" });
         pushMemoUpdate(q, stageOf(q));
-        toast(inp.value ? (k === "date" ? "설치 날짜 " + inp.value + " 저장" : "설치 시간 " + inp.value + " 저장") : "일정을 비웠습니다");
+        toast(inp.value ? (k === "date" ? "작업 날짜(해체일) " + inp.value + " 저장" : "해체 시작 시간 " + inp.value + " 저장") : "일정을 비웠습니다");
         renderScheduleTab();
       });
     });
@@ -2370,9 +2381,9 @@ function openContractModal(q){
       : '';
 
     var instHtml = '<div class="inst-row">'
-      + '  <div class="inst-l"><b>설치 예정일</b><small>현장 확정 일시 · 계약서 작업일자로 쓰입니다</small></div>'
-      + '  <input type="date" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="date" value="' + esc(inst.date) + '" aria-label="설치 예정일">'
-      + '  <input type="time" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="time" value="' + esc(inst.time) + '" aria-label="설치 시간">'
+      + '  <div class="inst-l"><b>작업(해체) 일시</b><small>해체 시작 시각 · 계약서 작업일자로 쓰입니다</small></div>'
+      + '  <input type="date" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="date" value="' + esc(inst.date) + '" aria-label="작업(해체) 날짜">'
+      + '  <input type="time" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="time" value="' + esc(inst.time) + '" aria-label="해체 시작 시간">'
       + '  <button type="button" class="abtn ics" data-ics-id="' + esc(q.id) + '">📅 캘린더 추가(.ics)</button>'
       + '</div>';
 
@@ -2625,7 +2636,7 @@ function openContractModal(q){
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
         var ics = icsFor(q);
-        if (!ics){ toast("설치 예정일을 먼저 입력해 주세요"); return; }
+        if (!ics){ toast("작업(해체) 일시를 먼저 입력해 주세요"); return; }
         var blob = new Blob(["\ufeff", ics], { type: "text/calendar;charset=utf-8" });
         var a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
@@ -2659,7 +2670,7 @@ function openContractModal(q){
             ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '')
             : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>');
         }
-        toast(inst.date ? "설치 일정 " + inst.date + (inst.time ? " " + inst.time : "") + " 저장" : "설치 일정을 비웠습니다");
+        toast(inst.date ? "작업(해체) 일시 " + inst.date + (inst.time ? " " + inst.time : "") + " 저장" : "작업 일시를 비웠습니다");
       });
     });
 
@@ -2927,6 +2938,13 @@ function openContractModal(q){
       var v = amountOf(inp.value);
       inp.value = v === "" ? "" : String(v);
       schedMoneyPaint();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#sched-modal [data-sd-time]"), function(b){
+    b.addEventListener("click", function(){
+      /* 저장 전에는 기존 시간을 건드리지 않는다 — 누를 때만 09:00으로 채운다 */
+      document.getElementById("sd-time").value = b.getAttribute("data-sd-time");
+      toast("해체 시작 시간을 09:00으로 채웠습니다 (저장을 눌러야 반영)");
     });
   });
   document.getElementById("sd-pay-chips").addEventListener("click", function(e){
