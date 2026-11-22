@@ -123,7 +123,7 @@
   .drawer a.drawer-pill span{display:inline-block;margin-left:2px;transition:transform .2s var(--ease)}
   .drawer a.drawer-pill:hover span{transform:translateX(3px)}
   .drawer a.drawer-3d{
-    margin-top:6px;padding:12px 16px;border:0;border-radius:12px;
+    margin-top:10px;padding:12px 16px;border:0;border-radius:12px;
     background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;
     font-size:15px;font-weight:800;letter-spacing:-.01em;
   }
@@ -302,7 +302,7 @@
   }
   .cfg-in{
     position:relative;z-index:1;
-    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.03fr);grid-template-rows:auto 1fr;
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);grid-template-rows:auto 1fr;
     grid-template-areas:"head vis" "act vis";
     column-gap:clamp(28px,4.4vw,64px);row-gap:clamp(20px,2.6vw,30px);
   }
@@ -323,12 +323,12 @@
     background:rgba(255,255,255,.045);color:#CFD8DB;font-size:12px;font-weight:600;letter-spacing:-.01em;
   }
   .cfg-tabs li b{color:#8CDFCB;font-weight:800}
-  .cfg-btns{display:flex;flex-wrap:wrap;align-items:center;gap:11px;margin-top:22px}
+  .cfg-btns{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:22px}
   .cfg-btn{
     display:inline-flex;align-items:center;justify-content:center;gap:10px;
-    padding:16px 26px;border-radius:999px;
+    padding:15px 22px;border-radius:999px;
     background:linear-gradient(180deg,#37B79D 0%,#2E9C86 100%);color:#fff;
-    font-size:15.5px;font-weight:800;letter-spacing:-.015em;line-height:1.25;
+    font-size:15px;font-weight:800;letter-spacing:-.015em;line-height:1.25;
     box-shadow:0 16px 34px -14px rgba(46,156,134,.8),inset 0 1px 0 rgba(255,255,255,.22);
     transition:transform .22s var(--ease),box-shadow .22s,background .22s;
   }
@@ -338,18 +338,18 @@
   .cfg-btn:focus-visible{outline:2px solid #8CDFCB;outline-offset:3px}
   .cfg-tel{
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:15px 21px;border-radius:999px;border:1px solid rgba(255,255,255,.28);
-    color:#fff;font-size:14px;font-weight:700;letter-spacing:-.01em;
+    padding:14px 17px;border-radius:999px;border:1px solid rgba(255,255,255,.28);
+    color:#fff;font-size:12.5px;font-weight:700;letter-spacing:-.01em;
     transition:background .22s,border-color .22s,transform .22s var(--ease);
   }
   .cfg-tel:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.5);transform:translateY(-2px)}
   .cfg-tel:focus-visible{outline:2px solid #8CDFCB;outline-offset:3px}
-  .cfg-note{margin-top:14px;font-size:12px;line-height:1.6;color:#7E8A90}
+  .cfg-note{margin-top:14px;font-size:12px;line-height:1.6;color:#8A969C}
 
   .cfg-visual{
     grid-area:vis;position:relative;display:block;overflow:hidden;
     border-radius:22px;border:1px solid rgba(255,255,255,.14);background:#141A1D;
-    aspect-ratio:4/3.4;align-self:center;
+    aspect-ratio:4/3.3;align-self:start;
     box-shadow:0 34px 70px -40px rgba(0,0,0,.95);
     transition:border-color .3s,box-shadow .3s,transform .3s var(--ease);
   }
@@ -724,7 +724,7 @@
     .used-points div:last-child{border-bottom:1px solid var(--line)}
     .cfg-in{grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"head" "vis" "act";row-gap:clamp(22px,3.4vw,32px)}
     .cfg-act{align-self:start}
-    .cfg-visual{aspect-ratio:4/3.15}
+    .cfg-visual{aspect-ratio:16/10;max-height:520px}
   }
   @media (max-width:880px){
     .nav{display:none}
@@ -784,9 +784,10 @@
     .cfg-band{padding:clamp(50px,10vw,72px) 0}
     .cfg-lead{font-size:15px}
     .cfg-tabs li{font-size:11.5px;padding:6px 11px}
+    .cfg-tabs{display:grid;grid-template-columns:repeat(2,auto);justify-content:start}
     .cfg-btns{margin-top:20px}
     .cfg-btn,.cfg-tel{flex:1 1 100%;padding:15px 18px;font-size:15px}
-    .cfg-visual{aspect-ratio:4/3.4;border-radius:18px}
+    .cfg-visual{aspect-ratio:4/3;border-radius:18px}
     .cfg-strip{padding:15px 16px;gap:10px}
     .cfg-sw{display:none}
     .cfg-open{padding:7px 12px;font-size:11.5px}
@@ -991,9 +992,9 @@
     <a href="#products">제품안내</a>
     <a href="#used">중고매물</a>
     <a href="#reviews">사용후기</a>
-    <a class="drawer-pill drawer-3d" href="configurator.html">3D 커스텀 체험 <span aria-hidden="true">→</span></a>
     <a class="drawer-pill" href="quote.html">신규 간편 견적 <span aria-hidden="true">→</span></a>
     <a class="drawer-pill" href="relocation.html">이전설치 간편 견적 <span aria-hidden="true">→</span></a>
+    <a class="drawer-pill drawer-3d" href="configurator.html">3D 커스텀 체험 <span aria-hidden="true">→</span></a>
     <a class="btn btn-primary drawer-cta" href="tel:01030015906">전화 상담 010-3001-5906</a>
   </div>
 </header>
@@ -1179,7 +1180,7 @@
           <div class="cfg-head rv">
             <span class="cfg-eyebrow"><i aria-hidden="true"></i>Build Your Own · 3D Configurator</span>
             <h2 id="cfgTitle">내 부스를, <em>3D로 먼저</em><br>완성해 보세요</h2>
-            <p class="cfg-lead">색상 · 타공 · 조명 · 시창 위치까지. 부스를 돌려 보고 눌러서 바꾸면, 그 조합 그대로 견적 상담까지 이어집니다.</p>
+            <p class="cfg-lead">아트보드 색과 타공 위치, 조명과 시창까지. 부스를 돌려 보고 눌러서 바꾸면, 그 조합 그대로 견적 상담까지 이어집니다.</p>
           </div>
 
           <a class="cfg-visual rv" href="configurator.html" aria-label="3D 커스텀 체험 열기 — 나만의 방음부스 조합하기">
@@ -1198,7 +1199,6 @@
             <ul class="cfg-tabs" aria-label="3D에서 바꿔 볼 수 있는 항목">
               <li>아트보드 <b>12색</b></li>
               <li>라인타공 <b>8종</b></li>
-              <li>타공 위치 <b>좌 · 후 · 우</b></li>
               <li>조명 <b>COB · 레일</b></li>
               <li>시창 <b>· 이중창</b></li>
             </ul>
