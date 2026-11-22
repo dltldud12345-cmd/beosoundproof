@@ -2374,11 +2374,9 @@ function initPhotoCache(cb){
     poly([[0.3753,0.3520],[0.6407,0.3511],[0.6407,0.6667],[0.3760,0.6667]], 'rgb(2,0,0)');
     // 3 = 강화마루 (바닥)
     poly([[0.3760,0.6667],[0.6407,0.6667],[0.9573,1],[0.1020,1]], 'rgb(3,0,0)');
-    // 0 = 제외 영역 (중앙 LED등, 콘센트 3개: 좌/우/뒷벽)
+    // 0 = 제외 영역 (중앙 LED등, 뒷벽 콘센트 1개)
     const zero = 'rgb(0,0,0)';
     poly([[0.4520,0.1129],[0.5880,0.1129],[0.5660,0.2222],[0.4747,0.2222]], zero);
-    poly([[0.276,0.680],[0.300,0.680],[0.300,0.745],[0.276,0.745]], zero);
-    poly([[0.716,0.680],[0.740,0.680],[0.740,0.745],[0.716,0.745]], zero);
     poly([[0.5340,0.6089],[0.5447,0.6089],[0.5447,0.6338],[0.5340,0.6338]], zero);
 
     const md = mctx.getImageData(0, 0, W, H).data;
@@ -2389,7 +2387,7 @@ function initPhotoCache(cb){
     photoCache.loading = false;
     cb();
   };
-  img.src = 'assets/interior-academy-clean.jpg';
+  img.src = 'assets/interior-academy-clean.jpg?v=2';
 }
 function drawPhotoWindow(ctx, W, H, winVal){
   if (!winVal || winVal === 'none') return;
