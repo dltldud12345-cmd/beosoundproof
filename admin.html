@@ -198,6 +198,10 @@
   .inst-l small{font-size:10px;font-weight:700;color:var(--muted)}
   .inst-in{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:12.5px;font-weight:700;color:var(--ink2)}
   .inst-in:focus{outline:0;border-color:var(--accent)}
+  .inst-row .ics{margin-left:auto;white-space:nowrap;font-size:11.5px;font-weight:800;padding:7px 10px}
+  @media (max-width:680px){
+    .inst-row .ics{margin-left:0;width:100%;justify-content:center}
+  }
 
   .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
   .abtn.undo{background:#FFF9EC;border-color:#EFD9A6;color:#8A5A00;font-weight:800}
@@ -1049,6 +1053,53 @@ function contractText(q){
   return out.join("\n");
 }
 /* 🖼️ 전자 계약서 이미지 — 공식 로고 PNG를 먼저 불러온 뒤 그린다 (비율 유지) */
+/* 📅 캘린더(.ics) — 고객·지역·사양·메모 + 전날 알림 */
+function icsEsc(v){
+  return String(v == null ? "" : v)
+    .replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
+}
+function icsAddDays(ymd, n){
+  var dt = new Date(Date.UTC(+ymd.slice(0, 4), +ymd.slice(4, 6) - 1, +ymd.slice(6, 8) + n));
+  var p = function(v){ return String(v).padStart(2, "0"); };
+  return String(dt.getUTCFullYear()) + p(dt.getUTCMonth() + 1) + p(dt.getUTCDate());
+}
+function icsFor(q){
+  var inst = installOf(q);
+  if (!inst.date) return "";
+  var d = contractData(q);
+  var ymd = inst.date.replace(/-/g, "");
+  var stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "").slice(0, 15) + "Z";
+  var desc = [];
+  desc.push("고객: " + d.name + " (" + d.phone + ")");
+  desc.push("구분: " + d.kind);
+  desc.push("장소: " + d.route);
+  if (!d.isNew) desc.push("작업: " + d.work);
+  (d.specs || []).forEach(function(r){ desc.push(r[0] + ": " + r[1]); });
+  if (d.supply !== "")
+    desc.push("금액: 합계 " + Number(d.total).toLocaleString("ko-KR") + "원 (공급가액 " + Number(d.supply).toLocaleString("ko-KR") + " + 부가세 " + Number(d.vat).toLocaleString("ko-KR") + ")");
+  if (d.deposit !== "") desc.push("계약금 " + Number(d.deposit).toLocaleString("ko-KR") + "원 · 잔금 " + Number(d.balance || 0).toLocaleString("ko-KR") + "원");
+  if (d.pay) desc.push("결제 증빙: " + d.pay);
+  var note = parseMemo(q.memo).note;
+  if (note) desc.push("메모: " + note);
+  var L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//BEOSOUNDPROOF//ADMIN//KO", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-TIMEZONE:Asia/Seoul", "BEGIN:VEVENT", "UID:" + String(q.id || "beo").replace(/[^A-Za-z0-9]/g, "") + "@beosoundproof.com", "DTSTAMP:" + stamp];
+  var hh = inst.time ? inst.time.slice(0, 2) : "", mi = inst.time ? (inst.time.slice(3, 5) || "00") : "";
+  if (hh){
+    var endH = String((Number(hh) + 2) % 24).padStart(2, "0");
+    L.push("DTSTART:" + ymd + "T" + hh + mi + "00");
+    L.push("DTEND:" + ymd + "T" + endH + mi + "00");
+  } else {
+    L.push("DTSTART;VALUE=DATE:" + ymd);
+    L.push("DTEND;VALUE=DATE:" + icsAddDays(ymd, 1));
+  }
+  L.push("SUMMARY:" + icsEsc("베오방음 " + d.kind + " — " + d.name));
+  L.push("LOCATION:" + icsEsc(d.route));
+  L.push("DESCRIPTION:" + icsEsc(desc.join("\n")));
+  L.push("TRANSP:OPAQUE");
+  L.push("BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc("내일 베오방음 " + d.kind + " 일정"), "END:VALARM");
+  L.push("END:VEVENT", "END:VCALENDAR");
+  return L.join("\r\n");
+}
 var CONTRACT_LOGO_SRC = "assets/logo-horizontal-white.png?v=2";
 var LOGO_CACHE = {};
 function loadLogoImage(src){
@@ -1609,6 +1660,7 @@ function openContractModal(q){
       + '  <div class="inst-l"><b>설치 예정일</b><small>현장 확정 일시 · 계약서 작업일자로 쓰입니다</small></div>'
       + '  <input type="date" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="date" value="' + esc(inst.date) + '" aria-label="설치 예정일">'
       + '  <input type="time" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="time" value="' + esc(inst.time) + '" aria-label="설치 시간">'
+      + '  <button type="button" class="abtn ics" data-ics-id="' + esc(q.id) + '">📅 캘린더 추가(.ics)</button>'
       + '</div>';
 
     var m = moneyOf(q);
@@ -1846,6 +1898,23 @@ function openContractModal(q){
           toast("설치 완료를 예약중으로 되돌렸습니다 — 금액·설치일을 다시 수정할 수 있습니다");
           loadAll();
         }).catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ics-id]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-ics-id");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!q) return;
+        var ics = icsFor(q);
+        if (!ics){ toast("설치 예정일을 먼저 입력해 주세요"); return; }
+        var blob = new Blob(["\ufeff", ics], { type: "text/calendar;charset=utf-8" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "베오방음_" + (q.customer_name || "일정") + "_설치_" + installOf(q).date.replace(/-/g, "") + ".ics";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ try { URL.revokeObjectURL(a.href); } catch (e) {} }, 3000);
+        toast("캘린더 파일(.ics)을 내려받았습니다 — 전날 알림 포함");
       });
     });
 
