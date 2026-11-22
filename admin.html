@@ -1911,6 +1911,8 @@ function openContractModal(q){
       + simHtml
       + instHtml
       + moneyHtml
+      + (pm.note ? '<div class="memo-box"><b style="display:block;font-size:11px;color:#8A6A1F;margin-bottom:3px">📝 고객 추가 메모</b>' + linkify(pm.note) + '</div>' : '')
+      + (pm.listingUrl ? '<div class="memo-box"><b style="display:block;font-size:11px;color:#8A6A1F;margin-bottom:3px">🔗 매물 링크</b>' + linkify(pm.listingUrl) + '</div>' : '')
       + photosHtml
       + '<div class="qs-foot">'
       + '  <div class="qacts">'
