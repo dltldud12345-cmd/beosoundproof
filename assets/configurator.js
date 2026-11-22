@@ -1716,6 +1716,23 @@ function lightLayout(slatName){
 }
 
 /* ---- 조명 설치 ---- */
+/* 레일등 헤드 → 타공판 벽까지 이어지는 은은한 빛 기둥 (가산 블렌딩) */
+function addBeamCone(parent, from, to, color){
+  const dir = new THREE.Vector3().subVectors(from, to);
+  const len = dir.length();
+  if (!(len > 0.05)) return null;
+  const geo = new THREE.ConeGeometry(0.30, len, 22, 1, true);
+  const mat = new THREE.MeshBasicMaterial({
+    color, transparent: true, opacity: 0.075,
+    blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.position.copy(to).addScaledVector(dir, 0.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+  m.renderOrder = 2;
+  parent.add(m);
+  return m;
+}
 function buildLights(plan){
   const w = plan.w;
   const group = plan.group;
@@ -1754,7 +1771,7 @@ function buildLights(plan){
       const x = (i / (nHead - 1) - 0.5) * (railLen - 0.28);
       const head = new THREE.Group();
       head.position.set(x, H - 0.062, zRail);
-      head.rotation.x = -0.24;
+      head.rotation.x = 0.34;   // 헤드를 타공판 벽 쪽으로 기울입니다
       // 어댑터
       const ad = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.045, 0.026), trackMat);
       ad.position.y = 0.028;
@@ -1792,12 +1809,27 @@ function buildLights(plan){
       group.add(head);
 
       const wp = group.localToWorld(new THREE.Vector3(x, H - 0.085, zRail));
-      const tp = group.localToWorld(new THREE.Vector3(x * 1.06, 0.35, zRail + 0.30));
-      const sp = new THREE.SpotLight(warm, TUNE.rail, 5.2, 0.70, 0.88, 2);
+      const tp = group.localToWorld(new THREE.Vector3(x, 1.18, 0.05));
+      const sp = new THREE.SpotLight(warm, TUNE.rail, 5.2, 0.80, 0.90, 2);
       sp.position.copy(wp);
       sp.target.position.copy(tp);
       scene.add(sp.target);
       booth.add(sp);
+
+      /* 타공판 벽면에 맺히는 따뜻한 빛 웅덩이 */
+      const graze = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.8, 1.8),
+        new THREE.MeshBasicMaterial({
+          map: grazeTexture(), color: lightGlowColor(), transparent: true,
+          blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.22
+        })
+      );
+      graze.position.set(x, 1.22, 0.034);
+      graze.renderOrder = 2;
+      group.add(graze);
+
+      /* 헤드에서 벽면까지 이어지는 은은한 빛 기둥 */
+      addBeamCone(group, new THREE.Vector3(x, H - 0.085, zRail), new THREE.Vector3(x, 1.18, 0.05), warm);
       /* 레일등은 그림자 없이 (실내에서 아티팩트가 커집니다) */
     }
     parts.lightAnchor = group.localToWorld(new THREE.Vector3(0, H - 0.09, zRail));
@@ -2444,7 +2476,12 @@ function preloadPhotoWins(){
     'back_600x800': 'assets/win-600x800-back.png?v=1',
     'back_800x800': 'assets/win-800x800-back.png?v=1',
     'back_1200x800': 'assets/win-1200x800-back.png?v=1',
-    'back_double1200': 'assets/win-double-back.png?v=1'
+    'back_double1200': 'assets/win-double-back.png?v=1',
+    'glow_back_rail': 'assets/wallglow-back-rail.png?v=1',
+    'glow_left_cob': 'assets/wallglow-left-cob.png?v=1',
+    'glow_left_rail': 'assets/wallglow-left-rail.png?v=1',
+    'glow_right_cob': 'assets/wallglow-right-cob.png?v=1',
+    'glow_right_rail': 'assets/wallglow-right-rail.png?v=1'
   };
   const dataTargets = {
     'slat_nocob': 'nocobOrig',
@@ -2514,6 +2551,20 @@ function initPhotoCache(cb){
     cb();
   };
   img.src = 'assets/interior-academy-clean.jpg?v=3';
+}
+function drawPhotoWallGlow(ctx, W, H){
+  /* 타공판 벽에 맺히는 따뜬한 조명 빛 — 선택한 타공판 위치를 따라갑니다 */
+  const pos = state.slatPos || 'back';
+  const rail = state.light === 'rail';
+  /* 후면 + COB는 원본 사진에 빛 웅덩이가 이미 박혀 있어 그대로 썺니다 */
+  if (pos === 'back' && !rail) return;
+  const im = photoWinImgs[`glow_${pos}_${rail ? 'rail' : 'cob'}`];
+  if (!im || !im.complete || !im.naturalWidth) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.92;
+  ctx.drawImage(im, 0, 0, W, H);
+  ctx.restore();
 }
 function drawPhotoWindow(ctx, W, H, winVal){
   if (!winVal || winVal === 'none') return;
@@ -2609,6 +2660,7 @@ function renderPhotoStage(){
       dst[p+3] = 255;
     }
     ctx.putImageData(out, 0, 0);
+    drawPhotoWallGlow(ctx, W, H);
     drawPhotoWindow(ctx, W, H, state.window);
     drawPhotoRailLight(ctx, W, H);
   });
