@@ -305,6 +305,20 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
 .seg button:disabled{opacity:.42;cursor:not-allowed;text-decoration:line-through;color:var(--muted)}
 .seg.two button{font-size:12px}
 
+/* 위치 선택 — 타공판 · 시창 (배치도 + 세그먼트) */
+.pos-block{
+  display:flex;gap:11px;align-items:center;margin-top:11px;padding:10px 10px 9px;
+  border-radius:13px;background:var(--cream);border:1px solid var(--line-soft);
+}
+.pos-block .planwrap{flex:none;display:block;width:42px;height:55px}
+.pos-block .plan{display:block;width:42px;height:55px}
+.pos-block .pos-body{flex:1;min-width:0}
+.pos-block .pos-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px}
+.pos-block .pos-h b{font-size:12px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.pos-block .pos-h small{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+.pos-block .pos-note{margin-top:7px;font-size:10px;line-height:1.5;color:var(--muted)}
+.pos-block .seg{background:#fff}
+
 /* rows / toggle */
 .row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0}
 .row + .row{border-top:1px solid var(--line-soft)}
