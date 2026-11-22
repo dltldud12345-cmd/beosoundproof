@@ -3201,6 +3201,9 @@ function setView(name, force = false){
   });
   const ps = $('#photoStage');
   const po = $('#photoOutStage');
+  /* 실사 모드에서는 3D 캔버스를 완전히 가려 전체화면(contain) 여백으로 3D가 비치지 않게 합니다 */
+  const stageEl = $('#stage');
+  if (stageEl) stageEl.classList.toggle('photo-mode', isAnyPhoto);
   if (ps) { ps.hidden = !isPhotoIn; ps.style.display = isPhotoIn ? 'block' : 'none'; }
   if (po) { po.hidden = !isPhotoOut; po.style.display = isPhotoOut ? 'block' : 'none'; }
   if (isPhotoOut){ preloadPhotoOutHg(); syncPhotoOutHinge(); }

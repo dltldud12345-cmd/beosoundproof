@@ -668,6 +668,12 @@ body.fs-lock,html.fs-lock{overflow:hidden!important;overscroll-behavior:none;hei
 .stage.fs #photoOutStage{object-fit:contain!important}
 .stage.fs #photoOutWin{object-fit:contain!important}
 
+/* 실사 모드: 3D 캔버스를 완전히 가리고 사진 여백도 어둡게 채워 3D가 절대 비치지 않게 */
+.stage.photo-mode #scene{visibility:hidden!important}
+.stage #photoStage:not([hidden]),
+.stage #photoOutStage:not([hidden]){background:#0E1113}
+.stage.fs.photo-mode{background:#0E1113}
+
 @supports not (height:100dvh){
   .stage.fs{height:100vh}
 }
