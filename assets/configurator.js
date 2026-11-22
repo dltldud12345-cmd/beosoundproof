@@ -2860,7 +2860,7 @@ function viewSettings(name){
   const W = state.w/1000, D = state.d/1000;
   const S = Math.hypot(W, D) * 0.94;
   /* 전체화면에서는 같은 부스를 조금 더 크게 담아 화면을 꽉 채웁니다 */
-  const fsFocus = (fsOn && camera) ? (camera.aspect >= 1.45 ? 0.76 : (camera.aspect >= 1 ? 0.9 : 1)) : 1;
+  const fsFocus = (fsOn && camera) ? (camera.aspect >= 1.45 ? 0.76 : (camera.aspect >= 1 ? 0.9 : 0.74)) : 1;
   const base = (S * 2.7 + 1.4) * aspectFactor() * (isSmall() ? 0.93 : 1) * fsFocus;
   const dx = doorCenterX();
   switch (name){
