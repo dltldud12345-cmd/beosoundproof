@@ -254,7 +254,7 @@
   .stype{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:5px;background:#FEF3C7;color:#92400E}
   .stype.new{background:var(--accent-t);color:var(--accent-d)}
   .saddr{margin-top:4px;font-size:12.5px;color:var(--body);line-height:1.35}
-  .spay{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+  .spay{display:flex;flex-wrap:wrap;gap:4px;margin-top:-1px}
   .spay > span{font-size:11px;font-weight:700;color:var(--body);background:#FAF9F6;border:1px solid var(--line);border-radius:6px;padding:2px 6px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .spay b{font-weight:800;color:var(--ink)}
   .spay-m{background:var(--soft)!important;border-color:var(--line2)!important;color:var(--ink2)!important;font-weight:800!important}
@@ -1719,7 +1719,6 @@ function openContractModal(q){
         + '        <b>' + esc(q.customer_name || "성함 미기재") + '</b>' + (i.tentative ? '<em>희망일</em>' : '')
         + '      </div>'
         + '      <div class="saddr">' + esc(addr) + (q.to_floor ? ' · ' + esc(q.to_floor) : '') + '</div>'
-        + schedPayLine(q)
         + '    </div>'
         + '    <div class="sacts">'
         + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
@@ -1729,6 +1728,7 @@ function openContractModal(q){
             : '<button type="button" class="sabtn undo" data-qundone="' + esc(q.id) + '" aria-label="완료 취소">↩️</button>')
         + '    </div>'
         + '  </div>'
+        + schedPayLine(q)
         + '  <div class="sinline">'
         + '    <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date) + '" aria-label="설치 날짜">'
         + '    <input type="time" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="time" value="' + esc(i.time) + '" aria-label="설치 시간">'
