@@ -2349,9 +2349,9 @@ function photoHexToRgb(hex){
 const photoWinImgs = {};
 function preloadPhotoWins(){
   const map = {
-    '600x800': 'assets/win-600.png?v=3',
-    '800x800': 'assets/win-800.png?v=3',
-    '1200x800': 'assets/win-1200.png?v=3',
+    '600x800': 'assets/win-600.png?v=4',
+    '800x800': 'assets/win-800.png?v=4',
+    '1200x800': 'assets/win-1200.png?v=4',
     'double1200': 'assets/win-double.png',
     'rail_ceiling': 'assets/ceiling-rail.png?v=8',
     'slat_nocob': 'assets/slat-nocob.png?v=4',
