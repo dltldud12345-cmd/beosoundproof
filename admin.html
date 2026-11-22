@@ -209,24 +209,24 @@
   .stage-hint{margin-top:7px;font-size:11px;font-weight:700;color:#8A5A00;background:#FFF9EC;border:1px dashed #EFD9A6;border-radius:9px;padding:7px 10px;line-height:1.45}
 
   /* 계약 금액 + 계약 안내서 */
-  .money-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;padding:11px 12px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
-  .pay-line{grid-column:1 / -1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .pay-line label{font-size:10px;font-weight:800;color:#8A6A1F;flex:0 0 auto}
-  .pay-chips{display:flex;gap:4px;flex-wrap:wrap}
-  .pay-chip{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--ink2)}
+  .money-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;padding:11px 12px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px;min-width:0;max-width:100%;overflow:hidden}
+  .pay-line{grid-column:1 / -1;display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap;min-width:0}
+  .pay-line label{font-size:10.5px;font-weight:800;color:#8A6A1F;flex:0 0 auto}
+  .pay-chips{display:flex;gap:5px;flex-wrap:wrap;max-width:100%}
+  .pay-chip{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;font-size:11.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
   .pay-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-  .pay-hint{font-size:10px;font-weight:700;color:var(--muted)}
-  .vat-note{grid-column:1 / -1;font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.4}
+  .pay-hint{font-size:10px;font-weight:700;color:var(--muted);flex:1 1 100%;line-height:1.35}
+  .vat-note{grid-column:1 / -1;font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.4;min-width:0}
   .money-item{display:grid;gap:3px;min-width:0;align-content:start}
   .money-item.span2{grid-column:span 2}
-  .money-item label{font-size:11px;font-weight:800;color:#8A6A1F}
-  .money-item input{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 9px;font-size:14px;font-weight:800;color:var(--ink);text-align:right}
+  .money-item label{font-size:10.5px;font-weight:800;color:#8A6A1F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .money-item input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 8px;font-size:13.5px;font-weight:800;color:var(--ink);text-align:right}
   .money-item input:focus{outline:0;border-color:var(--accent)}
-  .money-item .amt{font-size:16px;font-weight:800;color:var(--ink2);text-align:right;padding:8px 2px 0;white-space:nowrap}
-  .money-item .amt.strong{font-size:17px;color:var(--accent-d)}
+  .money-item .amt{font-size:14.5px;font-weight:800;color:var(--ink2);text-align:right;padding:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .money-item .amt.strong{font-size:15.5px;color:var(--accent-d)}
   .money-hint{font-size:10px;font-weight:700;color:var(--accent-d)}
   .money-hint:empty{display:none}
-  .money-item .bal{font-size:16px;font-weight:800;color:var(--accent-d);text-align:right;padding:8px 2px 0}
+  .money-item .bal{font-size:15px;font-weight:800;color:var(--accent-d);text-align:right;padding:8px 2px 0;white-space:nowrap}
   .money-item .bal small{font-size:10px;font-weight:700;color:var(--muted);margin-left:6px}
 
   /* 📅 설치 일정 */
