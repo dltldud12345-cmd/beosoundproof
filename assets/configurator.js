@@ -2606,6 +2606,8 @@ function drawPhotoWindow(ctx, W, H, winVal){
 }
 function drawPhotoRailLight(ctx, W, H){
   if (state.light !== 'rail') return;
+  /* 실사 사진의 레일등 트랙은 뒷벽 쪽 천장에 박혀 있어, 타공판이 옆벽일 때는 그리지 않습니다 */
+  if ((state.slatPos || 'back') !== 'back') return;
   const im = photoWinImgs.rail_ceiling;
   if (im && im.complete && im.naturalWidth){
     ctx.drawImage(im, 0, 0, W, H);
