@@ -56,23 +56,36 @@
   }
   .topbar-in{
     max-width:960px;margin:0 auto;padding:11px 16px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    flex-wrap:wrap;
   }
-  .brand{display:flex;align-items:center;gap:9px;min-width:0}
-  .brand-logo{height:24px;width:auto;max-width:190px;object-fit:contain;flex:0 0 auto}
+  .brand{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto;overflow:hidden}
+  .brand-logo{height:24px;width:auto;max-width:170px;object-fit:contain;flex:0 1 auto;min-width:0}
   .brand-mark{
     width:32px;height:32px;border-radius:10px;background:var(--ink);
     display:grid;place-items:center;flex:0 0 auto;
   }
-  .brand-title{font-size:15.5px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
-  .brand-sub{font-size:11.5px;font-weight:700;color:var(--accent-d);background:var(--accent-t);padding:3px 8px;border-radius:999px;white-space:nowrap}
-  .top-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .brand-title{font-size:15.5px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .brand-sub{font-size:11.5px;font-weight:700;color:var(--accent-d);background:var(--accent-t);padding:3px 8px;border-radius:999px;white-space:nowrap;flex:0 0 auto}
+  .top-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto;flex-wrap:nowrap}
   .tbtn{
     border:1px solid var(--line);background:#fff;border-radius:10px;
-    padding:7px 11px;font-size:12.5px;font-weight:700;color:var(--ink2);
+    padding:7px 11px;font-size:12.5px;font-weight:700;color:var(--ink2);white-space:nowrap;
   }
   .tbtn:hover{border-color:var(--ink2);background:var(--soft)}
   .tbtn.danger{color:var(--warn)}
+  @media (max-width:480px){
+    .topbar-in{padding:8px 12px;gap:8px}
+    .brand{gap:6px}
+    .brand-logo{height:19px;max-width:108px}
+    .brand-sub{font-size:10.5px;padding:2px 7px}
+    .tbtn{padding:6px 9px;font-size:11.5px;border-radius:9px}
+    .top-actions{gap:5px}
+  }
+  @media (max-width:360px){
+    .brand-logo{height:17px;max-width:92px}
+    .brand-sub{display:none}
+  }
 
   /* Main */
   .wrap{max-width:960px;margin:0 auto;padding:14px 14px 24px}
