@@ -1753,7 +1753,7 @@ function openContractModal(q){
         return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
       }).join("") + '</div>'
       + '    <span class="pay-hint">' + payHintTxt + '</span>'
-      + '    <button type="button" class="pay-chip" data-payhere-id="' + esc(q.id) + '" style="margin-left:auto;border-color:#0F766E;color:#0F766E;background:#E7F2EF;' + (pay === "카드결제" ? "" : "display:none") + '">💳 페이히어 열기 ↗</button>'
+      + '    <a class="pay-chip" href="https://web.payhere.in" target="_blank" rel="noopener" data-payhere-id="' + esc(q.id) + '" style="margin-left:auto;border-color:#0F766E;color:#0F766E;background:#E7F2EF;text-decoration:none;' + (pay === "카드결제" ? "" : "display:none") + '">💳 페이히어 열기 ↗</a>'
       + '  </div>'
       + '  <div class="money-item"><label>공급가액 (원 · 부가세 별도)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="supply" value="' + (m.supply === "" ? "" : m.supply) + '" placeholder="예: 500000">'
@@ -1804,6 +1804,7 @@ function openContractModal(q){
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
       + '    <button type="button" class="abtn" data-qcontract="' + esc(q.id) + '">📋 계약 안내 복사</button>'
       + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
+      + '    <a class="abtn" href="https://web.payhere.in" target="_blank" rel="noopener" data-payhere-id="' + esc(q.id) + '">💳 페이히어</a>'
       + '  </div>'
       + '  <div class="qacts">'
       + (st === "done" ? '<button type="button" class="abtn undo" data-qundone="' + esc(q.id) + '">↩️ 완료 취소 (예약중으로)</button>' : '')
@@ -2098,7 +2099,6 @@ function openContractModal(q){
           navigator.clipboard.writeText(phone).catch(function(){});
         }
         toast((phone && phone !== "010-XXXX-XXXX" ? phone + " 복사 · " : "") + (amt ? won0(amt) + "원 · " : "") + "페이히어를 엽니다");
-        window.open("https://web.payhere.in", "_blank", "noopener");
       });
     });
 
