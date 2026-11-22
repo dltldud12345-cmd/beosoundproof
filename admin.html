@@ -1922,9 +1922,6 @@ function openContractModal(q){
         return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
       }).join("") + '</div>'
       + '    <span class="pay-hint">' + payHintTxt + '</span>'
-      + '    <div style="flex:1 1 100%;display:' + (pay === "카드결제" ? "flex" : "none") + ';justify-content:flex-start;margin-top:2px" data-payhere-wrap="' + esc(q.id) + '">'
-      + '      <a class="pay-chip" href="https://business.payhere.in/" target="_blank" rel="noopener" data-payhere-id="' + esc(q.id) + '" style="border-color:#0F766E;color:#0F766E;background:#E7F2EF;text-decoration:none">💳 페이히어 바로 열기 ↗</a>'
-      + '    </div>'
       + '  </div>'
       + '  <div class="money-item"><label>공급가액 (원 · 부가세 별도)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="supply" value="' + (m.supply === "" ? "" : m.supply) + '" placeholder="예: 500000">'
@@ -1978,7 +1975,6 @@ function openContractModal(q){
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
       + '    <button type="button" class="abtn" data-qcontract="' + esc(q.id) + '">📋 계약 안내 복사</button>'
       + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
-      + '    <a class="abtn" href="https://business.payhere.in/" target="_blank" rel="noopener" data-payhere-id="' + esc(q.id) + '">💳 페이히어</a>'
       + '  </div>'
       + '  <div class="qacts">'
       + (st === "done" ? '<button type="button" class="abtn undo" data-qundone="' + esc(q.id) + '">↩️ 완료 취소 (예약중으로)</button>' : '')
@@ -2255,24 +2251,8 @@ function openContractModal(q){
             ? "💳 페이히어 비대면 카드결제 링크로 발송됩니다.<br>(계약금 · 잔금 모두 동일 적용)"
             : (next ? "🏦 기업은행 계좌 입금 + " + next + " 발행으로 반영됩니다." : "카드 · 세금계산서 · 현금영수증 모두<br>공급가액 + 부가세 10% = 합계로 같습니다.");
         }
-        var phBtn = b.closest(".pay-line") && b.closest(".pay-line").querySelector("[data-payhere-wrap]");
-        if (phBtn) phBtn.style.display = next === "카드결제" ? "flex" : "none";
         pushMemoUpdate(q, stageOf(q));
         toast(next ? "결제 증빙을 ‘" + next + "’(으)로 저장했습니다" : "결제 증빙을 미정으로 비웠습니다");
-      });
-    });
-
-    Array.prototype.forEach.call(app.querySelectorAll("[data-payhere-id]"), function(b){
-      b.addEventListener("click", function(){
-        var id = b.getAttribute("data-payhere-id");
-        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
-        var phone = q ? payPhoneText(q.customer_phone) : "";
-        var m = q ? moneyOf(q) : {};
-        var amt = (m.deposit !== "" && m.deposit != null) ? m.deposit : m.total;
-        if (phone && phone !== "010-XXXX-XXXX" && navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(phone).catch(function(){});
-        }
-        toast((phone && phone !== "010-XXXX-XXXX" ? phone + " 복사 · " : "") + (amt ? won0(amt) + "원 · " : "") + "페이히어를 엽니다");
       });
     });
 
