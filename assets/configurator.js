@@ -2584,7 +2584,7 @@ function drawPhotoWallGlow(ctx, W, H){
   if (!im || !im.complete || !im.naturalWidth) return;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.92;
+  ctx.globalAlpha = 0.62;
   ctx.drawImage(im, 0, 0, W, H);
   ctx.restore();
 }
