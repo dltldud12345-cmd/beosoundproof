@@ -186,6 +186,15 @@
 
   .abtn.done{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800}
 
+  /* 계약 금액 + 계약 안내서 */
+  .money-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px;padding:10px 11px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px}
+  .money-item{display:grid;gap:3px;min-width:0}
+  .money-item label{font-size:10px;font-weight:800;color:#8A6A1F}
+  .money-item input{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font-size:12.5px;font-weight:700;color:var(--ink2);text-align:right}
+  .money-item input:focus{outline:0;border-color:var(--accent)}
+  .money-item .bal{font-size:11px;font-weight:800;color:var(--accent-d);text-align:right;padding:7px 2px 0}
+  .money-item .bal small{display:block;font-size:9px;font-weight:700;color:var(--muted);text-align:right}
+
   /* 📅 설치 일정 */
   .sched-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
   .sched-sum .ss{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 12px}
@@ -384,6 +393,17 @@
   </div>
 </nav>
 
+<div class="lb" id="ct-modal" hidden style="z-index:95">
+  <div style="max-width:min(520px,94vw);max-height:92dvh;overflow:auto;background:#fff;border-radius:18px;padding:14px;display:grid;gap:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <b style="font-size:14.5px;font-weight:800">계약 안내서 미리보기</b>
+      <button type="button" class="tbtn" id="ct-close">닫기</button>
+    </div>
+    <img id="ct-img" alt="계약 안내서 이미지" style="width:100%;border:1px solid var(--line);border-radius:10px">
+    <button type="button" class="abtn done" id="ct-dl" style="justify-content:center;padding:12px">🖼️ 이미지 저장 (PNG)</button>
+  </div>
+</div>
+
 <div class="lb" id="lb" hidden>
   <img id="lb-img" alt="사진 크게 보기">
   <div class="lb-bar">
@@ -457,6 +477,25 @@
     }
     return { date: date, time: time };
   }
+  /* ---------- 계약 금액 (총 공사비 · 계약금 · 잔금) ---------- */
+  function moneyOf(q){
+    var p = pipeOf(q.id);
+    var total = p.total != null ? p.total : "";
+    var deposit = p.deposit != null ? p.deposit : "";
+    if (total === "" || deposit === ""){
+      var tag = parseMemo(q.memo).money;
+      if (tag){
+        var mt = tag.match(/총\s*([\d,]+)/), md = tag.match(/계약금\s*([\d,]+)/);
+        if (total === "" && mt) total = Number(mt[1].replace(/,/g, ""));
+        if (deposit === "" && md) deposit = Number(md[1].replace(/,/g, ""));
+      }
+    }
+    total = total === "" ? "" : Number(total);
+    deposit = deposit === "" ? "" : Number(deposit);
+    var balance = (total !== "" && deposit !== "") ? Math.max(0, total - deposit) : null;
+    return { total: total, deposit: deposit, balance: balance };
+  }
+  function won(v){ return v === "" || v == null || isNaN(v) ? "—" : Number(v).toLocaleString("ko-KR") + "원"; }
 
   var state = {
     adminKey: "",
@@ -536,7 +575,7 @@
   }
   function parseMemo(raw){
     var lines = String(raw || "").split(/\r?\n/);
-    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", sim = null, simUrl = "", bpUrl = "", rest = [];
+    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", money = "", sim = null, simUrl = "", bpUrl = "", rest = [];
     lines.forEach(function(line){
       var t = line.trim();
       if (t.indexOf("[매물 링크]") === 0) listingUrl = t.replace("[매물 링크]", "").trim();
@@ -544,6 +583,7 @@
       else if (t.indexOf("[결제·증빙]") === 0) pay = t.replace("[결제·증빙]", "").trim();
       else if (t.indexOf("[진행]") === 0) stage = t.replace("[진행]", "").trim();
       else if (t.indexOf("[설치일]") === 0) install = t.replace("[설치일]", "").trim();
+      else if (t.indexOf("[금액]") === 0) money = t.replace("[금액]", "").trim();
       else if (t.indexOf("[SIM_SPEC]") === 0){
         try { sim = JSON.parse(t.replace("[SIM_SPEC]", "").trim()); } catch (e) { sim = null; }
       }
@@ -551,7 +591,7 @@
       else if (t.indexOf("[설계도]") === 0) bpUrl = t.replace("[설계도]", "").trim();
       else rest.push(line);
     });
-    return { listingUrl: listingUrl, aircon: aircon, pay: pay, stage: stage, install: install,
+    return { listingUrl: listingUrl, aircon: aircon, pay: pay, stage: stage, install: install, money: money,
              sim: sim, simUrl: simUrl, bpUrl: bpUrl, note: rest.join("\n").trim() };
   }
 
@@ -710,15 +750,17 @@
   }
 
   /* ---------- 진행 단계 저장 (DB status + 메모 태그 + 기기 저장) ---------- */
-  function buildTaggedMemo(q, stage, inst){
+  function buildTaggedMemo(q, stage, inst, money){
     var base = String(q.memo || "").split(/\r?\n/).filter(function(l){
       var t = l.trim();
-      return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0);
+      return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0 || t.indexOf("[금액]") === 0);
     }).join("\n").trim();
     var lines = [];
     if (base) lines.push(base);
     lines.push("[진행]" + stageLabel(stage));
     if (inst && inst.date) lines.push("[설치일]" + inst.date + (inst.time ? " " + inst.time : ""));
+    if (money && (money.total !== "" || money.deposit !== ""))
+      lines.push("[금액]총 " + (money.total || 0).toLocaleString("ko-KR") + " / 계약금 " + (money.deposit || 0).toLocaleString("ko-KR"));
     return lines.join("\n").slice(0, 2000);
   }
   function memoCapable(){
@@ -732,7 +774,7 @@
   function pushMemoUpdate(q, stage){
     var cap = memoCapable();
     if (cap === "none") return;
-    var memo = buildTaggedMemo(q, stage, installOf(q));
+    var memo = buildTaggedMemo(q, stage, installOf(q), moneyOf(q));
     var done = function(res){
       if (res && res.ok){ markMemoCap("relocation_admin"); q.memo = memo; return true; }
       return false;
@@ -769,7 +811,156 @@
     return Promise.resolve();
   }
 
-  /* ---------- 📅 설치 일정 (이전설치 + 신규설치) ---------- */
+/* ---------- 📋 계약 안내 복사 · 🖼️ 계약서 이미지 ---------- */
+  var BANK_LINE = "베오방음(기업은행) 301-115608-04-019";
+function won0(v){ return (v === "" || v == null || isNaN(v)) ? "___" : Number(v).toLocaleString("ko-KR"); }
+function contractData(q){
+  var isNewB = isNewBoothQuote(q);
+  var pm = parseMemo(q.memo);
+  var inst = installOf(q);
+  var m = moneyOf(q);
+  var work;
+  if (isNewB){
+    var sim = pm.sim || { w: q.width_mm, d: q.depth_mm };
+    var bits = [];
+    if (sim && sim.w) bits.push(Number(sim.w).toLocaleString("ko-KR") + "×" + Number(sim.d).toLocaleString("ko-KR") + " 신규 부스");
+    simBadges(sim).slice(1).forEach(function(b){ bits.push(b[0] + " " + b[1]); });
+    work = "신규 부스 사양: " + (bits.join(" · ") || "상담 확정 사양");
+  } else {
+    work = "이전 제품: " + (q.booth_type || "유형 미상") + (q.brand ? " (" + q.brand + ")" : "") + " · " + sizeLine(q);
+  }
+  var route = isNewB
+    ? (q.to_region || "설치 주소 미기재")
+    : ((q.from_region || "출발지 미기재") + " → " + (q.to_region || "도착지 미기재"));
+  return {
+    kind: isNewB ? "신규설치" : "이전설치",
+    name: q.customer_name || "-",
+    phone: q.customer_phone || "-",
+    total: m.total, deposit: m.deposit, balance: m.balance,
+    work: work, route: route,
+    date: inst.date ? fmtDay(inst.date) + (inst.time ? " " + inst.time : "") : (q.desired_date ? fmtDay(q.desired_date) + " (희망)" : "확정 예정")
+  };
+}
+function contractText(q){
+  var d = contractData(q);
+  return [
+    "[방음부스 " + d.kind + " 계약 안내]",
+    "",
+    "• 총 공사비: " + won0(d.total) + "원 (부가세 포함)",
+    "• 결제 방식",
+    "1. 계약금: " + won0(d.deposit) + "원 (예약 확정 시)",
+    "2. 잔금: " + won0(d.balance) + "원 (공사 완료 후 현장 지급)",
+    "",
+    "• 입금 계좌: " + BANK_LINE,
+    "",
+    "[작업 정보]",
+    "• " + d.work,
+    "• " + d.route,
+    "• 작업일자: " + d.date,
+    "",
+    "베오방음 (BEOSOUNDPROOF)",
+    "문의: 010-3001-5906"
+  ].join("\n");
+}
+function contractImage(q){
+  var d = contractData(q);
+  var W = 900, H = 1330;
+  var cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  var c = cv.getContext("2d");
+  var INK = "#14171A", ACC = "#2E9C86", ACCD = "#1F7A69", MUT = "#7B8389", LINE = "#E3DDD3";
+  var font = function(w, s){ return w + " 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif"; };
+  c.fillStyle = "#F4F0E8"; c.fillRect(0, 0, W, H);
+  c.fillStyle = "#FFFFFF"; c.fillRect(24, 24, W-48, H-48);
+
+  /* 헤더 */
+  c.fillStyle = INK; c.fillRect(24, 24, W-48, 118);
+  c.fillStyle = ACC;
+  [[44,78,14,40],[70,50,14,68],[96,64,14,54]].forEach(function(r){ c.fillRect(r[0], r[1], r[2], r[3]); });
+  c.fillStyle = "#FFFFFF"; c.textAlign = "left";
+  c.font = font(800, 30); c.fillText("BEOSOUNDPROOF", 130, 88);
+  c.fillStyle = "rgba(255,255,255,.72)"; c.font = font(600, 15);
+  c.fillText("방음부스 " + d.kind + " · 계약 안내서", 130, 114);
+  c.textAlign = "right"; c.fillStyle = ACC; c.font = font(800, 15);
+  c.fillText(d.kind, W-48, 88);
+
+  /* 고객 */
+  c.textAlign = "left";
+  c.fillStyle = MUT; c.font = font(700, 13); c.fillText("고객", 48, 184);
+  c.fillStyle = INK; c.font = font(800, 24); c.fillText(d.name, 48, 216);
+  c.fillStyle = ACCD; c.font = font(700, 15); c.fillText(d.phone, 48, 240);
+
+  /* 금액 표 */
+  var ty = 280;
+  c.fillStyle = INK; c.fillRect(48, ty, W-96, 44);
+  c.fillStyle = "#fff"; c.font = font(800, 14);
+  c.fillText("총 공사비 (부가세 포함)", 68, ty+28);
+  c.textAlign = "right"; c.font = font(800, 20); c.fillText(won0(d.total) + "원", W-68, ty+30);
+  var rows = [
+    ["1. 계약금 — 예약 확정 시", won0(d.deposit) + "원"],
+    ["2. 잔금 — 공사 완료 후 현장 지급", won0(d.balance) + "원"]
+  ];
+  rows.forEach(function(r, i){
+    var ry = ty + 44 + i*46;
+    c.fillStyle = i % 2 ? "#FAF8F4" : "#FFFFFF"; c.fillRect(48, ry, W-96, 46);
+    c.textAlign = "left"; c.fillStyle = "#2E353B"; c.font = font(700, 15); c.fillText(r[0], 68, ry+29);
+    c.textAlign = "right"; c.fillStyle = ACCD; c.font = font(800, 17); c.fillText(r[1], W-68, ry+30);
+  });
+
+  /* 계좌 박스 */
+  var by = ty + 44 + 2*46 + 22;
+  c.fillStyle = "#F3FAF7"; c.strokeStyle = "#9FC6BC"; c.lineWidth = 1.4;
+  c.beginPath(); c.roundRect(48, by, W-96, 88, 12); c.fill(); c.stroke();
+  c.textAlign = "left";
+  c.fillStyle = ACCD; c.font = font(800, 12); c.fillText("입금 계좌", 68, by+28);
+  c.fillStyle = INK; c.font = font(800, 24); c.fillText("베오방음 (기업은행)", 68, by+60);
+  c.textAlign = "right"; c.font = font(800, 26); c.fillText("301-115608-04-019", W-68, by+62);
+
+  /* 작업 정보 */
+  var wy = by + 88 + 34;
+  c.textAlign = "left";
+  c.fillStyle = MUT; c.font = font(800, 12); c.fillText("작업 정보", 48, wy);
+  var items = [["작업 내용", d.work], ["설치 장소", d.route], ["작업일자", d.date]];
+  var iy = wy + 26;
+  items.forEach(function(it){
+    c.fillStyle = MUT; c.font = font(700, 13); c.fillText(it[0], 48, iy);
+    c.fillStyle = INK; c.font = font(700, 15.5);
+    var lines = (function wrap(text, max){
+      var out = [], cur = "";
+      String(text).split(" ").forEach(function(w){
+        if (c.measureText(cur + " " + w).width > max){ out.push(cur); cur = w; }
+        else cur = cur ? cur + " " + w : w;
+      });
+      if (cur) out.push(cur);
+      return out;
+    })(it[1], W-96-150);
+    lines.slice(0, 2).forEach(function(l, li){ c.fillText(l, 190, iy + li*22); });
+    iy += Math.max(26, lines.slice(0,2).length*22 + 6);
+  });
+
+  /* 푸터 */
+  c.strokeStyle = LINE; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(48, H-140); c.lineTo(W-48, H-140); c.stroke();
+  c.textAlign = "left";
+  c.fillStyle = INK; c.font = font(800, 18); c.fillText("베오방음 (BEOSOUNDPROOF)", 48, H-104);
+  c.fillStyle = MUT; c.font = font(600, 14); c.fillText("문의 010-3001-5906", 48, H-78);
+  c.textAlign = "right"; c.font = font(600, 12);
+  c.fillText("#" + String(q.id || "").slice(0, 8).toUpperCase() + " · " + new Date().toISOString().slice(0, 10), W-48, H-104);
+
+  return cv;
+}
+function openContractModal(q){
+  var modal = document.getElementById("ct-modal");
+  var cv = contractImage(q);
+  document.getElementById("ct-img").src = cv.toDataURL("image/png");
+  document.getElementById("ct-dl").onclick = function(){
+    var a = document.createElement("a");
+    a.href = cv.toDataURL("image/png");
+    a.download = "베오방음_계약안내서_" + String(q.id || "").slice(0, 8).toUpperCase() + ".png";
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  modal.hidden = false;
+}
   function pad2(n){ return String(n).padStart(2, "0"); }
   function todayStr(){
     var d = new Date();
@@ -989,9 +1180,19 @@
       : '';
 
     var instHtml = '<div class="inst-row">'
-      + '  <div class="inst-l"><b>설치 예정일</b><small>현장 확정 일시</small></div>'
+      + '  <div class="inst-l"><b>설치 예정일</b><small>현장 확정 일시 · 계약서 작업일자로 쓰입니다</small></div>'
       + '  <input type="date" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="date" value="' + esc(inst.date) + '" aria-label="설치 예정일">'
       + '  <input type="time" class="inst-in" data-inst-id="' + esc(q.id) + '" data-inst-k="time" value="' + esc(inst.time) + '" aria-label="설치 시간">'
+      + '</div>';
+
+    var m = moneyOf(q);
+    var moneyHtml = '<div class="money-row">'
+      + '  <div class="money-item"><label>총 공사비 (원) · 부가세 포함</label>'
+      + '    <input type="number" min="0" step="10000" data-money-id="' + esc(q.id) + '" data-money-k="total" value="' + (m.total === "" ? "" : m.total) + '" placeholder="0"></div>'
+      + '  <div class="money-item"><label>계약금 (원)</label>'
+      + '    <input type="number" min="0" step="10000" data-money-id="' + esc(q.id) + '" data-money-k="deposit" value="' + (m.deposit === "" ? "" : m.deposit) + '" placeholder="0"></div>'
+      + '  <div class="money-item"><label>잔금 (자동)</label>'
+      + '    <div class="bal">' + (m.balance == null ? "—" : m.balance.toLocaleString("ko-KR") + "원") + '<small>공사 완료 후 현장 지급</small></div></div>'
       + '</div>';
 
     return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '" data-stage="' + st + '">'
@@ -1016,6 +1217,7 @@
       + simHtml
       + routeHtml
       + instHtml
+      + moneyHtml
       + (pm.note ? '<div class="memo-box">' + linkify(pm.note) + '</div>' : '')
       + photosHtml
       + '<div class="qs-foot">'
@@ -1025,6 +1227,8 @@
       + '    <a class="abtn" href="configurator.html?' + simQ + '" target="_blank" rel="noopener">🎨 시뮬레이터</a>'
       + '    <a class="abtn" href="blueprint.html?' + simQ + '" target="_blank" rel="noopener">📐 설계도</a>'
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
+      + '    <button type="button" class="abtn" data-qcontract="' + esc(q.id) + '">📋 계약 안내 복사</button>'
+      + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
       + '  </div>'
       + '  <div class="qacts">'
       + (st !== "done" ? '<button type="button" class="abtn done" data-qdone="' + esc(q.id) + '">✅ 설치 완료</button>' : '')
@@ -1209,12 +1413,50 @@
       });
     });
 
+    Array.prototype.forEach.call(app.querySelectorAll("[data-money-id]"), function(inp){
+      inp.addEventListener("input", function(){
+        var id = inp.getAttribute("data-money-id");
+        var k = inp.getAttribute("data-money-k");
+        var v = inp.value === "" ? "" : Number(inp.value);
+        setPipe(id, k === "total" ? { total: v } : { deposit: v });
+        /* 잔금 자동 계산 — 카드 전체를 다시 그리지 않고 이 줄만 갱신 */
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!q) return;
+        var m = moneyOf(q);
+        var card = inp.closest(".qsheet");
+        var bal = card ? card.querySelector(".money-item .bal") : null;
+        if (bal) bal.innerHTML = (m.balance == null ? "—" : m.balance.toLocaleString("ko-KR") + "원") + '<small>공사 완료 후 현장 지급</small>';
+      });
+      inp.addEventListener("change", function(){
+        var id = inp.getAttribute("data-money-id");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!q) return;
+        pushMemoUpdate(q, stageOf(q));
+        toast("계약 금액을 저장했습니다");
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qcontract]"), function(b){
+      b.addEventListener("click", function(){
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(b.getAttribute("data-qcontract")); })[0];
+        if (!q) return;
+        copyText(contractText(q), "계약 안내 복사 완료!");
+      });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qcontractimg]"), function(b){
+      b.addEventListener("click", function(){
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(b.getAttribute("data-qcontractimg")); })[0];
+        if (!q) return;
+        openContractModal(q);
+      });
+    });
+
     Array.prototype.forEach.call(app.querySelectorAll("[data-qcopy]"), function(b){
       b.addEventListener("click", function(){
         var id = b.getAttribute("data-qcopy");
         var q = state.quotes.find(function(x){ return String(x.id) === String(id); });
         if (!q) return;
-        copyText(formatCopyText(q));
+        copyText(formatCopyText(q), "요청서 요약 복사 완료!");
       });
     });
 
@@ -1294,17 +1536,17 @@
     });
   }
 
-  function copyText(text){
+  function copyText(text, msg){
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function(){ toast("요청서 요약 복사 완료!"); })
-        .catch(function(){ fallbackCopy(text); });
-    } else fallbackCopy(text);
+      navigator.clipboard.writeText(text).then(function(){ toast(msg || "복사 완료!"); })
+        .catch(function(){ fallbackCopy(text, msg); });
+    } else fallbackCopy(text, msg);
   }
-  function fallbackCopy(text){
+  function fallbackCopy(text, msg){
     var ta = document.createElement("textarea");
     ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand("copy"); toast("요청서 요약 복사 완료!"); } catch (e) { alert("복사 실패"); }
+    try { document.execCommand("copy"); toast(msg || "복사 완료!"); } catch (e) { alert("복사 실패"); }
     document.body.removeChild(ta);
   }
 
@@ -1321,6 +1563,10 @@
   document.getElementById("lb-next").addEventListener("click", function(){ state.lbIdx = (state.lbIdx + 1) % state.lbPhotos.length; updateLb(); });
   document.getElementById("lb-close").addEventListener("click", function(){ lb.hidden = true; });
   lb.addEventListener("click", function(e){ if (e.target === lb) lb.hidden = true; });
+  document.getElementById("ct-close").addEventListener("click", function(){ document.getElementById("ct-modal").hidden = true; });
+  document.getElementById("ct-modal").addEventListener("click", function(e){
+    if (e.target === document.getElementById("ct-modal")) e.currentTarget.hidden = true;
+  });
 
   Array.prototype.forEach.call(bottomNav.querySelectorAll("[data-nav]"), function(b){
     b.addEventListener("click", function(){ state.nav = b.getAttribute("data-nav"); state.qStatus = "all"; render(); window.scrollTo(0, 0); });
