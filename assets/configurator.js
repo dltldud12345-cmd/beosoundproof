@@ -954,6 +954,75 @@ function initActions(){
     hotspots.forEach(h => { if (!on) h.el.classList.remove('on'); });
     hotspotOn = on;
   });
+
+  /* ⛶ 전체화면 토글 */
+  const fsBtn = $('#fsToggle');
+  if (fsBtn) fsBtn.addEventListener('click', () => { fsOn ? exitFullscreenView() : enterFullscreenView(); });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fsOn && !$('#specModal').classList.contains('on')) exitFullscreenView();
+  });
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => {
+    // 브라우저 자체 ESC/전체화면 해제까지 CSS 전체화면 상태와 맞춥니다
+    if (fsOn && !nativeFullscreenOn()){ fsOn = false; applyFsState(); nudgeStageResize(); }
+  }));
+}
+
+/* ============================ ⛶ 전체화면 (iOS 사파리 포함) ============================ */
+let fsOn = false;
+function nativeFullscreenOn(){
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+}
+function applyFsState(){
+  stageEl.classList.toggle('fs', fsOn);
+  document.body.classList.toggle('fs-lock', fsOn);
+  document.documentElement.classList.toggle('fs-lock', fsOn);
+  const btn = $('#fsToggle');
+  if (btn){
+    btn.setAttribute('aria-pressed', fsOn ? 'true' : 'false');
+    btn.setAttribute('aria-label', fsOn ? '전체화면 닫기' : '전체화면으로 보기');
+    const tx = btn.querySelector('.fs-tx');
+    if (tx) tx.textContent = fsOn ? '닫기' : '전체화면';
+  }
+}
+function nudgeStageResize(){
+  // 전체화면 진입·종료 직후 캔버스·카메라 비율을 곧바로 맞춥니다
+  requestAnimationFrame(onResize);
+  setTimeout(onResize, 80);
+  setTimeout(onResize, 300);
+}
+function enterFullscreenView(){
+  if (fsOn) return;
+  fsOn = true;
+  applyFsState();
+  // PC·안드로이드는 브라우저 전체화면도 시도하고, 실패하거나 미지원(iOS 사파리)이면 CSS 전체화면으로 동작합니다
+  try {
+    const el = stageEl;
+    if (el.requestFullscreen){
+      const p = el.requestFullscreen({ navigationUI: 'hide' });
+      if (p && p.catch) p.catch(() => {});
+    } else if (el.webkitRequestFullscreen){
+      el.webkitRequestFullscreen();
+    } else if (el.msRequestFullscreen){
+      el.msRequestFullscreen();
+    }
+  } catch (err){ /* 미지원 기기 — CSS 전체화면으로 계속 */ }
+  nudgeStageResize();
+}
+function exitFullscreenView(){
+  if (!fsOn) return;
+  fsOn = false;
+  applyFsState();
+  try {
+    if (document.fullscreenElement && document.exitFullscreen){
+      const p = document.exitFullscreen();
+      if (p && p.catch) p.catch(() => {});
+    } else if (document.webkitFullscreenElement && document.webkitExitFullscreen){
+      document.webkitExitFullscreen();
+    } else if (document.msFullscreenElement && document.msExitFullscreen){
+      document.msExitFullscreen();
+    }
+  } catch (err){ /* noop */ }
+  nudgeStageResize();
 }
 
 /* ============================ [4] 3D ============================ */

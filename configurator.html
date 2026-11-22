@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://beosoundproof.com/configurator.html">
 <link rel="canonical" href="https://beosoundproof.com/configurator.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314171A'/%3E%3Cg fill='%232E9C86'%3E%3Crect x='15' y='26' width='6' height='12' rx='3'/%3E%3Crect x='29' y='17' width='6' height='30' rx='3'/%3E%3Crect x='43' y='23' width='6' height='18' rx='3'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/configurator.css?v=20261122e1">
+<link rel="stylesheet" href="assets/configurator.css?v=20261122f1">
 </head>
 <body>
 
@@ -38,14 +38,13 @@
     <img id="photoOutStage" src="assets/exterior-clean.jpg" alt="베오방음 실사 외부" hidden style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;pointer-events:none;">
     <div class="hs-layer" id="hsLayer" aria-hidden="true"></div>
 
-    <div class="stage-badge">
-      <span class="dot" aria-hidden="true"></span>
-      <b id="badgeModel">슈퍼싱글</b>
-      <i aria-hidden="true"></i>
-      <em id="badgeDim">1,500 × 1,800</em>
-    </div>
-
     <div class="stage-legend" id="legend" aria-hidden="true"></div>
+
+    <button type="button" class="fs-btn" id="fsToggle" aria-pressed="false" aria-label="전체화면으로 보기">
+      <svg class="ico-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/></svg>
+      <svg class="ico-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+      <span class="fs-tx">전체화면</span>
+    </button>
 
     <div class="views-wrap" style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:10;display:flex;gap:8px;align-items:center;max-width:calc(100% - 24px);">
       <div class="views" id="modeSwitch" role="group" aria-label="보기 방식" style="position:static;transform:none;flex-shrink:0;">
@@ -85,6 +84,12 @@
     <div class="panel-head">
       <span class="eyebrow">Build your booth</span>
       <h1>신규 방음부스<span>3D 견적 시뮬레이터</span></h1>
+      <div class="now-model" id="nowModel" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <b id="badgeModel">슈퍼싱글</b>
+        <i aria-hidden="true"></i>
+        <em id="badgeDim">1,500 × 1,800</em>
+      </div>
       <p class="sub">옵션을 누르면 3D 부스가 바로 바뀝니다. 마음에 드는 사양을 그대로 견적 상담에 넘겨 드립니다.</p>
     </div>
 
@@ -151,7 +156,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script type="module" src="assets/configurator.js?v=20261122e2"></script>
+<script type="module" src="assets/configurator.js?v=20261122f2"></script>
 <noscript>
   <style>.panel-body{display:none}.panel-foot{display:none}</style>
   <p style="padding:20px">3D 견적 시뮬레이터는 자바스크립트가 필요합니다. 전화 상담 <a href="tel:01030015906">010-3001-5906</a> 으로 문의해 주세요.</p>
