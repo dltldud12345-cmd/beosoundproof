@@ -2516,8 +2516,8 @@ function setView(name, force = false){
   const isAnyPhoto = isPhotoIn || isPhotoOut;
   const ps = $('#photoStage');
   const po = $('#photoOutStage');
-  if (ps) ps.hidden = !isPhotoIn;
-  if (po) po.hidden = !isPhotoOut;
+  if (ps) { ps.hidden = !isPhotoIn; ps.style.display = isPhotoIn ? 'block' : 'none'; }
+  if (po) { po.hidden = !isPhotoOut; po.style.display = isPhotoOut ? 'block' : 'none'; }
   const hs = $('#hsLayer');
   if (hs) hs.style.display = isAnyPhoto ? 'none' : '';
   ['doorToggle', 'hsToggle', 'resetView'].forEach(id => {
