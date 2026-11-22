@@ -138,6 +138,7 @@
     transition:max-height .3s ease,opacity .22s ease}
   .ac-panel .in-pad{padding:2px 1px 1px}
   .ac-chips{display:grid;gap:8px;margin-top:10px}
+  @media (min-width:640px){.ac-chips{grid-template-columns:1fr 1fr}}
   .ac-chips .chip > span{justify-content:flex-start;text-align:left;line-height:1.45;min-height:44px;padding:10px 13px;font-size:14px}
   .ac-chips .chip em{font-style:normal;font-weight:600;color:var(--muted);margin-left:5px}
   .ac-chips .chip input:checked+span em{color:var(--accent-d)}
@@ -839,6 +840,8 @@
     clearTimeout(acTimer);
     acBox.classList.add("open");
     acToggle.setAttribute("aria-expanded", "true");
+    var ic = acToggle.querySelector(".ic");
+    if (ic) ic.textContent = "–";
     acPanel.hidden = false;
     acPanel.removeAttribute("inert");
     requestAnimationFrame(function(){
@@ -853,6 +856,8 @@
     acPanel.style.maxHeight = "0px";
     acPanel.style.opacity = "0";
     acPanel.setAttribute("inert", "");
+    var icOff = acToggle.querySelector(".ic");
+    if (icOff) icOff.textContent = "+";
     clearTimeout(acTimer);
     acTimer = setTimeout(function(){ if (!acOpenState()) acPanel.hidden = true; }, 320);
     if (clearPick) Array.prototype.forEach.call(document.querySelectorAll('input[name="ac"]'), function(r){ r.checked = false; });
