@@ -2877,6 +2877,12 @@ function photoHexToRgb(hex){
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 const photoWinImgs = {};
+/* 클린 화이트 전용 타공판 오버레이 — 메이플 원본에서 우드 색을 빼고 화이트 도장으로 리컬러링한 PNG */
+const WHITE_SLATS = {
+  'slat_nocob': 'assets/slat-nocob-white.png?v=1',
+  'side_left':  'assets/side-slat-white-left.png?v=1',
+  'side_right': 'assets/side-slat-white-right.png?v=1'
+};
 function preloadPhotoWins(){
   const map = {
     '600x800': 'assets/win-600.png?v=8',
@@ -2921,6 +2927,14 @@ function preloadPhotoWins(){
     };
     im.src = map[k];
     photoWinImgs[k] = im;
+  });
+  /* 클린 화이트용 타공판은 오버레이 이미지 교체만으로 쓰기 위해 따로 읽어 둡니다 */
+  Object.keys(WHITE_SLATS).forEach(k => {
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = () => { if (state.view === 'photo') renderPhotoStage(); };
+    im.src = WHITE_SLATS[k];
+    photoWinImgs['white_' + k] = im;
   });
 }
 function initPhotoCache(cb){
@@ -3034,10 +3048,22 @@ function renderPhotoStage(){
     const out = ctx.createImageData(W, H);
     const dst = out.data;
     const src = photoCache.orig;
-    const nocob = (state.light === 'rail' && photoCache.nocobOrig) ? photoCache.nocobOrig : null;
+    /* 클린 화이트(화이트·화이트워시 타공판)일 때는 우드색을 뺀 화이트 리컬러링 오버레이로 교체 */
     const slatPos = state.slatPos || 'back';
-    const sideL = (slatPos === 'left' && photoCache.sideLeftOrig) ? photoCache.sideLeftOrig : null;
-    const sideR = (slatPos === 'right' && photoCache.sideRightOrig) ? photoCache.sideRightOrig : null;
+    const whiteSlat = state.slat === 'white' || state.slat === 'whitewash';
+    const slatKey = (k) => whiteSlat && photoWinImgs['white_' + k] && photoWinImgs['white_' + k].complete ? photoWinImgs['white_' + k] : photoWinImgs[k];
+    const srcNocob = slatKey('slat_nocob'), srcSideL = slatKey('side_left'), srcSideR = slatKey('side_right');
+    const toData = (im) => {
+      if (!im || !im.complete || !im.naturalWidth) return null;
+      const c = document.createElement('canvas');
+      c.width = photoCache.w; c.height = photoCache.h;
+      const cx = c.getContext('2d', { willReadFrequently: true });
+      cx.drawImage(im, 0, 0, photoCache.w, photoCache.h);
+      return cx.getImageData(0, 0, photoCache.w, photoCache.h).data;
+    };
+    const nocob = (state.light === 'rail') ? toData(srcNocob) : null;
+    const sideL = (slatPos === 'left') ? toData(srcSideL) : null;
+    const sideR = (slatPos === 'right') ? toData(srcSideR) : null;
     const backArt = (slatPos !== 'back' && photoCache.backArtOrig) ? photoCache.backArtOrig : null;
     /* 후면 COB 2구를 쓰지 않는 조합에서는 천장에서 그 구멍·빛혼적을 지운 패치를 먼저 씌웁니다 */
     const ceilClean = ((slatPos !== 'back' || state.light === 'rail') && photoCache.ceilCleanOrig) ? photoCache.ceilCleanOrig : null;
