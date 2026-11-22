@@ -2352,8 +2352,8 @@ function preloadPhotoWins(){
     '800x800': 'assets/win-800.png',
     '1200x800': 'assets/win-1200.png',
     'double1200': 'assets/win-double.png',
-    'rail_ceiling': 'assets/ceiling-rail.png?v=3',
-    'slat_nocob': 'assets/slat-nocob.png?v=1'
+    'rail_ceiling': 'assets/ceiling-rail.png?v=4',
+    'slat_nocob': 'assets/slat-nocob.png?v=2'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
