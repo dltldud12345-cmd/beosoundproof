@@ -118,7 +118,7 @@ const state = {
   model:'ss', w:1500, d:1800,
   artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000',
   door:'right', hinge:'right', open:false, window:'none', project:'none', ac:false,
-  view:'exterior'
+  view:'photo'
 };
 
 /* ---- 조명 규칙 ----
@@ -1951,6 +1951,7 @@ function rebuild(){
   applyViewState();
   scene.add(booth);
   fitCamera(false);
+  if (state.view === 'photo') renderPhotoStage();
 }
 
 /* ---- 문 (바깥으로 열림 · 바깥 기준 좌/우경첩) ---- */
@@ -2335,9 +2336,138 @@ function viewSettings(name){
     default:         return { theta: 0.62, phi: 1.13, r: base * 1.0, ty: 0.92, tx: 0, tz: 0, fov: 38 };
   }
 }
+/* ---- 실사 보기: 실제 시공 사진(interior-academy.jpg) 기반 실시간 컬러 체인저 ---- */
+const photoCache = { ready: false, loading: false, w: 960, h: 720, orig: null, mask: null };
+function hexToRgb(hex){
+  const n = parseInt(String(hex || '#D8C6A6').replace('#',''), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function initPhotoCache(cb){
+  if (photoCache.ready) return cb();
+  if (photoCache.loading) return;
+  photoCache.loading = true;
+  const img = new Image();
+  img.onload = () => {
+    const W = photoCache.w, H = photoCache.h;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, W, H);
+    photoCache.orig = ctx.getImageData(0, 0, W, H).data;
+
+    const mc = document.createElement('canvas');
+    mc.width = W; mc.height = H;
+    const mctx = mc.getContext('2d', { willReadFrequently: true });
+    const poly = (pts, col) => {
+      mctx.fillStyle = col;
+      mctx.beginPath();
+      pts.forEach(([px, py], i) => i ? mctx.lineTo(px * W, py * H) : mctx.moveTo(px * W, py * H));
+      mctx.closePath();
+      mctx.fill();
+    };
+    // 1 = 아트보드 (천장 + 좌벽 + 우벽)
+    const artCol = 'rgb(1,0,0)';
+    poly([[0,0],[1,0],[0.6407,0.3511],[0.3753,0.3520]], artCol);
+    poly([[0,0],[0.3753,0.3520],[0.3760,0.6667],[0.1020,1],[0,1]], artCol);
+    poly([[1,0],[0.6407,0.3511],[0.6407,0.6667],[0.9573,1],[1,1]], artCol);
+    // 2 = 라인타공 (정면 뒷벽)
+    poly([[0.3753,0.3520],[0.6407,0.3511],[0.6407,0.6667],[0.3760,0.6667]], 'rgb(2,0,0)');
+    // 3 = 강화마루 (바닥)
+    poly([[0.3760,0.6667],[0.6407,0.6667],[0.9573,1],[0.1020,1]], 'rgb(3,0,0)');
+    // 0 = 제외 영역 (창문, 중앙 LED등, 콘센트 2개)
+    const zero = 'rgb(0,0,0)';
+    poly([[0.7047,0.2498],[0.9213,0.0907],[0.9260,0.5076],[0.7053,0.5076]], zero);
+    poly([[0.4520,0.1129],[0.5880,0.1129],[0.5660,0.2222],[0.4747,0.2222]], zero);
+    poly([[0.2787,0.6844],[0.2973,0.6844],[0.2973,0.7396],[0.2787,0.7396]], zero);
+    poly([[0.5340,0.6089],[0.5447,0.6089],[0.5447,0.6338],[0.5340,0.6338]], zero);
+
+    const md = mctx.getImageData(0, 0, W, H).data;
+    const mask = new Uint8Array(W * H);
+    for (let i = 0; i < W * H; i++) mask[i] = md[i * 4];
+    photoCache.mask = mask;
+    photoCache.ready = true;
+    photoCache.loading = false;
+    cb();
+  };
+  img.src = 'assets/interior-academy.jpg';
+}
+function renderPhotoStage(){
+  const cvs = $('#photoStage');
+  if (!cvs) return;
+  initPhotoCache(() => {
+    const W = photoCache.w, H = photoCache.h;
+    if (cvs.width !== W || cvs.height !== H){ cvs.width = W; cvs.height = H; }
+    const ctx = cvs.getContext('2d');
+    const out = ctx.createImageData(W, H);
+    const dst = out.data;
+    const src = photoCache.orig;
+    const mask = photoCache.mask;
+
+    const aRgb = hexToRgb(pick(ARTBOARD, state.artboard).hex);
+    const sRgb = hexToRgb(pick(SLAT, state.slat).hex);
+    const fRgb = hexToRgb(pick(FLOOR, state.floor).hex);
+    const isPine = state.floor === 'pine';
+
+    for (let i = 0, p = 0; i < mask.length; i++, p += 4){
+      const m = mask[i];
+      const r = src[p], g = src[p+1], b = src[p+2];
+      if (m === 0){
+        dst[p] = r; dst[p+1] = g; dst[p+2] = b; dst[p+3] = 255;
+        continue;
+      }
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      if (m === 1){
+        // 아트보드: 기본 사진 밝기(~0.68)를 기준으로 목표 색상 입히기 (질감·조명 보존)
+        const gain = Math.min(1.42, lum / 0.68);
+        dst[p]   = Math.min(255, Math.round(aRgb[0] * gain));
+        dst[p+1] = Math.min(255, Math.round(aRgb[1] * gain));
+        dst[p+2] = Math.min(255, Math.round(aRgb[2] * gain));
+      } else if (m === 2){
+        // 라인타공: 어두운 틈새(lum < 0.28)는 유지하고 나무 살만 톤 변경
+        if (lum < 0.28){
+          dst[p] = r; dst[p+1] = g; dst[p+2] = b;
+        } else {
+          const gain = Math.min(1.45, lum / 0.52);
+          const tr = sRgb[0] * gain, tg = sRgb[1] * gain, tb = sRgb[2] * gain;
+          dst[p]   = Math.min(255, Math.round(r * 0.22 + tr * 0.78));
+          dst[p+1] = Math.min(255, Math.round(g * 0.22 + tg * 0.78));
+          dst[p+2] = Math.min(255, Math.round(b * 0.22 + tb * 0.78));
+        }
+      } else {
+        // 바닥 마루: 멜로우 오크(원본) vs 화이트 파인(밝고 뉴트럴)
+        if (!isPine){
+          dst[p] = r; dst[p+1] = g; dst[p+2] = b;
+        } else {
+          const gain = Math.min(1.45, lum / 0.55);
+          dst[p]   = Math.min(255, Math.round(r * 0.18 + fRgb[0] * gain * 0.82));
+          dst[p+1] = Math.min(255, Math.round(g * 0.18 + fRgb[1] * gain * 0.82));
+          dst[p+2] = Math.min(255, Math.round(b * 0.18 + fRgb[2] * gain * 0.82));
+        }
+      }
+      dst[p+3] = 255;
+    }
+    ctx.putImageData(out, 0, 0);
+  });
+}
+
 function setView(name, force = false){
   state.view = name;
   document.querySelectorAll('.views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === name ? 'true' : 'false'));
+  const isPhoto = name === 'photo';
+  const ps = $('#photoStage');
+  if (ps) ps.hidden = !isPhoto;
+  const hs = $('#hsLayer');
+  if (hs) hs.style.display = isPhoto ? 'none' : '';
+  ['doorToggle', 'hsToggle', 'resetView'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isPhoto ? 'none' : '';
+  });
+  const hint = document.querySelector('.stage-foot .hint');
+  if (hint) hint.style.display = isPhoto ? 'none' : '';
+  if (isPhoto){
+    renderPhotoStage();
+    return;
+  }
   const v = viewSettings(name);
   camTarget.theta = v.theta; camTarget.phi = v.phi; camTarget.r = v.r;
   camTarget.ty = v.ty; camTarget.fov = v.fov; camTarget.tx = v.tx || 0; camTarget.tz = v.tz || 0;
@@ -2586,7 +2716,7 @@ function start(){
   initControls();
   onResize();
   rebuild();
-  setView('exterior', true);
+  setView('photo', true);
   tick();
   window.__beo = { THREE, scene, camera, state, rebuild, setView, cam, camTarget, get booth(){ return booth; }, get parts(){ return parts; } };
 }
