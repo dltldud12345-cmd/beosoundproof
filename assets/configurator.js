@@ -2532,6 +2532,8 @@ function setView(name, force = false){
     const el = document.getElementById(id);
     if (el) el.style.display = isAnyPhoto ? 'none' : '';
   });
+  const vw = document.querySelector('.views-wrap');
+  if (vw) vw.style.bottom = isAnyPhoto ? '16px' : '58px';
   const hint = document.querySelector('.stage-foot .hint');
   if (hint) hint.style.display = isAnyPhoto ? 'none' : '';
   if (isPhotoIn){
