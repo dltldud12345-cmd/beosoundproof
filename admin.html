@@ -260,6 +260,8 @@
   .spay-m{background:var(--soft)!important;border-color:var(--line2)!important;color:var(--ink2)!important;font-weight:800!important}
   .spay-m.unset{background:#fff!important;color:var(--muted)!important;font-weight:700!important}
   .spay .muted b{color:var(--muted);font-weight:700}
+  .spay-br{display:none}
+  @media (max-width:480px){ .spay-br{display:block;flex:0 0 100%;height:0} }
   .sstage{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;background:var(--accent-t);color:var(--accent-d)}
   .sstage[data-st="talk"]{background:var(--blue-bg);color:var(--blue)}
   .sstage[data-st="deposit"]{background:#FFF7E6;color:#8A5A00}
@@ -679,7 +681,8 @@
     var total = Number(m.total) || 0;
     var icon = pay === "카드결제" ? "💳 " : (pay ? "🧾 " : "");
     var h = '<div class="spay">'
-      + '<span class="spay-m' + (pay ? "" : " unset") + '">' + icon + (pay ? esc(pay) : "결제수단 미정") + '</span>';
+      + '<span class="spay-m' + (pay ? "" : " unset") + '">' + icon + (pay ? esc(pay) : "결제수단 미정") + '</span>'
+      + '<i class="spay-br" aria-hidden="true"></i>';
     if (total > 0){
       h += '<span>총 <b>' + won(m.total) + '</b></span>'
         +  '<span>계약금 <b>' + (Number(m.deposit) > 0 ? won(m.deposit) : "미입력") + '</b></span>'
