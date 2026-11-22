@@ -93,9 +93,11 @@ const HINGES = [
   { v:'left',  label:'좌경첩' }
 ];
 const WINDOWS = [
-  { v:'none', label:'없음' },
-  { v:'1',    label:'1개' },
-  { v:'2',    label:'2개' }
+  { v:'none',       label:'없음',        w:0,   h:0,   sub:'' },
+  { v:'400x800',    label:'400×800',     w:0.4, h:0.8, sub:'세로 시창' },
+  { v:'800x800',    label:'800×800',     w:0.8, h:0.8, sub:'검사시창' },
+  { v:'1200x800',   label:'1200×800',    w:1.2, h:0.8, sub:'가로 시창' },
+  { v:'double1200', label:'이중창 1200', w:1.2, h:0.8, sub:'1,200×800 · 돌출', isDouble:true }
 ];
 const PROJECTS = [
   { v:'none', label:'없음' },
@@ -236,7 +238,7 @@ function buildPanel(){
       </div>
 
       <div class="row" style="display:block">
-        <div class="rl" style="margin-bottom:8px"><b>벽면 시창 400×800</b><small>문 옆 벽에 세로로 넣는 창</small></div>
+        <div class="rl" style="margin-bottom:8px"><b>벽면 시창 · 이중창</b><small>시창 3종은 돌출 없음 · 이중창은 안·밖 돌출</small></div>
         <div class="seg three">
           ${WINDOWS.map(w => `<button type="button" data-group="window" data-value="${w.v}" aria-pressed="false">${w.label}</button>`).join('')}
         </div>
@@ -335,7 +337,8 @@ function specRows(){
   rows.push({ k:'중앙등', v:pick(LEDTEMP, state.ledTemp).label, chg:state.ledTemp !== DEFAULTS.ledTemp, chip:pick(LEDTEMP, state.ledTemp).hex, sub:'천장 원형' });
   rows.push({ k:'바닥', v:f.label, chg:state.floor !== DEFAULTS.floor, chip:f.hex, sub:'강화마루' });
   rows.push({ k:'문', v:`${d.label} · ${state.hinge === 'right' ? '우경첩' : '좌경첩'}`, chg:(state.door !== DEFAULTS.door || state.hinge !== 'right'), chip:'', sub:'시스템도어' });
-  rows.push({ k:'시창', v:(state.window === 'none' ? '없음' : `400×800 ${state.window}개`), chg:state.window !== 'none', chip:'', sub:'' });
+  const winSpec = pick(WINDOWS, state.window);
+  rows.push({ k:'시창', v:(state.window === 'none' ? '없음' : (winSpec.isDouble ? '이중창 1,200×800' : `${winSpec.label} 시창`)), chg:state.window !== 'none', chip:'', sub:winSpec.sub || '' });
   rows.push({ k:'프로젝트창', v:(state.project === 'in' ? '포함' : '없음'), chg:state.project === 'in', chip:'', sub:'천장 개폐형' });
   rows.push({ k:'에어컨 라인', v:(state.ac ? '벽체 매설' : '미포함'), chg:state.ac, chip:'', sub:'' });
   return rows;
@@ -353,8 +356,7 @@ function priceItems(){
     { label:'문 위치', value: PRICE.door[state.door] }
   ];
   if (PRICE.areaRate != null) items.push({ label:'면적', value: Math.round(area * PRICE.areaRate) });
-  if (state.window === '1') items.push({ label:'시창 1개', value: PRICE.window1 });
-  if (state.window === '2') items.push({ label:'시창 2개', value: PRICE.window2 });
+  if (state.window !== 'none') items.push({ label:'창호', value: PRICE.window1 });
   if (state.project === 'in') items.push({ label:'프로젝트창', value: PRICE.project });
   if (state.ac) items.push({ label:'에어컨 라인', value: PRICE.acLine });
   return items;
@@ -1276,7 +1278,9 @@ function holePanel(w, h, t, holes, mat){
 /* 창 */
 function addWindow(parent, o, opts = {}){
   const g = new THREE.Group();
-  const fw = 0.03, depth = T + 0.016;
+  const isDouble = !!opts.double;
+  const fw = isDouble ? 0.042 : 0.03;
+  const depth = isDouble ? (T + 0.09) : (T + 0.016);
   const frameMat = trimsMat();
   const gasket = stdMat({ color: 0x1B1D1F, roughness: 0.85 });
   const cx = o.x0 + o.w/2, cy = o.y0 + o.h/2;
@@ -1292,19 +1296,33 @@ function addWindow(parent, o, opts = {}){
     m.castShadow = true; m.receiveShadow = true;
     g.add(m);
   });
-  // 창틀 안쪽 베벨 (반사)
-  [1, -1].forEach(s => {
-    const bev = new THREE.Mesh(new THREE.BoxGeometry(o.w + 0.02, 0.008, 0.012), stdMat({ color: 0xE8E3D8, roughness: 0.6 }));
-    bev.position.set(cx, cy + s * (o.h/2 - 0.004), s * 0.004);
-    g.add(bev);
-  });
-  const gas = new THREE.Mesh(new THREE.BoxGeometry(o.w + 0.01, o.h + 0.01, 0.02), gasket);
-  gas.position.set(cx, cy, -0.024);
-  g.add(gas);
-  const glass = new THREE.Mesh(new THREE.PlaneGeometry(o.w - 0.006, o.h - 0.006), glassMaterial());
-  glass.position.set(cx, cy, 0);
-  glass.renderOrder = 4;
-  g.add(glass);
+  if (isDouble){
+    // 이중창: 미닫이 중간 수직 샷시바 + 안팎 이중 유리
+    const mid = new THREE.Mesh(new THREE.BoxGeometry(0.036, o.h, depth - 0.018), frameMat);
+    mid.position.set(cx, cy, 0);
+    mid.castShadow = true; mid.receiveShadow = true;
+    g.add(mid);
+    [-0.028, 0.028].forEach(gz => {
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(o.w - 0.01, o.h - 0.01), glassMaterial());
+      gl.position.set(cx, cy, gz);
+      gl.renderOrder = 4;
+      g.add(gl);
+    });
+  } else {
+    // 창틀 안쪽 베벨 (반사)
+    [1, -1].forEach(s => {
+      const bev = new THREE.Mesh(new THREE.BoxGeometry(o.w + 0.02, 0.008, 0.012), stdMat({ color: 0xE8E3D8, roughness: 0.6 }));
+      bev.position.set(cx, cy + s * (o.h/2 - 0.004), s * 0.004);
+      g.add(bev);
+    });
+    const gas = new THREE.Mesh(new THREE.BoxGeometry(o.w + 0.01, o.h + 0.01, 0.02), gasket);
+    gas.position.set(cx, cy, -0.024);
+    g.add(gas);
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(o.w - 0.006, o.h - 0.006), glassMaterial());
+    glass.position.set(cx, cy, 0);
+    glass.renderOrder = 4;
+    g.add(glass);
+  }
   if (opts.project){
     const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, o.w * 0.86, 16), metalMat());
     hinge.rotation.z = Math.PI/2;
@@ -1808,16 +1826,15 @@ function rebuild(){
 
   const doorX0 = doorX0Of(), doorW = DOOR_W;
   const doorOpen = { x0: doorX0, y0: 0, w: doorW, h: H };
-  const winOpen = { x0: -0.2, y0: 1.08, w: 0.4, h: 0.8 };
+  const wSpec = pick(WINDOWS, state.window);
+  const winW = (wSpec && wSpec.w > 0) ? Math.min(wSpec.w, Math.max(0.4, D - 0.36)) : 0;
+  const winOpen = winW > 0 ? { x0: -winW/2, y0: 1.08, w: winW, h: wSpec.h } : null;
 
   const walls = {};
   ['front','back','left','right'].forEach(name => {
     const openings = [];
     if (name === doorName) openings.push(doorOpen);
-    if (perp.includes(name)){
-      if (state.window === '1' && name === perp[0]) openings.push(winOpen);
-      if (state.window === '2') openings.push(winOpen);
-    }
+    if (winOpen && name === perp[0]) openings.push(winOpen);
     const isSlat = name === slatName;
     const g = buildWallGroup(name, openings, isSlat ? { noInner: true } : {
       innerHex: pick(ARTBOARD, state.artboard).hex,
@@ -1829,7 +1846,7 @@ function rebuild(){
       buildSlatWall(g, wallDesc(name).innerW, pick(SLAT, state.slat).hex, pick(SLAT, state.slat).grain);
       g.userData.slatWall = true;
     }
-    if (openings.some(o => o === winOpen)) addWindow(g, winOpen, {});
+    if (winOpen && openings.some(o => o === winOpen)) addWindow(g, winOpen, { double: !!wSpec.isDouble });
   });
 
   const doorWall = walls[doorName];
@@ -2252,7 +2269,9 @@ function buildHotspots(walls, slatName, doorName, perp){
     addHotspot(wallPoint(doorName, doorX0Of() + DOOR_W/2, 1.25, T/2).addScaledVector(wallInward(doorName), 0.06), '시스템도어', 'out');
   }
   if (state.window !== 'none'){
-    addHotspot(wallPoint(perp[0], 0, 1.52, T/2).addScaledVector(wallInward(perp[0]), 0.05), '시창 400×800');
+    const wSpec = pick(WINDOWS, state.window);
+    const wLabel = wSpec.isDouble ? '이중창 1,200×800' : `시창 ${wSpec.label}`;
+    addHotspot(wallPoint(perp[0], 0, 1.52, T/2).addScaledVector(wallInward(perp[0]), 0.05), wLabel);
   }
   if (state.project === 'in' && parts.projectAnchor) addHotspot(parts.projectAnchor.clone(), '프로젝트창', 'in');
   if (state.ac){
