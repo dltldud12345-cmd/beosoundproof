@@ -522,7 +522,10 @@ function initActions(){
     }
   });
 
-  document.querySelectorAll('.views button').forEach(b => {
+  document.querySelectorAll('#modeSwitch button').forEach(b => {
+    b.addEventListener('click', () => setView(b.dataset.mode === 'photo' ? 'photo' : 'exterior', true));
+  });
+  document.querySelectorAll('#subViews button').forEach(b => {
     b.addEventListener('click', () => setView(b.dataset.view));
   });
   $('#resetView').addEventListener('click', () => setView(state.view, true));
@@ -2510,10 +2513,15 @@ function renderPhotoStage(){
 
 function setView(name, force = false){
   state.view = name;
-  document.querySelectorAll('.views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === name ? 'true' : 'false'));
   const isPhotoIn = name === 'photo';
   const isPhotoOut = name === 'photo-out';
   const isAnyPhoto = isPhotoIn || isPhotoOut;
+  const activeMode = isAnyPhoto ? 'photo' : '3d';
+  document.querySelectorAll('#modeSwitch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === activeMode ? 'true' : 'false'));
+  document.querySelectorAll('#subViews button').forEach(b => {
+    b.style.display = b.dataset.group === activeMode ? '' : 'none';
+    b.setAttribute('aria-pressed', b.dataset.view === name ? 'true' : 'false');
+  });
   const ps = $('#photoStage');
   const po = $('#photoOutStage');
   if (ps) { ps.hidden = !isPhotoIn; ps.style.display = isPhotoIn ? 'block' : 'none'; }

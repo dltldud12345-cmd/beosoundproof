@@ -45,13 +45,19 @@
 
     <div class="stage-legend" id="legend" aria-hidden="true"></div>
 
-    <div class="views" role="group" aria-label="시점 전환">
-      <button type="button" data-view="photo" aria-pressed="true"><span class="vlong">실사 내부</span><span class="vshort">실내</span></button>
-      <button type="button" data-view="photo-out" aria-pressed="false"><span class="vlong">실사 외부</span><span class="vshort">실외</span></button>
-      <button type="button" data-view="exterior" aria-pressed="false"><span class="vlong">3D 외관</span><span class="vshort">외관</span></button>
-      <button type="button" data-view="interior" aria-pressed="false"><span class="vlong">3D 내부</span><span class="vshort">내부</span></button>
-      <button type="button" data-view="door" aria-pressed="false"><span class="vlong">3D 문</span><span class="vshort">문</span></button>
-      <button type="button" data-view="top" aria-pressed="false"><span class="vlong">3D 위</span><span class="vshort">위</span></button>
+    <div class="views-wrap" style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:10;display:flex;gap:8px;align-items:center;max-width:calc(100% - 24px);">
+      <div class="views" id="modeSwitch" role="group" aria-label="보기 방식" style="position:static;transform:none;flex-shrink:0;">
+        <button type="button" data-mode="photo" aria-pressed="true">실사</button>
+        <button type="button" data-mode="3d" aria-pressed="false">3D</button>
+      </div>
+      <div class="views" id="subViews" role="group" aria-label="시점 전환" style="position:static;transform:none;">
+        <button type="button" data-view="photo" data-group="photo" aria-pressed="true">내부</button>
+        <button type="button" data-view="photo-out" data-group="photo" aria-pressed="false">외부</button>
+        <button type="button" data-view="exterior" data-group="3d" aria-pressed="false" style="display:none">외관</button>
+        <button type="button" data-view="interior" data-group="3d" aria-pressed="false" style="display:none">내부</button>
+        <button type="button" data-view="door" data-group="3d" aria-pressed="false" style="display:none">문</button>
+        <button type="button" data-view="top" data-group="3d" aria-pressed="false" style="display:none">위</button>
+      </div>
     </div>
 
     <div class="stage-foot">
@@ -114,7 +120,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script type="module" src="assets/configurator.js?v=20261122k"></script>
+<script type="module" src="assets/configurator.js?v=20261122l"></script>
 <noscript>
   <style>.panel-body{display:none}.panel-foot{display:none}</style>
   <p style="padding:20px">3D 견적 시뮬레이터는 자바스크립트가 필요합니다. 전화 상담 <a href="tel:01030015906">010-3001-5906</a> 으로 문의해 주세요.</p>
