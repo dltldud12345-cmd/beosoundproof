@@ -872,6 +872,14 @@
     put('[data-amt="supply"]', won(m.supply));
     var bal = card.querySelector('[data-amt="balance"]');
     if (bal) bal.innerHTML = (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small>';
+    var pl = card.querySelector('[data-amt="profit"]');
+    if (pl){
+      var dV = pl.getAttribute("data-day") || "", eV = pl.getAttribute("data-exp") || "";
+      var net = (dV !== "" || eV !== "") && m.total !== ""
+        ? Number(m.total) - (Number(m.vat) || 0) - (Number(dV) || 0) - (Number(eV) || 0) : null;
+      pl.innerHTML = '일당 <b>' + won(dV) + '</b> · 경비 <b>' + won(eV) + '</b> · 순수익 <b class="'
+        + (net != null && net < 0 ? "loss" : "plus") + '">' + profitText(net) + '</b>';
+    }
     put(".vat-note", moneyNote(m));
   }
 
@@ -2474,7 +2482,7 @@ function openContractModal(q){
       + '    <div class="bal" data-amt="balance">' + (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small></div></div>'
       + '  <div class="vat-note">' + moneyNote(m) + '</div>'
       + (cst.hasCost
-          ? '  <div class="vat-note money-profit">일당 <b>' + won(cst.day) + '</b> · 경비 <b>' + won(cst.expense) + '</b> · 순수익 <b class="' + (cst.profit != null && cst.profit < 0 ? "loss" : "plus") + '">' + profitText(cst.profit) + '</b></div>'
+          ? '  <div class="vat-note money-profit" data-amt="profit" data-day="' + esc(cst.day) + '" data-exp="' + esc(cst.expense) + '">일당 <b>' + won(cst.day) + '</b> · 경비 <b>' + won(cst.expense) + '</b> · 순수익 <b class="' + (cst.profit != null && cst.profit < 0 ? "loss" : "plus") + '">' + profitText(cst.profit) + '</b></div>'
           : '')
       + '</div>';
 
