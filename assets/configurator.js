@@ -155,6 +155,7 @@ const panel = $('#panelBody');
 function miniPlan(kind){
   const slat = state.slatPos || 'back';
   const win = state.winPos || 'left';
+  const hasWin = state.window !== 'none';
   const mine = kind === 'slat' ? slat : win;
   const other = kind === 'slat' ? win : slat;
   const mineCol = kind === 'slat' ? '#9A7448' : '#2E9C86';
@@ -165,11 +166,14 @@ function miniPlan(kind){
     if (wall === 'right') return 'x1="52" y1="8" x2="52" y2="64"';
     return 'x1="8" y1="64" x2="52" y2="64"';
   };
+  /* 시창을 아직 안 골랐으면 타공판 배치도에 시창 줄을 그리지 않습니다 */
+  const otherLine = (kind === 'slat' && !hasWin) ? ''
+    : `<line ${line(other)} stroke="${otherCol}" stroke-width="3" stroke-linecap="round" opacity=".34"/>`;
   return `<svg class="plan" viewBox="0 0 60 78" aria-hidden="true">
     <rect x="8" y="8" width="44" height="56" rx="3" fill="#FBF8F2" stroke="#DDD7C9" stroke-width="1.5"/>
     <line x1="8" y1="64" x2="23" y2="64" stroke="#DDD7C9" stroke-width="1.5"/>
     <line x1="37" y1="64" x2="52" y2="64" stroke="#DDD7C9" stroke-width="1.5"/>
-    <line ${line(other)} stroke="${otherCol}" stroke-width="3" stroke-linecap="round" opacity=".32"/>
+    ${otherLine}
     <line ${line(mine)} stroke="${mineCol}" stroke-width="5.5" stroke-linecap="round"/>
     <text x="30" y="74" text-anchor="middle" font-size="7.5" fill="#8A867E">문</text>
   </svg>`;
@@ -339,7 +343,7 @@ function onPanelClick(e){
   if (group === 'slatPos' || group === 'winPos'){
     state[group] = value;
     /* 시창과 타공판은 같은 벽에 함께 시공할 수 없습니다 — 방금 고른 쪽을 남기고 다른 쪽을 빈 벽으로 옮깁니다 */
-    if ((state.winPos || 'left') === (state.slatPos || 'back')){
+    if (state.window !== 'none' && (state.winPos || 'left') === (state.slatPos || 'back')){
       const moveKey = group === 'slatPos' ? 'winPos' : 'slatPos';
       const target = FREE_ORDER.find(w => w !== value) || 'back';
       state[moveKey] = target;
@@ -352,7 +356,15 @@ function onPanelClick(e){
     rebuild();
     return;
   }
-  if (group === 'window') state.window = value;
+  if (group === 'window'){
+    state.window = value;
+    /* 시창을 고르면 타공판과 겹치지 않는 벽으로 바로 잡아 줍니다 */
+    if (value !== 'none' && (state.winPos || 'left') === (state.slatPos || 'back')){
+      const target = FREE_ORDER.find(w => w !== (state.slatPos || 'back')) || 'left';
+      state.winPos = target;
+      showToast(`시창을 ${WALL_LABEL[target]} 벽에 넣었습니다. ${WALL_LABEL[state.slatPos || 'back']} 벽의 타공판과는 같이 시공할 수 없습니다.`);
+    }
+  }
   else if (group === 'project') state.project = value;
   else state[group] = value;
   if (group === 'light') lightAuto = false;
