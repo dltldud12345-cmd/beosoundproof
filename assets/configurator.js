@@ -2428,9 +2428,9 @@ function interiorSetup(){
   const tx = side * (W/2 - 0.12);                  // 타공판 벽면 가운데를 조준
   const dx = -side * (0.72 * (W/2) + (W/2 - 0.12)); // 반대쪽 뒤 코너에 서서
   const dz = -(D/2 - 0.35);
-  const dy = 0.22;
+  const dy = 0.46;
   const r = Math.hypot(dx, dz, dy);
-  return { theta: Math.atan2(dx, dz), phi: Math.acos(dy / r), r, ty, tx, tz: 0, fov: isSmall() ? 86 : 78 };
+  return { theta: Math.atan2(dx, dz), phi: Math.acos(dy / r), r, ty: 1.14, tx, tz: 0, fov: isSmall() ? 84 : 76 };
 }
 /* 시점 중심에서 방 안을 벗어나지 않는 최대 반경 */
 function maxInsideR(theta, phi, tx, ty, tz){
