@@ -3061,7 +3061,9 @@ function renderPhotoStage(){
       cx.drawImage(im, 0, 0, photoCache.w, photoCache.h);
       return cx.getImageData(0, 0, photoCache.w, photoCache.h).data;
     };
-    const nocob = (state.light === 'rail') ? toData(srcNocob) : null;
+    /* nocob 패치: 레일등일 때는 원본 COB 지우기 + 타공판 다시 얹기,
+       매립등 + 클린 화이트일 때는 후면 타공판을 화이트로만 다시 얹는다 */
+    const nocob = (state.light === 'rail' || whiteSlat) ? toData(srcNocob) : null;
     const sideL = (slatPos === 'left') ? toData(srcSideL) : null;
     const sideR = (slatPos === 'right') ? toData(srcSideR) : null;
     const backArt = (slatPos !== 'back' && photoCache.backArtOrig) ? photoCache.backArtOrig : null;
