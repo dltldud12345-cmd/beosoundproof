@@ -3073,7 +3073,7 @@ function renderPhotoStage(){
    - 문 우측 + 우경첩 = 원본을 좌우 반전
    - 문 우측 + 좌경첩 = 문짝만 반전한 사진을 좌우 반전 */
 const PHOTO_OUT_SRC = 'assets/exterior-clean.jpg';
-const PHOTO_OUT_SRC_HG = 'assets/exterior-clean-hg.jpg';
+const PHOTO_OUT_SRC_HG = 'assets/exterior-clean-hg.jpg?v=20261122a';
 let photoOutHgPreload = null;
 function preloadPhotoOutHg(){
   if (!photoOutHgPreload) photoOutHgPreload = new Image();
