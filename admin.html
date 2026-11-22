@@ -1485,9 +1485,13 @@ function openContractModal(q){
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
         var m = moneyOf(q);
+        var payNow = payOf(q);
+        var vatNow = vatBreakdown(m.total, payNow);
         var card = inp.closest(".qsheet");
         var bal = card ? card.querySelector(".money-item .bal") : null;
         if (bal) bal.innerHTML = (m.balance == null ? "—" : m.balance.toLocaleString("ko-KR") + "원") + '<small>공사 완료 후 현장 지급</small>';
+        var vatNote = card ? card.querySelector(".vat-note") : null;
+        if (vatNote) vatNote.textContent = vatNow ? ('공급가액 ' + vatNow.supply.toLocaleString("ko-KR") + ' + 부가세 ' + vatNow.vat.toLocaleString("ko-KR") + '원') : '총액 기준 · 부가세 표기 없음';
       });
       inp.addEventListener("change", function(){
         var id = inp.getAttribute("data-money-id");
