@@ -419,13 +419,12 @@ function buildPanel(){
     </section>
 
     <section class="sec">
-      <div class="sec-h"><span class="n">07</span><h2>조합 저장 · 설계도</h2><span class="tag">최대 3개</span></div>
+      <div class="sec-h"><span class="n">07</span><h2>조합 저장</h2><span class="tag">최대 3개</span></div>
       <div class="slots" id="slotList"></div>
       <div class="slot-tools">
         <button type="button" class="btn btn-ink2" id="slotSave">⭐ 현재 조합 저장</button>
-        <button type="button" class="btn btn-ink" id="goBlueprint">📐 설계도로 보기</button>
       </div>
-      <p class="note">1안 · 2안 · 3안을 저장해 견적 상담 때 나란히 비교할 수 있습니다. 설계도는 지금 고른 사양 그대로 새 창에서 열립니다.</p>
+      <p class="note">1안 · 2안 · 3안을 저장해 견적 상담 때 나란히 비교할 수 있습니다.</p>
     </section>
 
     <section class="sec" style="border-bottom:0">
@@ -914,11 +913,6 @@ function initActions(){
     writeSlots(a);
     renderSlots();
     showToast(`${i + 1}안에 지금 조합을 저장했습니다`);
-  });
-  const goBp = () => window.open(blueprintHref(simSpec()), '_blank', 'noopener');
-  ['#goBlueprint', '#goBlueprint2'].forEach(sel => {
-    const b = $(sel);
-    if (b) b.addEventListener('click', goBp);
   });
   $('#modalClose').addEventListener('click', () => {
     $('#specModal').classList.remove('on');
@@ -3071,17 +3065,31 @@ function renderPhotoStage(){
   });
 }
 
-/* 실사 외부: 좌경첩 기준으로 촬영한 외관 사진을 우경첩에서는 좌우 반전해 보여줍니다 */
-/* 실사 외부 사진(exterior-clean.jpg)은 문이 왼쪽 구석에 찍혀 있다.
-   그래서 좌우 반전 여부는 '경첩'이 아니라 '문 위치'로 정한다.
-   문이 우측 구석이면 반전해 문을 오른쪽으로 옮기고, 좌측 구석이면 원본 그대로 쓴다.
-   가운데 문은 원본이 왼쪽에 있어 반전하는 쪽(우경첩일 때)이 더 자연스럽다. */
+/* 실사 외부: 촬영본은 문이 왼쪽 구석, 경첩도 왼쪽에 찍힌 좌경첩 사진입니다.
+   문 위치는 사진 전체를 좌우 반전해 맞추고, 경첩은 문짝만 따로 반전한 사진
+   (exterior-clean-hg.jpg)으로 맞춥니다.
+   - 문 좌측 + 좌경첩 = 원본 그대로
+   - 문 좌측 + 우경첩 = 문짝만 반전한 사진
+   - 문 우측 + 우경첩 = 원본을 좌우 반전
+   - 문 우측 + 좌경첩 = 문짝만 반전한 사진을 좌우 반전 */
+const PHOTO_OUT_SRC = 'assets/exterior-clean.jpg';
+const PHOTO_OUT_SRC_HG = 'assets/exterior-clean-hg.jpg';
+let photoOutHgPreload = null;
+function preloadPhotoOutHg(){
+  if (!photoOutHgPreload) photoOutHgPreload = new Image();
+  if (!photoOutHgPreload.src) photoOutHgPreload.src = PHOTO_OUT_SRC_HG;
+}
 function syncPhotoOutHinge(){
   const po = $('#photoOutStage');
   if (!po) return;
   po.style.transformOrigin = 'center center';
-  const flip = state.door === 'right' || (state.door === 'center' && state.hinge === 'right');
-  po.style.transform = flip ? 'scaleX(-1)' : 'none';
+  /* 문이 오른쪽 구석이면 사진 전체를 좌우 반전(가운데는 경첩 방향으로 보정) */
+  const doorFlip = state.door === 'right' || (state.door === 'center' && state.hinge === 'right');
+  /* 사진 속 경첩이 화면 어느 쪽을 향할지 = 경첩 방향과 전체 반전이 엇갈릴 때 문짝 사진을 바꿔 쓴다 */
+  const useHg = (state.hinge === 'right') !== doorFlip;
+  const src = useHg ? PHOTO_OUT_SRC_HG : PHOTO_OUT_SRC;
+  if (po.getAttribute('src') !== src) po.setAttribute('src', src);
+  po.style.transform = doorFlip ? 'scaleX(-1)' : 'none';
 }
 function setView(name, force = false){
   state.view = name;
@@ -3098,7 +3106,7 @@ function setView(name, force = false){
   const po = $('#photoOutStage');
   if (ps) { ps.hidden = !isPhotoIn; ps.style.display = isPhotoIn ? 'block' : 'none'; }
   if (po) { po.hidden = !isPhotoOut; po.style.display = isPhotoOut ? 'block' : 'none'; }
-  if (isPhotoOut) syncPhotoOutHinge();
+  if (isPhotoOut){ preloadPhotoOutHg(); syncPhotoOutHinge(); }
   const hs = $('#hsLayer');
   if (hs) hs.style.display = isAnyPhoto ? 'none' : '';
   ['doorToggle', 'hsToggle', 'resetView'].forEach(id => {

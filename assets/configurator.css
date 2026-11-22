@@ -449,7 +449,7 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
 .slot-btn.on{border-color:var(--ink);background:var(--ink);color:#fff}
 .slot-btn.del{color:#B4552F}
 .slot.is-empty .slot-btn{border-color:var(--accent);background:var(--accent-tint);color:var(--accent-dark)}
-.slot-tools{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.slot-tools{display:grid;grid-template-columns:1fr;gap:7px;margin-top:9px}
 .slot-tools .btn{padding:11px 8px;font-size:12px;border-radius:11px}
 .slot-cmp{
   margin-top:2px;border:1px dashed var(--line);background:#fff;border-radius:10px;
