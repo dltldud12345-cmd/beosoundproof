@@ -2338,7 +2338,7 @@ function viewSettings(name){
 }
 /* ---- 실사 보기: 실제 시공 사진(interior-academy.jpg) 기반 실시간 컬러 체인저 ---- */
 const photoCache = { ready: false, loading: false, w: 960, h: 720, orig: null, mask: null };
-function hexToRgb(hex){
+function photoHexToRgb(hex){
   const n = parseInt(String(hex || '#D8C6A6').replace('#',''), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
@@ -2403,9 +2403,9 @@ function renderPhotoStage(){
     const src = photoCache.orig;
     const mask = photoCache.mask;
 
-    const aRgb = hexToRgb(pick(ARTBOARD, state.artboard).hex);
-    const sRgb = hexToRgb(pick(SLAT, state.slat).hex);
-    const fRgb = hexToRgb(pick(FLOOR, state.floor).hex);
+    const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
+    const sRgb = photoHexToRgb(pick(SLAT, state.slat).hex);
+    const fRgb = photoHexToRgb(pick(FLOOR, state.floor).hex);
     const isPine = state.floor === 'pine';
 
     for (let i = 0, p = 0; i < mask.length; i++, p += 4){
