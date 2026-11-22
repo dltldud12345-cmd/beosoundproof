@@ -681,10 +681,10 @@
     var total = Number(m.total) || 0;
     var icon = pay === "카드결제" ? "💳 " : (pay ? "🧾 " : "");
     var h = '<div class="spay">'
-      + '<span class="spay-m' + (pay ? "" : " unset") + '">' + icon + (pay ? esc(pay) : "결제수단 미정") + '</span>'
-      + '<i class="spay-br" aria-hidden="true"></i>';
+      + '<span class="spay-m' + (pay ? "" : " unset") + '">' + icon + (pay ? esc(pay) : "결제수단 미정") + '</span>';
     if (total > 0){
-      h += '<span>총 <b>' + won(m.total) + '</b></span>'
+      h += '<i class="spay-br" aria-hidden="true"></i>'
+        + '<span>총 <b>' + won(m.total) + '</b></span>'
         +  '<span>계약금 <b>' + (Number(m.deposit) > 0 ? won(m.deposit) : "미입력") + '</b></span>'
         +  '<span>잔금 <b>' + (m.balance == null ? "미정" : won(m.balance)) + '</b></span>';
     } else {
