@@ -484,12 +484,14 @@
 </nav>
 
 <div class="lb" id="ct-modal" hidden style="z-index:95">
-  <div style="max-width:min(520px,94vw);max-height:92dvh;overflow:auto;background:#fff;border-radius:18px;padding:14px;display:grid;gap:10px">
+  <div style="width:min(520px,94vw);max-height:92dvh;background:#fff;border-radius:18px;padding:14px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
       <b style="font-size:14.5px;font-weight:800">계약 안내서 미리보기</b>
       <button type="button" class="tbtn" id="ct-close">닫기</button>
     </div>
-    <img id="ct-img" alt="계약 안내서 이미지" style="width:100%;border:1px solid var(--line);border-radius:10px">
+    <div style="overflow:auto;-webkit-overflow-scrolling:touch;min-height:0;border:1px solid var(--line);border-radius:10px;background:#FAF9F6">
+      <img id="ct-img" alt="계약 안내서 이미지" style="display:block;width:100%;max-width:none;max-height:none;border:0;border-radius:9px">
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" class="abtn done" id="ct-share" style="flex:1 1 150px;justify-content:center;padding:12px;display:none">📤 사진 저장 · 공유</button>
       <button type="button" class="abtn" id="ct-dl" style="flex:1 1 150px;justify-content:center;padding:12px">💾 이미지 저장</button>
