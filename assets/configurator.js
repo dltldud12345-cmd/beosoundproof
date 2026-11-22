@@ -902,7 +902,8 @@ function initActions(){
   const slotSave = $('#slotSave');
   if (slotSave) slotSave.addEventListener('click', () => {
     const a = readSlots();
-    const i = a.findIndex(x => !x);
+    let i = a.findIndex(x => !x);
+    if (i < 0) i = a.length < 3 ? a.length : -1;
     if (i < 0){ showToast('1~3안이 모두 차 있습니다. 덮어쓸 칸의 [덮어쓰기]를 눌러 주세요.'); return; }
     while (a.length <= i) a.push(null);
     a[i] = Object.assign({ savedAt: Date.now() }, simSpec());
@@ -3360,7 +3361,9 @@ function start(){
   rebuild();
   setView('photo', true);
   tick();
-  window.__beo = { THREE, scene, camera, state, rebuild, setView, cam, camTarget, get booth(){ return booth; }, get parts(){ return parts; } };
+  window.__beo = { THREE, scene, camera, state, rebuild, setView, cam, camTarget,
+    simSpec, simQueryStr, blueprintHref, specSummary, leadMemoText, readSlots,
+    get booth(){ return booth; }, get parts(){ return parts; } };
 }
 
 start();
