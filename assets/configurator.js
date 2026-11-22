@@ -2374,11 +2374,11 @@ function initPhotoCache(cb){
     poly([[0.3753,0.3520],[0.6407,0.3511],[0.6407,0.6667],[0.3760,0.6667]], 'rgb(2,0,0)');
     // 3 = 강화마루 (바닥)
     poly([[0.3760,0.6667],[0.6407,0.6667],[0.9573,1],[0.1020,1]], 'rgb(3,0,0)');
-    // 0 = 제외 영역 (창문, 중앙 LED등, 콘센트 2개)
+    // 0 = 제외 영역 (중앙 LED등, 콘센트 3개: 좌/우/뒷벽)
     const zero = 'rgb(0,0,0)';
-    poly([[0.7047,0.2498],[0.9213,0.0907],[0.9260,0.5076],[0.7053,0.5076]], zero);
     poly([[0.4520,0.1129],[0.5880,0.1129],[0.5660,0.2222],[0.4747,0.2222]], zero);
-    poly([[0.2787,0.6844],[0.2973,0.6844],[0.2973,0.7396],[0.2787,0.7396]], zero);
+    poly([[0.276,0.680],[0.300,0.680],[0.300,0.745],[0.276,0.745]], zero);
+    poly([[0.716,0.680],[0.740,0.680],[0.740,0.745],[0.716,0.745]], zero);
     poly([[0.5340,0.6089],[0.5447,0.6089],[0.5447,0.6338],[0.5340,0.6338]], zero);
 
     const md = mctx.getImageData(0, 0, W, H).data;
@@ -2389,7 +2389,118 @@ function initPhotoCache(cb){
     photoCache.loading = false;
     cb();
   };
-  img.src = 'assets/interior-academy.jpg';
+  img.src = 'assets/interior-academy-clean.jpg';
+}
+function drawPhotoWindow(ctx, W, H, winVal){
+  if (!winVal || winVal === 'none') return;
+  const isDouble = winVal === 'double1200';
+  // 우측 벽 원근선 기준: 앞쪽(x=0.90) ~ 뒷쪽(x=0.71~0.83)
+  const xR = 0.915;
+  const xL = winVal === '600x800' ? 0.805 : (winVal === '800x800' ? 0.765 : 0.705);
+  // 우측 벽 천장/바닥 원근 기울기: yTop(x), yBot(x)
+  const yTopAt = x => 0.3511 - (x - 0.6407) * (0.3511 / (1.0 - 0.6407));
+  const yBotAt = x => 0.6667 + (x - 0.6407) * ((1.0 - 0.6667) / (0.9573 - 0.6407));
+  const pt = (x, frac) => {
+    const yt = yTopAt(x), yb = yBotAt(x);
+    return [x * W, (yt + (yb - yt) * frac) * H];
+  };
+  // 창 높이: 벽 높이의 0.25 ~ 0.66 구간
+  const pTL = pt(xL, 0.24), pTR = pt(xR, 0.22);
+  const pBR = pt(xR, 0.64), pBL = pt(xL, 0.64);
+
+  ctx.save();
+  // 돌출 그림자 (이중창은 더 깊게)
+  ctx.fillStyle = isDouble ? 'rgba(15,18,22,0.32)' : 'rgba(15,18,22,0.14)';
+  ctx.beginPath();
+  ctx.moveTo(pTL[0] - (isDouble ? 8 : 3), pTL[1] + 4);
+  ctx.lineTo(pTR[0], pTR[1] + 4);
+  ctx.lineTo(pBR[0], pBR[1] + (isDouble ? 8 : 3));
+  ctx.lineTo(pBL[0] - (isDouble ? 8 : 3), pBL[1] + (isDouble ? 8 : 3));
+  ctx.closePath();
+  ctx.fill();
+
+  // 외곽 창틀
+  ctx.fillStyle = isDouble ? '#E9E5DC' : '#F3F0E8';
+  ctx.strokeStyle = '#B8B1A3';
+  ctx.lineWidth = isDouble ? 3 : 2;
+  ctx.beginPath();
+  ctx.moveTo(pTL[0], pTL[1]); ctx.lineTo(pTR[0], pTR[1]);
+  ctx.lineTo(pBR[0], pBR[1]); ctx.lineTo(pBL[0], pBL[1]);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // 유리 영역 (안쪽 패딩)
+  const inset = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+  const gTL = inset(pTL, pBR, 0.06), gTR = inset(pTR, pBL, 0.05);
+  const gBR = inset(pBR, pTL, 0.06), gBL = inset(pBL, pTR, 0.05);
+
+  const grad = ctx.createLinearGradient(gTL[0], gTL[1], gBR[0], gBR[1]);
+  grad.addColorStop(0, '#CFE2EC');
+  grad.addColorStop(0.55, '#E4EFF4');
+  grad.addColorStop(1, '#B8D0DE');
+  ctx.fillStyle = grad;
+  ctx.strokeStyle = '#22262A';
+  ctx.lineWidth = isDouble ? 2.5 : 2;
+  ctx.beginPath();
+  ctx.moveTo(gTL[0], gTL[1]); ctx.lineTo(gTR[0], gTR[1]);
+  ctx.lineTo(gBR[0], gBR[1]); ctx.lineTo(gBL[0], gBL[1]);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // 유리 대각선 하이라이트
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.beginPath();
+  ctx.moveTo(gTL[0], gTL[1]);
+  ctx.lineTo(gTL[0] + (gTR[0] - gTL[0]) * 0.45, gTL[1] + (gTR[1] - gTL[1]) * 0.45);
+  ctx.lineTo(gBL[0] + (gBR[0] - gBL[0]) * 0.20, gBL[1] + (gBR[1] - gBL[1]) * 0.20);
+  ctx.lineTo(gBL[0], gBL[1]);
+  ctx.closePath();
+  ctx.fill();
+
+  // 이중창이면 중간 미닫이 프레임 바 추가
+  if (isDouble){
+    const mTop = [(gTL[0] + gTR[0]) * 0.48, (gTL[1] + gTR[1]) * 0.48];
+    const mBot = [(gBL[0] + gBR[0]) * 0.48, (gBL[1] + gBR[1]) * 0.48];
+    ctx.strokeStyle = '#ECE9E2';
+    ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.moveTo(mTop[0], mTop[1]); ctx.lineTo(mBot[0], mBot[1]); ctx.stroke();
+    ctx.strokeStyle = '#8F897D';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(mTop[0], mTop[1]); ctx.lineTo(mBot[0], mBot[1]); ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawPhotoRailLight(ctx, W, H){
+  if (state.light !== 'rail') return;
+  ctx.save();
+  // 천장 타공벽 앞쪽 가로 레일 트랙
+  const x1 = 0.395 * W, x2 = 0.625 * W, y = 0.332 * H;
+  ctx.strokeStyle = '#191C1F';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+  ctx.strokeStyle = '#383E45';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(x1, y - 1); ctx.lineTo(x2, y - 1); ctx.stroke();
+
+  // 블랙 원통 레일 스포트라이트 3구
+  [0.445, 0.510, 0.575].forEach(fx => {
+    const cx = fx * W;
+    // 지지대
+    ctx.fillStyle = '#181A1D';
+    ctx.fillRect(cx - 2, y, 4, 8);
+    // 원통 헤드
+    ctx.beginPath();
+    ctx.roundRect(cx - 7, y + 6, 14, 18, 4);
+    ctx.fill();
+    // 따뜻한 빛 글로우
+    const gl = ctx.createRadialGradient(cx, y + 24, 1, cx, y + 28, 22);
+    gl.addColorStop(0, 'rgba(255,244,214,0.85)');
+    gl.addColorStop(1, 'rgba(255,244,214,0)');
+    ctx.fillStyle = gl;
+    ctx.beginPath(); ctx.arc(cx, y + 26, 22, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.restore();
 }
 function renderPhotoStage(){
   const cvs = $('#photoStage');
@@ -2447,6 +2558,8 @@ function renderPhotoStage(){
       dst[p+3] = 255;
     }
     ctx.putImageData(out, 0, 0);
+    drawPhotoWindow(ctx, W, H, state.window);
+    drawPhotoRailLight(ctx, W, H);
   });
 }
 
