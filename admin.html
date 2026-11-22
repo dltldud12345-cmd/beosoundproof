@@ -263,6 +263,29 @@
   .sacts{display:flex;gap:5px;flex:0 0 auto}
   .sabtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
   .sabtn.done{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sched-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;background:#F3F1EC;padding:4px;border-radius:12px;border:1px solid var(--line)}
+  .sched-mode button{border:0;background:transparent;border-radius:9px;padding:8px;font-size:12.5px;font-weight:800;color:var(--muted)}
+  .sched-mode button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .cal-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--shadow);margin-bottom:12px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .cal-head b{font-size:15px;font-weight:800;letter-spacing:-.02em}
+  .cal-nav{display:flex;gap:5px}
+  .cal-nav button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;color:var(--ink2)}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:4px;text-align:center;font-size:10.5px;font-weight:800;color:var(--muted)}
+  .cal-dow span:first-child{color:var(--warn)}
+  .cal-dow span:last-child{color:var(--blue)}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+  .cal-cell{min-height:56px;border:1px solid var(--line2);background:#FAF9F6;border-radius:9px;padding:4px 3px;display:flex;flex-direction:column;align-items:stretch;gap:2px;text-align:left;min-width:0;overflow:hidden}
+  .cal-cell.other{opacity:.35;background:transparent;border-color:transparent}
+  .cal-cell.is-today{border-color:var(--accent);background:#F3FAF7}
+  .cal-cell.is-sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .cal-num{font-size:11px;font-weight:800;color:var(--ink);padding:0 2px}
+  .cal-cell.sun .cal-num{color:var(--warn)}
+  .cal-cell.sat .cal-num{color:var(--blue)}
+  .cal-pill{font-size:9.5px;font-weight:800;padding:2px 3px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+  .cal-pill.move{background:#FEF3C7;color:#92400E}
+  .cal-pill.new{background:#E7F2EF;color:#0F766E}
+  .cal-pill.done{opacity:.5;text-decoration:line-through}
 
   @media (max-width:680px){
     .sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1521,6 +1544,12 @@ function openContractModal(q){
       return;
     }
 
+    var mode = state.schedMode || "cal";
+    html += '<div class="sched-mode">'
+      + '<button type="button" class="' + (mode === "cal" ? "on" : "") + '" data-smode="cal">🗓️ 달력 보기</button>'
+      + '<button type="button" class="' + (mode === "list" ? "on" : "") + '" data-smode="list">📋 리스트 보기</button>'
+      + '</div>';
+
     var groups = [];
     dated.forEach(function(i){
       var g = groups.filter(function(x){ return x.date === i.date; })[0];
@@ -1556,19 +1585,92 @@ function openContractModal(q){
         + '</div>';
     };
 
-    groups.forEach(function(g){
-      var openCount = g.items.filter(function(i){ return i.stage !== "done"; }).length;
-      html += '<div class="sched-day' + (g.date === today ? " is-today" : "") + '">'
-        + '<b>' + esc(fmtDay(g.date)) + ' (' + weekdayOf(g.date) + ')</b>'
-        + '<span>' + g.items.length + '건' + (openCount ? ' · 남은 ' + openCount : ' · 마감') + '</span></div>';
-      html += g.items.map(rowHtml).join("");
-    });
+    if (mode === "cal"){
+      var ym = state.calMonth || today.slice(0, 7);
+      var parts = ym.split("-");
+      var yy = parseInt(parts[0], 10), mm = parseInt(parts[1], 10);
+      var firstDow = new Date(yy, mm - 1, 1).getDay();
+      var lastDate = new Date(yy, mm, 0).getDate();
+      var prevLast = new Date(yy, mm - 1, 0).getDate();
+      var byDate = {};
+      dated.forEach(function(i){ (byDate[i.date] = byDate[i.date] || []).push(i); });
+      var sel = state.calSel || (dated.some(function(i){ return i.date.slice(0, 7) === ym; }) ? dated.filter(function(i){ return i.date.slice(0, 7) === ym; })[0].date : today);
+      state.calSel = sel;
 
-    if (undated.length){
-      html += '<div class="sched-day"><b>일정 미정</b><span>' + undated.length + '건</span></div>';
-      html += undated.map(rowHtml).join("");
+      html += '<div class="cal-box">'
+        + '<div class="cal-head">'
+        + '  <b>' + yy + '년 ' + mm + '월</b>'
+        + '  <div class="cal-nav">'
+        + '    <button type="button" data-cal-nav="-1">‹</button>'
+        + '    <button type="button" data-cal-nav="0">오늘</button>'
+        + '    <button type="button" data-cal-nav="1">›</button>'
+        + '  </div>'
+        + '</div>'
+        + '<div class="cal-dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>'
+        + '<div class="cal-grid">';
+
+      var totalCells = Math.ceil((firstDow + lastDate) / 7) * 7;
+      for (var ci = 0; ci < totalCells; ci++){
+        var dNum = ci - firstDow + 1;
+        if (dNum < 1 || dNum > lastDate){
+          var outNum = dNum < 1 ? (prevLast + dNum) : (dNum - lastDate);
+          html += '<div class="cal-cell other"><span class="cal-num">' + outNum + '</span></div>';
+          continue;
+        }
+        var dStr = yy + "-" + String(mm).padStart(2, "0") + "-" + String(dNum).padStart(2, "0");
+        var dow = ci % 7;
+        var listD = byDate[dStr] || [];
+        var cls = "cal-cell" + (dow === 0 ? " sun" : (dow === 6 ? " sat" : "")) + (dStr === today ? " is-today" : "") + (dStr === sel ? " is-sel" : "");
+        html += '<button type="button" class="' + cls + '" data-cal-day="' + dStr + '"><span class="cal-num">' + dNum + '</span>'
+          + listD.slice(0, 2).map(function(it){
+              return '<span class="cal-pill ' + (it.isNew ? "new" : "move") + (it.stage === "done" ? " done" : "") + '">' + esc(it.q.customer_name || "고객") + '</span>';
+            }).join("")
+          + (listD.length > 2 ? '<span class="cal-pill" style="background:#eee;color:#555">+' + (listD.length - 2) + '</span>' : '')
+          + '</button>';
+      }
+      html += '</div></div>';
+
+      var selList = byDate[sel] || [];
+      html += '<div class="sched-day' + (sel === today ? " is-today" : "") + '"><b>' + esc(fmtDay(sel)) + ' (' + weekdayOf(sel) + ')</b><span>' + selList.length + '건</span></div>';
+      html += selList.length ? selList.map(rowHtml).join("") : '<div class="empty" style="padding:18px">이 날짜에는 잡힌 일정이 없습니다.</div>';
+      if (undated.length){
+        html += '<div class="sched-day"><b>일정 미정</b><span>' + undated.length + '건</span></div>';
+        html += undated.map(rowHtml).join("");
+      }
+    } else {
+      groups.forEach(function(g){
+        var openCount = g.items.filter(function(i){ return i.stage !== "done"; }).length;
+        html += '<div class="sched-day' + (g.date === today ? " is-today" : "") + '">'
+          + '<b>' + esc(fmtDay(g.date)) + ' (' + weekdayOf(g.date) + ')</b>'
+          + '<span>' + g.items.length + '건' + (openCount ? ' · 남은 ' + openCount : ' · 마감') + '</span></div>';
+        html += g.items.map(rowHtml).join("");
+      });
+      if (undated.length){
+        html += '<div class="sched-day"><b>일정 미정</b><span>' + undated.length + '건</span></div>';
+        html += undated.map(rowHtml).join("");
+      }
     }
     app.innerHTML = html;
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-smode]"), function(b){
+      b.addEventListener("click", function(){ state.schedMode = b.getAttribute("data-smode"); renderScheduleTab(); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-cal-nav]"), function(b){
+      b.addEventListener("click", function(){
+        var dir = parseInt(b.getAttribute("data-cal-nav"), 10);
+        if (dir === 0){ state.calMonth = today.slice(0, 7); state.calSel = today; }
+        else {
+          var ym = (state.calMonth || today.slice(0, 7)).split("-");
+          var dt = new Date(parseInt(ym[0], 10), parseInt(ym[1], 10) - 1 + dir, 1);
+          state.calMonth = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0");
+          state.calSel = state.calMonth + "-01";
+        }
+        renderScheduleTab();
+      });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-cal-day]"), function(b){
+      b.addEventListener("click", function(){ state.calSel = b.getAttribute("data-cal-day"); renderScheduleTab(); });
+    });
 
     Array.prototype.forEach.call(app.querySelectorAll("[data-sch-id]"), function(inp){
       inp.addEventListener("change", function(){
