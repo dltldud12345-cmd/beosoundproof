@@ -2168,7 +2168,9 @@ function buildLights(plan){
       group.add(cap);
     });
 
-    const nHead = w > 2.4 ? 4 : 3;
+    /* 레일등 헤드: 일반 부스는 실사와 같은 3구, 2.8m급 대형 부스만 4구로 배치합니다 */
+    const longSide = Math.max(state.w, state.d) / 1000;
+    const nHead = longSide >= 2.8 ? 4 : 3;
     for (let i = 0; i < nHead; i++){
       const x = (i / (nHead - 1) - 0.5) * (railLen - 0.28);
       const head = new THREE.Group();
@@ -2857,7 +2859,9 @@ function maxInsideR(theta, phi, tx, ty, tz){
 function viewSettings(name){
   const W = state.w/1000, D = state.d/1000;
   const S = Math.hypot(W, D) * 0.94;
-  const base = (S * 2.7 + 1.4) * aspectFactor() * (isSmall() ? 0.93 : 1);
+  /* 전체화면에서는 같은 부스를 조금 더 크게 담아 화면을 꽉 채웁니다 */
+  const fsFocus = (fsOn && camera) ? (camera.aspect >= 1.45 ? 0.76 : (camera.aspect >= 1 ? 0.9 : 1)) : 1;
+  const base = (S * 2.7 + 1.4) * aspectFactor() * (isSmall() ? 0.93 : 1) * fsFocus;
   const dx = doorCenterX();
   switch (name){
     case 'interior': return interiorSetup();
