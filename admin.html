@@ -1167,10 +1167,22 @@
     return lines.join("\n").slice(0, 2000);
   }
   function memoCapable(){
-    try { return localStorage.getItem(CAP_KEY) || ""; } catch (e) { return ""; }
+    try {
+      var v = localStorage.getItem(CAP_KEY) || "";
+      /* 서버가 아직 수정 액션을 안 열었더라도 하루 뒤에는 다시 확인한다 —
+         나중에 RPC가 열리면 손댈 것 없이 그때부터 서버로 저장된다. */
+      if (v === "none"){
+        var at = Number(localStorage.getItem(CAP_KEY + "-at") || 0);
+        if (!at || Date.now() - at > 24 * 3600 * 1000) return "";
+      }
+      return v;
+    } catch (e) { return ""; }
   }
   function markMemoCap(ok){
-    try { localStorage.setItem(CAP_KEY, ok); } catch (e) {}
+    try {
+      localStorage.setItem(CAP_KEY, ok);
+      localStorage.setItem(CAP_KEY + "-at", String(Date.now()));
+    } catch (e) {}
   }
   /* ---------- 서버 저장 경로 (한 곳에서 관리) ----------
      지금 Supabase는 relocation_admin 의 list/status/delete 만 열려 있어 수정 저장은 기기(이 브라우저)에만 남는다.
