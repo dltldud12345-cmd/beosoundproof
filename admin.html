@@ -270,7 +270,13 @@
   .sinline{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1.05fr) minmax(0,.9fr);gap:6px;align-items:center;width:100%;max-width:100%;overflow:hidden}
   .sinline .sin,.sstage-sel{width:100%;min-width:0;max-width:100%;height:38px;box-sizing:border-box;border:1px solid var(--line);background:#FAF9F6;border-radius:9px;padding:4px 6px;font-size:12.5px;font-weight:700;color:var(--ink2);-webkit-appearance:none;appearance:none;text-align:center;font-variant-numeric:tabular-nums}
   .sstage-sel{font-weight:800;color:var(--ink);background:#fff}
-  .sacts{display:flex;gap:5px;flex:0 0 auto}
+  .sacts{display:flex;gap:5px;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end}
+  @media (max-width:430px){
+    .srow-top{flex-wrap:wrap}
+    .srow-left{flex:1 1 100%}
+    .sacts{width:100%;order:2;margin-top:2px;gap:6px}
+    .sacts .sabtn{min-width:36px;height:34px;box-sizing:border-box}
+  }
   .sabtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
   .sabtn.done{border-color:var(--accent);background:var(--accent);color:#fff}
   .sched-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;background:#F3F1EC;padding:4px;border-radius:12px;border:1px solid var(--line)}
@@ -2041,6 +2047,7 @@ function openContractModal(q){
         + '    </div>'
         + '    <div class="sacts">'
         + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
+        + (digits(q.customer_phone) ? '<a class="sabtn" href="sms:' + esc(digits(q.customer_phone)) + '" aria-label="문자">💬</a>' : '')
         + (q.to_region ? '<a class="sabtn" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : '')
         + (i.stage !== "done"
             ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>'
