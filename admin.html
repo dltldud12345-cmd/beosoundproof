@@ -934,7 +934,7 @@
   }
   function isCardPay(d){ return !!d && d.pay === "카드결제"; }
   function cardLine(d){
-    return "페이히어(PayHere) 비대면 카드결제 링크를 고객님 연락처(" + payPhoneText(d.phone) + ")로 발송해 드립니다 (계약금 · 잔금 동일)";
+    return "페이히어(PayHere) 비대면 카드결제 링크를 고객님 연락처(" + payPhoneText(d.phone) + ")로 발송해 드립니다.\n※ 계약금 및 잔금 결제 모두 동일한 카드결제 링크 방식으로 진행됩니다.";
   }
   /* 공급자(사업자) 정보 — 실제 견적서 기준 */
   var SUPPLIER = {
@@ -1378,7 +1378,7 @@ function drawContract(c, W, H, d, q, logo){
 
   /* ── 입금 계좌 ── (카드결제면 페이히어 비대면 결제 링크 안내로 대체) */
   y += 18;
-  var cardLines = cardPay ? wrap(cardLine(d), CW - 42, F(800, 17)) : [];
+  var cardLines = cardPay ? cardLine(d).split("\n") : [];
   var accH = cardPay ? (56 + cardLines.length * 26 + 12) : 86;
   if (H){
     c.fillStyle = cardPay ? ACCL : SOFT; c.beginPath(); c.roundRect(PAD, y, CW, accH, 12); c.fill();
@@ -1753,7 +1753,9 @@ function openContractModal(q){
         return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
       }).join("") + '</div>'
       + '    <span class="pay-hint">' + payHintTxt + '</span>'
-      + '    <a class="pay-chip" href="https://web.payhere.in" target="_blank" rel="noopener" data-payhere-id="' + esc(q.id) + '" style="margin-left:auto;border-color:#0F766E;color:#0F766E;background:#E7F2EF;text-decoration:none;' + (pay === "카드결제" ? "" : "display:none") + '">💳 페이히어 열기 ↗</a>'
+      + '    <div style="flex:1 1 100%;display:' + (pay === "카드결제" ? "flex" : "none") + ';justify-content:flex-start;margin-top:2px" data-payhere-wrap="' + esc(q.id) + '">'
+      + '      <a class="pay-chip" href="https://web.payhere.in" target="_blank" rel="noopener" data-payhere-id="' + esc(q.id) + '" style="border-color:#0F766E;color:#0F766E;background:#E7F2EF;text-decoration:none">💳 페이히어 바로 열기 ↗</a>'
+      + '    </div>'
       + '  </div>'
       + '  <div class="money-item"><label>공급가액 (원 · 부가세 별도)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="supply" value="' + (m.supply === "" ? "" : m.supply) + '" placeholder="예: 500000">'
@@ -2081,8 +2083,8 @@ function openContractModal(q){
             ? "💳 페이히어 비대면 카드결제 링크 안내로 계약서에 반영됩니다 (계약금 · 잔금 동일)"
             : (next ? "🏦 기업은행 계좌 입금 안내 + " + next + " 발행으로 계약서에 반영됩니다" : "카드 · 세금계산서 · 현금영수증 모두 공급가액 + 부가세 10% = 합계로 같습니다");
         }
-        var phBtn = b.closest(".pay-line") && b.closest(".pay-line").querySelector("[data-payhere-id]");
-        if (phBtn) phBtn.style.display = next === "카드결제" ? "" : "none";
+        var phBtn = b.closest(".pay-line") && b.closest(".pay-line").querySelector("[data-payhere-wrap]");
+        if (phBtn) phBtn.style.display = next === "카드결제" ? "flex" : "none";
         pushMemoUpdate(q, stageOf(q));
         toast(next ? "결제 증빙을 ‘" + next + "’(으)로 저장했습니다" : "결제 증빙을 미정으로 비웠습니다");
       });
