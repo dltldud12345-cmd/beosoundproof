@@ -116,7 +116,7 @@ const DOOR_OPEN = 1.12;   // 문이 바깥으로 열리는 각도(rad)
 
 const state = {
   model:'ss', w:1500, d:1800,
-  artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000',
+  artboard:'beige', slat:'maple', slatPos:'back', light:'cob4000', floor:'oak', ledTemp:'4000',
   door:'right', hinge:'right', open:false, window:'none', project:'none', ac:false,
   view:'photo'
 };
@@ -187,11 +187,17 @@ function buildPanel(){
     </section>
 
     <section class="sec">
-      <div class="sec-h"><span class="n">03</span><h2>라인타공 포인트</h2><span class="tag">1면 · 문 맞은편 · 8종</span></div>
+      <div class="sec-h"><span class="n">03</span><h2>라인타공 포인트</h2><span class="tag">1면 · 8종</span></div>
       <div class="sw-circles">
         ${SLAT.map(s => `<button type="button" class="csw wood" data-group="slat" data-value="${s.v}" aria-pressed="false" title="${s.label}">
           <span class="cc" style="--c:${s.hex}"></span><span class="cl">${s.label}</span>
         </button>`).join('')}
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#5c656b;font-weight:600">타공판 위치</div>
+      <div class="seg three" style="margin-top:6px">
+        <button type="button" data-group="slatPos" data-value="left" aria-pressed="false">좌측</button>
+        <button type="button" data-group="slatPos" data-value="back" aria-pressed="true">후면</button>
+        <button type="button" data-group="slatPos" data-value="right" aria-pressed="false">우측</button>
       </div>
       <p class="note">RG-LT3203 라인타공 8종. 슬랫 사이로는 검정 흡음 펠트가 보입니다.</p>
     </section>
@@ -326,7 +332,8 @@ function specRows(){
   rows.push({ k:'규격', v:`${modelName()} ${dimText()}`, chg:state.model === 'custom',
               chip:'', sub:`${((state.w/1000)*(state.d/1000)).toFixed(2)}㎡` });
   rows.push({ k:'아트보드', v:a.label, chg:state.artboard !== DEFAULTS.artboard, chip:a.hex, sub:'3면' });
-  rows.push({ k:'라인타공', v:s.label + (s.code ? ` (${s.code})` : ''), chg:state.slat !== DEFAULTS.slat, chip:s.hex, sub:'1면' });
+  const slatPosLabel = state.slatPos === 'left' ? '좌측' : (state.slatPos === 'right' ? '우측' : '후면');
+  rows.push({ k:'라인타공', v:`${s.label} · ${slatPosLabel}` + (s.code ? ` (${s.code})` : ''), chg:(state.slat !== DEFAULTS.slat || (state.slatPos && state.slatPos !== 'back')), chip:s.hex, sub:'1면' });
   rows.push({ k:'조명', v:(state.light === 'rail' ? '레일등' : 'COB 매립등 2구 · 주백색 4000K'), chg:state.light !== defaultLight(), chip:'', sub:(state.light === 'rail' ? (railRequired() ? '2,400mm 이상 필수' : '천장 트랙') : '') });
   rows.push({ k:'중앙등', v:pick(LEDTEMP, state.ledTemp).label, chg:state.ledTemp !== DEFAULTS.ledTemp, chip:pick(LEDTEMP, state.ledTemp).hex, sub:'천장 원형' });
   rows.push({ k:'바닥', v:f.label, chg:state.floor !== DEFAULTS.floor, chip:f.hex, sub:'강화마루' });
@@ -1817,7 +1824,8 @@ function rebuild(){
 
   const W = state.w/1000, D = state.d/1000;
   const doorName = 'front';
-  const slatName = 'back';
+  const slatName = state.slatPos || 'back';
+  const winWall = (slatName === 'left') ? 'right' : 'left';
   const perp = ['left','right'];
 
   const doorX0 = doorX0Of(), doorW = DOOR_W;
@@ -1830,7 +1838,7 @@ function rebuild(){
   ['front','back','left','right'].forEach(name => {
     const openings = [];
     if (name === doorName) openings.push(doorOpen);
-    if (winOpen && name === perp[0]) openings.push(winOpen);
+    if (winOpen && name === winWall) openings.push(winOpen);
     const isSlat = name === slatName;
     const g = buildWallGroup(name, openings, isSlat ? { noInner: true } : {
       innerHex: pick(ARTBOARD, state.artboard).hex,
@@ -2345,20 +2353,29 @@ function preloadPhotoWins(){
     '800x800': 'assets/win-800.png?v=3',
     '1200x800': 'assets/win-1200.png?v=3',
     'double1200': 'assets/win-double.png',
-    'rail_ceiling': 'assets/ceiling-rail.png?v=7',
-    'slat_nocob': 'assets/slat-nocob.png?v=4'
+    'rail_ceiling': 'assets/ceiling-rail.png?v=8',
+    'slat_nocob': 'assets/slat-nocob.png?v=4',
+    'side_left': 'assets/side-slat-left.png?v=1',
+    'side_right': 'assets/side-slat-right.png?v=1',
+    'back_art': 'assets/back-artboard.png?v=1'
+  };
+  const dataTargets = {
+    'slat_nocob': 'nocobOrig',
+    'side_left': 'sideLeftOrig',
+    'side_right': 'sideRightOrig',
+    'back_art': 'backArtOrig'
   };
   Object.keys(map).forEach(k => {
     const im = new Image();
     im.onload = () => {
-      if (k === 'slat_nocob' && im.naturalWidth){
+      if (dataTargets[k] && im.naturalWidth){
         const c = document.createElement('canvas');
         c.width = 960; c.height = 720;
         const cx = c.getContext('2d');
         cx.drawImage(im, 0, 0, 960, 720);
-        photoCache.nocobOrig = cx.getImageData(0, 0, 960, 720).data;
+        photoCache[dataTargets[k]] = cx.getImageData(0, 0, 960, 720).data;
       }
-      if (state.view === 'photo' && (state.window === k || ((k === 'rail_ceiling' || k === 'slat_nocob') && state.light === 'rail'))) renderPhotoStage();
+      if (state.view === 'photo') renderPhotoStage();
     };
     im.src = map[k];
     photoWinImgs[k] = im;
@@ -2388,12 +2405,11 @@ function initPhotoCache(cb){
       mctx.closePath();
       mctx.fill();
     };
-    // 1 = 아트보드 (천장 + 좌벽 + 우벽)
-    const artCol = 'rgb(1,0,0)';
-    poly([[0,0],[1,0],[0.6407,0.3511],[0.3753,0.3520]], artCol);
-    poly([[0,0],[0.3753,0.3520],[0.3760,0.6667],[0.1020,1],[0,1]], artCol);
-    poly([[1,0],[0.6407,0.3511],[0.6407,0.6667],[0.9573,1],[1,1]], artCol);
-    // 2 = 라인타공 (정면 뒷벽)
+    // 1 = 아트보드(천장+좌벽), 4 = 우벽, 2 = 정면 뒷벽, 3 = 바닥
+    poly([[0,0],[1,0],[0.6407,0.3511],[0.3753,0.3520]], 'rgb(1,0,0)');
+    poly([[0,0],[0.3753,0.3520],[0.3760,0.6667],[0.1020,1],[0,1]], 'rgb(1,0,0)');
+    poly([[1,0],[0.6407,0.3511],[0.6407,0.6667],[0.9573,1],[1,1]], 'rgb(4,0,0)');
+    // 2 = 정면 뒷벽
     poly([[0.3753,0.3520],[0.6407,0.3511],[0.6407,0.6667],[0.3760,0.6667]], 'rgb(2,0,0)');
     // 3 = 강화마루 (바닥)
     poly([[0.3760,0.6667],[0.6407,0.6667],[0.9573,1],[0.1020,1]], 'rgb(3,0,0)');
@@ -2440,6 +2456,10 @@ function renderPhotoStage(){
     const dst = out.data;
     const src = photoCache.orig;
     const nocob = (state.light === 'rail' && photoCache.nocobOrig) ? photoCache.nocobOrig : null;
+    const slatPos = state.slatPos || 'back';
+    const sideL = (slatPos === 'left' && photoCache.sideLeftOrig) ? photoCache.sideLeftOrig : null;
+    const sideR = (slatPos === 'right' && photoCache.sideRightOrig) ? photoCache.sideRightOrig : null;
+    const backArt = (slatPos !== 'back' && photoCache.backArtOrig) ? photoCache.backArtOrig : null;
     const mask = photoCache.mask;
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
@@ -2448,14 +2468,21 @@ function renderPhotoStage(){
     const isPine = state.floor === 'pine';
 
     for (let i = 0, p = 0; i < mask.length; i++, p += 4){
-      const m = mask[i];
-      const useNocob = (m === 2 && nocob && nocob[p+3] > 200);
-      const r = useNocob ? nocob[p] : src[p];
-      const g = useNocob ? nocob[p+1] : src[p+1];
-      const b = useNocob ? nocob[p+2] : src[p+2];
-      if (m === 0){
-        dst[p] = r; dst[p+1] = g; dst[p+2] = b; dst[p+3] = 255;
+      const rawM = mask[i];
+      if (rawM === 0){
+        dst[p] = src[p]; dst[p+1] = src[p+1]; dst[p+2] = src[p+2]; dst[p+3] = 255;
         continue;
+      }
+      let m = rawM;
+      let r = src[p], g = src[p+1], b = src[p+2];
+      if (rawM === 1){
+        if (sideL && sideL[p+3] > 200){ m = 2; r = sideL[p]; g = sideL[p+1]; b = sideL[p+2]; }
+      } else if (rawM === 4){
+        if (sideR && sideR[p+3] > 200){ m = 2; r = sideR[p]; g = sideR[p+1]; b = sideR[p+2]; }
+        else { m = 1; }
+      } else if (rawM === 2){
+        if (backArt && backArt[p+3] > 200){ m = 1; r = backArt[p]; g = backArt[p+1]; b = backArt[p+2]; }
+        else if (nocob && nocob[p+3] > 200){ r = nocob[p]; g = nocob[p+1]; b = nocob[p+2]; }
       }
       const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
       if (m === 1){
