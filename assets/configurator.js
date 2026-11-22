@@ -1138,7 +1138,16 @@ function buildWallGroup(name, openings, opts){
     g.add(inner);
     g.userData.inner = inner;
   }
-  const outer = new THREE.Mesh(faceGeo, skinMaterial());
+  const outerShape = new THREE.Shape();
+  outerShape.moveTo(-w/2, Y0); outerShape.lineTo(w/2, Y0); outerShape.lineTo(w/2, WALL_TOP); outerShape.lineTo(-w/2, WALL_TOP); outerShape.closePath();
+  openings.forEach(o => {
+    const p = new THREE.Path();
+    const ox0 = -(o.x0 + o.w), ox1 = -o.x0;
+    p.moveTo(ox0, o.y0); p.lineTo(ox0, o.y0 + o.h); p.lineTo(ox1, o.y0 + o.h); p.lineTo(ox1, o.y0);
+    p.closePath();
+    outerShape.holes.push(p);
+  });
+  const outer = new THREE.Mesh(new THREE.ShapeGeometry(outerShape, 10), skinMaterial());
   outer.rotation.y = Math.PI;
   outer.position.z = -T/2 - 0.0012;
   outer.receiveShadow = true;
