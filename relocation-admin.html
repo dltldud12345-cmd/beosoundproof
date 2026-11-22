@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>이전설치 전용 견적 상담요청서 | 베오방음</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#14171A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314171A'/%3E%3Cg fill='%232E9C86'%3E%3Crect x='15' y='26' width='6' height='12' rx='3'/%3E%3Crect x='29' y='17' width='6' height='30' rx='3'/%3E%3Crect x='43' y='23' width='6' height='18' rx='3'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root{
+    --ink:#14171A;
+    --ink2:#2E353B;
+    --body:#4B555D;
+    --muted:#778087;
+    --line:#E3DDD3;
+    --line2:#EFEAE2;
+    --bg:#F4F0E8;
+    --paper:#FFFFFF;
+    --soft:#FAF8F4;
+    --accent:#2E9C86;
+    --accent-d:#1E7564;
+    --accent-t:#E7F3F0;
+    --warn:#B94A2F;
+    --warn-bg:#FDF0EC;
+    --blue:#2563EB;
+    --blue-bg:#EFF6FF;
+    --shadow:0 1px 2px rgba(20,23,26,.04), 0 8px 24px -16px rgba(20,23,26,.14);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    word-break:keep-all;overflow-wrap:break-word;
+  }
+  a{color:inherit;text-decoration:none}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer}
+  img{display:block;max-width:100%}
+
+  /* Top bar */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    background:rgba(255,255,255,.92);
+    -webkit-backdrop-filter:saturate(160%) blur(12px);
+    backdrop-filter:saturate(160%) blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-in{
+    max-width:960px;margin:0 auto;padding:12px 16px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand-mark{
+    width:32px;height:32px;border-radius:10px;background:var(--ink);
+    display:grid;place-items:center;flex:0 0 auto;
+  }
+  .brand-title{font-size:15px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+  .brand-sub{font-size:11.5px;font-weight:700;color:var(--accent-d);background:var(--accent-t);padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .top-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .tbtn{
+    border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:7px 11px;font-size:12.5px;font-weight:700;color:var(--ink2);
+    transition:border-color .15s,background .15s;
+  }
+  .tbtn:hover{border-color:var(--ink2);background:var(--soft)}
+  .tbtn.danger{color:var(--warn)}
+
+  /* Main container */
+  .wrap{max-width:960px;margin:0 auto;padding:16px 14px 64px}
+
+  /* Login */
+  .login-box{
+    max-width:400px;margin:56px auto;background:#fff;border:1px solid var(--line);
+    border-radius:20px;padding:28px 22px;box-shadow:var(--shadow);
+  }
+  .login-box h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.03em}
+  .login-box p{margin:8px 0 0;font-size:13.5px;color:var(--body)}
+  .in{
+    width:100%;height:46px;border:1px solid var(--line);border-radius:12px;
+    padding:0 13px;background:#fff;font-size:15px;color:var(--ink);
+  }
+  .in:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,156,134,.15)}
+  .btn-primary{
+    width:100%;height:46px;margin-top:10px;border:0;border-radius:12px;
+    background:var(--ink);color:#fff;font-size:14.5px;font-weight:800;
+  }
+  .btn-primary:hover{background:var(--ink2)}
+  .login-msg{margin-top:10px;font-size:12.5px;color:var(--warn);min-height:18px}
+
+  /* KPI & Controls */
+  .kpi-row{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;
+  }
+  .kpi{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 12px 11px;
+    text-align:left;transition:border-color .15s,transform .1s;
+  }
+  .kpi:hover{border-color:var(--ink2)}
+  .kpi[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-t);box-shadow:inset 0 0 0 1px var(--accent)}
+  .kpi .kl{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .kpi[aria-pressed="true"] .kl{color:var(--accent-d)}
+  .kpi .kv{margin-top:2px;font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;
+  }
+  .search-wrap{flex:1 1 240px;position:relative}
+  .search-wrap input{
+    width:100%;height:42px;border:1px solid var(--line);border-radius:12px;
+    padding:0 36px 0 14px;background:#fff;font-size:14px;
+  }
+  .search-wrap input:focus{outline:0;border-color:var(--accent)}
+  .search-clear{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    border:0;background:none;color:var(--muted);font-size:16px;padding:4px 6px;display:none;
+  }
+  .search-clear.show{display:block}
+  .filter-pill{
+    height:42px;padding:0 13px;border:1px solid var(--line);border-radius:12px;
+    background:#fff;font-size:12.5px;font-weight:700;color:var(--body);white-space:nowrap;
+  }
+  .filter-pill[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+
+  /* Quote Sheet Card */
+  .grid{display:grid;gap:12px}
+  .qsheet{
+    background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:16px;box-shadow:var(--shadow);
+  }
+  .qsheet.is-new{border-left:4px solid var(--accent)}
+
+  .qs-head{
+    display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;
+    padding-bottom:12px;border-bottom:1px solid var(--line2);
+  }
+  .qs-who{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .qs-name{font-size:18px;font-weight:800;letter-spacing:-.03em}
+  .qs-phone{
+    font-size:13.5px;font-weight:700;color:var(--accent-d);background:var(--accent-t);
+    padding:4px 10px;border-radius:999px;
+  }
+  .qs-meta{font-size:12px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .qs-id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;background:var(--soft);padding:2px 6px;border-radius:6px;border:1px solid var(--line2)}
+
+  .status-pills{display:flex;gap:4px;flex-wrap:wrap}
+  .sp{
+    border:1px solid var(--line);background:#fff;border-radius:999px;
+    padding:5px 10px;font-size:12px;font-weight:700;color:var(--muted);
+  }
+  .sp.on[data-st="new"]{background:var(--accent-t);border-color:var(--accent);color:var(--accent-d)}
+  .sp.on[data-st="contacted"]{background:var(--blue-bg);border-color:#93C5FD;color:var(--blue)}
+  .sp.on[data-st="done"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  /* Alert badges */
+  .alerts{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .abadge{
+    display:inline-flex;align-items:center;gap:4px;
+    font-size:12px;font-weight:700;padding:4px 9px;border-radius:8px;
+  }
+  .abadge.warn{background:var(--warn-bg);color:var(--warn);border:1px solid #F3CFC6}
+  .abadge.info{background:var(--soft);color:var(--ink2);border:1px solid var(--line)}
+  .abadge.link{background:var(--blue-bg);color:var(--blue);border:1px solid #BFDBFE}
+  .abadge.link:hover{text-decoration:underline}
+
+  /* Spec strip */
+  .spec-grid{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+    margin-top:12px;background:var(--soft);border:1px solid var(--line2);
+    border-radius:12px;padding:10px 12px;
+  }
+  .spec-item .sl{font-size:11px;font-weight:700;color:var(--muted)}
+  .spec-item .sv{font-size:13.5px;font-weight:800;color:var(--ink);margin-top:2px}
+
+  /* Route (From -> To) */
+  .route{
+    display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:stretch;
+    margin-top:10px;
+  }
+  .rbox{
+    border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:#fff;
+  }
+  .rbox-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .rtag{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px}
+  .rtag.from{background:#FEF3C7;color:#92400E}
+  .rtag.to{background:var(--accent-t);color:var(--accent-d)}
+  .rmap{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .rmap:hover{color:var(--accent-d);text-decoration:underline}
+  .raddr{margin-top:6px;font-size:14px;font-weight:800;color:var(--ink)}
+  .rsub{margin-top:3px;font-size:12.5px;color:var(--body)}
+  .rsub .no-el{color:var(--warn);font-weight:800}
+  .rarrow{display:grid;place-items:center;color:var(--muted);font-weight:800;font-size:16px}
+
+  /* Memo & Photos */
+  .memo-box{
+    margin-top:10px;padding:10px 12px;border-radius:12px;
+    background:#FFFCF5;border:1px solid #EFE4CC;
+    font-size:13.5px;line-height:1.55;color:var(--ink2);white-space:pre-wrap;
+  }
+  .memo-box a{color:var(--blue);text-decoration:underline}
+
+  .photos{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .photo-btn{
+    padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    width:78px;height:78px;background:var(--soft);flex:0 0 auto;
+  }
+  .photo-btn img{width:100%;height:100%;object-fit:cover}
+
+  /* Footer actions */
+  .qs-foot{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
+    margin-top:12px;padding-top:11px;border-top:1px solid var(--line2);
+  }
+  .qacts{display:flex;flex-wrap:wrap;gap:6px}
+  .abtn{
+    display:inline-flex;align-items:center;gap:5px;
+    border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:7px 11px;font-size:12.5px;font-weight:700;color:var(--ink2);
+  }
+  .abtn:hover{border-color:var(--ink2);background:var(--soft)}
+  .abtn.solid{background:var(--ink);border-color:var(--ink);color:#fff}
+  .abtn.solid:hover{background:var(--ink2)}
+  .abtn.danger{color:var(--warn)}
+
+  .empty{
+    background:#fff;border:1px dashed var(--line);border-radius:16px;
+    padding:40px 16px;text-align:center;color:var(--muted);font-size:14px;
+  }
+
+  /* Lightbox */
+  .lb{
+    position:fixed;inset:0;z-index:80;background:rgba(15,18,21,.9);
+    display:grid;place-items:center;padding:16px;
+  }
+  .lb[hidden]{display:none}
+  .lb img{max-width:94vw;max-height:82vh;border-radius:12px;object-fit:contain}
+  .lb-bar{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    display:flex;gap:8px;align-items:center;background:rgba(20,23,26,.85);
+    padding:8px 12px;border-radius:999px;color:#fff;font-size:13px;font-weight:700;
+  }
+  .lb-bar button{border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700}
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);
+    background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;
+    font-size:13px;font-weight:700;opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;z-index:90;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:680px){
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .spec-grid{grid-template-columns:repeat(2,1fr)}
+    .route{grid-template-columns:1fr;gap:6px}
+    .rarrow{display:none}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 64 64"><g fill="#2E9C86"><rect x="10" y="22" width="8" height="20" rx="4"/><rect x="28" y="10" width="8" height="44" rx="4"/><rect x="46" y="18" width="8" height="28" rx="4"/></g></svg>
+      </div>
+      <span class="brand-title">베오방음 상담요청서</span>
+      <span class="brand-sub">이전설치 전용</span>
+    </div>
+    <div class="top-actions" id="top-actions" hidden>
+      <a class="tbtn" href="relocation.html" target="_blank" rel="noopener">고객 폼</a>
+      <button type="button" class="tbtn" id="btn-refresh">새로고침</button>
+      <button type="button" class="tbtn danger" id="btn-logout">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <p class="empty">불러오는 중입니다…</p>
+</main>
+
+<div class="lb" id="lb" hidden>
+  <img id="lb-img" alt="부스 사진 크게 보기">
+  <div class="lb-bar">
+    <button type="button" id="lb-prev">이전</button>
+    <span id="lb-count">1 / 1</span>
+    <button type="button" id="lb-next">다음</button>
+    <button type="button" id="lb-close">닫기</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SB = {
+    url: "https://jbqilpvxdzizumjvzgvm.supabase.co",
+    key: "sb_publishable_4JZK0mjoMFnkU8A_QbW-Iw_hcd_F3ce"
+  };
+  var ADMIN_STORE = "beo_relocation_admin_key";
+  var STATUS_LABEL = { new: "신규", contacted: "연락완료", done: "완료" };
+
+  var state = {
+    adminKey: "",
+    quotes: [],
+    tab: "all",
+    query: "",
+    includeNewBooth: false,
+    lbPhotos: [],
+    lbIdx: 0
+  };
+
+  var app = document.getElementById("app");
+  var topActions = document.getElementById("top-actions");
+
+  function esc(v){
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function digits(v){ return String(v || "").replace(/[^0-9]/g, ""); }
+  function toast(msg){
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+  }
+
+  function rpc(name, body){
+    return fetch(SB.url + "/rest/v1/rpc/" + name, {
+      method: "POST",
+      headers: {
+        "apikey": SB.key,
+        "Authorization": "Bearer " + SB.key,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body || {}),
+      cache: "no-store"
+    }).then(function(res){
+      return res.text().then(function(t){
+        var d = null;
+        try { d = t ? JSON.parse(t) : null; } catch (e) {}
+        if (!res.ok) throw new Error((d && (d.message || d.error)) || ("요청 실패 (" + res.status + ")"));
+        return d;
+      });
+    });
+  }
+
+  function fmtDate(s){
+    if (!s) return "";
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return "";
+    var o = new Date(d.getTime() + 9 * 3600 * 1000);
+    return o.getUTCFullYear() + "." + String(o.getUTCMonth()+1).padStart(2,"0") + "." + String(o.getUTCDate()).padStart(2,"0")
+      + " " + String(o.getUTCHours()).padStart(2,"0") + ":" + String(o.getUTCMinutes()).padStart(2,"0");
+  }
+  function fmtDay(s){ return s ? String(s).replace(/-/g, ".") : "미정"; }
+  function sizeLine(q){
+    var p = [q.width_mm, q.depth_mm, q.height_mm].map(function(v){
+      return v ? Number(v).toLocaleString("ko-KR") : "?";
+    });
+    if (p[0] === "?" && p[1] === "?" && p[2] === "?") return "크기 미기재";
+    return p.join(" × ") + " mm";
+  }
+  function naverMapUrl(addr){
+    return "https://map.naver.com/p/search/" + encodeURIComponent(addr || "");
+  }
+  function linkify(v){
+    return esc(v).replace(/(https?:\/\/[^\s<]+)/g, function(u){
+      return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>';
+    });
+  }
+
+  function parseMemo(raw){
+    var lines = String(raw || "").split(/\r?\n/);
+    var listingUrl = "";
+    var aircon = "";
+    var pay = "";
+    var rest = [];
+    lines.forEach(function(line){
+      var t = line.trim();
+      if (t.indexOf("[매물 링크]") === 0) {
+        listingUrl = t.replace("[매물 링크]", "").trim();
+      } else if (t.indexOf("[에어컨]") === 0) {
+        aircon = t.replace("[에어컨]", "").trim();
+      } else if (t.indexOf("[결제·증빙]") === 0) {
+        pay = t.replace("[결제·증빙]", "").trim();
+      } else {
+        rest.push(line);
+      }
+    });
+    return {
+      listingUrl: listingUrl,
+      aircon: aircon,
+      pay: pay,
+      note: rest.join("\n").trim()
+    };
+  }
+
+  function isNewBoothQuote(q){
+    return String(q.brand || "").indexOf("[신규부스]") === 0;
+  }
+
+  function formatCopyText(q){
+    var pm = parseMemo(q.memo);
+    var out = [
+      "[베오방음 이전설치 상담요청서 #" + String(q.id || "").slice(0, 8).toUpperCase() + "]",
+      "• 고객: " + (q.customer_name || "-") + " (" + (q.customer_phone || "-") + ")",
+      "• 상태: " + (STATUS_LABEL[q.status] || q.status || "신규") + " · 접수: " + fmtDate(q.created_at),
+      "• 부스: " + (q.booth_type || "유형 미상") + " / " + (q.brand || "제조사 미기재") + " / " + sizeLine(q),
+      "• 해체(출발): " + (q.from_region || "-") + (q.from_floor ? " " + q.from_floor : "") + (q.from_elevator ? " (엘베 " + q.from_elevator + ")" : ""),
+      "• 설치(도착): " + (q.to_region || "-") + (q.to_floor ? " " + q.to_floor : "") + (q.to_elevator ? " (엘베 " + q.to_elevator + ")" : ""),
+      "• 희망일: " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "")
+    ];
+    if (pm.aircon) out.push("• 에어컨: " + pm.aircon);
+    if (pm.pay) out.push("• 결제·증빙: " + pm.pay);
+    if (pm.listingUrl) out.push("• 매물링크: " + pm.listingUrl);
+    if (pm.note) out.push("• 요청메모: " + pm.note);
+    if (Array.isArray(q.photos) && q.photos.length) out.push("• 사진: " + q.photos.length + "장");
+    return out.join("\n");
+  }
+
+  function renderLogin(errText){
+    topActions.hidden = true;
+    app.innerHTML = ''
+      + '<form class="login-box" id="login-form">'
+      + '  <h1>이전설치 상담요청서</h1>'
+      + '  <p>사장님 전용 화면입니다. 기존 관리자 키를 입력하면 이 기기에 저장됩니다.</p>'
+      + '  <div style="margin-top:16px">'
+      + '    <input class="in" id="key-in" type="password" placeholder="관리자 키 입력" autocomplete="off">'
+      + '  </div>'
+      + '  <button class="btn-primary" type="submit">상담요청서 열기</button>'
+      + '  <div class="login-msg" id="login-msg">' + esc(errText || "") + '</div>'
+      + '</form>';
+    var form = document.getElementById("login-form");
+    var input = document.getElementById("key-in");
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var k = (input.value || "").trim();
+      if (!k) { document.getElementById("login-msg").textContent = "관리자 키를 입력해 주세요."; return; }
+      state.adminKey = k;
+      document.getElementById("login-msg").textContent = "확인 중…";
+      loadQuotes(function(ok){
+        if (ok) {
+          try { localStorage.setItem(ADMIN_STORE, k); } catch (err) {}
+          renderDashboard();
+        } else {
+          state.adminKey = "";
+          document.getElementById("login-msg").textContent = "관리자 키가 맞지 않습니다.";
+        }
+      });
+    });
+    input.focus();
+  }
+
+  function loadQuotes(cb){
+    rpc("relocation_admin", { p_key: state.adminKey, p_action: "list" }).then(function(res){
+      if (!res || !res.ok) {
+        if (res && res.error === "unauthorized") {
+          try { localStorage.removeItem(ADMIN_STORE); } catch (err) {}
+          state.adminKey = "";
+        }
+        if (cb) return cb(false);
+        renderLogin("관리자 키가 만료되었거나 맞지 않습니다.");
+        return;
+      }
+      state.quotes = Array.isArray(res.quotes) ? res.quotes : [];
+      if (cb) return cb(true);
+      renderDashboard();
+    }).catch(function(err){
+      if (cb) return cb(false);
+      app.innerHTML = '<div class="empty">불러오지 못했습니다: ' + esc(err.message) + '</div>';
+    });
+  }
+
+  function renderDashboard(){
+    topActions.hidden = false;
+    var base = state.includeNewBooth
+      ? state.quotes
+      : state.quotes.filter(function(q){ return !isNewBoothQuote(q); });
+
+    var counts = {
+      all: base.length,
+      "new": base.filter(function(q){ return (q.status || "new") === "new"; }).length,
+      contacted: base.filter(function(q){ return q.status === "contacted"; }).length,
+      done: base.filter(function(q){ return q.status === "done"; }).length
+    };
+
+    var qLower = state.query.trim().toLowerCase();
+    var filtered = base.filter(function(q){
+      if (state.tab !== "all" && (q.status || "new") !== state.tab) return false;
+      if (!qLower) return true;
+      var hay = [
+        q.customer_name, q.customer_phone, q.brand, q.booth_type,
+        q.from_region, q.to_region, q.memo, q.id
+      ].join(" ").toLowerCase();
+      return hay.indexOf(qLower) !== -1;
+    });
+
+    var kpis = [
+      ["all", "전체", counts.all],
+      ["new", "신규 접수", counts["new"]],
+      ["contacted", "연락완료", counts.contacted],
+      ["done", "진행완료", counts.done]
+    ].map(function(k){
+      return '<button type="button" class="kpi" data-tab="' + k[0] + '" aria-pressed="' + (state.tab === k[0] ? "true" : "false") + '">'
+        + '<div class="kl">' + k[1] + '</div><div class="kv">' + k[2] + '</div></button>';
+    }).join("");
+
+    var cardsHtml = filtered.length
+      ? filtered.map(renderCard).join("")
+      : '<div class="empty">' + (base.length ? "조건에 맞는 상담요청서가 없습니다." : "아직 접수된 이전설치 상담요청이 없습니다.") + '</div>';
+
+    app.innerHTML = ''
+      + '<div class="kpi-row">' + kpis + '</div>'
+      + '<div class="toolbar">'
+      + '  <div class="search-wrap">'
+      + '    <input id="q-search" type="search" placeholder="고객명, 연락처, 해체/설치 지역, 제조사 검색…" value="' + esc(state.query) + '">'
+      + '    <button type="button" class="search-clear' + (state.query ? ' show' : '') + '" id="q-clear" aria-label="검색어 지우기">×</button>'
+      + '  </div>'
+      + '  <button type="button" class="filter-pill" id="toggle-newbooth" aria-pressed="' + (state.includeNewBooth ? "true" : "false") + '">'
+      + (state.includeNewBooth ? "신규부스 포함 중" : "이전설치만 보기") + '</button>'
+      + '</div>'
+      + '<div class="grid">' + cardsHtml + '</div>';
+
+    bindEvents();
+  }
+
+  function renderCard(q){
+    var st = q.status || "new";
+    var pm = parseMemo(q.memo);
+    var photos = Array.isArray(q.photos) ? q.photos : [];
+    var isNewB = isNewBoothQuote(q);
+    var shortId = String(q.id || "").slice(0, 8).toUpperCase();
+
+    var alerts = [];
+    if (!isNewB && q.from_elevator === "없음") alerts.push('<span class="abadge warn">⚠️ 해체지 엘베 없음</span>');
+    if (q.to_elevator === "없음") alerts.push('<span class="abadge warn">⚠️ 설치지 엘베 없음</span>');
+    if (pm.aircon) alerts.push('<span class="abadge info">❄️ 에어컨: ' + esc(pm.aircon) + '</span>');
+    if (pm.pay) alerts.push('<span class="abadge info">💳 ' + esc(pm.pay) + '</span>');
+    if (pm.listingUrl) alerts.push('<a class="abadge link" href="' + esc(pm.listingUrl) + '" target="_blank" rel="noopener">🔗 매물 링크 열기 ↗</a>');
+
+    var statusBtns = ["new", "contacted", "done"].map(function(s){
+      return '<button type="button" class="sp' + (st === s ? " on" : "") + '" data-st="' + s + '" data-id="' + esc(q.id) + '">' + STATUS_LABEL[s] + '</button>';
+    }).join("");
+
+    var routeHtml = isNewB
+      ? '<div class="rbox" style="margin-top:10px">'
+        + '<div class="rbox-top"><span class="rtag to">신규 설치 장소</span>'
+        + (q.to_region ? '<a class="rmap" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
+        + '<div class="raddr">' + esc(q.to_region || "미기재") + '</div>'
+        + '<div class="rsub">' + esc(q.to_floor || "층수 미기재") + ' · 엘리베이터 '
+        + (q.to_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.to_elevator || "미기재")) + '</div></div>'
+      : '<div class="route">'
+        + '  <div class="rbox">'
+        + '    <div class="rbox-top"><span class="rtag from">해체 (출발)</span>'
+        + (q.from_region ? '<a class="rmap" href="' + naverMapUrl(q.from_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
+        + '    <div class="raddr">' + esc(q.from_region || "미기재") + '</div>'
+        + '    <div class="rsub">' + esc(q.from_floor || "층수 미기재") + ' · 엘리베이터 '
+        + (q.from_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.from_elevator || "미기재")) + '</div>'
+        + '  </div>'
+        + '  <div class="rarrow" aria-hidden="true">→</div>'
+        + '  <div class="rbox">'
+        + '    <div class="rbox-top"><span class="rtag to">설치 (도착)</span>'
+        + (q.to_region ? '<a class="rmap" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
+        + '    <div class="raddr">' + esc(q.to_region || "미기재") + '</div>'
+        + '    <div class="rsub">' + esc(q.to_floor || "층수 미기재") + ' · 엘리베이터 '
+        + (q.to_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.to_elevator || "미기재")) + '</div>'
+        + '  </div>'
+        + '</div>';
+
+    var photosHtml = photos.length
+      ? '<div class="photos">' + photos.map(function(u, idx){
+          return '<button type="button" class="photo-btn" data-lb-id="' + esc(q.id) + '" data-lb-idx="' + idx + '">'
+            + '<img src="' + esc(u) + '" alt="부스 사진 ' + (idx + 1) + '" loading="lazy"></button>';
+        }).join("") + '</div>'
+      : '';
+
+    var phoneDigits = digits(q.customer_phone);
+
+    return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '">'
+      + '<div class="qs-head">'
+      + '  <div>'
+      + '    <div class="qs-who">'
+      + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
+      + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
+      + '    </div>'
+      + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
+      + '  </div>'
+      + '  <div class="status-pills">' + statusBtns + '</div>'
+      + '</div>'
+      + (alerts.length ? '<div class="alerts">' + alerts.join("") + '</div>' : '')
+      + '<div class="spec-grid">'
+      + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewB ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">제조사</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">외부 크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">희망 설치일</div><div class="sv">' + esc(fmtDay(q.desired_date)) + (q.date_flexible ? ' <small style="color:var(--accent-d)">(조율)</small>' : '') + '</div></div>'
+      + '</div>'
+      + routeHtml
+      + (pm.note ? '<div class="memo-box">' + linkify(pm.note) + '</div>' : '')
+      + photosHtml
+      + '<div class="qs-foot">'
+      + '  <div class="qacts">'
+      + (phoneDigits ? '<a class="abtn solid" href="tel:' + esc(phoneDigits) + '">📞 전화</a>' : '')
+      + (phoneDigits ? '<a class="abtn" href="sms:' + esc(phoneDigits) + '">💬 문자</a>' : '')
+      + '    <button type="button" class="abtn" data-copy="' + esc(q.id) + '">📋 요청서 복사</button>'
+      + '  </div>'
+      + '  <button type="button" class="abtn danger" data-del="' + esc(q.id) + '">삭제</button>'
+      + '</div>'
+      + '</article>';
+  }
+
+  function bindEvents(){
+    Array.prototype.forEach.call(app.querySelectorAll("[data-tab]"), function(b){
+      b.addEventListener("click", function(){
+        state.tab = b.getAttribute("data-tab");
+        renderDashboard();
+      });
+    });
+
+    var search = document.getElementById("q-search");
+    var clearBtn = document.getElementById("q-clear");
+    if (search) {
+      search.addEventListener("input", function(){
+        state.query = search.value;
+        var pos = search.selectionStart;
+        renderDashboard();
+        var s2 = document.getElementById("q-search");
+        if (s2) { s2.focus(); try { s2.setSelectionRange(pos, pos); } catch (e) {} }
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function(){
+        state.query = "";
+        renderDashboard();
+      });
+    }
+
+    var tnb = document.getElementById("toggle-newbooth");
+    if (tnb) {
+      tnb.addEventListener("click", function(){
+        state.includeNewBooth = !state.includeNewBooth;
+        renderDashboard();
+      });
+    }
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-st]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-id");
+        var st = b.getAttribute("data-st");
+        b.disabled = true;
+        rpc("relocation_admin", { p_key: state.adminKey, p_action: "status", p_payload: { id: id, status: st } })
+          .then(function(res){
+            if (!res || !res.ok) throw new Error((res && res.error) || "상태 변경 실패");
+            toast("'" + (STATUS_LABEL[st] || st) + "'(으)로 변경했어요");
+            loadQuotes();
+          })
+          .catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-copy]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-copy");
+        var q = state.quotes.find(function(x){ return String(x.id) === String(id); });
+        if (!q) return;
+        var text = formatCopyText(q);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function(){
+            toast("상담요청서 요약 복사 완료!");
+          }).catch(function(){ fallbackCopy(text); });
+        } else {
+          fallbackCopy(text);
+        }
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-del]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-del");
+        if (!confirm("이 상담요청서를 삭제할까요? 되돌릴 수 없습니다.")) return;
+        b.disabled = true;
+        rpc("relocation_admin", { p_key: state.adminKey, p_action: "delete", p_payload: { id: id } })
+          .then(function(res){
+            if (!res || !res.ok) throw new Error((res && res.error) || "삭제 실패");
+            toast("삭제했습니다");
+            loadQuotes();
+          })
+          .catch(function(err){ alert(err.message); b.disabled = false; });
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll("[data-lb-id]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-lb-id");
+        var idx = Number(b.getAttribute("data-lb-idx") || 0);
+        var q = state.quotes.find(function(x){ return String(x.id) === String(id); });
+        if (!q || !Array.isArray(q.photos) || !q.photos.length) return;
+        openLb(q.photos, idx);
+      });
+    });
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); toast("상담요청서 요약 복사 완료!"); }
+    catch (e) { alert("복사에 실패했습니다."); }
+    document.body.removeChild(ta);
+  }
+
+  /* Lightbox */
+  var lb = document.getElementById("lb");
+  var lbImg = document.getElementById("lb-img");
+  var lbCount = document.getElementById("lb-count");
+  function openLb(photos, idx){
+    state.lbPhotos = photos;
+    state.lbIdx = Math.max(0, Math.min(idx, photos.length - 1));
+    updateLb();
+    lb.hidden = false;
+  }
+  function updateLb(){
+    lbImg.src = state.lbPhotos[state.lbIdx];
+    lbCount.textContent = (state.lbIdx + 1) + " / " + state.lbPhotos.length;
+  }
+  document.getElementById("lb-prev").addEventListener("click", function(){
+    state.lbIdx = (state.lbIdx - 1 + state.lbPhotos.length) % state.lbPhotos.length;
+    updateLb();
+  });
+  document.getElementById("lb-next").addEventListener("click", function(){
+    state.lbIdx = (state.lbIdx + 1) % state.lbPhotos.length;
+    updateLb();
+  });
+  document.getElementById("lb-close").addEventListener("click", function(){ lb.hidden = true; });
+  lb.addEventListener("click", function(e){ if (e.target === lb) lb.hidden = true; });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && !lb.hidden) lb.hidden = true;
+  });
+
+  document.getElementById("btn-refresh").addEventListener("click", function(){
+    toast("새로고침 중…");
+    loadQuotes();
+  });
+  document.getElementById("btn-logout").addEventListener("click", function(){
+    try { localStorage.removeItem(ADMIN_STORE); } catch (e) {}
+    state.adminKey = "";
+    state.quotes = [];
+    renderLogin();
+  });
+
+  try { state.adminKey = localStorage.getItem(ADMIN_STORE) || ""; } catch (e) {}
+  if (!state.adminKey) {
+    renderLogin();
+  } else {
+    loadQuotes();
+  }
+})();
+</script>
+</body>
+</html>
