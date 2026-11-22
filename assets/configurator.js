@@ -80,12 +80,12 @@ const DOORS = [
   { v:'right',  label:'우측 구석' }
 ];
 const DOOR_W = 0.86;
-/* 문은 항상 정면(가로 벽)에 있고 좌/가운데/우로만 이동합니다 */
+/* 문은 항상 정면(가로 벽)에 있고 좌/가운데/우로만 이동합니다 (front 벽은 rotY=π 이므로 바깥 기준 좌=+X, 우=-X) */
 function doorX0Of(){
   const W = state.w/1000;
   /* 옆벽 두께(T) + 2cm 안쪽에 붙여 문틀이 옆벽을 파고들지 않게 합니다 */
-  if (state.door === 'left')  return -W/2 + T + 0.02;
-  if (state.door === 'right') return  W/2 - T - 0.02 - DOOR_W;
+  if (state.door === 'left')  return  W/2 - T - 0.02 - DOOR_W;
+  if (state.door === 'right') return -W/2 + T + 0.02;
   return -DOOR_W/2;
 }
 const HINGES = [
@@ -1902,7 +1902,7 @@ function rebuild(){
     const sw = wallDesc(slatName).innerW;
     addPlate(walls[slatName], Math.min(sw/2 - 0.3, sw * 0.2), 0.34, 'outlet');
   }
-  const swX = state.door === 'right' ? doorX0 - 0.13 : doorX0 + doorW + 0.13;
+  const swX = state.door === 'right' ? doorX0 + doorW + 0.13 : doorX0 - 0.13;
   addPlate(doorWall, swX, 1.14, 'switch');
 
   // 에어컨 라인 매설 표시
@@ -1927,11 +1927,11 @@ function rebuild(){
   fitCamera(false);
 }
 
-/* ---- 문 (바깥으로 열림 · 좌/우경첩) ---- */
+/* ---- 문 (바깥으로 열림 · 바깥 기준 좌/우경첩) ---- */
 function buildDoor(g, o, slatName){
   const gasket = stdMat({ color: 0x141618, roughness: 0.9 });
   const white = stdMat({ color: 0xF8F5EE, roughness: 0.42, metalness: 0.02, envMapIntensity: 0.75 });
-  const zc = T/2;
+  const doorZ = -0.012;
 
   // 문틀 (실내쪽)
   const jamb = 0.045;
@@ -1957,48 +1957,61 @@ function buildDoor(g, o, slatName){
   // 기밀 스트립
   [[o.x0 + 0.012, o.h/2, 0.012, o.h], [o.x0 + o.w - 0.012, o.h/2, 0.012, o.h], [o.x0 + o.w/2, o.h - 0.012, o.w, 0.012]].forEach(([x,y,w,h]) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.026), gasket);
-    m.position.set(x, y, zc - 0.02);
+    m.position.set(x, y, doorZ + 0.01);
     g.add(m);
   });
 
   // 상부 트랜섬
   const transH = 0.15;
   const trans = new THREE.Mesh(new THREE.BoxGeometry(o.w - 0.012, transH, 0.05), white);
-  trans.position.set(o.x0 + o.w/2, o.h - jamb - transH/2 + 0.004, zc - 0.026);
+  trans.position.set(o.x0 + o.w/2, o.h - jamb - transH/2 + 0.004, doorZ);
   trans.castShadow = true; trans.receiveShadow = true;
   g.add(trans);
   const tGasket = new THREE.Mesh(new THREE.BoxGeometry(o.w - 0.01, 0.01, 0.03), gasket);
-  tGasket.position.set(o.x0 + o.w/2, o.h - jamb - transH + 0.004, zc - 0.026);
+  tGasket.position.set(o.x0 + o.w/2, o.h - jamb - transH + 0.004, doorZ);
   g.add(tGasket);
 
-  // 문짝
+  // 문짝 (front 벽은 rotY=π 이므로 바깥 기준 우측=-X(o.x0), 좌측=+X(o.x0+o.w))
   const hingeRight = state.hinge === 'right';
-  const dir = hingeRight ? -1 : 1;
-  const pivotX = hingeRight ? (o.x0 + o.w - 0.015) : (o.x0 + 0.015);
+  const dir = hingeRight ? 1 : -1;
+  const pivotX = hingeRight ? (o.x0 + 0.015) : (o.x0 + o.w - 0.015);
   const leafW = o.w - 0.03, leafH = o.h - jamb - transH + 0.004 - 0.006;
   const pivot = new THREE.Group();
-  pivot.position.set(pivotX, 0.012, zc - 0.03);
+  pivot.position.set(pivotX, 0.012, doorZ);
   g.add(pivot);
 
   const glassW = 0.30, glassH = 1.30;
-  const holes = [{ x0: dir * 0.02 - glassW/2, y0: -leafH/2 + 0.34, w: glassW, h: glassH }];
+  const holeCx = dir * 0.02;
+  const holeCy = -leafH/2 + 0.34 + glassH/2;
+  const holes = [{ x0: holeCx - glassW/2, y0: holeCy - glassH/2, w: glassW, h: glassH }];
   const leaf = holePanel(leafW, leafH, 0.046, holes, white);
   leaf.position.set(dir * leafW/2, leafH/2, 0);
   // 얇은 판재는 자기 그림자 아크네(점선)가 생기므로 문짝 자체는 그림자를 던지지 않습니다
   leaf.traverse(o => { if (o.isMesh){ o.castShadow = false; o.receiveShadow = false; } });
   pivot.add(leaf);
 
-  const glassY = 0.012 + 0.34 + glassH/2;
-  const gFrame = new THREE.Mesh(new THREE.BoxGeometry(glassW + 0.022, glassH + 0.022, 0.024), gasket);
-  gFrame.position.set(dir * 0.02, glassY, 0);
-  pivot.add(gFrame);
-  const glass = new THREE.Mesh(new THREE.PlaneGeometry(glassW - 0.004, glassH - 0.004), glassMaterial());
-  glass.position.set(dir * 0.02, glassY, 0.003);
+  // 유리창틀 & 유리 — 구멍(holeCx, holeCy)과 정확히 같은 leaf 좌표계에 배치
+  const gFrameTop = new THREE.Mesh(new THREE.BoxGeometry(glassW + 0.028, 0.016, 0.052), gasket);
+  gFrameTop.position.set(holeCx, holeCy + glassH/2 + 0.005, 0);
+  leaf.add(gFrameTop);
+  const gFrameBot = gFrameTop.clone();
+  gFrameBot.position.set(holeCx, holeCy - glassH/2 - 0.005, 0);
+  leaf.add(gFrameBot);
+  const gFrameL = new THREE.Mesh(new THREE.BoxGeometry(0.016, glassH + 0.026, 0.052), gasket);
+  gFrameL.position.set(holeCx - glassW/2 - 0.005, holeCy, 0);
+  leaf.add(gFrameL);
+  const gFrameR = gFrameL.clone();
+  gFrameR.position.set(holeCx + glassW/2 + 0.005, holeCy, 0);
+  leaf.add(gFrameR);
+
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(glassW - 0.002, glassH - 0.002), glassMaterial());
+  glass.position.set(holeCx, holeCy, 0.004);
   glass.renderOrder = 4;
-  pivot.add(glass);
+  leaf.add(glass);
   const glass2 = glass.clone();
-  glass2.position.z = -0.003;
-  pivot.add(glass2);
+  glass2.rotation.y = Math.PI;
+  glass2.position.z = -0.004;
+  leaf.add(glass2);
 
   // 손잡이 — 사진의 긴 백플레이트 레버
   const handle = new THREE.Group();
@@ -2020,7 +2033,7 @@ function buildDoor(g, o, slatName){
   // 경첩
   [0.3, 1.0, 1.68].forEach(y => {
     const h = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.105, 0.024), metalMat());
-    h.position.set(dir * 0.004, y, -0.016);
+    h.position.set(dir * 0.004, y, -0.022);
     h.castShadow = true;
     pivot.add(h);
   });
@@ -2250,7 +2263,7 @@ function aspectFactor(){
   return a >= 1 ? 1 : Math.pow(1/a, 0.86);
 }
 function slatWallOfDoor(){ return 'back'; }
-function doorCenterX(){ return doorX0Of() + DOOR_W/2; }
+function doorCenterX(){ return -(doorX0Of() + DOOR_W/2); }
 function interiorSetup(){
   /* 문 쪽에 서서 라인타공(문 맞은편) 정면을 바라보는 구도 — 좌우 아트보드와
      천장 COB 매립등, 하단 마루까지 한 화면에 들어옵니다. */
