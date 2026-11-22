@@ -311,12 +311,20 @@
   }
   .qacts{display:flex;flex-wrap:wrap;gap:6px}
   .abtn{
-    display:inline-flex;align-items:center;gap:5px;
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
     border:1px solid var(--line);background:#fff;border-radius:10px;
-    padding:7px 11px;font-size:12.5px;font-weight:700;color:var(--ink2);
+    padding:8px 11px;font-size:12.5px;font-weight:700;color:var(--ink2);
+    white-space:nowrap;min-width:0;text-align:center;
   }
   .abtn.solid{background:var(--ink);border-color:var(--ink);color:#fff}
   .abtn.danger{color:var(--warn)}
+  @media (max-width:680px){
+    .qs-foot{flex-direction:column;align-items:stretch;gap:8px}
+    .qs-foot .qacts:first-child{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .qs-foot .qacts:first-child .abtn:last-child:nth-child(odd){grid-column:1 / -1}
+    .qs-foot .qacts:last-child{display:grid;grid-template-columns:1fr auto;gap:6px;padding-top:6px;border-top:1px dashed var(--line2)}
+    .qs-foot .qacts .abtn{width:100%;box-sizing:border-box}
+  }
 
   /* Hub Links Grid */
   .hub-sec-title{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.04em;margin:16px 2px 8px}
