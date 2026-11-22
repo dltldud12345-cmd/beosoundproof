@@ -643,7 +643,7 @@ const TUNE = {
   fill: 0.18,
   cob: 3.4,
   led: 2.4,
-  rail: 6.0,
+  rail: 2.4,
   interiorFill: 1.15,
   groundShadow: 0.12
 };
@@ -1721,9 +1721,9 @@ function addBeamCone(parent, from, to, color){
   const dir = new THREE.Vector3().subVectors(from, to);
   const len = dir.length();
   if (!(len > 0.05)) return null;
-  const geo = new THREE.ConeGeometry(0.30, len, 22, 1, true);
+  const geo = new THREE.ConeGeometry(0.26, len, 22, 1, true);
   const mat = new THREE.MeshBasicMaterial({
-    color, transparent: true, opacity: 0.075,
+    color, transparent: true, opacity: 0.045,
     blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
   });
   const m = new THREE.Mesh(geo, mat);
@@ -2413,15 +2413,23 @@ function aspectFactor(){
 function slatWallOfDoor(){ return 'back'; }
 function doorCenterX(){ return -(doorX0Of() + DOOR_W/2); }
 function interiorSetup(){
-  /* 문 쪽에 서서 라인타공(문 맞은편) 정면을 바라보는 구도 — 좌우 아트보드와
-     천장 COB 매립등, 하단 마루까지 한 화면에 들어옵니다. */
+  /* 문 쪽에 서서 타공판 벽을 바라보는 구도 — 타공판이 옆벽이면 그 벽을 향해 돕니다. */
   const W = state.w/1000, D = state.d/1000;
-  const tz = -(D/2 - 0.06);      // 라인타공 벽면 살짝 앞
   const ty = 1.31;               // 눈높이 아래를 살짝 내려다보는 타깃
-  const camZ = D/2 - 0.26;       // 문 쪽에 선 카메라
   const phi = 1.472;
-  const r = Math.max(0.6, (camZ - tz) / Math.sin(phi));
-  return { theta: 0.0, phi, r, ty, tx: 0, tz, fov: isSmall() ? 78 : 70 };
+  const slat = state.slatPos || 'back';
+  if (slat === 'back'){
+    const tz = -(D/2 - 0.06);    // 라인타공 벽면 살짝 앞
+    const camZ = D/2 - 0.26;     // 문 쪽에 선 카메라
+    const r = Math.max(0.6, (camZ - tz) / Math.sin(phi));
+    return { theta: 0.0, phi, r, ty, tx: 0, tz, fov: isSmall() ? 78 : 70 };
+  }
+  const side = slat === 'left' ? -1 : 1;
+  const tx = side * (W/2 - 0.07);   // 타공판 벽면을 조준
+  const dx = -side * (W - 0.44);    // 반대쪽 벽 앞에 서서
+  const dz = D/2 - 0.32;
+  const r = Math.hypot(dx, dz);
+  return { theta: Math.atan2(dx, dz), phi: Math.acos(Math.min(0.9, 0.14 / r)), r, ty, tx, tz: 0, fov: isSmall() ? 82 : 74 };
 }
 /* 시점 중심에서 방 안을 벗어나지 않는 최대 반경 */
 function maxInsideR(theta, phi, tx, ty, tz){
