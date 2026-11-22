@@ -3147,6 +3147,13 @@ function renderPhotoStage(){
    - 문 우측 + 좌경첩 = 문짝만 반전한 사진을 좌우 반전 */
 const PHOTO_OUT_SRC = 'assets/exterior-clean.jpg';
 const PHOTO_OUT_SRC_HG = 'assets/exterior-clean-hg.jpg?v=20261122a';
+/* 실사 외부 우측 벽에 원근에 맞춰 미리 합성해 둔 시창 오버레이 — 사진과 같은 1448×1086 */
+const PHOTO_OUT_WIN = {
+  '600x800':  'assets/exterior-win-600.png?v=1',
+  '800x800':  'assets/exterior-win-800.png?v=1',
+  '1200x800': 'assets/exterior-win-1200.png?v=1',
+  'double1200':'assets/exterior-win-double.png?v=1'
+};
 let photoOutHgPreload = null;
 function preloadPhotoOutHg(){
   if (!photoOutHgPreload) photoOutHgPreload = new Image();
@@ -3163,6 +3170,23 @@ function syncPhotoOutHinge(){
   const src = useHg ? PHOTO_OUT_SRC_HG : PHOTO_OUT_SRC;
   if (po.getAttribute('src') !== src) po.setAttribute('src', src);
   po.style.transform = doorFlip ? 'scaleX(-1)' : 'none';
+  /* 시창 — 사진에 보이는 측면 벽에만 합성합니다.
+     문이 좌측 구석이면 우측 벽이 보이고, 사진이 반전되면(문 우측 구석) 좌측 벽이 보입니다. */
+  const pw = $('#photoOutWin');
+  if (pw){
+    const visibleWall = doorFlip ? 'left' : 'right';
+    const want = state.window !== 'none' && PHOTO_OUT_WIN[state.window] && state.view === 'photo-out';
+    const on = !!want && (state.winPos || 'left') === visibleWall;
+    pw.style.transformOrigin = 'center center';
+    pw.style.transform = doorFlip ? 'scaleX(-1)' : 'none';
+    if (on){
+      const wsrc = PHOTO_OUT_WIN[state.window];
+      if (pw.getAttribute('src') !== wsrc) pw.setAttribute('src', wsrc);
+      pw.hidden = false; pw.style.display = 'block';
+    } else {
+      pw.hidden = true; pw.style.display = 'none';
+    }
+  }
 }
 function setView(name, force = false){
   state.view = name;
@@ -3180,6 +3204,7 @@ function setView(name, force = false){
   if (ps) { ps.hidden = !isPhotoIn; ps.style.display = isPhotoIn ? 'block' : 'none'; }
   if (po) { po.hidden = !isPhotoOut; po.style.display = isPhotoOut ? 'block' : 'none'; }
   if (isPhotoOut){ preloadPhotoOutHg(); syncPhotoOutHinge(); }
+  syncPhotoOutHinge();
   const hs = $('#hsLayer');
   if (hs) hs.style.display = isAnyPhoto ? 'none' : '';
   ['doorToggle', 'hsToggle', 'resetView'].forEach(id => {
