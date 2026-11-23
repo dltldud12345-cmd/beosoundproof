@@ -2109,7 +2109,7 @@
             </ul>
             <div class="used-cta">
               <a class="btn btn-primary" href="tel:01030015906">전화 접수 010-3001-5906</a>
-              <a class="btn btn-line" href="https://forms.gle/JEH16k8NPBRPMs7DA" target="_blank" rel="noopener">상담 신청서로 접수</a>
+              <a class="btn btn-line" href="relocation.html">위탁·철거 접수하기</a>
             </div>
             <p class="used-note">블로그 · 인스타그램 · 숨고로 보내셔도 접수됩니다 — <a href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener">네이버 블로그</a> · <a href="https://www.instagram.com/beo_soundproof" target="_blank" rel="noopener">@beo_soundproof</a> · <a href="https://www.soomgo.com/profile/users/14549823" target="_blank" rel="noopener">숨고</a></p>
           </article>
@@ -2230,7 +2230,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
           </a>
 
-          <a class="btn btn-line btn-lg" href="https://forms.gle/JEH16k8NPBRPMs7DA" target="_blank" rel="noopener">상담 신청서 작성하기</a>
+          <a class="btn btn-line btn-lg" href="quote.html">간편 견적 신청하기</a>
 
           <div class="chan">
             <a href="https://blog.naver.com/beosoundproof" target="_blank" rel="noopener">네이버 블로그 <em>시공사례 →</em></a>
@@ -2731,7 +2731,7 @@
   function load(){
     if (!sbReady) {
       setLoading(false);
-      showEmpty("마켓을 준비하고 있습니다", "매물 등록과 조회 기능을 연결하는 중입니다. 급하시면 아래 전화·상담 신청서로 바로 접수해 주세요.", true);
+      showEmpty("마켓을 준비하고 있습니다", "매물 등록과 조회 기능을 연결하는 중입니다. 급하시면 아래 전화나 견적 신청 페이지로 바로 접수해 주세요.", true);
       return;
     }
     setLoading(true);
@@ -2740,7 +2740,7 @@
       render();
     }).catch(function(e){
       setLoading(false);
-      showEmpty("매물을 불러오지 못했습니다", "잠시 후 다시 시도해 주세요. 계속되면 전화·상담 신청서로 접수해 주시면 바로 확인해 드립니다.", true);
+      showEmpty("매물을 불러오지 못했습니다", "잠시 후 다시 시도해 주세요. 계속되면 전화나 견적 신청 페이지로 접수해 주시면 바로 확인해 드립니다.", true);
       var sub = $("mk-sub");
       if (sub) sub.textContent = "연결 오류: " + e.message;
     }).then(function(){ setLoading(false); });
@@ -3004,7 +3004,7 @@
     if (contact.replace(/[^0-9]/g, "").length < 8) { msg(box, "연락처를 정확히 입력해 주세요.", "err"); $("rg-contact").focus(); return; }
     if (!/^[0-9]{4}$/.test(pin)) { msg(box, "수정용 PIN을 숫자 4자리로 정해 주세요.", "err"); $("rg-pin").focus(); return; }
     if (!agree) { msg(box, "개인정보 수집·이용 동의에 체크해 주세요.", "err"); $("rg-agree").focus(); return; }
-    if (!sbReady) { msg(box, "지금은 등록 연결을 준비 중입니다. 전화·상담 신청서로 접수해 주세요.", "err"); return; }
+    if (!sbReady) { msg(box, "지금은 등록 연결을 준비 중입니다. 전화나 견적 신청 페이지로 접수해 주세요.", "err"); return; }
 
     btn.disabled = true;
     btn.textContent = "등록 중…";

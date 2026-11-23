@@ -301,6 +301,8 @@
   .sched-note b{color:var(--ink2);font-weight:800}
   .sedit-quick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10.5px;font-weight:700;color:var(--muted)}
   .sedit-quick button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--ink2);white-space:nowrap}
+  .sedit-quick button.clear{border-color:#E4B4AE;background:#FFF6F4;color:#B3261E}
+  .sedit-quick button.clear:active{background:#FBE7E3}
   .sabtn.edit{border-color:#E3D6BF;background:#FFFCF5;color:#8A6A1F;font-weight:800;font-size:11.5px;padding:6px 8px;white-space:nowrap;gap:2px}
   .past-toggle{width:100%;margin:14px 0 7px;border:1px dashed var(--line2);background:#FAF9F6;border-radius:11px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px}
   .past-toggle i{font-style:normal;font-size:11px}
@@ -682,6 +684,7 @@
     <div class="sedit-quick">
       <span>도착 기본</span>
       <button type="button" class="sedit-9" data-sd-time="09:00">⏰ 09:00 도착</button>
+      <button type="button" class="sedit-9 clear" id="sd-clear-when" aria-label="날짜와 시간을 비워 일정 미정으로">🗓️ 일정 미정</button>
       <span>· 비워 두면 ‘시간 미정’으로 저장됩니다</span>
     </div>
     <div class="sedit-note" id="sd-date-hint"></div>
@@ -858,9 +861,12 @@
   }
   function installOf(q){
     var p = pipeOf(q.id);
-    var date = p.installDate || "";
-    var time = p.installTime || "";
-    if (!date){
+    var hasOwn = Object.prototype.hasOwnProperty;
+    /* 이 기기에서 날짜를 한 번이라도 저장했으면 그 값이 기준이다 — 비운 것도 ‘비움’으로 지킨다
+       (그렇지 않으면 비운 날짜가 메모의 옛 [설치일] 태그에서 되살아난다) */
+    var date = hasOwn.call(p, "installDate") ? String(p.installDate || "") : "";
+    var time = hasOwn.call(p, "installTime") ? String(p.installTime || "") : "";
+    if (!hasOwn.call(p, "installDate")){
       var t = parseMemo(q.memo).install;
       if (t){ var m = t.match(/^(\d{4}-\d{2}-\d{2})\s*(.*)$/); if (m){ date = m[1]; time = m[2] || ""; } }
     }
@@ -2264,9 +2270,11 @@ function openContractModal(q){
       var q = effectiveQuote(rawQ);
       var inst = installOf(q);
       var stage = stageOf(q);
-      var date = inst.date || q.desired_date || "";
+      /* ‘일정 미정’으로 비워 둔 건은 고객 희망일로 되돌리지 않고 미정 칸에 둔다 */
+      var noDate = !!pipeOf(q.id).noDate;
+      var date = inst.date || (noDate ? "" : (q.desired_date || ""));
       return { q: q, stage: stage, date: date, time: inst.time || "",
-               tentative: !inst.date && !!q.desired_date, isNew: isNewBoothQuote(q) };
+               tentative: !inst.date && !noDate && !!q.desired_date, isNew: isNewBoothQuote(q) };
     });
   }
 
@@ -2407,6 +2415,8 @@ function openContractModal(q){
     var patch = {
       installDate: dateV,
       installTime: timeV,
+      /* 날짜를 비우면 ‘일정 미정’ — 고객 희망일이 있어도 달력·예정에서 빼고 미정 칸에 둔다 */
+      noDate: !dateV,
       stage: nextStage,
       pay: SEDIT_PAY,
       supply: m.supply === "" ? "" : m.supply,
@@ -2423,7 +2433,9 @@ function openContractModal(q){
     pushMemoUpdate(raw, nextStage);
     document.getElementById("sched-modal").hidden = true;
     var done = function(){
-      toast("일정을 수정했습니다 — 달력 · 리스트 · 요약에 바로 반영");
+      toast(dateV
+        ? "일정을 수정했습니다 — 달력 · 리스트 · 요약에 바로 반영"
+        : "일정을 ‘일정 미정’으로 비웠습니다 — 금액 · 결제수단 · 메모는 그대로입니다");
       if (nextStage !== before) loadAll();
       else { renderScheduleTab(); updateBadges(); }
     };
@@ -2664,7 +2676,9 @@ function openContractModal(q){
         var k = inp.getAttribute("data-sch-k");
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
-        setPipe(id, k === "date" ? { installDate: inp.value || "" } : { installTime: inp.value || "" });
+        setPipe(id, k === "date"
+          ? { installDate: inp.value || "", noDate: !inp.value }
+          : { installTime: inp.value || "" });
         pushMemoUpdate(q, stageOf(q));
         toast(inp.value ? (k === "date" ? "작업 날짜(해체일) " + inp.value + " 저장" : "해체 시작 시간 " + inp.value + " 저장") : "일정을 비웠습니다");
         renderScheduleTab();
@@ -2902,7 +2916,7 @@ function openContractModal(q){
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
       + '  <div class="spec-item spec-wide"><div class="sl">크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
-      + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv" data-inst-sv="' + esc(q.id) + '">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv" data-inst-sv="' + esc(q.id) + '">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date && !pipeOf(q.id).noDate ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
       + routeHtml
       + simHtml
@@ -3133,6 +3147,7 @@ function openContractModal(q){
         }
         var patch = {};
         patch[k === "date" ? "installDate" : "installTime"] = inp.value || "";
+        if (k === "date") patch.noDate = !inp.value;
         setPipe(id, patch);
         pushMemoUpdate(q, stageOf(q));
         var inst = installOf(q);
@@ -3140,7 +3155,7 @@ function openContractModal(q){
         if (sv){
           sv.innerHTML = inst.date
             ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '')
-            : (q.desired_date ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>');
+            : (q.desired_date && !pipeOf(id).noDate ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>');
         }
         toast(inst.date ? "작업(해체) 일시 " + inst.date + (inst.time ? " " + inst.time : "") + " 저장" : "작업 일시를 비웠습니다");
       });
@@ -3462,6 +3477,17 @@ function openContractModal(q){
     schedPaySet(SEDIT_PAY === p ? "" : p);
     schedMoneyPaint();
   });
+  /* 🗓️ 일정 미정 — 날짜·시간만 비운다. 금액·결제수단·메모·주소는 그대로 */
+  function schedClearWhen(){
+    document.getElementById("sd-date").value = "";
+    document.getElementById("sd-time").value = "";
+    var q = quoteById(SEDIT_ID);
+    var hint = document.getElementById("sd-date-hint");
+    if (hint) hint.textContent = "날짜·시간을 비웠습니다. 저장하면 달력·예정 일정에서 빠지고 ‘일정 미정’으로 표시됩니다 — 금액·결제수단·메모는 그대로입니다."
+      + (q && q.desired_date ? " (고객 희망일 " + fmtDay(q.desired_date) + "은 참고로만 남고 달력에는 안 잡힙니다)" : "");
+    toast("날짜·시간만 비웠습니다 — 저장을 눌러야 반영됩니다");
+  }
+  document.getElementById("sd-clear-when").addEventListener("click", schedClearWhen);
   document.getElementById("sd-save").addEventListener("click", saveSchedEdit);
   document.getElementById("sd-promo").addEventListener("change", function(){
     document.getElementById("sd-promo-row").classList.toggle("on", this.checked);
