@@ -721,6 +721,8 @@
     if (placeH) placeH.textContent = sale ? "해체 장소" : "해체 · 설치 장소";
     var dateH = $("date-h");
     if (dateH) dateH.textContent = sale ? "희망 철거 날짜" : "희망 설치 날짜";
+    var dateIn = $("date");
+    if (dateIn) dateIn.setAttribute("aria-label", sale ? "희망 철거 날짜" : "희망 설치 날짜");
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="scope"]'), function(r){
     r.addEventListener("change", applyScope);
