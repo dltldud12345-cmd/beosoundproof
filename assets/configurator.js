@@ -67,8 +67,8 @@ const LIGHT = [
   { v:'rail',    label:'레일등',           sub:'대형 공간',   temp:4000 }
 ];
 const LEDTEMP = [
-  { v:'4000', label:'주백색 4000K', hex:'#FFF4E2', light:'#FFEFD6' },
-  { v:'6500', label:'주광색 6500K', hex:'#F6FAFF', light:'#EAF2FF' }
+  { v:'4000', label:'주백색 4000K', hex:'#FFEFD0', light:'#FFE1B8', wash:'#FFE3BF' },
+  { v:'6500', label:'주광색 6500K', hex:'#E3F0FF', light:'#CBE0FF', wash:'#D6E6FF' }
 ];
 const FLOOR = [
   { v:'oak',  label:'멜로우 오크', hex:'#C6A47E', grain:'#8E7048' },
@@ -2068,7 +2068,8 @@ function buildRoundLed(){
   const diff = new THREE.Mesh(
     new THREE.CircleGeometry(R - 0.026, 56),
     new THREE.MeshStandardMaterial({
-      color: 0xFFFDF8, emissive: ledTempPick().hex, emissiveIntensity: 1.65,
+      color: 0xFFFDF8, emissive: ledTempPick().hex,
+      emissiveIntensity: state.ledTemp === '6500' ? 2.05 : 1.75,
       emissiveMap: diffuserTexture(), roughness: 0.62, metalness: 0
     })
   );
@@ -2080,7 +2081,8 @@ function buildRoundLed(){
     new THREE.PlaneGeometry(1.05, 1.05),
     new THREE.MeshBasicMaterial({
       map: glowTexture(), color: ledTempPick().hex, transparent: true,
-      blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.17
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      opacity: state.ledTemp === '6500' ? 0.24 : 0.21
     })
   );
   halo.rotation.x = Math.PI / 2;
@@ -2443,6 +2445,8 @@ function rebuild(){
 
   // 조명
   if (parts.fillLight) parts.fillLight.color.set(ledTempPick().light);
+  if (parts.ceilWash) parts.ceilWash.color.set(ledTempPick().wash || ledTempPick().light);
+  if (parts.ceilWash) parts.ceilWash.intensity = state.ledTemp === '6500' ? 0.42 : 0.34;
   buildLights(plan);
 
   // 콘센트 · 스위치
@@ -2886,6 +2890,12 @@ const WHITE_SLATS = {
 };
 /* 화이트 타공판은 에셋 자체가 실사 화이트 도장면이므로, 선택한 도장 색만 곱해 톤을 맞춘다 */
 const WHITE_SLAT_REF = [240, 239, 234];   // 화이트(#F0EFEA) 기준값 — 밝은 쪽을 1.0으로 두어 하이라이트가 날아가지 않게
+/* 실사 모드 중앙등 색온도 — 사진 전체가 그 조명으로 비치는 톤으로 보정하고,
+   천장 등기구(확산판)는 조명 자체의 색으로 바꿔 준다 */
+const PHOTO_LED = {
+  '4000': { mul: [1.072, 1.010, 0.884], fix: [255, 246, 222] },   // 주백색 — 따뜻한 아이보리
+  '6500': { mul: [0.902, 0.982, 1.138], fix: [231, 243, 255] }    // 주광색 — 시원한 쿨화이트
+};
 function preloadPhotoWins(){
   const map = {
     '600x800': 'assets/win-600.png?v=8',
@@ -2894,8 +2904,8 @@ function preloadPhotoWins(){
     'double1200': 'assets/win-double.png?v=8',
     'rail_ceiling': 'assets/ceiling-rail.png?v=9',
     'slat_nocob': 'assets/slat-nocob.png?v=4',
-    'side_left': 'assets/side-slat-left.png?v=2',
-    'side_right': 'assets/side-slat-right.png?v=2',
+    'side_left': 'assets/side-slat-left.webp?v=1',
+    'side_right': 'assets/side-slat-right.webp?v=1',
     'back_art': 'assets/back-artboard.png?v=2',
     'back_600x800': 'assets/win-600x800-back.png?v=4',
     'back_800x800': 'assets/win-800x800-back.png?v=4',
@@ -2997,6 +3007,18 @@ function initPhotoCache(cb){
       floor: buildCov(REGIONS.floor),
       right: buildCov(REGIONS.right)
     };
+    /* 중앙등(천장 확산판) 마스크 — 천장 영역의 밝은 픽셀만 부드럽게 */
+    const lm = new Uint8Array(W * H);
+    const limY = Math.floor(H * 0.34);
+    for (let y = 0; y < limY; y++){
+      for (let x = 0; x < W; x++){
+        const i = y * W + x, p = i * 4;
+        const l = (0.299 * photoCache.orig[p] + 0.587 * photoCache.orig[p + 1] + 0.114 * photoCache.orig[p + 2]) / 255;
+        const k = Math.min(1, Math.max(0, (l - 0.80) / 0.16));
+        lm[i] = Math.round(k * 255);
+      }
+    }
+    photoCache.ledMask = lm;
     photoCache.ready = true;
     photoCache.loading = false;
     cb();
@@ -3078,6 +3100,8 @@ function renderPhotoStage(){
     const sRgb = photoHexToRgb(pick(SLAT, state.slat).hex);
     const fRgb = photoHexToRgb(pick(FLOOR, state.floor).hex);
     const isPine = state.floor === 'pine';
+    const ledT = PHOTO_LED[state.ledTemp] || PHOTO_LED['4000'];
+    const ledMask = photoCache.ledMask;
     const n = W * H;
 
     for (let i = 0, p = 0; i < n; i++, p += 4){
@@ -3161,6 +3185,22 @@ function renderPhotoStage(){
           orr += wFloor * (tr * 0.18 + fRgb[0] * gain * 0.82);
           og  += wFloor * (tg * 0.18 + fRgb[1] * gain * 0.82);
           ob  += wFloor * (tb * 0.18 + fRgb[2] * gain * 0.82);
+        }
+      }
+      /* 중앙 LED 색온도 — 실내 전체가 그 조명으로 비치는 톤 (밝은 면일수록 영향이 큼) */
+      if (ledT){
+        const lw = 0.28 + 0.72 * lum;
+        orr *= 1 + (ledT.mul[0] - 1) * lw;
+        og  *= 1 + (ledT.mul[1] - 1) * lw;
+        ob  *= 1 + (ledT.mul[2] - 1) * lw;
+        if (ledMask){
+          const mk = ledMask[i];
+          if (mk){
+            const k = (mk / 255) * 0.62;
+            orr = orr * (1 - k) + ledT.fix[0] * k;
+            og  = og  * (1 - k) + ledT.fix[1] * k;
+            ob  = ob  * (1 - k) + ledT.fix[2] * k;
+          }
         }
       }
       dst[p]   = orr > 255 ? 255 : orr;
