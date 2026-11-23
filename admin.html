@@ -825,6 +825,9 @@
       if (md) mDeposit = Number(md[1].replace(/,/g, ""));
     }
     var total = "", vat = "", supply = "";
+    /* 이 기기에 금액을 저장한 적이 있는지 — 있으면 메모 태그보다 기기 저장값이 우선이라
+       입력 칸을 비우면 금액이 실제로 지워진다(예전 메모 [금액]이 되살리지 않게). */
+    var hasLocal = own("supply") || own("total");
     if (own("supply") && p.supply !== "" && p.supply != null){
       supply = rnd(p.supply);
       vat = rate === 0 ? 0 : Math.round(supply * rate);
@@ -834,11 +837,11 @@
       total = rnd(p.total);
       vat = rate === 0 ? 0 : Math.round(total / 11);
       supply = total - vat;
-    } else if (mSupply != null && !isNaN(mSupply)){
+    } else if (!hasLocal && mSupply != null && !isNaN(mSupply)){
       supply = Math.round(mSupply);
       total = (mTotal != null && !isNaN(mTotal)) ? Math.round(mTotal) : supply + (rate === 0 ? 0 : Math.round(supply * rate));
       vat = total - supply;
-    } else if (mTotal != null && !isNaN(mTotal)){
+    } else if (!hasLocal && mTotal != null && !isNaN(mTotal)){
       total = Math.round(mTotal);
       vat = rate === 0 ? 0 : Math.round(total / 11);
       supply = total - vat;
