@@ -2893,8 +2893,8 @@ const WHITE_SLAT_REF = [240, 239, 234];   // 화이트(#F0EFEA) 기준값 — �
 /* 실사 모드 중앙등 색온도 — 사진 전체가 그 조명으로 비치는 톤으로 보정하고,
    천장 등기구(확산판)는 조명 자체의 색으로 바꿔 준다 */
 const PHOTO_LED = {
-  '4000': { mul: [1.072, 1.010, 0.884], fix: [255, 246, 222] },   // 주백색 — 따뜻한 아이보리
-  '6500': { mul: [0.902, 0.982, 1.138], fix: [231, 243, 255] }    // 주광색 — 시원한 쿨화이트
+  '4000': { mul: [1.028, 1.004, 0.938], fix: [255, 248, 231] },   // 주백색 — 따뜻한 아이보리
+  '6500': { mul: [0.893, 0.980, 1.145], fix: [228, 242, 255] }    // 주광색 — 시원한 쿨화이트
 };
 function preloadPhotoWins(){
   const map = {
@@ -2936,7 +2936,7 @@ function preloadPhotoWins(){
         cx.drawImage(im, 0, 0, photoCache.w, photoCache.h);
         photoCache[dataTargets[k]] = cx.getImageData(0, 0, photoCache.w, photoCache.h).data;
       }
-      if (state.view === 'photo') renderPhotoStage();
+      schedulePhotoRender();
     };
     im.src = map[k];
     photoWinImgs[k] = im;
@@ -2945,7 +2945,7 @@ function preloadPhotoWins(){
   Object.keys(WHITE_SLATS).forEach(k => {
     const im = new Image();
     im.crossOrigin = 'anonymous';
-    im.onload = () => { if (state.view === 'photo') renderPhotoStage(); };
+    im.onload = () => schedulePhotoRender();
     im.src = WHITE_SLATS[k];
     photoWinImgs['white_' + k] = im;
   });
@@ -3062,6 +3062,16 @@ function drawPhotoWindow(ctx, W, H, winVal){
   }
   ctx.drawImage(im, 0, 0, W, H);
   ctx.restore();
+}
+/* 에셋이 여러 장 동시에 로드될 때 매번 150만 픽셀을 다시 그리지 않도록 프레임당 1회로 합칩니다 */
+let photoRenderQueued = false;
+function schedulePhotoRender(){
+  if (photoRenderQueued) return;
+  photoRenderQueued = true;
+  requestAnimationFrame(() => {
+    photoRenderQueued = false;
+    if (state.view === 'photo') renderPhotoStage();
+  });
 }
 function renderPhotoStage(){
   const cvs = $('#photoStage');
