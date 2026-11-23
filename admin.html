@@ -600,7 +600,7 @@
           <button type="button" class="pay-chip" data-ed-pay="현금결제">현금결제</button>
           <button type="button" class="pay-chip" data-ed-pay="">미정</button>
         </div>
-        <div style="font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.35">현금결제는 부가세 0원 · 나머지(카드 · 세금계산서 · 현금영수증 · 미정)는 부가세 = 총액 ÷ 11로 다시 계산됩니다</div>
+        <div style="font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.35">현금결제는 부가세 0원 · 나머지(카드 · 세금계산서 · 현금영수증 · 미정)는 부가세 = 공급가액 × 10%로 다시 계산됩니다</div>
       </div>
       <label style="display:grid;gap:4px">에어컨<input id="ed-aircon" class="inst-in" style="text-align:left;padding:0 10px" placeholder="해체·이동만(+50,000원) / 없음"></label>
       <div style="font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.35">카드의 📋 고객 조건 · 요청사항에 그대로 표시됩니다 · 비우면 고객이 적은 내용으로 돌아갑니다</div>
@@ -669,9 +669,9 @@
       <span class="cap" style="color:#8A6A1F">결제 · 금액</span>
       <div class="pay-chips" id="sd-pay-chips"></div>
       <div class="sedit-amt">
-        <label>총액 · 받는 금액 (원)<input id="sd-total-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 500000"></label>
-        <label><span id="sd-vat-label">부가세 (총액÷11)</span><span class="calc" id="sd-vat">—</span></label>
-        <label>공급가액 (자동)<span class="calc" id="sd-supply-out">—</span></label>
+        <label>공급가액 (원 · 부가세 별도)<input id="sd-supply-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 500000"></label>
+        <label><span id="sd-vat-label">부가세 (공급가액×10%)</span><span class="calc" id="sd-vat">—</span></label>
+        <label>총액 · 청구 금액 (자동)<span class="calc strong" id="sd-total-out">—</span></label>
         <label>계약금 (원)<input id="sd-deposit" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="0"></label>
         <label style="grid-column:span 2">잔금 (자동)<span class="calc" id="sd-balance">—</span></label>
         <label>일당 · 인건비 (원)<input id="sd-day" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 150000"></label>
@@ -773,11 +773,11 @@
     }
     return { date: date, time: time };
   }
-  /* ---------- 계약 금액 (총액 · 부가세 · 공급가액 · 계약금 · 잔금 · 결제수단) ---------- */
-  /* 입력은 고객에게 실제로 받는 총액(부가세 포함 기준).
-     현금결제는 부가세 0원, 카드결제 · 세금계산서 · 현금영수증(및 미정)은 부가세 = 총액 ÷ 11. */
+  /* ---------- 계약 금액 (공급가액 · 부가세 · 총액 · 계약금 · 잔금 · 결제수단) ---------- */
+  /* 입력은 공급가액(부가세 별도) — 고객에게 보낼 금액을 공급가액으로 적고 부가세·총액은 자동 계산.
+     현금결제는 부가세 0원, 카드결제 · 세금계산서 · 현금영수증(및 미정)은 부가세 = 공급가액 × 10%. */
   var PAY_OPTS = ["카드결제", "세금계산서", "현금영수증", "현금결제"];
-  var VAT_RATE = 0.1;      /* 예전 ‘공급가액 기준’ 입력에만 쓰는 10% — 새 입력은 부가세 = 총액 ÷ 11 */
+  var VAT_RATE = 0.1;      /* 부가세율 — 공급가액 × 10% */
   function vatRateFor(pay){ return normalizePay(pay) === "현금결제" ? 0 : VAT_RATE; }
   function normalizePay(v){
     var s = String(v == null ? "" : v).trim();
@@ -805,9 +805,10 @@
     if (n > 0 && n < 1000) return Math.round(n * 10000);
     return Math.round(n);
   }
-  /* 계약 금액 — 입력은 총액(고객에게 실제로 받는 금액).
-     부가세 = 현금결제 0원, 그 외(카드·세금계산서·현금영수증·미정) Math.round(총액 / 11).
-     예전에 공급가액 기준으로 저장된 입력은 그대로 공급가액으로 읽어 화면 숫자가 바뀌지 않게 둔다. */
+  /* 계약 금액 — 입력은 공급가액.
+     부가세 = 현금결제 0원, 그 외(카드·세금계산서·현금영수증·미정) Math.round(공급가액 × 0.1).
+     총액(청구 금액) = 공급가액 + 부가세.
+     예전 '총액 입력' 시절 저장값은 그대로 총액으로 읽어(부가세 = 총액÷11) 화면 숫자가 바뀌지 않게 둔다. */
   function moneyOf(q){
     var p = pipeOf(q.id);
     var rate = vatRateFor(payOf(q));
@@ -824,14 +825,15 @@
       if (md) mDeposit = Number(md[1].replace(/,/g, ""));
     }
     var total = "", vat = "", supply = "";
-    if (own("total") && p.total !== "" && p.total != null){
-      total = rnd(p.total);
-      vat = rate === 0 ? 0 : Math.round(total / 11);
-      supply = total - vat;
-    } else if (own("supply") && p.supply !== "" && p.supply != null){
+    if (own("supply") && p.supply !== "" && p.supply != null){
       supply = rnd(p.supply);
       vat = rate === 0 ? 0 : Math.round(supply * rate);
       total = supply + vat;
+    } else if (own("total") && p.total !== "" && p.total != null){
+      /* 2026-11-23 이전 '총액 입력' 저장값 — 총액 그대로 읽고 부가세를 총액÷11로 되돌린다 */
+      total = rnd(p.total);
+      vat = rate === 0 ? 0 : Math.round(total / 11);
+      supply = total - vat;
     } else if (mSupply != null && !isNaN(mSupply)){
       supply = Math.round(mSupply);
       total = (mTotal != null && !isNaN(mTotal)) ? Math.round(mTotal) : supply + (rate === 0 ? 0 : Math.round(supply * rate));
@@ -888,6 +890,8 @@
       + '<span class="spay-m' + (pay ? "" : " unset") + '">' + icon + (pay ? esc(pay) : "결제수단 미정") + '</span>';
     if (total > 0){
       h += '<i class="spay-br" aria-hidden="true"></i>'
+        + '<span>공급 <b>' + won(m.supply) + '</b></span>'
+        + '<span>부가세 <b>' + won(m.vat) + '</b></span>'
         + '<span>총 <b>' + won(m.total) + '</b></span>'
         +  '<span>계약금 <b>' + (Number(m.deposit) > 0 ? won(m.deposit) : "미입력") + '</b></span>'
         +  '<span>잔금 <b>' + (m.balance == null ? "미정" : won(m.balance)) + '</b></span>';
@@ -896,14 +900,14 @@
     }
     var c = costOf(q);
     if (c.profit != null){
-      h += '<span class="spay-profit' + (c.profit < 0 ? " minus" : "") + '" title="총액 ' + won(m.total) + ' − 일당 ' + won(c.day) + ' − 경비 ' + won(c.expense) + '">순수익 <b>' + profitText(c.profit) + '</b></span>';
+      h += '<span class="spay-profit' + (c.profit < 0 ? " minus" : "") + '" title="공급가액 ' + won(m.supply) + ' − 일당 ' + won(c.day) + ' − 경비 ' + won(c.expense) + '">순수익 <b>' + profitText(c.profit) + '</b></span>';
     }
     return h + '</div>';
   }
   function moneyNote(m){
-    if (!m || m.total === "") return "총액을 입력하면 부가세(총액 ÷ 11)와 잔금이 자동으로 계산됩니다 · 계약금은 직접 입력";
-    if (!m.vat) return "현금결제 — 부가세 0원 · 받는 금액 " + won(m.total) + " = 공급가액";
-    return "총액 " + won(m.total) + " 중 부가세 " + won(m.vat) + " (공급가액 " + won(m.supply) + ")";
+    if (!m || (m.total === "" && m.supply === "")) return "공급가액을 입력하면 부가세와 총액(청구 금액)이 자동으로 계산됩니다 · 계약금은 직접 입력";
+    if (!m.vat) return "현금결제 — 부가세 0원 · 공급가액 " + won(m.supply) + " = 총액(청구 금액)";
+    return "공급가액 " + won(m.supply) + " + 부가세 " + won(m.vat) + " (10%) = 총액 " + won(m.total);
   }
   /* 화면 갱신 — 입력할 때마다 카드 전체를 다시 그리지 않고 계산값만 바꾼다 */
   function paintMoney(card, m){
@@ -913,12 +917,12 @@
     put('[data-amt="total"]', won(m.total));
     put('[data-amt="supply"]', won(m.supply));
     var bal = card.querySelector('[data-amt="balance"]');
-    if (bal) bal.innerHTML = (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small>';
+    if (bal) bal.innerHTML = (m.balance == null ? "—" : won(m.balance)) + '<small>총액 − 계약금</small>';
     var pl = card.querySelector('[data-amt="profit"]');
     if (pl){
       var dV = pl.getAttribute("data-day") || "", eV = pl.getAttribute("data-exp") || "";
-      var net = (dV !== "" || eV !== "") && m.total !== ""
-        ? Number(m.total) - (Number(m.vat) || 0) - (Number(dV) || 0) - (Number(eV) || 0) : null;
+      var net = (dV !== "" || eV !== "") && m.supply !== ""
+        ? Number(m.supply) - (Number(dV) || 0) - (Number(eV) || 0) : null;
       pl.innerHTML = '일당 <b>' + won(dV) + '</b> · 경비 <b>' + won(eV) + '</b> · 순수익 <b class="'
         + (net != null && net < 0 ? "loss" : "plus") + '">' + profitText(net) + '</b>';
     }
@@ -1374,9 +1378,9 @@
   }
   function payHintFor(p){
     if (p === "카드결제") return "💳 페이히어 비대면 카드결제 링크로 발송됩니다.<br>(계약금 · 잔금 모두 동일 적용)";
-    if (p === "현금결제") return "💵 현금결제 — 부가세 0원, 받는 총액이 그대로 매출·공급가액입니다.";
+    if (p === "현금결제") return "💵 현금결제 — 부가세 0원, 입력한 공급가액이 그대로 청구 금액입니다.";
     if (p) return "🏦 기업은행 계좌 입금 + " + p + " 발행으로 반영됩니다.";
-    return "카드 · 세금계산서 · 현금영수증은 부가세 = 총액÷11<br>현금결제만 부가세 0원입니다.";
+    return "카드 · 세금계산서 · 현금영수증은 부가세 = 공급가액 × 10%<br>현금결제만 부가세 0원입니다.";
   }
   function isCardPay(d){ return !!d && d.pay === "카드결제"; }
   function cardLine(d){
@@ -1480,9 +1484,9 @@ function contractData(q){
 function payVatLine(d){
   var cash = d.pay === "현금결제";
   var out = [
-    "• 총액 (받는 금액): " + won0(d.total) + "원",
-    "• 부가세 " + (cash ? "(현금결제 · 0원)" : "(총액 ÷ 11)") + ": " + won0(d.vat) + "원",
-    "• 공급가액: " + won0(d.supply) + "원"
+    "• 공급가액: " + won0(d.supply) + "원",
+    "• 부가세 " + (cash ? "(현금결제 · 0원)" : "(공급가액 × 10%)") + ": " + won0(d.vat) + "원",
+    "• 총액 (청구 금액): " + won0(d.total) + "원"
   ];
   if (d.pay) out.push("• 결제 증빙: " + d.pay);
   return out;
@@ -1579,7 +1583,7 @@ function customerData(q, o){
     time: inst.time || "",
     desired: q.desired_date || "",
     flexible: !!q.date_flexible,
-    total: m.total, deposit: m.deposit, balance: m.balance,
+    total: m.total, supply: m.supply, vat: m.vat, deposit: m.deposit, balance: m.balance,
     pay: payOf(q),
     aircon: aircon,
     noFromElv: !isNewB && q.from_elevator === "없음",
@@ -1605,12 +1609,18 @@ function customerMessageFrom(d){
   else if (korDate(d.desired)) out.push("· 희망일: " + korDate(d.desired) + (d.flexible ? " (조정 가능)" : " — 확정되는 대로 다시 안내드리겠습니다."));
   else out.push("· 일정: 협의 후 확정해 드리겠습니다.");
 
+  var supply = Number(d.supply) || 0;
+  var vat = Number(d.vat) || 0;
   var total = Number(d.total) || 0;
   var dep = Number(d.deposit) || 0;
   out.push("");
   out.push("■ 금액");
-  if (total > 0){
-    out.push("· 총 금액: " + krw(total) + (d.pay === "현금결제" ? " (부가세 없는 금액)" : " (부가세 포함)"));
+  if (supply > 0 || total > 0){
+    var cash = d.pay === "현금결제";
+    if (supply > 0) out.push("· 공급가액: " + krw(supply));
+    if (cash) out.push("· 부가세: 없음 (현금결제)");
+    else if (vat) out.push("· 부가세 (10%): " + krw(vat));
+    out.push("· 총 금액: " + krw(total) + (cash ? " (부가세 없는 금액)" : (vat ? " (부가세 포함)" : "")));
     if (dep > 0){
       var bal = (d.balance == null || isNaN(Number(d.balance))) ? Math.max(0, total - dep) : Number(d.balance);
       out.push("· 계약금: " + krw(dep) + " / 잔금: " + krw(bal) + " (작업 완료 후)");
@@ -1687,7 +1697,7 @@ function icsFor(q){
   if (!d.isNew) desc.push("작업: " + d.work);
   (d.specs || []).forEach(function(r){ desc.push(r[0] + ": " + r[1]); });
   if (d.supply !== "")
-    desc.push("금액: 합계 " + Number(d.total).toLocaleString("ko-KR") + "원 (공급가액 " + Number(d.supply).toLocaleString("ko-KR") + " + 부가세 " + Number(d.vat).toLocaleString("ko-KR") + ")");
+    desc.push("금액: 공급가액 " + Number(d.supply).toLocaleString("ko-KR") + "원 + 부가세 " + Number(d.vat).toLocaleString("ko-KR") + "원 = 총 " + Number(d.total).toLocaleString("ko-KR") + "원");
   if (d.deposit !== "") desc.push("계약금 " + Number(d.deposit).toLocaleString("ko-KR") + "원 · 잔금 " + Number(d.balance || 0).toLocaleString("ko-KR") + "원");
   if (d.pay) desc.push("결제 증빙: " + d.pay);
   var note = parseMemo(q.memo).note;
@@ -1901,9 +1911,9 @@ function drawContract(c, W, H, d, q, logo){
   y += 10;
   var cashPay = d.pay === "현금결제";
   var mrows = [
-    ["총액 (받는 금액)", won0(d.total) + "원", true],
-    [cashPay ? "부가세 (현금결제 · 없음)" : "부가세 (총액 ÷ 11)", won0(d.vat) + "원", true],
-    ["공급가액", won0(d.supply) + "원", true]
+    ["공급가액", won0(d.supply) + "원", false],
+    [cashPay ? "부가세 (현금결제 · 없음)" : "부가세 (공급가액 × 10%)", won0(d.vat) + "원", false],
+    ["총액 (청구 금액)", won0(d.total) + "원", true]
   ];
   if (d.pay) mrows.push(["결제 증빙", d.pay, false]);
   var tTop = y, thH = 44, trH = 54;
@@ -2162,10 +2172,10 @@ function openContractModal(q){
   }
   function schedMoneyCalc(){
     var rate = vatRateFor(SEDIT_PAY);
-    var total = amountOf(document.getElementById("sd-total-in").value);
-    total = (total === "" || isNaN(total)) ? "" : Math.round(total);
-    var vat = total === "" ? "" : (rate === 0 ? 0 : Math.round(total / 11));
-    var supply = total === "" ? "" : total - vat;
+    var supply = amountOf(document.getElementById("sd-supply-in").value);
+    supply = (supply === "" || isNaN(supply)) ? "" : Math.round(supply);
+    var vat = supply === "" ? "" : (rate === 0 ? 0 : Math.round(supply * rate));
+    var total = supply === "" ? "" : supply + vat;
     var deposit = amountOf(document.getElementById("sd-deposit").value);
     deposit = (deposit === "" || isNaN(deposit)) ? "" : Math.round(deposit);
     var balance = (total !== "" && deposit !== "") ? Math.max(0, total - deposit) : null;
@@ -2175,27 +2185,27 @@ function openContractModal(q){
     var m = schedMoneyCalc();
     var put = function(sel, txt){ var el = document.getElementById(sel); if (el) el.textContent = txt; };
     put("sd-vat", m.vat === "" ? "—" : won(m.vat));
-    put("sd-supply-out", m.supply === "" ? "—" : won(m.supply));
+    put("sd-total-out", m.total === "" ? "—" : won(m.total));
     put("sd-balance", m.balance == null ? "—" : won(m.balance));
-    put("sd-vat-label", m.cash ? "부가세 (현금 · 0원)" : (m.unset ? "부가세 (미정 · 10%)" : "부가세 (총액÷11)"));
-    put("sd-money-note", m.total === ""
-      ? (m.cash ? "현금결제 — 받는 금액이 곧 공급가액이고 부가세는 0원입니다." : "받는 총액을 입력하면 부가세(총액 ÷ 11) · 공급가액 · 잔금이 자동 계산됩니다.")
+    put("sd-vat-label", m.cash ? "부가세 (현금 · 0원)" : (m.unset ? "부가세 (미정 · 10%)" : "부가세 (공급가액×10%)"));
+    put("sd-money-note", m.supply === ""
+      ? "공급가액을 입력하면 부가세 · 총액(청구 금액) · 잔금이 자동 계산됩니다."
       : moneyNote(m));
-    /* 순수익 = 총액 − 부가세 − 일당 − 기타 경비 */
+    /* 순수익 = 공급가액 − 일당 − 기타 경비 (부가세는 고객에게 받아 넘기는 돈이라 손익에서 빠진다) */
     var day = amountOf(document.getElementById("sd-day").value);
     var exp = amountOf(document.getElementById("sd-expense").value);
     day = day === "" ? "" : Math.round(Number(day));
     exp = exp === "" ? "" : Math.round(Number(exp));
     var spend = (Number(day) || 0) + (Number(exp) || 0);
     var hasCost = day !== "" || exp !== "";
-    var profit = (hasCost && m.total !== "") ? Number(m.total) - (Number(m.vat) || 0) - spend : null;
+    var profit = (hasCost && m.supply !== "") ? Number(m.supply) - spend : null;
     var pel = document.getElementById("sd-profit");
     pel.textContent = profit == null ? "—" : profitText(profit);
     pel.classList.toggle("loss", profit != null && profit < 0);
     pel.classList.toggle("plus", profit != null && profit >= 0);
     put("sd-profit-note", profit == null
-      ? "일당·경비를 입력하면 순수익(총액 − 부가세 − 일당 − 경비)이 바로 계산됩니다."
-      : "순수익 = 총액 " + won(m.total) + " − 부가세 " + won(m.vat) + " − 일당 " + won(day) + " − 경비 " + won(exp) + " = " + profitText(profit)
+      ? "일당·경비를 입력하면 순수익(공급가액 − 일당 − 경비)이 바로 계산됩니다."
+      : "순수익 = 공급가액 " + won(m.supply) + " − 일당 " + won(day) + " − 경비 " + won(exp) + " = " + profitText(profit)
         + (profit < 0 ? " · 적자" : " · 흑자"));
   }
   function openSchedEdit(id){
@@ -2228,7 +2238,7 @@ function openContractModal(q){
       return '<button type="button" class="pay-chip" data-sd-pay="' + p + '">' + p + '</button>';
     }).join("");
     schedPaySet(payOf(q));
-    document.getElementById("sd-total-in").value = m.total === "" ? "" : m.total;
+    document.getElementById("sd-supply-in").value = m.supply === "" ? "" : m.supply;
     document.getElementById("sd-deposit").value = m.deposit === "" ? "" : m.deposit;
     var c = costOf(q);
     document.getElementById("sd-day").value = c.day === "" ? "" : c.day;
@@ -2274,7 +2284,9 @@ function openContractModal(q){
       installTime: timeV,
       stage: nextStage,
       pay: SEDIT_PAY,
-      total: m.total === "" ? "" : m.total,
+      supply: m.supply === "" ? "" : m.supply,
+      /* 총액은 공급가액에서 자동 계산되므로 예전 총액 저장값은 지운다 */
+      total: "",
       deposit: m.deposit === "" ? "" : m.deposit,
       dayCost: dayV === "" ? "" : Math.round(Number(dayV)),
       expense: expV === "" ? "" : Math.round(Number(expV)),
@@ -2299,31 +2311,33 @@ function openContractModal(q){
   }
   /* 한 달 손익 — 매출 · 인건비(일당+경비) · 부가세 · 순수익 (일정 탭 상단 요약 바 하나로) */
   function monthSum(dated, ym){
-    var out = { sales: 0, vat: 0, cost: 0, salesN: 0, costN: 0, cash: 0, taxed: 0 };
+    var out = { sales: 0, vat: 0, bill: 0, cost: 0, salesN: 0, costN: 0, cash: 0, taxed: 0 };
     dated.forEach(function(i){
       if (i.date.slice(0, 7) !== ym) return;
       var mm = moneyOf(i.q);
-      var mt = Number(mm.total) || 0;
-      if (mt > 0){
-        out.sales += mt; out.salesN++;
+      var ms = Number(mm.supply) || 0;
+      if (ms > 0){
+        /* 매출 = 공급가액(부가세 제외) — 부가세는 고객에게 받아 넘기는 돈이라 매출·순수익에서 뺀다 */
+        out.sales += ms; out.salesN++;
         out.vat += Number(mm.vat) || 0;
-        if (payOf(i.q) === "현금결제") out.cash += mt; else out.taxed += mt;
+        out.bill += Number(mm.total) || 0;
+        if (payOf(i.q) === "현금결제") out.cash += ms; else out.taxed += ms;
       }
       var cc = costOf(i.q);
       if (cc.hasCost){ out.cost += cc.spend; out.costN++; }
     });
-    out.net = out.sales - out.vat - out.cost;
+    out.net = out.sales - out.cost;
     return out;
   }
   function monthSumHtml(sum, mm){
     if (!sum.salesN && !sum.costN) return "";
     return '<div class="msum">'
-      + '<div class="mi"><span>' + mm + '월 매출</span><b>' + won(sum.sales) + '</b></div>'
+      + '<div class="mi"><span>' + mm + '월 매출 (공급가액)</span><b>' + won(sum.sales) + '</b></div>'
       + '<div class="mi"><span>인건비 (일당·경비)</span><b>' + won(sum.cost) + '</b></div>'
       + '<div class="mi vat"><span>부가세</span><b>' + won(sum.vat) + '</b></div>'
       + '<div class="mi net' + (sum.net < 0 ? " minus" : "") + '"><span>순수익</span><b>' + profitText(sum.net) + '</b></div>'
-      + '<div class="mcap">매출 = 총액 입력 ' + sum.salesN + '건 · 순수익 = 매출 − 부가세 − 인건비 (일당·경비 입력 ' + sum.costN + '건)</div>'
-      + (sum.cash || sum.taxed ? '<div class="mcap">💵 현금결제 ' + won(sum.cash) + ' (부가세 0) · 💳 그 외 ' + won(sum.taxed) + ' (부가세 = 총액÷11)</div>' : '')
+      + '<div class="mcap">매출 = 공급가액 기준(부가세 제외) ' + sum.salesN + '건 · 순수익 = 매출 − 인건비 (일당·경비 입력 ' + sum.costN + '건)</div>'
+      + (sum.cash || sum.taxed ? '<div class="mcap">💵 현금결제 공급가액 ' + won(sum.cash) + ' (부가세 0) · 💳 그 외 공급가액 ' + won(sum.taxed) + ' (부가세 = 공급가액×10%) · 총 청구액 ' + won(sum.bill) + '</div>' : '')
       + '</div>';
   }
   function renderScheduleTab(){
@@ -2711,18 +2725,18 @@ function openContractModal(q){
       + '    <span class="pay-note">상단 ✏️ 수정에서 변경</span>'
       + '    <span class="pay-hint">' + payHintTxt + '</span>'
       + '  </div>'
-      + '  <div class="money-item"><label>총액 (원 · 받는 금액)</label>'
-      + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="total" value="' + (m.total === "" ? "" : m.total) + '" placeholder="예: 500000">'
-      + '    <div class="money-hint" data-hint="total"></div></div>'
-      + '  <div class="money-item"><label>부가세 (자동)</label>'
+      + '  <div class="money-item"><label>공급가액 (VAT 별도)</label>'
+      + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="supply" value="' + (m.supply === "" ? "" : m.supply) + '" placeholder="예: 500000">'
+      + '    <div class="money-hint" data-hint="supply"></div></div>'
+      + '  <div class="money-item"><label>부가세 (자동 · 현금 0원)</label>'
       + '    <div class="amt" data-amt="vat">' + won(m.vat) + '</div></div>'
-      + '  <div class="money-item"><label>공급가액 (자동)</label>'
-      + '    <div class="amt" data-amt="supply">' + won(m.supply) + '</div></div>'
+      + '  <div class="money-item"><label>총액 · 청구액 (자동)</label>'
+      + '    <div class="amt strong" data-amt="total">' + won(m.total) + '</div></div>'
       + '  <div class="money-item"><label>계약금 (원)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="deposit" value="' + (m.deposit === "" ? "" : m.deposit) + '" placeholder="0">'
       + '    <div class="money-hint" data-hint="deposit"></div></div>'
       + '  <div class="money-item span2"><label>잔금 (자동)</label>'
-      + '    <div class="bal" data-amt="balance">' + (m.balance == null ? "—" : won(m.balance)) + '<small>합계 − 계약금</small></div></div>'
+      + '    <div class="bal" data-amt="balance">' + (m.balance == null ? "—" : won(m.balance)) + '<small>총액 − 계약금</small></div></div>'
       + '  <div class="vat-note">' + moneyNote(m) + '</div>'
       + (cst.hasCost
           ? '  <div class="vat-note money-profit" data-amt="profit" data-day="' + esc(cst.day) + '" data-exp="' + esc(cst.expense) + '">일당 <b>' + won(cst.day) + '</b> · 경비 <b>' + won(cst.expense) + '</b> · 순수익 <b class="' + (cst.profit != null && cst.profit < 0 ? "loss" : "plus") + '">' + profitText(cst.profit) + '</b></div>'
@@ -2995,9 +3009,10 @@ function openContractModal(q){
     Array.prototype.forEach.call(app.querySelectorAll("[data-money-id]"), function(inp){
       inp.addEventListener("input", function(){
         var id = inp.getAttribute("data-money-id");
-        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "total";
+        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "supply";
         var v = amountOf(inp.value);
         var patch = {}; patch[k] = v;
+        if (k === "supply") patch.total = "";   /* 예전 총액 저장값이 다시 살아나지 않게 */
         setPipe(id, patch);
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
@@ -3011,10 +3026,11 @@ function openContractModal(q){
       });
       inp.addEventListener("change", function(){
         var id = inp.getAttribute("data-money-id");
-        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "total";
+        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "supply";
         var v = amountOf(inp.value);
         inp.value = v === "" ? "" : String(v);
         var patch = {}; patch[k] = v;
+        if (k === "supply") patch.total = "";
         setPipe(id, patch);
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
@@ -3247,11 +3263,14 @@ function openContractModal(q){
     });
     /* 비우면 지우고 고객이 적은 [에어컨] 메모로 돌아간다 */
     if (airconV) ov.__airconOverride = airconV; else delete ov.__airconOverride;
-    /* 결제수단을 바꾸면 부가세·공급가액을 지금 받는 총액 기준으로 다시 계산한다
-       (기존 메모 금액은 총액이 그대로 유지된 채 현금 0원 / 그 외 총액÷11 로 나뉜다) */
+    /* 결제수단을 바꾸면 부가세·총액을 지금 입력된 공급가액 기준으로 다시 계산한다
+       (공급가액은 그대로, 현금 0원 / 그 외 부가세 10%가 붙어 청구 총액이 바뀐다) */
     var beforeM = moneyOf(quoteById(id) || {});
     var patch = { ov: ov, pay: ED_PAY };
-    if (beforeM.total !== "" && beforeM.total != null && !isNaN(Number(beforeM.total))) patch.total = Math.round(Number(beforeM.total));
+    if (beforeM.supply !== "" && beforeM.supply != null && !isNaN(Number(beforeM.supply))){
+      patch.supply = Math.round(Number(beforeM.supply));
+      patch.total = "";
+    }
     setPipe(id, patch);
     var rq = quoteById(id);
     if (rq) pushQuoteUpdate(effectiveQuote(rq), stageOf(effectiveQuote(rq)));
@@ -3265,7 +3284,7 @@ function openContractModal(q){
   document.getElementById("sched-modal").addEventListener("click", function(e){
     if (e.target === document.getElementById("sched-modal")) e.currentTarget.hidden = true;
   });
-  Array.prototype.forEach.call(["sd-total-in", "sd-deposit", "sd-day", "sd-expense"], function(fid){
+  Array.prototype.forEach.call(["sd-supply-in", "sd-deposit", "sd-day", "sd-expense"], function(fid){
     var inp = document.getElementById(fid);
     inp.addEventListener("input", function(){ schedMoneyPaint(); });
     inp.addEventListener("change", function(){
@@ -3315,7 +3334,7 @@ function openContractModal(q){
       to: placeOf(g("sd-to"), g("sd-tfl"), te),
       noFromElv: !isNewB && fe === "없음",
       noToElv: te === "없음",
-      total: m.total, deposit: m.deposit, balance: m.balance, pay: SEDIT_PAY
+      total: m.total, supply: m.supply, vat: m.vat, deposit: m.deposit, balance: m.balance, pay: SEDIT_PAY
     }));
   });
 
