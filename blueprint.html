@@ -2156,7 +2156,7 @@ function sheetElevation(m){
     memo.push('· 시창 '+m.winW+'×'+m.winH+' 열 적층 : '+m.winStackTxt+' = '+CFG.HEAD+(m.winBig? ' (위판 398 = 400−2 샷시 여유)' : ' (상부 1000 코스 안)')+'.');
     memo.push('· 시창 좌우 채움 '+m.winFillL+' / '+m.winFillR+' ㎜'+(m.winFillL===m.winFillR?' (좌우 대칭)':'')+' — '+m.sideName[m.winSideKey]+' · 면 안쪽 '+Math.round(m.winRegion.b-m.winRegion.a)+'.');
   }
-  memo.push('· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+', 시창 위판 400−2='+m.winAbove+'.');
+  memo.push('· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ', 시창 위판 400−2='+m.winAbove+' (샷시 삽입 여유)' : ', 시창은 상부 코스 100+800+100')+'.');
   memo.push('· 천장 65T 판 사이에 15T 합판을 세워 보강 — 마지막 판 = 자투리 − 15×이음매 개소.');
   memo.push('· 접합부 실링 · 내부 1면 라인타공 · 마루 '+CFG.MARU+' · 몰딩 45T · 경첩 '+hingeName(m.doorHinge)+'.');
   const ny = 1000, memoW = SW-3*M-252-6, memoH = 20 + memo.length*11;
