@@ -515,6 +515,41 @@
   @media (max-width:360px){
     .stage-bar .sp{padding:5px 4px;font-size:11px}
   }
+
+  /* ---------- 🏷️ 진행 구분 배지 (내 부스 이사 · 중고 구매 후 설치 · 판매·철거) ---------- */
+  .cat-tag{font-size:11px;font-weight:800;padding:3px 8px;border-radius:7px;background:#EEF2F7;color:#33465A;border:1px solid #DCE5EE;white-space:nowrap}
+  .cat-tag[data-cat="중고 구매 후 설치"]{background:#FFF4E5;color:#8A5A00;border-color:#F2D9B0}
+  .cat-tag[data-cat="판매·철거"]{background:#FDECEC;color:#8E2020;border-color:#F3C4C4}
+  .cat-tag.sm{font-size:10px;padding:2px 6px;border-radius:5px}
+
+  /* ---------- 🧮 표준 단가 계산기 ---------- */
+  .calc-open{border:1px solid var(--accent);background:#F3FAF7;border-radius:12px;height:42px;padding:0 13px;font-size:13px;font-weight:800;color:var(--accent-d);white-space:nowrap}
+  .calc{width:min(560px,95vw);max-height:92dvh;overflow:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:18px;padding:16px;display:grid;gap:10px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .calc-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .calc-h b{font-size:15px;font-weight:800}
+  .calc-sub{font-size:11.5px;font-weight:700;color:var(--muted);margin-top:-4px;line-height:1.4}
+  .calc-f{display:grid;gap:4px;font-size:11.5px;font-weight:800;color:var(--muted);min-width:0}
+  .calc-dim{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .calc-region{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .calc-region-lb{font-size:11.5px;font-weight:800;color:var(--muted)}
+  .calc-out{display:grid;gap:4px;border:1px dashed #CFE0DA;background:#F3FAF7;border-radius:12px;padding:11px 12px}
+  .calc-basis{font-size:10.5px;font-weight:800;color:var(--accent-d);line-height:1.4}
+  .calc-line{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:700;color:var(--body)}
+  .calc-line b{font-size:14px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .calc-line.tot b{font-size:16px;color:var(--accent-d)}
+  .calc-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .calc-acts .abtn{justify-content:center;text-align:center}
+  #calc-apply{grid-column:1 / -1}
+  .calc-paste{border:1px solid var(--line);border-radius:12px;padding:0 12px 10px;background:#FAF9F6}
+  .calc-paste summary{padding:11px 0;font-size:12.5px;font-weight:800;color:var(--ink2);cursor:pointer;list-style:none}
+  .calc-paste summary::-webkit-details-marker{display:none}
+  .calc-paste summary::after{content:"+";float:right;font-weight:800;color:var(--muted)}
+  .calc-paste[open] summary::after{content:"–"}
+  .calc-paste textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:13px;font-family:inherit;line-height:1.5;background:#fff;resize:vertical}
+  .calc-paste .abtn{margin-top:6px;width:100%;justify-content:center}
+  .calc-msg{margin-top:6px;font-size:11px;font-weight:700;color:var(--accent-d);line-height:1.45;min-height:14px}
+  .calc-note{font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.45}
+  .sedit-copy{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 </style>
 </head>
 <body>
@@ -689,9 +724,66 @@
       <span>📣 홍보 소재 (블로그·쇼츠)</span>
       <small>체크하면 메모에 [홍보]로 저장됩니다</small>
     </label>
-    <button type="button" class="abtn sedit-save" id="sd-copy-msg" style="background:#fff">💬 고객 안내문 복사 (지금 입력값 기준)</button>
+    <div class="sedit-copy">
+      <button type="button" class="abtn sedit-save" id="sd-copy-quote" style="background:#fff">📝 간단 견적 복사</button>
+      <button type="button" class="abtn sedit-save" id="sd-copy-confirm" style="background:#fff">📗 예약 확정 복사</button>
+    </div>
     <button type="button" class="abtn solid sedit-save" id="sd-save">💾 저장 (일정·달력·계약서에 바로 반영)</button>
     <div class="sedit-note">진행 단계는 서버(DB)에 저장되고, 날짜·시간·금액·일당·경비·주소·메모 등 나머지 항목은 이 기기에 저장되어 일정 탭과 계약서에 바로 반영됩니다.</div>
+  </div>
+</div>
+
+<div class="lb" id="calc-modal" hidden style="z-index:97">
+  <div class="calc" role="dialog" aria-modal="true" aria-labelledby="calc-title">
+    <div class="calc-h">
+      <b id="calc-title">🧮 표준 단가 계산기</b>
+      <button type="button" class="tbtn" id="calc-close">닫기</button>
+    </div>
+    <div class="calc-sub" id="calc-target">신규설치 · 숨고 응대용 · 공급가액 기준(부가세 별도)</div>
+    <label class="calc-f">표준 규격
+      <select id="calc-spec" class="sedit-in">
+        <option value="1420x1200">1420 × 1200</option>
+        <option value="1500x1500">1500 × 1500</option>
+        <option value="1500x1700">1500 × 1700</option>
+        <option value="1500x1800">1500 × 1800</option>
+        <option value="1700x2500">1700 × 2500</option>
+        <option value="1800x1800">1800 × 1800</option>
+        <option value="2000x2000" selected>2000 × 2000 (대표 표준)</option>
+        <option value="2000x2500">2000 × 2500</option>
+        <option value="2400x2600">2400 × 2600</option>
+        <option value="3000x1800">3000 × 1800</option>
+        <option value="3000x3000">3000 × 3000</option>
+        <option value="custom">직접 입력 (규격 외)</option>
+      </select>
+    </label>
+    <div class="calc-dim">
+      <label class="calc-f">가로 (mm)<input id="calc-w" type="number" inputmode="numeric" min="0" step="10" class="sedit-in" value="2000"></label>
+      <label class="calc-f">세로 (mm)<input id="calc-d" type="number" inputmode="numeric" min="0" step="10" class="sedit-in" value="2000"></label>
+    </div>
+    <div class="calc-region">
+      <span class="calc-region-lb">운송 지역</span>
+      <button type="button" class="pay-chip on" data-calc-region="0">수도권 +0원</button>
+      <button type="button" class="pay-chip" data-calc-region="1">지방 +30만 원</button>
+    </div>
+    <div class="calc-out">
+      <div class="calc-basis" id="calc-basis">—</div>
+      <div class="calc-line"><span>공급가액</span><b id="calc-supply">—</b></div>
+      <div class="calc-line"><span>부가세 (공급가액 × 10%)</span><b id="calc-vat">—</b></div>
+      <div class="calc-line tot"><span>총액 (부가세 포함)</span><b id="calc-total">—</b></div>
+      <div class="calc-line"><span>계약금 50%</span><b id="calc-deposit">—</b></div>
+    </div>
+    <div class="calc-acts">
+      <button type="button" class="abtn" id="calc-copy-supply">공급가액 복사</button>
+      <button type="button" class="abtn" id="calc-copy-link">3D 시뮬레이터 링크 복사</button>
+      <button type="button" class="abtn solid" id="calc-apply" hidden>이 견적 공급가액에 반영</button>
+    </div>
+    <details class="calc-paste" id="calc-paste-box">
+      <summary>숨고 요청 붙여넣기</summary>
+      <textarea id="calc-paste" rows="4" placeholder="예) 방음부스 2000*2000 정도 희망합니다. 경기도 용인시 3층, 엘리베이터 없음"></textarea>
+      <button type="button" class="abtn" id="calc-paste-run">규격 · 지역 읽어서 채우기</button>
+      <p class="calc-msg" id="calc-paste-msg"></p>
+    </details>
+    <p class="calc-note">표준 11규격은 공급가액(부가세 별도) 기준입니다. 규격 외 치수는 고정비 + 면적 보간으로 예상 금액을 보여드리며, 실제 견적은 현장 조건에 따라 달라질 수 있습니다.</p>
   </div>
 </div>
 
@@ -1010,10 +1102,11 @@
   }
   function parseMemo(raw){
     var lines = String(raw || "").split(/\r?\n/);
-    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", money = "", dayCost = "", expense = "", promo = "", sim = null, simUrl = "", bpUrl = "", rest = [];
+    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", money = "", dayCost = "", expense = "", promo = "", category = "", sim = null, simUrl = "", bpUrl = "", rest = [];
     lines.forEach(function(line){
       var t = line.trim();
-      if (t.indexOf("[매물 링크]") === 0) listingUrl = t.replace("[매물 링크]", "").trim();
+      if (t.indexOf("[구분]") === 0) category = t.replace("[구분]", "").trim();
+      else if (t.indexOf("[매물 링크]") === 0) listingUrl = t.replace("[매물 링크]", "").trim();
       else if (t.indexOf("[에어컨]") === 0) aircon = t.replace("[에어컨]", "").trim();
       else if (t.indexOf("[결제·증빙]") === 0) pay = t.replace("[결제·증빙]", "").trim();
       else if (t.indexOf("[진행]") === 0) stage = t.replace("[진행]", "").trim();
@@ -1030,8 +1123,20 @@
       else rest.push(line);
     });
     return { listingUrl: listingUrl, aircon: aircon, pay: pay, stage: stage, install: install, money: money,
-             dayCost: dayCost, expense: expense, promo: promo,
+             dayCost: dayCost, expense: expense, promo: promo, category: category,
              sim: sim, simUrl: simUrl, bpUrl: bpUrl, note: rest.join("\n").trim() };
+  }
+  /* [구분] 값 → 화면·안내문에 쓰는 짧은 이름 (판매 · 철거 → 판매·철거) */
+  function catLabel(v){
+    var s = String(v || "").replace(/\s*·\s*/g, "·").trim();
+    if (!s) return "";
+    if (s.indexOf("판매") === 0) return "판매·철거";
+    if (s.indexOf("중고") === 0) return "중고 구매 후 설치";
+    if (s.indexOf("내 부스") === 0) return "내 부스 이사";
+    return s;
+  }
+  function catOf(q){
+    return q ? catLabel(parseMemo(q.memo).category) : "";
   }
 
   /* ---------- 시뮬레이터 사양(SIM_SPEC) → 표시용 · 링크용 ---------- */
@@ -1132,10 +1237,12 @@
       "• 상태: " + stageLabel(stageOf(q)) + " · 접수: " + fmtDate(q.created_at),
       "• 부스: " + (isNewB ? "신규 부스" : (q.booth_type || "유형 미상")) + " / " + (q.brand || "-") + " / " + sizeLine(q)
     ];
+    if (catLabel(pm.category)) out.push("• 구분: " + catLabel(pm.category));
     if (!isNewB) {
       out.push("• 해체(출발): " + (q.from_region || "-") + (q.from_floor ? " " + q.from_floor : "") + (q.from_elevator ? " (엘베 " + q.from_elevator + ")" : ""));
     }
-    out.push("• 설치(도착): " + (q.to_region || "-") + (q.to_floor ? " " + q.to_floor : "") + (q.to_elevator ? " (엘베 " + q.to_elevator + ")" : ""));
+    if (String(q.to_region || "").trim() === "철거만") out.push("• 도착지: 없음 (철거만 · 운반·보관 별도 협의)");
+    else out.push("• 설치(도착): " + (q.to_region || "-") + (q.to_floor ? " " + q.to_floor : "") + (q.to_elevator ? " (엘베 " + q.to_elevator + ")" : ""));
     out.push("• 희망일: " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : ""));
     var inst = installOf(q);
     if (inst.date) out.push("• 설치 예정: " + fmtDay(inst.date) + (inst.time ? " " + inst.time : ""));
@@ -1380,10 +1487,10 @@
     return "010-XXXX-XXXX";
   }
   function payHintFor(p){
-    if (p === "카드결제") return "💳 페이히어 비대면 카드결제 링크로 발송됩니다.<br>(계약금 · 잔금 모두 동일 적용)";
+    if (p === "카드결제") return "💳 페이히어 비대면 카드결제 링크로 발송됩니다. · 계약금 · 잔금 모두 동일 적용";
     if (p === "현금결제") return "💵 현금결제 — 부가세 0원, 입력한 공급가액이 그대로 청구 금액입니다.";
     if (p) return "🏦 기업은행 계좌 입금 + " + p + " 발행으로 반영됩니다.";
-    return "카드 · 세금계산서 · 현금영수증은 부가세 = 공급가액 × 10%<br>현금결제만 부가세 0원입니다.";
+    return "카드 · 세금계산서 · 현금영수증은 부가세 = 공급가액 × 10% · 현금결제만 부가세 0원입니다.";
   }
   function isCardPay(d){ return !!d && d.pay === "카드결제"; }
   function cardLine(d){
@@ -1469,7 +1576,9 @@ function contractData(q){
     : ("이전 제품: " + (q.booth_type || "유형 미상") + (q.brand ? " (" + q.brand + ")" : "") + " · " + sizeLine(q));
   var route = isNewB
     ? (q.to_region || "설치 주소 미기재")
-    : ((q.from_region || "출발지 미기재") + " → " + (q.to_region || "도착지 미기재"));
+    : (catOf(q) === "판매·철거"
+        ? (q.from_region || "출발지 미기재") + " (철거 후 운반 · 보관)"
+        : ((q.from_region || "출발지 미기재") + " → " + (q.to_region || "도착지 미기재")));
   return {
     kind: isNewB ? "신규설치" : "이전설치",
     isNew: isNewB,
@@ -1575,13 +1684,17 @@ function customerData(q, o){
     if (elv) s += " (엘리베이터 " + elv + ")";
     return s.trim();
   };
+  var cat = catLabel(pm.category);
+  /* 판매·철거는 도착지가 “철거만”으로 저장되므로 안내문에 설치 장소로 쓰지 않는다 */
+  var toRegion = String(q.to_region || "").trim() === "철거만" ? "" : q.to_region;
   var d = {
     isNew: isNewB,
+    cat: cat,
     name: q.customer_name || "",
     booth: isNewB ? "" : (q.booth_type || ""),
     size: sizeLine(q),
     from: isNewB ? "" : place(q.from_region, q.from_floor, fe),
-    to: place(q.to_region, q.to_floor, te),
+    to: (isNewB || cat === "판매·철거") ? (isNewB ? place(toRegion, q.to_floor, te) : "") : place(toRegion, q.to_floor, te),
     date: inst.date || "",
     time: inst.time || "",
     desired: q.desired_date || "",
@@ -1590,78 +1703,86 @@ function customerData(q, o){
     pay: payOf(q),
     aircon: aircon,
     noFromElv: !isNewB && q.from_elevator === "없음",
-    noToElv: q.to_elevator === "없음"
+    noToElv: !!toRegion && q.to_elevator === "없음"
   };
   if (o) Object.keys(o).forEach(function(k){ if (o[k] !== undefined && o[k] !== null) d[k] = o[k]; });
   return d;
 }
-function customerMessageFrom(d){
+/* ---------- 💬 고객 발송용 복사 — 역할을 둘로 나눈다 ----------
+   ① 간단 견적 복사 : 첫 상담·견적 문의용, 카톡 한 화면에 들어가는 5~6줄 (계좌·계약금 없음)
+   ② 예약 확정 복사 : 진행이 정해졌을 때 한 번, 일정·주소·금액·입금 계좌·핵심 유의사항만
+   고객에게 나가는 문구라 금지어 10종은 copyCustomer 가 걸러 담는다. */
+function kindLine(d){
+  if (d.isNew) return "신규 방음부스 맞춤 제작·설치";
+  if (d.cat === "판매·철거") return "방음부스 철거 (판매·철거)";
+  if (d.cat === "중고 구매 후 설치") return "중고 방음부스 구매 후 설치";
+  return "방음부스 이전 설치";
+}
+function moneyText(d){
+  var supply = Number(d.supply) || 0, vat = Number(d.vat) || 0, total = Number(d.total) || 0;
+  if (!supply && !total) return "· 금액: 확인 후 안내드리겠습니다.";
+  if (d.pay === "현금결제") return "· 금액: " + krw(total || supply) + " (현금결제 · 부가세 없음)";
+  if (supply && vat) return "· 금액: 공급가액 " + krw(supply) + " + 부가세 " + krw(vat) + " = 총 " + krw(total || (supply + vat));
+  return "· 금액: " + krw(total || supply);
+}
+function simpleQuoteMessage(d){
   var nm = String(d.name || "").trim();
-  var out = [];
-  out.push("안녕하세요" + (nm ? " " + nm + "님" : "") + ", 베오방음입니다.");
-  out.push(d.isNew ? "신규 방음부스 제작·설치 건으로 안내드립니다." : "방음부스 이전 설치(해체 후 새 위치에 재설치) 건으로 안내드립니다.");
-  out.push("");
-  out.push("■ 작업 내용");
-  out.push(d.isNew ? "· 구분: 신규 방음부스 맞춤 제작·설치"
-                   : "· 구분: 방음부스 이전 설치" + (d.booth ? " (" + d.booth + ")" : ""));
-  if (d.size && String(d.size).indexOf("미기재") === -1) out.push("· 규격: " + d.size);
-  if (!d.isNew && d.from) out.push("· 해체 장소: " + d.from);
-  if (d.to) out.push("· 설치 장소: " + d.to);
-  var when = korDate(d.date);
-  if (when) out.push("· 일정: " + when + (d.time ? " " + d.time : "") + " 방문 (작업 시작 기준)");
-  else if (korDate(d.desired)) out.push("· 희망일: " + korDate(d.desired) + (d.flexible ? " (조정 가능)" : " — 확정되는 대로 다시 안내드리겠습니다."));
-  else out.push("· 일정: 협의 후 확정해 드리겠습니다.");
-
-  var supply = Number(d.supply) || 0;
-  var vat = Number(d.vat) || 0;
-  var total = Number(d.total) || 0;
-  var dep = Number(d.deposit) || 0;
-  out.push("");
-  out.push("■ 금액");
-  if (supply > 0 || total > 0){
-    var cash = d.pay === "현금결제";
-    if (supply > 0) out.push("· 공급가액: " + krw(supply));
-    if (cash) out.push("· 부가세: 없음 (현금결제)");
-    else if (vat) out.push("· 부가세 (10%): " + krw(vat));
-    out.push("· 총 금액: " + krw(total) + (cash ? " (부가세 없는 금액)" : (vat ? " (부가세 포함)" : "")));
-    if (dep > 0){
-      var bal = (d.balance == null || isNaN(Number(d.balance))) ? Math.max(0, total - dep) : Number(d.balance);
-      out.push("· 계약금: " + krw(dep) + " / 잔금: " + krw(bal) + " (작업 완료 후)");
-    } else {
-      out.push("· 계약금 확인 후 일정이 확정됩니다.");
+  var out = ["안녕하세요" + (nm ? " " + nm + "님" : "") + ", 베오방음입니다."];
+  var spec = d.isNew ? "" : (d.booth ? " · " + d.booth : "");
+  var size = (d.size && String(d.size).indexOf("미기재") === -1) ? " · " + d.size : "";
+  out.push("· 구분: " + kindLine(d) + spec + size);
+  if (!d.isNew){
+    if (d.cat === "판매·철거"){
+      if (d.from) out.push("· 철거: " + d.from);
+    } else if (d.from || d.to){
+      out.push("· 이동: " + (d.from || "미기재") + " → " + (d.to || "미기재"));
     }
-    if (d.pay === "카드결제") out.push("· 결제: 카드결제 — 결제 링크를 문자로 보내드립니다.");
-    else {
-      out.push("· 입금 계좌: " + BANK_LINE);
-      if (d.pay) out.push("· 증빙: " + d.pay + " 발행");
-    }
-  } else {
-    out.push("· 견적 금액은 확인 후 다시 안내드리겠습니다.");
   }
-
-  var notes = [];
-  if (d.noFromElv) notes.push("해체 현장에 엘리베이터가 없어 계단으로 운반합니다 — 시간이 조금 더 걸릴 수 있습니다.");
-  if (d.noToElv) notes.push("설치 현장에 엘리베이터가 없어 계단으로 운반합니다 — 시간이 조금 더 걸릴 수 있습니다.");
-  notes.push("사다리차가 필요한 현장은 미리 알려드리고, 비용이 드는 경우에도 따로 안내드립니다.");
-  if (d.aircon) notes.push("에어컨은 별도 상담 후 진행됩니다.");
-  if (d.isNew) notes.push("맞춤 제작이라 주문 확정 후 제작·설치까지 약 2주 정도 걸립니다.");
-  notes.push("우천·폭설 등 현장 상황에 따라 일정이 조정될 수 있습니다.");
-  out.push("");
-  out.push("■ 참고 사항");
-  notes.forEach(function(n){ out.push("· " + n); });
-  out.push("");
-  out.push("궁금한 점은 이 번호로 편하게 연락 주세요. 감사합니다.");
-  out.push("베오방음 · " + SUPPLIER.tel);
+  out.push(moneyText(d));
+  out.push("진행 원하시면 편한 날짜 알려주세요 :)");
   return out.join("\n");
 }
-function customerMessage(q, o){ return customerMessageFrom(customerData(q, o)); }
-function copyCustomerMessage(text){
+function bookingConfirmMessage(d){
+  var nm = String(d.name || "").trim();
+  var out = ["안녕하세요" + (nm ? " " + nm + "님" : "") + ", 베오방음입니다. 예약 확정 안내드립니다."];
+  var when = korDate(d.date);
+  if (when) out.push("· 일정: " + when + (d.time ? " " + d.time : "") + " 작업 시작");
+  else if (korDate(d.desired)) out.push("· 희망일: " + korDate(d.desired) + " — 날짜는 협의 후 확정해 드리겠습니다.");
+  else out.push("· 일정: 협의 후 확정해 드리겠습니다.");
+  if (d.isNew){
+    if (d.to) out.push("· 장소: " + d.to);
+  } else {
+    if (d.from) out.push((d.cat === "판매·철거" ? "· 철거: " : "· 해체: ") + d.from);
+    if (d.cat !== "판매·철거" && d.to) out.push("· 설치: " + d.to);
+  }
+  var supply = Number(d.supply) || 0, vat = Number(d.vat) || 0, total = Number(d.total) || 0;
+  if (supply || total){
+    if (d.pay === "현금결제") out.push("· 총액: " + krw(total || supply) + " (현금결제 · 부가세 없음)");
+    else if (supply && vat) out.push("· 총액: " + krw(total || (supply + vat)) + " (공급가액 " + krw(supply) + " + 부가세 " + krw(vat) + ")");
+    else out.push("· 총액: " + krw(total || supply));
+    var dep = Number(d.deposit) || 0;
+    var bal = (d.balance == null || isNaN(Number(d.balance))) ? Math.max(0, (total || supply) - dep) : Number(d.balance);
+    if (dep) out.push("· 계약금: " + krw(dep) + " / 잔금: " + krw(bal));
+  } else {
+    out.push("· 금액: 확인 후 안내드리겠습니다.");
+  }
+  if (d.pay === "카드결제") out.push("· 결제: 페이히어(PayHere) 비대면 카드결제 링크를 이 번호로 보내드립니다. (계약금·잔금 동일)");
+  else {
+    out.push("· 입금: 기업은행 301-115608-04-019 (예금주 이시영/베오방음)");
+    if (d.pay && d.pay !== "현금결제") out.push("· 증빙: " + d.pay + " 발행");
+  }
+  out.push("· 사다리차가 필요한 경우 비용은 고객 부담이며, 일정 변경은 하루 전까지 알려주세요.");
+  return out.join("\n");
+}
+function copyCustomer(text, okMsg){
   var hit = bannedWordsIn(text);
   var body = hit.length ? sanitizeCustomerText(text) : text;
-  copyText(body, hit.length
-    ? "고객 안내문 복사 완료 — 안내에 쓸 수 없는 표현 " + hit.length + "곳을 바꿔 담았습니다"
-    : "고객 안내문 복사 완료 — 카톡에 붙여넣으세요");
+  copyText(body, (okMsg || "복사 완료") + (hit.length
+    ? " — 안내에 쓸 수 없는 표현 " + hit.length + "곳을 바꿔 담았습니다"
+    : " — 카톡에 붙여넣으세요"));
 }
+/* 예전 이름 — 다른 곳에서 부르던 호출부가 있어 그대로 둔다 */
+function customerMessage(q, o){ return simpleQuoteMessage(customerData(q, o)); }
 /* 🖼️ 전자 계약서 이미지 — 공식 로고 PNG를 먼저 불러온 뒤 그린다 (비율 유지) */
 /* 📅 캘린더(.ics) — 고객·지역·사양·메모 + 전날 알림 */
 function icsEsc(v){
@@ -2376,13 +2497,16 @@ function openContractModal(q){
 
     var rowHtml = function(i){
       var q = i.q;
-      var addr = q.to_region || "설치지 미기재";
+      var rowCat = catLabel(parseMemo(q.memo).category);
+      var rowSale = rowCat === "판매·철거" || String(q.to_region || "").trim() === "철거만";
+      var addr = rowSale ? ((q.from_region || "철거지 미기재") + " · 철거") : (q.to_region || "설치지 미기재");
       return '<div class="srow' + (i.stage === "done" ? " is-done" : "") + '">'
         + '  <div class="srow-top">'
         + '    <div class="srow-left">'
         + '      <div class="stitle">'
         + '        <span class="stime">' + (i.time ? esc(i.time) : '<span style="color:var(--muted)">시간 미정</span>') + '</span>'
         + '        <span class="stype ' + (i.isNew ? "new" : "move") + '">' + (i.isNew ? "신규" : "이전") + '</span>'
+        + (rowCat ? '        <span class="cat-tag sm" data-cat="' + esc(rowCat) + '">' + esc(rowCat) + '</span>' : '')
         + '        <span class="sstage" data-st="' + i.stage + '">' + stageLabel(i.stage) + '</span>'
         + '        <b>' + esc(q.customer_name || "성함 미기재") + '</b>' + (i.tentative ? '<em>희망일</em>' : '')
         + (promoOf(q) ? '<span class="promo-tag">📣</span>' : '')
@@ -2392,7 +2516,7 @@ function openContractModal(q){
         + '    <div class="sacts">'
         + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
         + (digits(q.customer_phone) ? '<a class="sabtn" href="sms:' + esc(digits(q.customer_phone)) + '" aria-label="문자">💬</a>' : '')
-        + (q.to_region ? '<a class="sabtn" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : '')
+        + (q.to_region && !rowSale ? '<a class="sabtn" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : (rowSale && q.from_region ? '<a class="sabtn" href="' + naverMapUrl(q.from_region) + '" target="_blank" rel="noopener" aria-label="지도">🗺️</a>' : ''))
         + (i.stage !== "done"
             ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>'
             : '<button type="button" class="sabtn undo" data-qundone="' + esc(q.id) + '" aria-label="완료 취소">↩️</button>')
@@ -2634,6 +2758,7 @@ function openContractModal(q){
       + '    <input id="q-search" type="search" placeholder="고객명, 연락처, 지역, 메모 검색…" value="' + esc(state.query) + '">'
       + '    <button type="button" class="search-clear' + (state.query ? ' show' : '') + '" id="q-clear" aria-label="지우기">×</button>'
       + '  </div>'
+      + '  <button type="button" class="calc-open" id="calc-open">🧮 단가 계산</button>'
       + '</div>'
       + '<div class="grid">' + cardsHtml + '</div>';
 
@@ -2651,6 +2776,8 @@ function openContractModal(q){
     var sim = pm.sim || (q.width_mm || q.depth_mm ? { w: q.width_mm, d: q.depth_mm } : null);
     var simQ = simQuery(sim);
     var promoOn = promoOf(q);
+    var catNow = catLabel(pm.category);
+    var saleNow = catNow === "판매·철거";
 
     var alerts = [];
     /* 에어컨 — ✏️ 수정에서 넣은 관리자 값(ov.__airconOverride)이 고객 메모보다 우선 */
@@ -2674,23 +2801,30 @@ function openContractModal(q){
         + '<div class="raddr">' + esc(q.to_region || "미기재") + '</div>'
         + '<div class="rsub">' + esc(q.to_floor || "층수 미기재") + ' · 엘리베이터 '
         + (q.to_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.to_elevator || "미기재")) + '</div></div>'
-      : '<div class="route">'
-        + '  <div class="rbox">'
-        + '    <div class="rbox-top"><span class="rtag from">해체 (출발)</span>'
-        + (q.from_region ? '<a class="rmap" href="' + naverMapUrl(q.from_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
-        + '    <div class="raddr">' + esc(q.from_region || "미기재") + '</div>'
-        + '    <div class="rsub">' + esc(q.from_floor || "층수 미기재") + ' · 엘리베이터 '
-        + (q.from_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.from_elevator || "미기재")) + '</div>'
-        + '  </div>'
-        + '  <div class="rarrow" aria-hidden="true">→</div>'
-        + '  <div class="rbox">'
-        + '    <div class="rbox-top"><span class="rtag to">설치 (도착)</span>'
-        + (q.to_region ? '<a class="rmap" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
-        + '    <div class="raddr">' + esc(q.to_region || "미기재") + '</div>'
-        + '    <div class="rsub">' + esc(q.to_floor || "층수 미기재") + ' · 엘리베이터 '
-        + (q.to_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.to_elevator || "미기재")) + '</div>'
-        + '  </div>'
-        + '</div>';
+      : (saleNow
+        ? '<div class="rbox" style="margin-top:10px">'
+          + '<div class="rbox-top"><span class="rtag from">철거 (해체만)</span>'
+          + (q.from_region ? '<a class="rmap" href="' + naverMapUrl(q.from_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
+          + '<div class="raddr">' + esc(q.from_region || "미기재") + '</div>'
+          + '<div class="rsub">' + esc(q.from_floor || "층수 미기재") + ' · 엘리베이터 '
+          + (q.from_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.from_elevator || "미기재")) + '</div></div>'
+        : '<div class="route">'
+          + '  <div class="rbox">'
+          + '    <div class="rbox-top"><span class="rtag from">해체 (출발)</span>'
+          + (q.from_region ? '<a class="rmap" href="' + naverMapUrl(q.from_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
+          + '    <div class="raddr">' + esc(q.from_region || "미기재") + '</div>'
+          + '    <div class="rsub">' + esc(q.from_floor || "층수 미기재") + ' · 엘리베이터 '
+          + (q.from_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.from_elevator || "미기재")) + '</div>'
+          + '  </div>'
+          + '  <div class="rarrow" aria-hidden="true">→</div>'
+          + '  <div class="rbox">'
+          + '    <div class="rbox-top"><span class="rtag to">설치 (도착)</span>'
+          + (q.to_region ? '<a class="rmap" href="' + naverMapUrl(q.to_region) + '" target="_blank" rel="noopener">지도 ↗</a>' : '') + '</div>'
+          + '    <div class="raddr">' + esc(q.to_region || "미기재") + '</div>'
+          + '    <div class="rsub">' + esc(q.to_floor || "층수 미기재") + ' · 엘리베이터 '
+          + (q.to_elevator === "없음" ? '<span class="no-el">없음</span>' : esc(q.to_elevator || "미기재")) + '</div>'
+          + '  </div>'
+          + '</div>');
 
     /* 시뮬레이터 사양 배지 (있을 때만) */
     var badges = simBadges(pm.sim);
@@ -2753,6 +2887,7 @@ function openContractModal(q){
       + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
       + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
       + '      <span class="stage-tag" data-st="' + st + '">' + stageLabel(st) + '</span>'
+      + (catNow ? '      <span class="cat-tag" data-cat="' + esc(catNow) + '">' + esc(catNow) + '</span>' : '')
       + (promoOn ? '      <span class="promo-tag">📣 홍보 소재</span>' : '')
       + '      <button type="button" class="pay-chip" style="margin-left:auto" data-qedit="' + esc(q.id) + '">✏️ 수정</button>'
       + '    </div>'
@@ -2781,9 +2916,10 @@ function openContractModal(q){
       + (phoneDigits ? '<a class="abtn" href="sms:' + esc(phoneDigits) + '">💬 문자</a>' : '')
       + (isNewTab ? '    <a class="abtn" href="configurator.html?' + simQ + '" target="_blank" rel="noopener">🎨 시뮬레이터</a>' : '')
       + (isNewTab ? '    <a class="abtn" href="' + esc(blueprintUrlFor(q)) + '" target="_blank" rel="noopener">📐 이 치수로 도면 열기</a>' : '')
+      + (isNewTab ? '    <button type="button" class="abtn" data-qcalc="' + esc(q.id) + '">🧮 단가 계산</button>' : '')
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
-      + '    <button type="button" class="abtn" data-qmsg="' + esc(q.id) + '">💬 고객 안내문 복사</button>'
-      + '    <button type="button" class="abtn" data-qcontract="' + esc(q.id) + '">📋 계약 안내 복사</button>'
+      + '    <button type="button" class="abtn" data-qquote="' + esc(q.id) + '">📝 간단 견적 복사</button>'
+      + '    <button type="button" class="abtn" data-qconfirm="' + esc(q.id) + '">📗 예약 확정 복사</button>'
       + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
       + '  </div>'
       + '  <div class="qacts">'
@@ -3047,12 +3183,26 @@ function openContractModal(q){
 
     /* 결제 증빙은 카드에서 고정 표시하고 ✏️ 수정 모달에서만 바꾼다(고정 배지 — 클릭 변경 없음) */
 
-    Array.prototype.forEach.call(app.querySelectorAll("[data-qcontract]"), function(b){
+    /* 📝 간단 견적 복사 / 📗 예약 확정 복사 — 고객 발송용 2종 (금지어 치환 유지) */
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qquote]"), function(b){
       b.addEventListener("click", function(){
-        var q = state.quotes.filter(function(x){ return String(x.id) === String(b.getAttribute("data-qcontract")); })[0];
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(b.getAttribute("data-qquote")); })[0];
         if (!q) return;
-        copyText(contractText(q), "계약 안내 복사 완료!");
+        copyCustomer(simpleQuoteMessage(customerData(q)), "간단 견적 복사 완료");
       });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qconfirm]"), function(b){
+      b.addEventListener("click", function(){
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(b.getAttribute("data-qconfirm")); })[0];
+        if (!q) return;
+        copyCustomer(bookingConfirmMessage(customerData(q)), "예약 확정 복사 완료");
+      });
+    });
+    /* 🧮 단가 계산기 — 툴바(빈 상태) · 신규설치 카드 */
+    var calcOpenBtn = document.getElementById("calc-open");
+    if (calcOpenBtn) calcOpenBtn.addEventListener("click", function(){ openCalc(""); });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qcalc]"), function(b){
+      b.addEventListener("click", function(){ openCalc(b.getAttribute("data-qcalc")); });
     });
     Array.prototype.forEach.call(app.querySelectorAll("[data-qcontractimg]"), function(b){
       b.addEventListener("click", function(){
@@ -3101,11 +3251,12 @@ function openContractModal(q){
     });
 
     /* 💬 고객 안내문 복사 — 카톡에 바로 붙여넣는 존댓말 안내문 (금지어 점검 후 복사) */
+    /* 💬 예전 고객 안내문 버튼(남아 있어도 동작) — 간단 견적 복사로 이어진다 */
     Array.prototype.forEach.call(app.querySelectorAll("[data-qmsg]"), function(b){
       b.addEventListener("click", function(){
         var q = state.quotes.find(function(x){ return String(x.id) === String(b.getAttribute("data-qmsg")); });
         if (!q) return;
-        copyCustomerMessage(customerMessage(q));
+        copyCustomer(simpleQuoteMessage(customerData(q)), "간단 견적 복사 완료");
       });
     });
 
@@ -3314,10 +3465,10 @@ function openContractModal(q){
   document.getElementById("sd-promo").addEventListener("change", function(){
     document.getElementById("sd-promo-row").classList.toggle("on", this.checked);
   });
-  /* 💬 고객 안내문 복사 — 일정 수정 창에 지금 적혀 있는 값으로 바로 */
-  document.getElementById("sd-copy-msg").addEventListener("click", function(){
+  /* 📝 간단 견적 · 📗 예약 확정 — 일정 수정 창에 지금 적혀 있는 값으로 바로 */
+  function sdCustomerData(){
     var raw = quoteById(SEDIT_ID);
-    if (!raw) return;
+    if (!raw) return null;
     var m = schedMoneyCalc();
     var g = function(id){ var el = document.getElementById(id); return el ? String(el.value || "").trim() : ""; };
     var isNewB = isNewBoothQuote(raw);
@@ -3328,7 +3479,7 @@ function openContractModal(q){
       if (elv) s += " (엘리베이터 " + elv + ")";
       return s.trim();
     };
-    copyCustomerMessage(customerMessage(raw, {
+    return customerData(raw, {
       name: g("sd-name"),
       booth: g("sd-type"),
       date: g("sd-date"),
@@ -3338,7 +3489,218 @@ function openContractModal(q){
       noFromElv: !isNewB && fe === "없음",
       noToElv: te === "없음",
       total: m.total, supply: m.supply, vat: m.vat, deposit: m.deposit, balance: m.balance, pay: SEDIT_PAY
-    }));
+    });
+  }
+  document.getElementById("sd-copy-quote").addEventListener("click", function(){
+    var d = sdCustomerData();
+    if (!d) return;
+    copyCustomer(simpleQuoteMessage(d), "간단 견적 복사 완료");
+  });
+  document.getElementById("sd-copy-confirm").addEventListener("click", function(){
+    var d = sdCustomerData();
+    if (!d) return;
+    copyCustomer(bookingConfirmMessage(d), "예약 확정 복사 완료");
+  });
+
+  /* ============================================================
+     🧮 표준 단가 계산기 (신규설치 · 숨고 응대용)
+     - 표준 11규격은 공급가액(부가세 별도) 그대로
+     - 규격 외는 가장 가까운 표준 또는 고정비 + 면적 보간
+     - 지방 운송비 +30만원 토글
+     ============================================================ */
+  var STD_SPECS = [
+    { w: 1420, d: 1200, p: 222 }, { w: 1500, d: 1500, p: 236 }, { w: 1500, d: 1700, p: 245 },
+    { w: 1500, d: 1800, p: 272 }, { w: 1700, d: 2500, p: 340 }, { w: 1800, d: 1800, p: 309 },
+    { w: 2000, d: 2000, p: 327 }, { w: 2000, d: 2500, p: 372 }, { w: 3000, d: 1800, p: 409 },
+    { w: 2400, d: 2600, p: 460 }, { w: 3000, d: 3000, p: 563 }
+  ];
+  var CALC = { regional: false, targetId: "", w: 2000, d: 2000 };
+  function calcStd(w, d){
+    var a = Math.min(w, d), b = Math.max(w, d);
+    for (var i = 0; i < STD_SPECS.length; i++){
+      var s = STD_SPECS[i], x = Math.min(s.w, s.d), y = Math.max(s.w, s.d);
+      if (Math.abs(x - a) <= 20 && Math.abs(y - b) <= 20) return s;
+    }
+    return null;
+  }
+  function calcQuote(w, d){
+    if (!w || !d) return null;
+    var std = calcStd(w, d), base, basis;
+    if (std){
+      base = std.p * 10000;
+      basis = "표준 " + Number(std.w).toLocaleString("ko-KR") + " × " + Number(std.d).toLocaleString("ko-KR") + " 기준";
+    } else {
+      var area = (w / 1000) * (d / 1000);
+      base = Math.round(135 + 48.9 * area) * 10000;
+      basis = "규격 외 · 고정 135만 + 48.9만/㎡ 보간 (면적 " + area.toFixed(2) + "㎡)";
+    }
+    var supply = Math.round((base + (CALC.regional ? 300000 : 0)) / 10000) * 10000;
+    var vat = Math.round(supply * 0.1);
+    return { supply: supply, vat: vat, total: supply + vat, deposit: Math.round((supply + vat) / 2),
+             basis: basis, regional: CALC.regional, std: std };
+  }
+  function calcRead(){
+    var w = Math.max(0, Math.round(Number(document.getElementById("calc-w").value) || 0));
+    var d = Math.max(0, Math.round(Number(document.getElementById("calc-d").value) || 0));
+    CALC.w = w; CALC.d = d;
+    return { w: w, d: d };
+  }
+  function calcPaint(){
+    var dim = calcRead();
+    var c = calcQuote(dim.w, dim.d);
+    var put = function(id, txt){ var el = document.getElementById(id); if (el) el.textContent = txt; };
+    if (!c){
+      put("calc-basis", "가로 · 세로를 입력해 주세요");
+      put("calc-supply", "—"); put("calc-vat", "—"); put("calc-total", "—"); put("calc-deposit", "—");
+      return;
+    }
+    put("calc-basis", c.basis + (c.regional ? " · 지방 운송비 +300,000원 포함" : " · 수도권 운송비 포함"));
+    put("calc-supply", krw(c.supply));
+    put("calc-vat", krw(c.vat));
+    put("calc-total", krw(c.total));
+    put("calc-deposit", krw(c.deposit));
+    var sel = document.getElementById("calc-spec");
+    if (sel && document.activeElement !== sel) sel.value = c.std ? (c.std.w + "x" + c.std.d) : "custom";
+  }
+  function calcRegionSet(on){
+    CALC.regional = !!on;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
+      b.classList.toggle("on", (b.getAttribute("data-calc-region") === "1") === CALC.regional);
+    });
+  }
+  function openCalc(id){
+    CALC.targetId = id || "";
+    var q = id ? quoteById(id) : null;
+    var applyBtn = document.getElementById("calc-apply");
+    var target = document.getElementById("calc-target");
+    if (q){
+      var qd = effectiveQuote(q);
+      var w = Number(qd.width_mm || 0), d = Number(qd.depth_mm || 0);
+      if (w) document.getElementById("calc-w").value = w;
+      if (d) document.getElementById("calc-d").value = d;
+      var pay = payOf(qd);
+      target.textContent = "적용 대상: " + (qd.customer_name || "이름 없음") + " · #" + String(q.id).slice(0, 8).toUpperCase()
+        + " · " + (pay || "결제 미정") + (pay === "현금결제" ? " (부가세 0원으로 계산됨)" : "");
+      if (applyBtn) applyBtn.hidden = false;
+    } else {
+      target.textContent = "신규설치 · 숨고 응대용 · 공급가액 기준(부가세 별도)";
+      if (applyBtn) applyBtn.hidden = true;
+    }
+    var msg = document.getElementById("calc-paste-msg");
+    if (msg) msg.textContent = "";
+    calcPaint();
+    document.getElementById("calc-modal").hidden = false;
+  }
+  function calcClose(){ document.getElementById("calc-modal").hidden = true; }
+
+  /* 숨고 요청 텍스트 → 가로 · 세로(mm), 지역 */
+  function calcUnitToMm(v, u){
+    var n = Number(v);
+    if (!isFinite(n) || n <= 0) return 0;
+    u = String(u || "").toLowerCase();
+    if (u === "m") return Math.round(n * 1000);
+    if (u === "cm") return Math.round(n * 10);
+    if (u === "mm") return Math.round(n);
+    if (n < 10) return Math.round(n * 1000);   /* 2 × 2 → 2000 */
+    if (n < 100) return Math.round(n * 10);    /* 200 × 180 → 2000 × 1800 */
+    return Math.round(n);
+  }
+  function parseSizeText(txt){
+    var t = String(txt || "").replace(/(\d),(?=\d{3})/g, "$1");   /* 2,000 → 2000 */
+    var ok = function(a, b, ua, ub){
+      var w = calcUnitToMm(a, ua), d = calcUnitToMm(b, ub);
+      if (w >= 800 && w <= 6000 && d >= 800 && d <= 6000) return { w: w, d: d };
+      return null;
+    };
+    var m = t.match(/가로\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?[^\d]{0,8}세로\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?/i);
+    if (m){ var r = ok(m[1], m[3], m[2], m[4]); if (r) return r; }
+    m = t.match(/세로\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?[^\d]{0,8}가로\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?/i);
+    if (m){ r = ok(m[3], m[1], m[4], m[2]); if (r) return r; }
+    m = t.match(/(?:^|[^a-zA-Z])[wW]\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?[^\d]{0,8}[dD]\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?/);
+    if (m){ r = ok(m[1], m[3], m[2], m[4]); if (r) return r; }
+    var re = /(\d+(?:\.\d+)?)\s*(mm|cm|m)?\s*[×xX*]\s*(\d+(?:\.\d+)?)\s*(mm|cm|m)?/g, hit;
+    while ((hit = re.exec(t))){
+      r = ok(hit[1], hit[3], hit[2], hit[4]);
+      if (r) return r;
+    }
+    return null;
+  }
+  var REGION_METRO = ["서울","경기","인천","김포","부천","고양","파주","수원","성남","안양","안산","시흥","광명","군포","과천","구리","남양주","의정부","용인","화성","평택","오산","이천","안성","포천","양주","동두천","여주","연천","가평","양평","하남","광주시","강화","옹진","일산","분당","수지","판교"];
+  var REGION_LOCAL = ["부산","대구","대전","울산","세종","강원","춘천","원주","강릉","속초","충북","충남","청주","천안","아산","전주","전북","전남","목포","여수","순천","경북","경남","포항","구미","안동","경주","창원","김해","진주","제주","서귀포","광주광역시"];
+  function calcRegionOf(txt){
+    var t = String(txt || "");
+    var hasLocal = REGION_LOCAL.some(function(k){ return t.indexOf(k) !== -1; });
+    var hasMetro = REGION_METRO.some(function(k){ return t.indexOf(k) !== -1; });
+    if (hasLocal) return "local";
+    if (hasMetro) return "metro";
+    return "";
+  }
+
+  document.getElementById("calc-close").addEventListener("click", calcClose);
+  document.getElementById("calc-modal").addEventListener("click", function(e){
+    if (e.target === document.getElementById("calc-modal")) calcClose();
+  });
+  ["calc-w", "calc-d"].forEach(function(id){
+    var inp = document.getElementById(id);
+    inp.addEventListener("input", calcPaint);
+    inp.addEventListener("change", calcPaint);
+  });
+  document.getElementById("calc-spec").addEventListener("change", function(){
+    if (this.value === "custom") return;
+    var p = this.value.split("x");
+    document.getElementById("calc-w").value = p[0];
+    document.getElementById("calc-d").value = p[1];
+    calcPaint();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
+    b.addEventListener("click", function(){
+      calcRegionSet(b.getAttribute("data-calc-region") === "1");
+      calcPaint();
+    });
+  });
+  document.getElementById("calc-copy-supply").addEventListener("click", function(){
+    var dim = calcRead();
+    var c = calcQuote(dim.w, dim.d);
+    if (!c){ toast("가로 · 세로를 먼저 입력해 주세요"); return; }
+    copyText(String(c.supply), "공급가액 " + krw(c.supply) + " 복사 완료");
+  });
+  document.getElementById("calc-copy-link").addEventListener("click", function(){
+    var dim = calcRead();
+    if (!dim.w || !dim.d){ toast("가로 · 세로를 먼저 입력해 주세요"); return; }
+    copyText("https://beosoundproof.com/configurator.html?sim=1&w=" + dim.w + "&d=" + dim.d,
+      "3D 시뮬레이터 링크 복사 완료 — 고객에게 붙여넣으세요");
+  });
+  document.getElementById("calc-paste-run").addEventListener("click", function(){
+    var txt = document.getElementById("calc-paste").value || "";
+    var msg = document.getElementById("calc-paste-msg");
+    if (!String(txt).trim()){ msg.textContent = "붙여넣은 내용이 없습니다."; return; }
+    var sz = parseSizeText(txt);
+    var where = calcRegionOf(txt);
+    if (sz){
+      document.getElementById("calc-w").value = sz.w;
+      document.getElementById("calc-d").value = sz.d;
+    }
+    if (where) calcRegionSet(where === "local");
+    calcPaint();
+    var bits = [];
+    bits.push(sz ? ("규격 " + sz.w.toLocaleString("ko-KR") + " × " + sz.d.toLocaleString("ko-KR") + " mm") : "규격을 찾지 못했습니다 — 직접 입력해 주세요");
+    bits.push(where === "local" ? "지방(+30만) 반영" : (where === "metro" ? "수도권" : "지역을 찾지 못했습니다 — 직접 골라 주세요"));
+    msg.textContent = bits.join(" · ");
+  });
+  document.getElementById("calc-apply").addEventListener("click", function(){
+    var id = CALC.targetId;
+    if (!id){ toast("적용할 견적을 먼저 선택해 주세요"); return; }
+    var dim = calcRead();
+    var c = calcQuote(dim.w, dim.d);
+    if (!c){ toast("가로 · 세로를 먼저 입력해 주세요"); return; }
+    var q = quoteById(id);
+    if (!q){ toast("적용할 견적을 찾지 못했습니다"); return; }
+    setPipe(id, { supply: c.supply, total: "" });
+    var eq = effectiveQuote(quoteById(id));
+    pushQuoteUpdate(eq, stageOf(eq));
+    calcClose();
+    toast("공급가액 " + krw(c.supply) + " 반영 완료 — 카드에서 확인하세요");
+    render();
   });
 
   Array.prototype.forEach.call(bottomNav.querySelectorAll("[data-nav]"), function(b){
