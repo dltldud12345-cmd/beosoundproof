@@ -226,6 +226,9 @@
   .pay-chips{display:flex;gap:5px;flex-wrap:wrap;max-width:100%}
   .pay-chip{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;font-size:11.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
   .pay-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .pay-fixed{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line2);background:var(--soft);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;color:var(--ink);white-space:nowrap}
+  .pay-fixed.unset{background:#fff;color:var(--muted);font-weight:700}
+  .pay-note{font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap}
   .pay-hint{font-size:10px;font-weight:700;color:var(--muted);flex:1 1 100%;line-height:1.35}
   .vat-note{grid-column:1 / -1;font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.4;min-width:0}
   .money-profit{margin-top:2px;color:var(--ink2)}
@@ -372,6 +375,10 @@
     .pay-line{grid-column:1 / -1}
   }
 
+  /* 📋 고객 조건 · 요청사항 (엘베·에어컨·결제·매물) */
+  .alerts-box{margin-top:10px;padding:9px 11px 10px;border:1px dashed #D9D1C2;border-radius:12px;background:#FAF9F6}
+  .alerts-hd{font-size:11px;font-weight:800;color:#8A6A1F;margin-bottom:6px;letter-spacing:.1px}
+  .alerts-box .alerts{margin-top:0}
   .alerts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .abadge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:4px 9px;border-radius:8px}
   .abadge.warn{background:var(--warn-bg);color:var(--warn);border:1px solid #F3CFC6}
@@ -583,6 +590,20 @@
       <label style="display:grid;gap:4px">가로(mm)<input id="ed-w" type="number" class="inst-in"></label>
       <label style="display:grid;gap:4px">세로(mm)<input id="ed-d" type="number" class="inst-in"></label>
       <label style="display:grid;gap:4px">높이(mm)<input id="ed-h" type="number" class="inst-in"></label>
+    </div>
+    <div style="display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#FFFCF5;font-size:12px;font-weight:700;color:var(--muted)">
+      <div style="display:grid;gap:5px">결제 증빙
+        <div class="pay-chips" id="ed-pay-chips">
+          <button type="button" class="pay-chip" data-ed-pay="카드결제">카드결제</button>
+          <button type="button" class="pay-chip" data-ed-pay="세금계산서">세금계산서</button>
+          <button type="button" class="pay-chip" data-ed-pay="현금영수증">현금영수증</button>
+          <button type="button" class="pay-chip" data-ed-pay="현금결제">현금결제</button>
+          <button type="button" class="pay-chip" data-ed-pay="">미정</button>
+        </div>
+        <div style="font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.35">현금결제는 부가세 0원 · 나머지(카드 · 세금계산서 · 현금영수증 · 미정)는 부가세 = 총액 ÷ 11로 다시 계산됩니다</div>
+      </div>
+      <label style="display:grid;gap:4px">에어컨<input id="ed-aircon" class="inst-in" style="text-align:left;padding:0 10px" placeholder="해체·이동만(+50,000원) / 없음"></label>
+      <div style="font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.35">카드의 📋 고객 조건 · 요청사항에 그대로 표시됩니다 · 비우면 고객이 적은 내용으로 돌아갑니다</div>
     </div>
     <div id="ed-from-wrap" style="display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#FAF9F6;font-size:12px;font-weight:700;color:var(--muted)">
       <label style="display:grid;gap:4px">해체(출발지) 주소<input id="ed-from" class="inst-in" style="text-align:left;padding:0 10px"></label>
@@ -2117,6 +2138,7 @@ function openContractModal(q){
   /* ---------- ✏️ 일정 탭에서 바로 수정 ---------- */
   var SEDIT_ID = "";
   var SEDIT_PAY = "";
+  var ED_PAY = "";   /* ✏️ 사양 · 주소 수정 모달에서 고른 결제수단(빈 값 = 미정) */
   /* DB는 엘리베이터를 "있음"/"없음" 문자열로, 예전 기기 저장은 true/false로 갖고 있다 — 둘 다 읽는다 */
   function elvVal(v){
     if (v === true || v === "true" || v === "있음") return "있음";
@@ -2130,6 +2152,12 @@ function openContractModal(q){
     SEDIT_PAY = normalizePay(p || "");
     Array.prototype.forEach.call(document.querySelectorAll("#sd-pay-chips [data-sd-pay]"), function(b){
       b.classList.toggle("on", b.getAttribute("data-sd-pay") === SEDIT_PAY);
+    });
+  }
+  function edPaySet(p){
+    ED_PAY = normalizePay(p || "");
+    Array.prototype.forEach.call(document.querySelectorAll("#ed-pay-chips [data-ed-pay]"), function(b){
+      b.classList.toggle("on", (b.getAttribute("data-ed-pay") || "") === ED_PAY);
     });
   }
   function schedMoneyCalc(){
@@ -2608,10 +2636,14 @@ function openContractModal(q){
     var promoOn = promoOf(q);
 
     var alerts = [];
+    /* 에어컨 — ✏️ 수정에서 넣은 관리자 값(ov.__airconOverride)이 고객 메모보다 우선 */
+    var airconTxt = (q.__airconOverride != null && String(q.__airconOverride).trim() !== "")
+      ? String(q.__airconOverride).trim() : (pm.aircon || "");
+    var payNow = payOf(q);
     if (!isNewTab && q.from_elevator === "없음") alerts.push('<span class="abadge warn">⚠️ 해체지 엘베 없음</span>');
     if (q.to_elevator === "없음") alerts.push('<span class="abadge warn">⚠️ 설치지 엘베 없음</span>');
-    if (pm.aircon) alerts.push('<span class="abadge info">❄️ 에어컨: ' + esc(pm.aircon) + '</span>');
-    if (pm.pay) alerts.push('<span class="abadge info">💳 ' + esc(pm.pay) + '</span>');
+    if (airconTxt) alerts.push('<span class="abadge info">❄️ 에어컨: ' + esc(airconTxt) + '</span>');
+    if (payNow) alerts.push('<span class="abadge info">' + (payNow === "카드결제" ? "💳 " : "🧾 ") + esc(payNow) + '</span>');
     if (pm.listingUrl) alerts.push('<a class="abadge link" href="' + esc(pm.listingUrl) + '" target="_blank" rel="noopener">🔗 매물 링크 ↗</a>');
 
     var statusBtns = STAGES.map(function(s){
@@ -2675,9 +2707,8 @@ function openContractModal(q){
     var moneyHtml = '<div class="money-row">'
       + '  <div class="pay-line">'
       + '    <label>결제 증빙</label>'
-      + '    <div class="pay-chips">' + PAY_OPTS.map(function(p){
-        return '<button type="button" class="pay-chip' + (pay === p ? " on" : "") + '" data-pay-id="' + esc(q.id) + '" data-pay="' + p + '">' + p + '</button>';
-      }).join("") + '</div>'
+      + '    <span class="pay-fixed' + (pay ? "" : " unset") + '" data-pay-fixed="' + esc(q.id) + '">' + (pay ? (pay === "카드결제" ? "💳 " : "🧾 ") + esc(pay) : "미정") + '</span>'
+      + '    <span class="pay-note">상단 ✏️ 수정에서 변경</span>'
       + '    <span class="pay-hint">' + payHintTxt + '</span>'
       + '  </div>'
       + '  <div class="money-item"><label>총액 (원 · 받는 금액)</label>'
@@ -2713,7 +2744,7 @@ function openContractModal(q){
       + '</div>'
       + '<div class="stage-bar">' + statusBtns + '</div>'
       + (st === "done" ? '<div class="stage-hint">완료된 건입니다 — 단계 버튼이나 ↩️ 완료 취소로 언제든 되돌릴 수 있고, 금액·설치일·결제 증빙은 그대로 수정할 수 있습니다.</div>' + '<label class="promo-row' + (promoOn ? " on" : "") + '"><input type="checkbox" data-promo-id="' + esc(q.id) + '"' + (promoOn ? " checked" : "") + '><span>📣 홍보 소재 (블로그·쇼츠)</span><small>체크하면 메모에 [홍보]로 저장됩니다</small></label>' : '')
-      + (alerts.length ? '<div class="alerts">' + alerts.join("") + '</div>' : '')
+      + (alerts.length ? '<div class="alerts-box"><div class="alerts-hd">📋 고객 조건 · 요청사항</div><div class="alerts">' + alerts.join("") + '</div></div>' : '')
       + '<div class="spec-grid">'
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
@@ -2995,33 +3026,7 @@ function openContractModal(q){
       });
     });
 
-    /* 결제 증빙 선택 — 다시 누르면 미정으로 돌린다 */
-    Array.prototype.forEach.call(app.querySelectorAll("[data-pay-id]"), function(b){
-      b.addEventListener("click", function(){
-        var id = b.getAttribute("data-pay-id");
-        var p = b.getAttribute("data-pay");
-        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
-        if (!q) return;
-        var next = payOf(q) === p ? "" : p;
-        setPipe(id, { pay: next });
-        Array.prototype.forEach.call(b.parentNode.querySelectorAll(".pay-chip"), function(x){
-          x.classList.toggle("on", !!next && x === b);
-        });
-        var ph = b.closest(".pay-line") && b.closest(".pay-line").querySelector(".pay-hint");
-        if (ph){
-          ph.innerHTML = payHintFor(next);
-        }
-        /* 결제수단에 따라 부가세(현금 0원 / 그 외 총액÷11)가 달라지므로 금액 줄을 다시 칠한다 */
-        var card = b.closest(".qsheet");
-        if (card){
-          paintMoney(card, moneyOf(q));
-          var vn = card.querySelector(".vat-note");
-          if (vn) vn.textContent = moneyNote(moneyOf(q));
-        }
-        pushMemoUpdate(q, stageOf(q));
-        toast(next ? "결제수단을 ‘" + next + "’(으)로 바꿨습니다 · 부가세 " + (next === "현금결제" ? "0원" : "자동 계산") : "결제수단을 미정으로 비웠습니다");
-      });
-    });
+    /* 결제 증빙은 카드에서 고정 표시하고 ✏️ 수정 모달에서만 바꾼다(고정 배지 — 클릭 변경 없음) */
 
     Array.prototype.forEach.call(app.querySelectorAll("[data-qcontract]"), function(b){
       b.addEventListener("click", function(){
@@ -3061,6 +3066,8 @@ function openContractModal(q){
         document.getElementById("ed-tfl").value = q.to_floor || "";
         document.getElementById("ed-tel").value = elvVal(q.to_elevator);
         document.getElementById("ed-note").value = q.__noteOverride != null ? q.__noteOverride : (pm.note || "");
+        edPaySet(payOf(q));
+        document.getElementById("ed-aircon").value = (q.__airconOverride != null ? q.__airconOverride : pm.aircon) || "";
         em.hidden = false;
       });
     });
@@ -3205,6 +3212,11 @@ function openContractModal(q){
     if (e.target === document.getElementById("ct-modal")) e.currentTarget.hidden = true;
   });
   document.getElementById("edit-close").addEventListener("click", function(){ document.getElementById("edit-modal").hidden = true; });
+  document.getElementById("ed-pay-chips").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("[data-ed-pay]") : null;
+    if (!b) return;
+    edPaySet(b.getAttribute("data-ed-pay") || "");
+  });
   document.getElementById("edit-modal").addEventListener("click", function(e){
     if (e.target === document.getElementById("edit-modal")) e.currentTarget.hidden = true;
   });
@@ -3214,7 +3226,10 @@ function openContractModal(q){
     if (!id) return;
     var fel = document.getElementById("ed-fel").value;
     var tel = document.getElementById("ed-tel").value;
-    var ov = {
+    /* 기존 기기 저장값(ov)에 덮어쓰기 — 다른 화면에서 넣은 항목을 지우지 않는다 */
+    var prevOv = pipeOf(id).ov || {};
+    var airconV = document.getElementById("ed-aircon").value.trim();
+    var ov = Object.assign({}, prevOv, {
       customer_name: document.getElementById("ed-name").value.trim(),
       customer_phone: document.getElementById("ed-phone").value.trim(),
       booth_type: document.getElementById("ed-type").value.trim(),
@@ -3229,8 +3244,15 @@ function openContractModal(q){
       to_floor: document.getElementById("ed-tfl").value.trim(),
       to_elevator: tel,
       __noteOverride: document.getElementById("ed-note").value.trim()
-    };
-    setPipe(id, { ov: ov });
+    });
+    /* 비우면 지우고 고객이 적은 [에어컨] 메모로 돌아간다 */
+    if (airconV) ov.__airconOverride = airconV; else delete ov.__airconOverride;
+    /* 결제수단을 바꾸면 부가세·공급가액을 지금 받는 총액 기준으로 다시 계산한다
+       (기존 메모 금액은 총액이 그대로 유지된 채 현금 0원 / 그 외 총액÷11 로 나뉜다) */
+    var beforeM = moneyOf(quoteById(id) || {});
+    var patch = { ov: ov, pay: ED_PAY };
+    if (beforeM.total !== "" && beforeM.total != null && !isNaN(Number(beforeM.total))) patch.total = Math.round(Number(beforeM.total));
+    setPipe(id, patch);
     var rq = quoteById(id);
     if (rq) pushQuoteUpdate(effectiveQuote(rq), stageOf(effectiveQuote(rq)));
     em.hidden = true;
