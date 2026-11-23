@@ -293,7 +293,7 @@
         <span class="lb">부스 내 에어컨 <em>선택</em></span>
         <div class="chips" id="aircon-chips">
           <label class="chip"><input type="radio" name="aircon" value="없음" checked><span>없음</span></label>
-          <label class="chip"><input type="radio" name="aircon" value="있음"><span>있음 (해체·이동만 +5만 원)</span></label>
+          <label class="chip"><input type="radio" name="aircon" value="있음"><span>있음 (해체·이동만 +50,000원)</span></label>
         </div>
         <p class="hint">에어컨 재설치는 진행하지 않으며, 해체 후 이동만 가능합니다 (재설치는 에어컨 설치 전문업체 이용 필요).</p>
       </div>
@@ -494,11 +494,11 @@
   <details class="sms">
     <summary><span>링크 입력이 번거로우시면, 이 양식을 복사해 문자로 보내주세요</span><span class="chev">▾</span></summary>
     <div class="inner">
-      <p class="hint">아래 항목을 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 부스에 에어컨이 있으면 해체·이동만 가능(+5만 원)하고, 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
+      <p class="hint">아래 항목을 채워 문자로 보내주시면 똑같이 접수해 드립니다.<br>사다리차 이용 시 비용은 별도(해체지 · 설치지 각각)이고, 엘리베이터 없는 3층 이상은 사다리차로 진행합니다. 부스에 에어컨이 있으면 해체·이동만 가능(+50,000원)하고, 카드결제 · 세금계산서 · 현금영수증 발행도 가능합니다.</p>
       <pre class="tmpl" id="tmpl">[베오방음 이전설치 견적 문의]
 1. 부스 유형: 싱글(문 1개·한 겹) / 세미더블 / 더블(문 2개·두 겹) (모르면 '모름')
 2. 제조사:
-3. 부스 내 에어컨: 없음 / 있음 (해체·이동만, +5만 원)
+3. 부스 내 에어컨: 없음 / 있음 (해체·이동만, +50,000원)
 4. 외부 크기(가로×세로×높이, mm):
 5. 부스 사진: 1~2장 (최대 6장) — 사진이 없으면 6번만 적어도 됩니다
 6. 매물 링크(선택): 중고나라 · 번개장터 · 당근 주소
@@ -749,7 +749,7 @@
     var memo = ($("memo").value || "").trim();
     var head = [];
     if (link) head.push("[매물 링크] " + link);
-    if (checkedValue("aircon") === "있음") head.push("[에어컨] 해체·이동만(+5만원)");
+    if (checkedValue("aircon") === "있음") head.push("[에어컨] 해체·이동만(+50,000원)");
     if (checkedValue("pay")) head.push("[결제·증빙] " + checkedValue("pay"));
     if (head.length) memo = head.join("\n") + (memo ? "\n\n" + memo : "");
     if (memo.length > 2000) memo = memo.slice(0, 2000);

@@ -256,7 +256,6 @@
       <div class="field"><label>시창 규격 <span class="hint">한 번 눌러 적용</span></label>
         <div class="seg" id="winSpec">
           <button data-v="none" aria-pressed="true">없음</button>
-          <button data-v="400x800" aria-pressed="false">400×800</button>
           <button data-v="600x800" aria-pressed="false">600×800</button>
           <button data-v="800x800" aria-pressed="false">800×800</button>
           <button data-v="1200x800" aria-pressed="false">1200×800</button>
@@ -278,7 +277,7 @@
         <p class="note-small" id="winFillNote"></p>
         <p class="note-small warnline" id="winWarn"></p>
       </div>
-      <p class="note-small" id="winNote">· <b>400×800</b> 세로 시창 — 상부 1000 코스 안에 100 + 800 + 100.<br>· <b>600×800</b> 시창 — 600 모듈 1칸, 400×800과 같은 100 + 800 + 100 코스.<br>· <b>800×800</b> 검사시창 — 문 폭을 뺀 남은 공간 <b>정중앙</b>, 좌우 <b>같은 폭</b> 채움 · 아래 <b>400×400 2장</b> · 위 <b>400×398 2장</b>(샷시 2mm 여유). <b>600+200으로 쪼개지 않습니다.</b><br>· <b>1200×800</b> 가로 시창 — 600 모듈 2장 · 아래 <b>600×400 2장</b> · 위 <b>600×398 2장</b>. 위치는 드래그·슬라이더로 자유 이동.<br>· <b>이중창 1200</b> — 위와 같은 600 모듈 2칸 구성에 안·밖 <b>돌출 이중창</b>으로 시공합니다.</p>
+      <p class="note-small" id="winNote">· <b>600×800</b> 시창 — 600 모듈 1칸, 상부 1000 코스 안에 100 + 800 + 100.<br>· <b>800×800</b> 검사시창 — 문 폭을 뺀 남은 공간 <b>정중앙</b>, 좌우 <b>같은 폭</b> 채움 · 아래 <b>400×400 2장</b> · 위 <b>400×398 2장</b>(샷시 2mm 여유). <b>600+200으로 쪼개지 않습니다.</b><br>· <b>1200×800</b> 가로 시창 — 600 모듈 2장 · 아래 <b>600×400 2장</b> · 위 <b>600×398 2장</b>. 위치는 드래그·슬라이더로 자유 이동.<br>· <b>이중창 1200</b> — 위와 같은 600 모듈 2칸 구성에 안·밖 <b>돌출 이중창</b>으로 시공합니다.</p>
     </section>
 
     <section class="card">
@@ -482,12 +481,11 @@ function buildModel(inp){
   const doorSide = inp.doorSide, doorAlign = inp.doorAlign;
   const doorHinge = inp.doorHinge==='left' ? 'left' : 'right';   // 문 밖에서 볼 때 경첩 쪽
   const innerW = Math.max(0, W-CFG.FIN*2), innerD = Math.max(0, D-CFG.FIN*2);   // 내부 유효
-  /* --- 시창 규격 : 없음 / 400×800(세로) / 800×800(검사시창) / 1200×800 -----
+  /* --- 시창 규격 : 없음 / 600×800(기본) / 800×800(검사시창) / 1200×800 ---
      800·1200 은 아래 400 · 시창 · 위 398(샷시 2mm 여유) · 상단 밴드 402 로 쌓고,
-     400×800 은 상부 1000 코스 안에 100 + 800 + 100 으로 넣는다.            */
+     600×800 은 상부 1000 코스 안에 100 + 800 + 100 으로 넣는다.            */
   const WIN_SPEC = {
     none:       {w:0,    h:0, cols:[]},
-    '400x800':  {w:400,  h:800, cols:[400]},
     '600x800':  {w:600,  h:800, cols:[600]},
     '800x800':  {w:800,  h:800, cols:[400,400]},
     '1200x800': {w:1200, h:800, cols:[600,600]},
@@ -1417,7 +1415,7 @@ function sheetPlan(m){
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
     ['hSlat','라인타공 1면 ('+m.sideName[m.lineFace]+') · 슬랫 마감 · 발주표에서 제외'],
-    ['hGlass','시창 '+(m.winCount? m.winW+'×'+m.winH : '400×800')+' 아크릴 3T · 드래그로 위치 이동'],
+    ['hGlass','시창 '+(m.winCount? m.winW+'×'+m.winH : '600×800')+' 아크릴 3T · 드래그로 위치 이동'],
     m.lightMode==='rail'
       ? ['rail','레일등 '+m.railLen+' ㎜ — 벽 안쪽면 '+m.railInset+' ㎜ 이격, 내부 길이 가운데 정렬']
       : ['cob','COB 매립등 2구 Ø'+m.cobDia+' 타공 — 내부 '+m.lineLen+' ÷ 3 = '+m.cobGap+' (1/3·2/3 지점)'],
@@ -2927,7 +2925,7 @@ function init(){
   }
   const qWs = q.get('ws') || src.winSpec;
   state.winCenter = null;
-  if(['none','400x800','600x800','800x800','1200x800','double1200'].indexOf(qWs)>=0) setSeg('#winSpec','winSpec', qWs);
+  if(['none','600x800','800x800','1200x800','double1200'].indexOf(qWs)>=0) setSeg('#winSpec','winSpec', qWs);
   const qWc = q.get('wc') || src.winCount, qWn = q.get('wn') || src.winSide;
   if(qWc) $('#winCount').value = qWc;
   if(qWn) $('#winSide').value = qWn;
