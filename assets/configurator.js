@@ -2880,12 +2880,12 @@ const photoWinImgs = {};
 /* 클린 화이트 전용 타공판 오버레이 — 실제 화이트 라인타공 시공 사진(clean-white.jpg)의
    홈줄 단면을 측량해 4배 슈퍼샘플링으로 다시 합성한 에셋 (AI 생성 아님) */
 const WHITE_SLATS = {
-  'slat_nocob': 'assets/slat-nocob-white.webp?v=4',
-  'side_left':  'assets/side-slat-white-left.webp?v=4',
-  'side_right': 'assets/side-slat-white-right.webp?v=4'
+  'slat_nocob': 'assets/slat-nocob-white.webp?v=5',
+  'side_left':  'assets/side-slat-white-left.webp?v=5',
+  'side_right': 'assets/side-slat-white-right.webp?v=5'
 };
 /* 화이트 타공판은 에셋 자체가 실사 화이트 도장면이므로, 선택한 도장 색만 곱해 톤을 맞춘다 */
-const WHITE_SLAT_REF = [223, 219, 208];   // 화이트워시(#DFDBD0) 기준값
+const WHITE_SLAT_REF = [240, 239, 234];   // 화이트(#F0EFEA) 기준값 — 밝은 쪽을 1.0으로 두어 하이라이트가 날아가지 않게
 function preloadPhotoWins(){
   const map = {
     '600x800': 'assets/win-600.png?v=8',
