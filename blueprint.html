@@ -2904,10 +2904,24 @@ function init(){
   const q = new URLSearchParams(location.search);
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem('beo-blueprint')||'null'); }catch(e){}
-  const qHinge = q.get('hg') || q.get('hinge');
-  const src = Object.assign({}, saved||{},
-    q.get('w') ? {W:q.get('w'),D:q.get('d'),H:q.get('h')||2280,doorSide:q.get('ds')||'front',doorAlign:q.get('da')||'center'} : {},
-    qHinge ? {doorHinge: qHinge} : {});
+  const numOf = v => { const n = Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return (isFinite(n) && n > 0) ? n : null; };
+  const pickV = (v, allowed) => (allowed.indexOf(v) >= 0 ? v : null);
+  const qW = numOf(q.get('w')), qD = numOf(q.get('d')), qH = numOf(q.get('h'));
+  const src = Object.assign({}, saved||{});
+  if(qW || qD){
+    /* 관리자 견적(또는 시뮬레이터)에서 넘어온 치수 — 저장값보다 우선. 규격은 넘어온 값을 외경으로 쓴다. */
+    src.W = qW || (+src.W || 1500);
+    src.D = qD || (+src.D || 1800);
+    src.H = qH || 2280;
+    const ds = pickV(q.get('ds'), ['front','back','left','right']);
+    const da = pickV(q.get('da'), ['left','center','right']);
+    if(ds) src.doorSide = ds;
+    if(da) src.doorAlign = da;
+  } else if(qH){
+    src.H = qH;
+  }
+  const qHinge = pickV(q.get('hg') || q.get('hinge'), ['left','right']);
+  if(qHinge) src.doorHinge = qHinge;
   if(src.W) $('#W').value = src.W;
   if(src.D) $('#D').value = src.D;
   if(src.H) $('#H').value = src.H;
@@ -2954,7 +2968,9 @@ function init(){
   if(qLt==='4000' || qLt==='6500') setSeg('#ledTemp','ledTemp', qLt);
   const qPj = q.get('pj') || src.projectWin;
   if(qPj==='in' || qPj==='none') setSeg('#projectWin','projectWin', qPj);
-  if(q.get('sim') === '1' && $('#simNote')) $('#simNote').hidden = false;
+  if(q.get('sim') === '1' || q.get('from') === 'admin'){
+    if($('#simNote')) $('#simNote').hidden = false;
+  }
 
   render();
 }

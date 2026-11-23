@@ -212,6 +212,13 @@
   .sabtn.undo{background:#FFF9EC;border-color:#EFD9A6}
   .stage-hint{margin-top:7px;font-size:11px;font-weight:700;color:#8A5A00;background:#FFF9EC;border:1px dashed #EFD9A6;border-radius:9px;padding:7px 10px;line-height:1.45}
 
+  /* 📣 홍보 소재 체크 */
+  .promo-row{display:flex;align-items:center;gap:7px;margin-top:8px;padding:8px 10px;border:1px dashed #D9D1C2;border-radius:10px;background:#FAF9F6;font-size:12px;font-weight:800;color:var(--body2,#4B555D);cursor:pointer;line-height:1.3;flex-wrap:wrap}
+  .promo-row.on{background:#FFF7E6;border-color:#F2C877;color:#8A5A00}
+  .promo-row input{width:17px;height:17px;margin:0;flex:0 0 auto;accent-color:#B4622A}
+  .promo-row small{font-weight:700;font-size:10.5px;color:var(--muted)}
+  .promo-tag{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;background:#FFF7E6;color:#8A5A00;border:1px solid #F2C877;white-space:nowrap}
+
   /* 계약 금액 + 계약 안내서 */
   .money-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;padding:11px 12px;border:1px dashed #E3D6BF;background:#FFFCF5;border-radius:12px;min-width:0;max-width:100%;overflow:hidden}
   .pay-line{grid-column:1 / -1;display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap;min-width:0}
@@ -656,6 +663,12 @@
     <label style="display:grid;gap:4px;font-size:11.5px;font-weight:800;color:var(--muted)">메모
       <textarea id="sd-note" rows="3" style="border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;background:#FAF9F6"></textarea>
     </label>
+    <label class="promo-row" id="sd-promo-row">
+      <input type="checkbox" id="sd-promo">
+      <span>📣 홍보 소재 (블로그·쇼츠)</span>
+      <small>체크하면 메모에 [홍보]로 저장됩니다</small>
+    </label>
+    <button type="button" class="abtn sedit-save" id="sd-copy-msg" style="background:#fff">💬 고객 안내문 복사 (지금 입력값 기준)</button>
     <button type="button" class="abtn solid sedit-save" id="sd-save">💾 저장 (일정·달력·계약서에 바로 반영)</button>
     <div class="sedit-note">진행 단계는 서버(DB)에 저장되고, 날짜·시간·금액·일당·경비·주소·메모 등 나머지 항목은 이 기기에 저장되어 일정 탭과 계약서에 바로 반영됩니다.</div>
   </div>
@@ -838,6 +851,13 @@
     if (v == null) return "—";
     return (v < 0 ? "−" : "") + won(Math.abs(v));
   }
+  /* ---------- 📣 홍보 소재(블로그·쇼츠) — 이 기기 저장 + 메모 [홍보] 태그 ---------- */
+  function promoOf(q){
+    if (!q) return false;
+    var p = pipeOf(q.id);
+    if (Object.prototype.hasOwnProperty.call(p, "promo")) return !!p.promo;
+    return !!parseMemo(q.memo).promo;
+  }
   function schedPayLine(q){
     var pay = payOf(q);
     var m = moneyOf(q);
@@ -962,7 +982,7 @@
   }
   function parseMemo(raw){
     var lines = String(raw || "").split(/\r?\n/);
-    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", money = "", dayCost = "", expense = "", sim = null, simUrl = "", bpUrl = "", rest = [];
+    var listingUrl = "", aircon = "", pay = "", stage = "", install = "", money = "", dayCost = "", expense = "", promo = "", sim = null, simUrl = "", bpUrl = "", rest = [];
     lines.forEach(function(line){
       var t = line.trim();
       if (t.indexOf("[매물 링크]") === 0) listingUrl = t.replace("[매물 링크]", "").trim();
@@ -973,6 +993,7 @@
       else if (t.indexOf("[금액]") === 0) money = t.replace("[금액]", "").trim();
       else if (t.indexOf("[일당]") === 0) dayCost = t.replace("[일당]", "").trim();
       else if (t.indexOf("[경비]") === 0) expense = t.replace("[경비]", "").trim();
+      else if (t.indexOf("[홍보]") === 0) promo = t.replace("[홍보]", "").trim() || "1";
       else if (t.indexOf("[SIM_SPEC]") === 0){
         try { sim = JSON.parse(t.replace("[SIM_SPEC]", "").trim()); } catch (e) { sim = null; }
       }
@@ -981,7 +1002,7 @@
       else rest.push(line);
     });
     return { listingUrl: listingUrl, aircon: aircon, pay: pay, stage: stage, install: install, money: money,
-             dayCost: dayCost, expense: expense,
+             dayCost: dayCost, expense: expense, promo: promo,
              sim: sim, simUrl: simUrl, bpUrl: bpUrl, note: rest.join("\n").trim() };
   }
 
@@ -1024,6 +1045,53 @@
     add("fl", FLOOR_LABEL[sim.fl] || sim.fl);
     if (sim.lt === "6500") add("lt", "6500");
     return p.join("&");
+  }
+  /* ---------- 📐 이 치수로 도면 열기 — 견적 치수·문 위치·시창을 blueprint.html 로 넘긴다 ---------- */
+  /* 메모의 [창문] 같은 글자값에서 시창 규격만 골라낸다 (없으면 그대로 없음) */
+  function winSpecFromText(txt){
+    var t = String(txt || "");
+    if (!t || t.indexOf("없") === 0) return "";
+    if (/이중창/.test(t)) return "double1200";
+    var m = t.match(/(\d{3,4})\s*[×xX*]\s*(\d{3,4})/);
+    if (!m) return "";
+    var k = m[1] + "x" + m[2];
+    return (k === "600x800" || k === "800x800" || k === "1200x800") ? k : "";
+  }
+  function blueprintQueryFor(q){
+    q = effectiveQuote(q);
+    var pm = parseMemo(q.memo);
+    var sim = pm.sim || null;
+    var p = [];
+    var add = function(k, v){ if (v !== undefined && v !== null && v !== "") p.push(k + "=" + encodeURIComponent(v)); };
+    /* 규격은 견적서에 적힌 외경(mm)을 그대로 — 시뮬레이터 사양이 있으면 그것도 같이 */
+    var w = Number(q.width_mm || (sim && sim.w) || 0);
+    var d = Number(q.depth_mm || (sim && sim.d) || 0);
+    var h = Number(q.height_mm || 0);
+    add("w", w || ""); add("d", d || ""); if (h) add("h", h);
+    add("ds", "front");
+    if (sim && sim.door) add("da", sim.door);
+    if (sim && sim.hg) add("hg", sim.hg);
+    if (sim && sim.sp) add("lf", sim.sp);
+    if (sim) add("lm", sim.light === "rail" ? "rail" : "cob");
+    var winSpec = sim ? (sim.win || "none") : winSpecFromText(memoField(q, "창문"));
+    if (winSpec){
+      add("ws", winSpec);
+      if (winSpec !== "none"){ add("wc", 1); add("wn", (sim && sim.wp) || "left"); }
+    }
+    var bb = (sim && sim.ab ? (ARTBOARD_LABEL[sim.ab] || sim.ab) : "") || memoField(q, "아트보드 3면");
+    var sl = (sim && sim.sl ? (SLAT_LABEL[sim.sl] || sim.sl) : "") || memoField(q, "라인타공 1면");
+    var fl = (sim && sim.fl ? (FLOOR_LABEL[sim.fl] || sim.fl) : "") || memoField(q, "바닥마감재");
+    if (bb) add("bb", bb);
+    if (sl) add("sl", sl);
+    if (fl) add("fl", fl);
+    if (sim && sim.lt === "6500") add("lt", "6500");
+    if (sim && sim.pr === "in") add("pj", "in");
+    add("from", "admin");
+    return p.join("&");
+  }
+  function blueprintUrlFor(q){
+    var qs = blueprintQueryFor(q);
+    return "blueprint.html" + (qs ? "?" + qs : "");
   }
   function stageLabel(v){ return (STAGE_BY_V[v] || STAGE_BY_V.new).label; }
   function formatCopyText(q){
@@ -1146,7 +1214,7 @@
     var base = String(q.memo || "").split(/\r?\n/).filter(function(l){
       var t = l.trim();
       return !(t.indexOf("[진행]") === 0 || t.indexOf("[설치일]") === 0 || t.indexOf("[금액]") === 0 || t.indexOf("[결제·증빙]") === 0
-        || t.indexOf("[일당]") === 0 || t.indexOf("[경비]") === 0);
+        || t.indexOf("[일당]") === 0 || t.indexOf("[경비]") === 0 || t.indexOf("[홍보]") === 0);
     }).join("\n").trim();
     var lines = [];
     if (base) lines.push(base);
@@ -1162,6 +1230,7 @@
       lines.push("[금액]" + mparts.join(" / "));
     }
     if (pay) lines.push("[결제·증빙] " + pay);
+    if (promoOf(q)) lines.push("[홍보] 블로그·쇼츠");
     var cost = costOf(q);
     if (cost.day !== "") lines.push("[일당] " + Number(cost.day).toLocaleString("ko-KR"));
     if (cost.expense !== "") lines.push("[경비] " + Number(cost.expense).toLocaleString("ko-KR"));
@@ -1434,6 +1503,130 @@ function contractText(q){
   out.push(card ? "위 사양·금액 확인 후 계약금 카드결제 시 예약이 확정됩니다." : "위 사양·금액 확인 후 계약금 입금 시 예약이 확정됩니다.");
   out.push("베오방음 (BEOSOUNDPROOF) · " + SUPPLIER.tel);
   return out.join("\n");
+}
+/* ---------- 💬 고객 안내문 (카톡 복사용) ----------
+   고객에게 나가는 문구라 금지어 10종은 절대 넣지 않는다 — 혹시 들어가면 아래 표대로 바꿔 담는다. */
+var BANNED_WORDS = ["120mm", "110mm", "9T", "45T", "스펀지", "보강", "환기", "무상", "A/S", "공기순환구"];
+var BANNED_SAFE = { "120mm": "", "110mm": "", "9T": "", "45T": "",
+  "스펀지": "흡음재", "보강": "튼튼하게", "환기": "바람길", "무상": "추가 비용 없이",
+  "A/S": "사후 관리", "공기순환구": "공기 순환 구조" };
+function bannedWordsIn(text){
+  var t = String(text || "").toUpperCase();
+  return BANNED_WORDS.filter(function(w){ return t.indexOf(String(w).toUpperCase()) !== -1; });
+}
+function sanitizeCustomerText(text){
+  var out = String(text || "");
+  BANNED_WORDS.forEach(function(w){
+    var re = new RegExp(String(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    out = out.replace(re, BANNED_SAFE[w] == null ? "" : BANNED_SAFE[w]);
+  });
+  /* 단어를 빼고 남은 빈칸·겹친 띄어쓰기는 한 칸으로 정돈 */
+  return out.replace(/[ \t]{2,}/g, " ").replace(/[ \t]+$/gm, "");
+}
+function korDate(ds){
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(ds || ""))) return "";
+  var p = String(ds).split("-");
+  return p[0] + ". " + Number(p[1]) + ". " + Number(p[2]) + ".(" + weekdayOf(ds) + ")";
+}
+function krw(v){
+  return (v === "" || v == null || isNaN(Number(v))) ? "" : Number(v).toLocaleString("ko-KR") + "원";
+}
+/* 견적 한 건 → 고객 안내문에 필요한 값 (o 로 화면의 최신 입력값을 덮어쓸 수 있다) */
+function customerData(q, o){
+  q = effectiveQuote(q);
+  var isNewB = isNewBoothQuote(q);
+  var inst = installOf(q);
+  var m = moneyOf(q);
+  var pm = parseMemo(q.memo);
+  var fe = elvVal(q.from_elevator), te = elvVal(q.to_elevator);
+  /* [에어컨] 태그가 없어도 메모 본문에 적힌 에어컨 이야기는 안내에 넣는다 */
+  var aircon = pm.aircon || (/에어컨/.test(pm.note || "") ? "상담" : "");
+  var place = function(region, floor, elv){
+    var s = String(region || "").trim();
+    if (floor) s += " " + floor;
+    if (elv) s += " (엘리베이터 " + elv + ")";
+    return s.trim();
+  };
+  var d = {
+    isNew: isNewB,
+    name: q.customer_name || "",
+    booth: isNewB ? "" : (q.booth_type || ""),
+    size: sizeLine(q),
+    from: isNewB ? "" : place(q.from_region, q.from_floor, fe),
+    to: place(q.to_region, q.to_floor, te),
+    date: inst.date || "",
+    time: inst.time || "",
+    desired: q.desired_date || "",
+    flexible: !!q.date_flexible,
+    total: m.total, deposit: m.deposit, balance: m.balance,
+    pay: payOf(q),
+    aircon: aircon,
+    noFromElv: !isNewB && q.from_elevator === "없음",
+    noToElv: q.to_elevator === "없음"
+  };
+  if (o) Object.keys(o).forEach(function(k){ if (o[k] !== undefined && o[k] !== null) d[k] = o[k]; });
+  return d;
+}
+function customerMessageFrom(d){
+  var nm = String(d.name || "").trim();
+  var out = [];
+  out.push("안녕하세요" + (nm ? " " + nm + "님" : "") + ", 베오방음입니다.");
+  out.push(d.isNew ? "신규 방음부스 제작·설치 건으로 안내드립니다." : "방음부스 이전 설치(해체 후 새 위치에 재설치) 건으로 안내드립니다.");
+  out.push("");
+  out.push("■ 작업 내용");
+  out.push(d.isNew ? "· 구분: 신규 방음부스 맞춤 제작·설치"
+                   : "· 구분: 방음부스 이전 설치" + (d.booth ? " (" + d.booth + ")" : ""));
+  if (d.size && String(d.size).indexOf("미기재") === -1) out.push("· 규격: " + d.size);
+  if (!d.isNew && d.from) out.push("· 해체 장소: " + d.from);
+  if (d.to) out.push("· 설치 장소: " + d.to);
+  var when = korDate(d.date);
+  if (when) out.push("· 일정: " + when + (d.time ? " " + d.time : "") + " 방문 (작업 시작 기준)");
+  else if (korDate(d.desired)) out.push("· 희망일: " + korDate(d.desired) + (d.flexible ? " (조정 가능)" : " — 확정되는 대로 다시 안내드리겠습니다."));
+  else out.push("· 일정: 협의 후 확정해 드리겠습니다.");
+
+  var total = Number(d.total) || 0;
+  var dep = Number(d.deposit) || 0;
+  out.push("");
+  out.push("■ 금액");
+  if (total > 0){
+    out.push("· 총 금액: " + krw(total) + (d.pay === "현금결제" ? " (부가세 없는 금액)" : " (부가세 포함)"));
+    if (dep > 0){
+      var bal = (d.balance == null || isNaN(Number(d.balance))) ? Math.max(0, total - dep) : Number(d.balance);
+      out.push("· 계약금: " + krw(dep) + " / 잔금: " + krw(bal) + " (작업 완료 후)");
+    } else {
+      out.push("· 계약금 확인 후 일정이 확정됩니다.");
+    }
+    if (d.pay === "카드결제") out.push("· 결제: 카드결제 — 결제 링크를 문자로 보내드립니다.");
+    else {
+      out.push("· 입금 계좌: " + BANK_LINE);
+      if (d.pay) out.push("· 증빙: " + d.pay + " 발행");
+    }
+  } else {
+    out.push("· 견적 금액은 확인 후 다시 안내드리겠습니다.");
+  }
+
+  var notes = [];
+  if (d.noFromElv) notes.push("해체 현장에 엘리베이터가 없어 계단으로 운반합니다 — 시간이 조금 더 걸릴 수 있습니다.");
+  if (d.noToElv) notes.push("설치 현장에 엘리베이터가 없어 계단으로 운반합니다 — 시간이 조금 더 걸릴 수 있습니다.");
+  notes.push("사다리차가 필요한 현장은 미리 알려드리고, 비용이 드는 경우에도 따로 안내드립니다.");
+  if (d.aircon) notes.push("에어컨은 별도 상담 후 진행됩니다.");
+  if (d.isNew) notes.push("맞춤 제작이라 주문 확정 후 제작·설치까지 약 2주 정도 걸립니다.");
+  notes.push("우천·폭설 등 현장 상황에 따라 일정이 조정될 수 있습니다.");
+  out.push("");
+  out.push("■ 참고 사항");
+  notes.forEach(function(n){ out.push("· " + n); });
+  out.push("");
+  out.push("궁금한 점은 이 번호로 편하게 연락 주세요. 감사합니다.");
+  out.push("베오방음 · " + SUPPLIER.tel);
+  return out.join("\n");
+}
+function customerMessage(q, o){ return customerMessageFrom(customerData(q, o)); }
+function copyCustomerMessage(text){
+  var hit = bannedWordsIn(text);
+  var body = hit.length ? sanitizeCustomerText(text) : text;
+  copyText(body, hit.length
+    ? "고객 안내문 복사 완료 — 안내에 쓸 수 없는 표현 " + hit.length + "곳을 바꿔 담았습니다"
+    : "고객 안내문 복사 완료 — 카톡에 붙여넣으세요");
 }
 /* 🖼️ 전자 계약서 이미지 — 공식 로고 PNG를 먼저 불러온 뒤 그린다 (비율 유지) */
 /* 📅 캘린더(.ics) — 고객·지역·사양·메모 + 전날 알림 */
@@ -2016,6 +2209,9 @@ function openContractModal(q){
     document.getElementById("sd-date-hint").textContent = (q.desired_date && inst.date !== q.desired_date)
       ? "고객 희망일 " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "") + " · 날짜를 비우면 ‘일정 미정’으로 돌아갑니다."
       : "날짜를 비우면 ‘일정 미정’으로 돌아갑니다.";
+    var prCar = document.getElementById("sd-promo");
+    prCar.checked = promoOf(q);
+    document.getElementById("sd-promo-row").classList.toggle("on", prCar.checked);
     schedMoneyPaint();
     document.getElementById("sched-modal").hidden = false;
   }
@@ -2054,6 +2250,7 @@ function openContractModal(q){
       deposit: m.deposit === "" ? "" : m.deposit,
       dayCost: dayV === "" ? "" : Math.round(Number(dayV)),
       expense: expV === "" ? "" : Math.round(Number(expV)),
+      promo: !!document.getElementById("sd-promo").checked,
       ov: ov
     };
     /* 금액을 비우면 기존 입력값(만 원 단위 등)이 남지 않도록 키를 지운다 */
@@ -2143,6 +2340,7 @@ function openContractModal(q){
         + '        <span class="stype ' + (i.isNew ? "new" : "move") + '">' + (i.isNew ? "신규" : "이전") + '</span>'
         + '        <span class="sstage" data-st="' + i.stage + '">' + stageLabel(i.stage) + '</span>'
         + '        <b>' + esc(q.customer_name || "성함 미기재") + '</b>' + (i.tentative ? '<em>희망일</em>' : '')
+        + (promoOf(q) ? '<span class="promo-tag">📣</span>' : '')
         + '      </div>'
         + '      <div class="saddr">' + esc(addr) + (q.to_floor ? ' · ' + esc(q.to_floor) : '') + '</div>'
         + '    </div>'
@@ -2407,6 +2605,7 @@ function openContractModal(q){
     var phoneDigits = digits(q.customer_phone);
     var sim = pm.sim || (q.width_mm || q.depth_mm ? { w: q.width_mm, d: q.depth_mm } : null);
     var simQ = simQuery(sim);
+    var promoOn = promoOf(q);
 
     var alerts = [];
     if (!isNewTab && q.from_elevator === "없음") alerts.push('<span class="abadge warn">⚠️ 해체지 엘베 없음</span>');
@@ -2506,13 +2705,14 @@ function openContractModal(q){
       + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
       + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
       + '      <span class="stage-tag" data-st="' + st + '">' + stageLabel(st) + '</span>'
+      + (promoOn ? '      <span class="promo-tag">📣 홍보 소재</span>' : '')
       + '      <button type="button" class="pay-chip" style="margin-left:auto" data-qedit="' + esc(q.id) + '">✏️ 수정</button>'
       + '    </div>'
       + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
       + '  </div>'
       + '</div>'
       + '<div class="stage-bar">' + statusBtns + '</div>'
-      + (st === "done" ? '<div class="stage-hint">완료된 건입니다 — 단계 버튼이나 ↩️ 완료 취소로 언제든 되돌릴 수 있고, 금액·설치일·결제 증빙은 그대로 수정할 수 있습니다.</div>' : '')
+      + (st === "done" ? '<div class="stage-hint">완료된 건입니다 — 단계 버튼이나 ↩️ 완료 취소로 언제든 되돌릴 수 있고, 금액·설치일·결제 증빙은 그대로 수정할 수 있습니다.</div>' + '<label class="promo-row' + (promoOn ? " on" : "") + '"><input type="checkbox" data-promo-id="' + esc(q.id) + '"' + (promoOn ? " checked" : "") + '><span>📣 홍보 소재 (블로그·쇼츠)</span><small>체크하면 메모에 [홍보]로 저장됩니다</small></label>' : '')
       + (alerts.length ? '<div class="alerts">' + alerts.join("") + '</div>' : '')
       + '<div class="spec-grid">'
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
@@ -2532,8 +2732,9 @@ function openContractModal(q){
       + (phoneDigits ? '<a class="abtn solid" href="tel:' + esc(phoneDigits) + '">📞 전화</a>' : '')
       + (phoneDigits ? '<a class="abtn" href="sms:' + esc(phoneDigits) + '">💬 문자</a>' : '')
       + (isNewTab ? '    <a class="abtn" href="configurator.html?' + simQ + '" target="_blank" rel="noopener">🎨 시뮬레이터</a>' : '')
-      + (isNewTab ? '    <a class="abtn" href="blueprint.html?' + simQ + '" target="_blank" rel="noopener">📐 설계도</a>' : '')
+      + (isNewTab ? '    <a class="abtn" href="' + esc(blueprintUrlFor(q)) + '" target="_blank" rel="noopener">📐 이 치수로 도면 열기</a>' : '')
       + '    <button type="button" class="abtn" data-qcopy="' + esc(q.id) + '">📋 요청서 복사</button>'
+      + '    <button type="button" class="abtn" data-qmsg="' + esc(q.id) + '">💬 고객 안내문 복사</button>'
       + '    <button type="button" class="abtn" data-qcontract="' + esc(q.id) + '">📋 계약 안내 복사</button>'
       + '    <button type="button" class="abtn" data-qcontractimg="' + esc(q.id) + '">🖼️ 계약서 이미지</button>'
       + '  </div>'
@@ -2873,6 +3074,29 @@ function openContractModal(q){
       });
     });
 
+    /* 💬 고객 안내문 복사 — 카톡에 바로 붙여넣는 존댓말 안내문 (금지어 점검 후 복사) */
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qmsg]"), function(b){
+      b.addEventListener("click", function(){
+        var q = state.quotes.find(function(x){ return String(x.id) === String(b.getAttribute("data-qmsg")); });
+        if (!q) return;
+        copyCustomerMessage(customerMessage(q));
+      });
+    });
+
+    /* 📣 홍보 소재 체크 — 메모 [홍보] 태그 + 이 기기 저장 */
+    Array.prototype.forEach.call(app.querySelectorAll("[data-promo-id]"), function(cb){
+      cb.addEventListener("change", function(){
+        var id = cb.getAttribute("data-promo-id");
+        var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
+        var on = !!cb.checked;
+        setPipe(id, { promo: on });
+        var row = cb.closest ? cb.closest(".promo-row") : null;
+        if (row) row.classList.toggle("on", on);
+        if (q) pushQuoteUpdate(q, stageOf(effectiveQuote(q)));
+        toast(on ? "홍보 소재로 표시했습니다 — 블로그·쇼츠 후보" : "홍보 소재 표시를 풀었습니다");
+      });
+    });
+
     Array.prototype.forEach.call(app.querySelectorAll("[data-qdel]"), function(b){
       b.addEventListener("click", function(){
         var id = b.getAttribute("data-qdel");
@@ -3043,6 +3267,35 @@ function openContractModal(q){
     schedMoneyPaint();
   });
   document.getElementById("sd-save").addEventListener("click", saveSchedEdit);
+  document.getElementById("sd-promo").addEventListener("change", function(){
+    document.getElementById("sd-promo-row").classList.toggle("on", this.checked);
+  });
+  /* 💬 고객 안내문 복사 — 일정 수정 창에 지금 적혀 있는 값으로 바로 */
+  document.getElementById("sd-copy-msg").addEventListener("click", function(){
+    var raw = quoteById(SEDIT_ID);
+    if (!raw) return;
+    var m = schedMoneyCalc();
+    var g = function(id){ var el = document.getElementById(id); return el ? String(el.value || "").trim() : ""; };
+    var isNewB = isNewBoothQuote(raw);
+    var fe = document.getElementById("sd-fel").value, te = document.getElementById("sd-tel").value;
+    var placeOf = function(region, floor, elv){
+      var s = String(region || "").trim();
+      if (floor) s += " " + floor;
+      if (elv) s += " (엘리베이터 " + elv + ")";
+      return s.trim();
+    };
+    copyCustomerMessage(customerMessage(raw, {
+      name: g("sd-name"),
+      booth: g("sd-type"),
+      date: g("sd-date"),
+      time: g("sd-time"),
+      from: isNewB ? "" : placeOf(g("sd-from"), g("sd-ffl"), fe),
+      to: placeOf(g("sd-to"), g("sd-tfl"), te),
+      noFromElv: !isNewB && fe === "없음",
+      noToElv: te === "없음",
+      total: m.total, deposit: m.deposit, balance: m.balance, pay: SEDIT_PAY
+    }));
+  });
 
   Array.prototype.forEach.call(bottomNav.querySelectorAll("[data-nav]"), function(b){
     b.addEventListener("click", function(){ state.nav = b.getAttribute("data-nav"); state.qStatus = "all"; render(); window.scrollTo(0, 0); });
