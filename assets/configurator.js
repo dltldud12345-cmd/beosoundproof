@@ -2877,12 +2877,15 @@ function photoHexToRgb(hex){
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 const photoWinImgs = {};
-/* 클린 화이트 전용 타공판 오버레이 — 메이플 원본에서 우드 색을 빼고 화이트 도장으로 리컬러링한 PNG */
+/* 클린 화이트 전용 타공판 오버레이 — 실제 화이트 라인타공 시공 사진(clean-white.jpg)의
+   홈줄 단면을 측량해 4배 슈퍼샘플링으로 다시 합성한 에셋 (AI 생성 아님) */
 const WHITE_SLATS = {
-  'slat_nocob': 'assets/slat-nocob-white.png?v=2',
-  'side_left':  'assets/side-slat-white-left.png?v=2',
-  'side_right': 'assets/side-slat-white-right.png?v=2'
+  'slat_nocob': 'assets/slat-nocob-white.webp?v=3',
+  'side_left':  'assets/side-slat-white-left.webp?v=3',
+  'side_right': 'assets/side-slat-white-right.webp?v=3'
 };
+/* 화이트 타공판은 에셋 자체가 실사 화이트 도장면이므로, 선택한 도장 색만 곱해 톤을 맞춘다 */
+const WHITE_SLAT_REF = [223, 219, 208];   // 화이트워시(#DFDBD0) 기준값
 function preloadPhotoWins(){
   const map = {
     '600x800': 'assets/win-600.png?v=8',
@@ -3135,8 +3138,13 @@ function renderPhotoStage(){
         orr += wArt * aRgb[0] * gain; og += wArt * aRgb[1] * gain; ob += wArt * aRgb[2] * gain;
       }
       if (wSlat > 0.002){
-        /* 라인타공: 어두운 틈새(lum < 0.28)는 유지하고 나무 살만 톤 변경 */
-        if (lum < 0.28){
+        /* 화이트·화이트워시: 실사 화이트 타공판 원본을 그대로 쓰고 도장 색만 곱한다 */
+        if (whiteSlat){
+          orr += wSlat * tr * (sRgb[0] / WHITE_SLAT_REF[0]);
+          og  += wSlat * tg * (sRgb[1] / WHITE_SLAT_REF[1]);
+          ob  += wSlat * tb * (sRgb[2] / WHITE_SLAT_REF[2]);
+        } else if (lum < 0.28){
+          /* 라인타공: 어두운 틈새(lum < 0.28)는 유지하고 나무 살만 톤 변경 */
           orr += wSlat * tr; og += wSlat * tg; ob += wSlat * tb;
         } else {
           const gain = Math.min(1.45, lum / 0.52);
