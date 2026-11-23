@@ -2281,6 +2281,7 @@ function openContractModal(q){
   /* ---------- ✏️ 일정 탭에서 바로 수정 ---------- */
   var SEDIT_ID = "";
   var SEDIT_PAY = "";
+  var SEDIT_CLEARED = false;   /* 이번 수정 창에서 ‘일정 미정’을 직접 누른 경우 */
   var ED_PAY = "";   /* ✏️ 사양 · 주소 수정 모달에서 고른 결제수단(빈 값 = 미정) */
   /* DB는 엘리베이터를 "있음"/"없음" 문자열로, 예전 기기 저장은 true/false로 갖고 있다 — 둘 다 읽는다 */
   function elvVal(v){
@@ -2348,6 +2349,7 @@ function openContractModal(q){
     var inst = installOf(q);
     var m = moneyOf(q);
     SEDIT_ID = String(id);
+    SEDIT_CLEARED = false;
     document.getElementById("sched-sub").textContent = "#" + String(id).slice(0, 8).toUpperCase()
       + " · 접수 " + (fmtDate(raw.created_at) || "-") + (isNewBoothQuote(q) ? " · 신규설치" : " · 이전설치");
     document.getElementById("sd-date").value = inst.date || "";
@@ -2378,8 +2380,8 @@ function openContractModal(q){
     document.getElementById("sd-expense").value = c.expense === "" ? "" : c.expense;
     document.getElementById("sd-note").value = q.__noteOverride != null ? q.__noteOverride : (parseMemo(q.memo).note || "");
     document.getElementById("sd-date-hint").textContent = (q.desired_date && inst.date !== q.desired_date)
-      ? "고객 희망일 " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "") + " · 날짜를 비우면 ‘일정 미정’으로 돌아갑니다."
-      : "날짜를 비우면 ‘일정 미정’으로 돌아갑니다.";
+      ? "고객 희망일 " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "") + " · ‘일정 미정’을 누르면 달력에서 빠지고 희망일도 잡히지 않습니다."
+      : "날짜를 비우거나 ‘일정 미정’을 누르면 달력·예정에서 빠집니다.";
     var prCar = document.getElementById("sd-promo");
     prCar.checked = promoOf(q);
     document.getElementById("sd-promo-row").classList.toggle("on", prCar.checked);
@@ -2415,8 +2417,8 @@ function openContractModal(q){
     var patch = {
       installDate: dateV,
       installTime: timeV,
-      /* 날짜를 비우면 ‘일정 미정’ — 고객 희망일이 있어도 달력·예정에서 빼고 미정 칸에 둔다 */
-      noDate: !dateV,
+      /* ‘일정 미정’을 누르거나 이미 비워 둔 건은 고객 희망일이 있어도 달력·예정에서 빼고 미정 칸에 둔다 */
+      noDate: dateV ? false : (SEDIT_CLEARED || !!pipeOf(id).noDate),
       stage: nextStage,
       pay: SEDIT_PAY,
       supply: m.supply === "" ? "" : m.supply,
@@ -2432,10 +2434,11 @@ function openContractModal(q){
     setPipe(id, patch);
     pushMemoUpdate(raw, nextStage);
     document.getElementById("sched-modal").hidden = true;
+    var clearedWhen = !dateV && !!patch.noDate;
     var done = function(){
-      toast(dateV
-        ? "일정을 수정했습니다 — 달력 · 리스트 · 요약에 바로 반영"
-        : "일정을 ‘일정 미정’으로 비웠습니다 — 금액 · 결제수단 · 메모는 그대로입니다");
+      toast(clearedWhen
+        ? "일정을 ‘일정 미정’으로 비웠습니다 — 금액 · 결제수단 · 메모는 그대로입니다"
+        : "일정을 수정했습니다 — 달력 · 리스트 · 요약에 바로 반영");
       if (nextStage !== before) loadAll();
       else { renderScheduleTab(); updateBadges(); }
     };
@@ -3479,6 +3482,7 @@ function openContractModal(q){
   });
   /* 🗓️ 일정 미정 — 날짜·시간만 비운다. 금액·결제수단·메모·주소는 그대로 */
   function schedClearWhen(){
+    SEDIT_CLEARED = true;
     document.getElementById("sd-date").value = "";
     document.getElementById("sd-time").value = "";
     var q = quoteById(SEDIT_ID);
