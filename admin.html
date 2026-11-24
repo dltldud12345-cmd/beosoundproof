@@ -1478,7 +1478,7 @@
       to_floor: q.to_floor || "",
       to_elevator: q.to_elevator || "",
       status: (STAGE_BY_V[st] || STAGE_BY_V.new).db,
-      install_date: inst.date || "",
+      install_date: validDay(inst.date) || "",
       install_time: inst.time || "",
       pay: payOf(q) || "",
       total: m.total === "" ? null : m.total,
@@ -3067,7 +3067,7 @@ function openContractModal(q){
       + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
       + '  <div class="spec-item spec-wide"><div class="sl">크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
-      + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv" data-inst-sv="' + esc(q.id) + '">' + (inst.date ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '') : (q.desired_date && !pipeOf(q.id).noDate ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv" data-inst-sv="' + esc(q.id) + '">' + (inst.date ? esc(fmtDay(validDay(inst.date) || inst.date)) + (inst.time ? ' ' + esc(inst.time) : ' <small style="color:#8A6A1F">(시간 미정)</small>') : (validDay(q.desired_date) && !pipeOf(q.id).noDate ? esc(fmtDay(validDay(q.desired_date))) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
       + routeHtml
       + simHtml
@@ -3305,8 +3305,8 @@ function openContractModal(q){
         var sv = app.querySelector('[data-inst-sv="' + String(id).replace(/"/g, '\\"') + '"]');
         if (sv){
           sv.innerHTML = inst.date
-            ? esc(fmtDay(inst.date)) + (inst.time ? ' ' + esc(inst.time) : '')
-            : (q.desired_date && !pipeOf(id).noDate ? esc(fmtDay(q.desired_date)) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>');
+            ? esc(fmtDay(validDay(inst.date) || inst.date)) + (inst.time ? ' ' + esc(inst.time) : ' <small style="color:#8A6A1F">(시간 미정)</small>')
+            : (validDay(q.desired_date) && !pipeOf(id).noDate ? esc(fmtDay(validDay(q.desired_date))) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>');
         }
         toast(inst.date ? "작업(해체) 일시 " + inst.date + (inst.time ? " " + inst.time : "") + " 저장" : "작업 일시를 비웠습니다");
       });
