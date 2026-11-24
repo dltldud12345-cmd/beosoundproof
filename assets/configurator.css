@@ -584,8 +584,11 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
 
 /* ============================ 원형 컬러 스와치 ============================ */
 .sw-circles{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px 4px;margin-top:2px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 4px;margin-top:2px;
 }
+/* 5색(아트보드)은 한 줄에 정확히 5칸 — 마지막 하나만 다음 줄로 떨어지지 않게 */
+.sw-circles.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+.sw-circles.five .cl{font-size:10px;letter-spacing:-.03em}
 .csw{
   display:flex;flex-direction:column;align-items:center;gap:6px;padding:2px 0;border-radius:10px;
   transition:background .2s;
@@ -619,6 +622,9 @@ input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;b
   .csw .cc{width:33px;height:33px}
   .csw .cl{font-size:9px}
   .sw-circles{gap:10px 2px}
+  .sw-circles.five{gap:10px 1px}
+  .sw-circles.five .cc{width:30px;height:30px}
+  .sw-circles.five .cl{font-size:8.5px;letter-spacing:-.05em}
 }
 
 /* ============================ ⛶ 전체화면 보기 ============================ */

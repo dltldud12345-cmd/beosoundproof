@@ -40,7 +40,7 @@ const MODELS = [
 /* 아트보드 5종 — 수급되는 핵심 단색·뉴트럴만 남깁니다 (주문재 색상은 정리) */
 const ARTBOARD = [
   { v:'beige',   label:'연베이지',   sub:'기본', hex:'#DCC9A9', rough:0.97 },
-  { v:'white',   label:'화이트',     sub:'',     hex:'#E7E5E1', rough:0.96 },
+  { v:'white',   label:'화이트',     sub:'',     hex:'#F2EEE5', rough:0.96 },
   { v:'gray_l',  label:'라이트그레이', sub:'',   hex:'#C2C1BE', rough:0.97 },
   { v:'charcoal',label:'차콜',       sub:'',     hex:'#4A4F55', rough:0.96 },
   { v:'black',   label:'블랙',       sub:'',     hex:'#26292C', rough:0.95 }
@@ -117,9 +117,9 @@ const WALL_LABEL = { left:'좌측', back:'후면', right:'우측' };
 const FREE_ORDER = ['back', 'left', 'right'];
 const PRESETS = [
   { id:'studio', label:'스튜디오 베스트', sw:['#D8C6A6','#E0CBA6','#C6A47E'], set:{ artboard:'beige',  slat:'maple',     floor:'oak',   light:'cob4000' } },
-  { id:'clean',  label:'클린 화이트',     sw:['#E7E5E1','#DFDBD0','#E4DDD0'], set:{ artboard:'white',  slat:'whitewash', floor:'pine',  light:'cob4000' } },
+  { id:'clean',  label:'클린 화이트',     sw:['#F2EEE5','#DFDBD0','#E4DDD0'], set:{ artboard:'white',  slat:'whitewash', floor:'pine',  light:'cob4000' } },
   { id:'dark',   label:'모던 다크',       sw:['#AEAFAC','#5B483A','#C6A47E'], set:{ artboard:'gray_l', slat:'dark',      floor:'oak',   light:'cob4000' } },
-  { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#C6A47E'], set:{ artboard:'black',  slat:'white',     floor:'oak',   light:'cob4000' } }
+  { id:'bw',     label:'블랙 & 화이트',   sw:['#26292C','#F0EFEA','#E4DDD0'], set:{ artboard:'black',  slat:'white',     floor:'pine',  light:'cob4000' } }
 ];
 const DEFAULTS = { artboard:'beige', slat:'maple', light:'cob4000', floor:'oak', ledTemp:'4000', door:'right' };
 const INCLUDED = ['세로 2구 콘센트','강화마루','3면 아트보드','1면 라인타공','COB 매립등·레일등·중앙 LED등','시스템도어'];
@@ -346,7 +346,7 @@ function buildPanel(){
 
     <section class="sec">
       <div class="sec-h"><span class="n">02</span><h2>아트보드 색상</h2><span class="tag">3면 · 5색</span></div>
-      <div class="sw-circles">
+      <div class="sw-circles five">
         ${ARTBOARD.map(a => `<button type="button" class="csw" data-group="artboard" data-value="${a.v}" aria-pressed="false" title="${a.label}">
           <span class="cc" style="--c:${a.hex}"></span><span class="cl">${a.label}</span>
         </button>`).join('')}
@@ -1567,6 +1567,12 @@ function trimsMat(){
   const m = moldingPick();
   return stdMat({ color: m.hex, roughness: m.rough, metalness: 0.02, envMapIntensity: 0.28 });
 }
+/* 외부 마감 재질 — 조합(아트보드 색)과 무관하게 항상 백색.
+   외관은 백색 알판 + 백색 몰딩 단일 사양이므로 내부 몰딩과 분리해 고정합니다. */
+const EXT_TRIM = MOLDING.find(x => x.v === 'white') || { hex:'#F3EFE6', rough:0.5 };
+function extTrimMat(){
+  return stdMat({ color: EXT_TRIM.hex, roughness: EXT_TRIM.rough, metalness: 0.03, envMapIntensity: 0.35 });
+}
 
 /* ---- 벽 ---- */
 function wallDesc(name){
@@ -1712,8 +1718,7 @@ function addCeilReveal(g, width){
 /* 외부 마감 — 하단 걸레받이 · 상단 밴드 · 모서리 트림 · 창 주변 세로 몰딩
    몰딩은 창이 있을 때만 창 좌우에 서고, 창이 없으면 알판끼리 바로 맞대어 마감합니다. */
 function addOuterTrims(g, width, openings){
-  const mold = moldingPick();
-  const mat = stdMat({ color: mold.hex, roughness: mold.rough, metalness: 0.03, envMapIntensity: 0.35 });
+  const mat = extTrimMat();
   const zOut = -T/2 - 0.011;
   const doors = (openings || []).filter(o => o.y0 < 0.01);
   const wins  = (openings || []).filter(o => o.y0 >= 0.01);
@@ -1789,7 +1794,7 @@ function addWindow(parent, o, opts = {}){
   const isDouble = !!opts.double;
   const fw = isDouble ? 0.042 : 0.03;
   const depth = isDouble ? (T + 0.09) : (T + 0.016);
-  const frameMat = trimsMat();
+  const frameMat = extTrimMat();
   const gasket = stdMat({ color: 0x1B1D1F, roughness: 0.85 });
   const cx = o.x0 + o.w/2, cy = o.y0 + o.h/2;
   const bars = [
@@ -2519,8 +2524,8 @@ function buildDoor(g, o, slatName){
     m.castShadow = true; m.receiveShadow = true;
     g.add(m);
   });
-  // 바깥쪽 아키트레이브 (넓은 몰딩 — 몰딩 색 자동 매칭)
-  const archMat = trimsMat();
+  // 바깥쪽 아키트레이브 (넓은 몰딩 — 외부 마감은 항상 백색)
+  const archMat = extTrimMat();
   const arch = 0.062;
   [[o.x0 - arch/2 - 0.004, (o.h)/2, arch, o.h + arch],
    [o.x0 + o.w + arch/2 + 0.004, (o.h)/2, arch, o.h + arch],
@@ -2720,7 +2725,7 @@ function addProjectWindow(parent, h){
   const g = new THREE.Group();
   const cx = h.x0 + h.w/2, cz = h.z0 + h.d/2;
   const fw = 0.032, depth = SKIN + 0.024;
-  const frameMat = trimsMat();
+  const frameMat = extTrimMat();
   const y = H + SKIN/2;
   [[h.w + fw*2, fw, cx, h.z0 - fw/2], [h.w + fw*2, fw, cx, h.z0 + h.d + fw/2],
    [fw, h.d, h.x0 - fw/2, cz], [fw, h.d, h.x0 + h.w + fw/2, cz]].forEach(([bw, bd, bx, bz]) => {
@@ -3047,7 +3052,7 @@ function initPhotoCache(cb){
     photoCache.loading = false;
     cb();
   };
-  img.src = 'assets/interior-academy-clean.jpg?v=3';
+  img.src = 'assets/interior-academy-clean.jpg?v=4';
 }
 function drawPhotoCeilingLight(ctx, W, H){
   /* 천장 조명: 후면 타공판이면 사진 원본의 COB 2구를 그대로 쓰고,
@@ -3163,6 +3168,7 @@ function renderPhotoStage(){
     const cA = photoCache.cov.art, cB = (backArt ? photoCache.cov.backFull : photoCache.cov.back), cF = photoCache.cov.floor, cR = photoCache.cov.right;
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
+    const isWhiteArt = state.artboard === 'white';
     const sRgb = photoHexToRgb(pick(SLAT, state.slat).hex);
     const fRgb = photoHexToRgb(pick(FLOOR, state.floor).hex);
     const isPine = state.floor === 'pine';
@@ -3223,9 +3229,17 @@ function renderPhotoStage(){
       let orr = 0, og = 0, ob = 0;
 
       if (wArt > 0.002){
-        /* 아트보드: 기본 사진 밝기(~0.68)를 기준으로 목표 색상 입히기 (질감·조명 보존) */
-        const gain = Math.min(1.42, lum / 0.68);
-        orr += wArt * aRgb[0] * gain; og += wArt * aRgb[1] * gain; ob += wArt * aRgb[2] * gain;
+        if (isWhiteArt){
+          /* 화이트 아트보드: 사진 음영이 회색으로 죽지 않도록 밝은 웜화이트로 고정 보정.
+             밝은 면은 거의 순백, 그늘진 면도 밝은 회백으로 남깁니다. */
+          const t = Math.min(1, Math.max(0, lum / 0.74));
+          const wb = 0.82 + 0.20 * t;
+          orr += wArt * 253 * wb; og += wArt * 250 * wb; ob += wArt * 242 * wb;
+        } else {
+          /* 아트보드: 기본 사진 밝기(~0.68)를 기준으로 목표 색상 입히기 (질감·조명 보존) */
+          const gain = Math.min(1.42, lum / 0.68);
+          orr += wArt * aRgb[0] * gain; og += wArt * aRgb[1] * gain; ob += wArt * aRgb[2] * gain;
+        }
       }
       if (wSlat > 0.002){
         /* 화이트·화이트워시: 실사 화이트 타공판 원본을 그대로 쓰고 도장 색만 곱한다 */
@@ -3287,14 +3301,14 @@ function renderPhotoStage(){
    - 문 좌측 + 우경첩 = 문짝만 반전한 사진
    - 문 우측 + 우경첩 = 원본을 좌우 반전
    - 문 우측 + 좌경첩 = 문짝만 반전한 사진을 좌우 반전 */
-const PHOTO_OUT_SRC = 'assets/exterior-clean.jpg?v=20261124a';
-const PHOTO_OUT_SRC_HG = 'assets/exterior-clean-hg.jpg?v=20261124a';
+const PHOTO_OUT_SRC = 'assets/exterior-clean.jpg?v=20261124b';
+const PHOTO_OUT_SRC_HG = 'assets/exterior-clean-hg.jpg?v=20261124b';
 /* 실사 외부 우측 벽에 원근에 맞춰 미리 합성해 둔 시창 오버레이 — 사진과 같은 1448×1086 */
 const PHOTO_OUT_WIN = {
-  '600x800':  'assets/exterior-win-600.png?v=20261124a',
-  '800x800':  'assets/exterior-win-800.png?v=20261124a',
-  '1200x800': 'assets/exterior-win-1200.png?v=20261124a',
-  'double1200':'assets/exterior-win-double.png?v=20261124a'
+  '600x800':  'assets/exterior-win-600.png?v=20261124b',
+  '800x800':  'assets/exterior-win-800.png?v=20261124b',
+  '1200x800': 'assets/exterior-win-1200.png?v=20261124b',
+  'double1200':'assets/exterior-win-double.png?v=20261124b'
 };
 let photoOutHgPreload = null;
 function preloadPhotoOutHg(){
