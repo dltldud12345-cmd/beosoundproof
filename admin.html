@@ -469,7 +469,7 @@
     padding-bottom:env(safe-area-inset-bottom);
   }
   .bottom-nav-in{
-    max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);
+    max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);
   }
   .bnav-btn{
     position:relative;border:0;background:none;padding:9px 4px 8px;
@@ -558,6 +558,111 @@
   .calc-msg{margin-top:6px;font-size:11px;font-weight:700;color:var(--accent-d);line-height:1.45;min-height:14px}
   .calc-note{font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.45}
   .sedit-copy{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  /* ============================================================
+     💵 단가 · 견적 · 마진 스튜디오 (관리자 키 인증 뒤에만 보임)
+     ============================================================ */
+  .ps-wrap{display:grid;gap:12px;padding-bottom:18px}
+  .ps-hero{
+    position:relative;overflow:hidden;border-radius:18px;padding:16px 18px 15px;
+    background:linear-gradient(135deg,#14171A 0%,#1D2A2A 55%,#1E7564 130%);color:#fff;
+    box-shadow:0 10px 26px -18px rgba(20,23,26,.7);
+  }
+  .ps-hero::after{content:"";position:absolute;right:-40px;top:-46px;width:190px;height:190px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,rgba(46,156,134,.55),rgba(46,156,134,0) 70%)}
+  .ps-hero .ps-h1{font-size:17px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:7px}
+  .ps-hero .ps-h2{margin-top:5px;font-size:11.5px;font-weight:600;color:#A9B6B4;line-height:1.5}
+  .ps-hero .ps-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+  .ps-hero .ps-tag{font-size:10.5px;font-weight:800;letter-spacing:.02em;padding:4px 8px;border-radius:6px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);color:#DFEAE7}
+  .ps-hero .ps-tag.on{background:var(--accent);border-color:var(--accent);color:#06221C}
+
+  .ps-card{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:13px 14px 14px}
+  .ps-step{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+  .ps-step .n{width:19px;height:19px;border-radius:6px;background:var(--ink);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;flex:none}
+  .ps-step .t{font-size:12.5px;font-weight:800;color:var(--ink)}
+  .ps-step .s{font-size:10.5px;font-weight:700;color:var(--muted)}
+
+  .ps-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .ps-gbtn{
+    appearance:none;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;
+    padding:10px 10px 11px;display:grid;gap:3px;cursor:pointer;transition:.14s;
+  }
+  .ps-gbtn b{font-size:12.5px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+  .ps-gbtn span{font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.35}
+  .ps-gbtn .badge{font-size:9.5px;font-weight:800;color:var(--accent-d);background:var(--accent-t);border-radius:5px;padding:2px 5px;justify-self:start}
+  .ps-gbtn[aria-pressed=true]{border-color:var(--accent);background:linear-gradient(180deg,#F4FBF9,#E9F5F2);box-shadow:0 0 0 2px var(--accent-t) inset}
+  .ps-gbtn[aria-pressed=true] b{color:var(--accent-d)}
+
+  .ps-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .ps-chip{
+    appearance:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;
+    font:inherit;font-size:12px;font-weight:800;color:var(--ink2);cursor:pointer;transition:.14s;
+    font-variant-numeric:tabular-nums;line-height:1.2;text-align:center;
+  }
+  .ps-chip small{display:block;font-size:9.5px;font-weight:700;color:var(--muted);margin-top:3px}
+  .ps-chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-t);color:var(--accent-d)}
+  .ps-chip[aria-pressed=true] small{color:var(--accent-d)}
+  .ps-custom{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+  .ps-custom label{display:grid;gap:4px;font-size:10.5px;font-weight:800;color:var(--muted)}
+  .ps-custom input{border:1px solid var(--line);border-radius:9px;padding:8px 9px;font:inherit;font-size:13px;font-weight:700;text-align:right;background:#fff}
+
+  .ps-opts{display:grid;gap:7px}
+  .ps-opt{
+    display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:11px;
+    padding:10px 11px;cursor:pointer;transition:.14s;
+  }
+  .ps-opt .ic{font-size:15px;line-height:1}
+  .ps-opt .tx{flex:1;min-width:0;text-align:left}
+  .ps-opt .tx b{display:block;font-size:12px;font-weight:800;color:var(--ink)}
+  .ps-opt .tx span{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin-top:1px}
+  .ps-opt .pr{font-size:11.5px;font-weight:800;color:var(--accent-d);white-space:nowrap}
+  .ps-opt .sw{width:34px;height:20px;border-radius:99px;background:#D8D2C6;position:relative;flex:none;transition:.18s}
+  .ps-opt .sw::after{content:"";position:absolute;top:2.5px;left:2.5px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .ps-opt[aria-pressed=true]{border-color:var(--accent);background:#F5FBF9}
+  .ps-opt[aria-pressed=true] .sw{background:var(--accent)}
+  .ps-opt[aria-pressed=true] .sw::after{transform:translateX(14px)}
+
+  .ps-kpis{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px}
+  @media (max-width:720px){ .ps-kpis{grid-template-columns:1fr 1fr} .ps-kpis .ps-kpi.main{grid-column:1 / -1} .ps-grade{grid-template-columns:1fr} }
+  .ps-kpi{border-radius:14px;padding:12px 13px;border:1px solid var(--line);background:var(--paper);display:grid;gap:3px;align-content:start}
+  .ps-kpi .pslb{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.02em}
+  .ps-kpi .v{font-size:21px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.15}
+  .ps-kpi .sub{font-size:10.5px;font-weight:700;color:var(--body);font-variant-numeric:tabular-nums;line-height:1.45}
+  .ps-kpi.main{background:linear-gradient(160deg,#14171A,#1E3B38);border-color:#14171A;color:#fff}
+  .ps-kpi.main .pslb{color:#96A5A2}
+  .ps-kpi.main .v{color:#fff;font-size:30px}
+  .ps-kpi.main .sub{color:#C9D6D3}
+  .ps-kpi.money .v{color:var(--ink2)}
+  .ps-kpi.mine .v{color:var(--accent-d)}
+  .ps-kpi.mine.bad .v{color:var(--warn)}
+  .ps-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;border-radius:999px;padding:3px 8px;justify-self:start;margin-top:3px}
+  .ps-badge.ok{background:#E7F3E9;color:#1F6B36}
+  .ps-badge.no{background:#FDECE7;color:#A33A1F}
+
+  .ps-acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+  @media (max-width:720px){ .ps-acts{grid-template-columns:1fr 1fr} .ps-acts .ps-act.blue{grid-column:1 / -1} }
+  .ps-act{
+    appearance:none;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 10px;
+    font:inherit;font-size:12px;font-weight:800;color:var(--ink2);cursor:pointer;transition:.14s;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .ps-act:hover{border-color:var(--accent);color:var(--accent-d);background:#F6FBF9}
+  .ps-act.solid{background:var(--ink);border-color:var(--ink);color:#fff}
+  .ps-act.solid:hover{background:#232B2F;color:#fff}
+  .ps-act.blue{background:var(--accent);border-color:var(--accent);color:#06221C}
+  .ps-act.blue:hover{background:#35AB92;color:#06221C}
+
+  .ps-detail{border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:0 12px 4px}
+  .ps-detail summary{padding:10px 0;font-size:11.5px;font-weight:800;color:var(--ink2);cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+  .ps-detail summary::-webkit-details-marker{display:none}
+  .ps-line{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px dashed #E4DED2;font-size:11.5px;font-weight:700;color:var(--body)}
+  .ps-line b{font-variant-numeric:tabular-nums;color:var(--ink)}
+  .ps-line.sum b{color:var(--accent-d)}
+  .ps-note{font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.5;margin:6px 0 8px}
+  .ps-price{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .ps-price label{font-size:10.5px;font-weight:800;color:var(--muted)}
+  .ps-price input{width:120px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font:inherit;font-size:13px;font-weight:800;text-align:right;background:#fff;font-variant-numeric:tabular-nums}
+  .ps-mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;font:inherit;font-size:11px;font-weight:800;color:var(--ink2)}
 </style>
 </head>
 <body>
@@ -595,6 +700,9 @@
     <button type="button" class="bnav-btn" data-nav="sched" aria-selected="false">
       <span class="bnav-ico">📅</span><span>일정</span>
     </button>
+    <button type="button" class="bnav-btn" data-nav="price" aria-selected="false">
+      <span class="bnav-ico">💵</span><span>단가·견적</span>
+    </button>
     <button type="button" class="bnav-btn" data-nav="hub" aria-selected="false">
       <span class="bnav-ico">📐</span><span>도면·사이트</span>
     </button>
@@ -614,6 +722,28 @@
       <button type="button" class="abtn done" id="ct-share" style="flex:1 1 150px;justify-content:center;padding:12px;display:none">📤 사진 저장 · 공유</button>
       <button type="button" class="abtn" id="ct-dl" style="flex:1 1 150px;justify-content:center;padding:12px">💾 이미지 저장</button>
     </div>
+  </div>
+</div>
+
+<div class="lb" id="ext-modal" hidden style="z-index:96">
+  <div style="width:min(460px,94vw);max-height:90dvh;overflow:auto;background:#fff;border-radius:18px;padding:16px;display:grid;gap:9px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <b style="font-size:15px;font-weight:800">📌 외부 계약 일정 추가</b>
+      <button type="button" class="tbtn" id="ext-close">닫기</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;font-weight:700;color:var(--muted)">
+      <label style="display:grid;gap:4px">고객명<input id="ext-name" class="inst-in" style="text-align:left;padding:0 10px"></label>
+      <label style="display:grid;gap:4px">연락처<input id="ext-phone" class="inst-in" style="text-align:left;padding:0 10px" inputmode="tel"></label>
+      <label style="display:grid;gap:4px">구분<select id="ext-kind" class="inst-in"><option>신규</option><option>이전</option><option>판매·철거</option><option>기타</option></select></label>
+      <label style="display:grid;gap:4px">해체(작업)일<input id="ext-date" type="date" class="inst-in"></label>
+      <label style="display:grid;gap:4px">시작 시간<input id="ext-time" type="time" class="inst-in" value="09:00"></label>
+      <label style="display:grid;gap:4px">금액 (부가세 포함)<input id="ext-total" type="number" step="10000" class="inst-in" placeholder="3600000"></label>
+    </div>
+    <label style="display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--muted)">주소 · 메모
+      <textarea id="ext-memo" rows="2" style="border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit"></textarea>
+    </label>
+    <p style="margin:0;font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.5">이 기기에만 저장됩니다(외부 전송 없음). 홈페이지 접수 건과 별도로 표시되며, 삭제는 카드의 🗑️로 합니다.</p>
+    <button type="button" class="abtn solid" id="ext-save" style="width:100%;padding:12px;font-size:14px">저장</button>
   </div>
 </div>
 
@@ -772,8 +902,10 @@
     </div>
     <div class="calc-region">
       <span class="calc-region-lb">운송 지역</span>
-      <button type="button" class="pay-chip on" data-calc-region="0">수도권 +0원</button>
-      <button type="button" class="pay-chip" data-calc-region="1">지방 +30만 원</button>
+      <button type="button" class="pay-chip on" data-calc-region="metro">수도권 +0</button>
+      <button type="button" class="pay-chip" data-calc-region="near">충북·천안·강원 +20만</button>
+      <button type="button" class="pay-chip" data-calc-region="mid">충남·전북·경북 +30만</button>
+      <button type="button" class="pay-chip" data-calc-region="far">전남·경남·제주 +40만</button>
     </div>
     <div class="calc-out">
       <div class="calc-basis" id="calc-basis">—</div>
@@ -1624,7 +1756,7 @@ function notesFor(isNewB){
     "부득이하게 사다리차 사용이 필요한 경우 해당 비용은 고객 부담입니다."
   ];
   if (isNewB) n.push("주문 확정 후 약 14일 이후 공급(시공)되며, 맞춤 제작 특성상 입금 후 제작 시작 시 취소·환불이 불가합니다.");
-  n.push("사후 관리는 시공 완료일로부터 1년간 제공됩니다.");
+  if (isNewB) n.push("사후 관리는 시공 완료일로부터 1년간 제공됩니다.");
   return n;
 }
 function contractData(q){
@@ -1833,7 +1965,7 @@ function bookingConfirmMessage(d){
     out.push("· 입금: 기업은행 301-115608-04-019 (예금주 이시영/베오방음)");
     if (d.pay && d.pay !== "현금결제") out.push("· 증빙: " + d.pay + " 발행");
   }
-  out.push("· 사다리차가 필요한 경우 비용은 고객 부담이며, 일정 변경은 하루 전까지 알려주세요.");
+  out.push("· 사다리차가 필요한 경우 비용은 고객 부담입니다.");
   return out.join("\n");
 }
 function copyCustomer(text, okMsg){
@@ -2617,6 +2749,65 @@ function openContractModal(q){
         if (btn) btn.disabled = false;
       });
   }
+  /* ---------- 외부 계약 일정 (이 기기 저장) ---------- */
+  var EXT_KEY = "beo_ext_sched";
+  function extSchedAll(){
+    try{ var v = JSON.parse(localStorage.getItem(EXT_KEY) || "[]"); return Array.isArray(v) ? v : []; }catch(e){ return []; }
+  }
+  function extSchedSave(list){ try{ localStorage.setItem(EXT_KEY, JSON.stringify(list)); }catch(e){} }
+  function extSchedHtml(){
+    var list = extSchedAll();
+    if (!list.length) return '<div class="sched-note" style="color:var(--muted)">직접 등록한 외부 계약이 없습니다 — <b>＋ 일정 추가</b>로 넣을 수 있습니다.</div>';
+    list.sort(function(a,b){ return String(a.date||"9999").localeCompare(String(b.date||"9999")); });
+    return '<div class="sched-list">' + list.map(function(e){
+      var money = Number(e.total) || 0;
+      return '<div class="srow" style="border-left:3px solid var(--accent)">'
+        + '<div class="srow-top"><div class="srow-left"><div class="stitle">'
+        + '<span class="stime">' + esc(e.time || "시간 미정") + '</span>'
+        + '<span class="stype new">외부</span>'
+        + '<span class="sstage">' + esc(e.kind || "기타") + '</span>'
+        + '<b>' + esc(e.name || "이름 없음") + '</b></div>'
+        + '<div class="saddr">' + esc(e.date || "날짜 미정") + (e.memo ? " · " + esc(e.memo) : "") + '</div>'
+        + (money ? '<div class="saddr">' + krw(money) + ' (부가세 포함)</div>' : '') + '</div>'
+        + '<div class="sacts">'
+        + (e.phone ? '<a class="sabtn" href="tel:' + esc(digits(e.phone)) + '">📞</a>' : '')
+        + (e.phone ? '<a class="sabtn" href="sms:' + esc(digits(e.phone)) + '">💬</a>' : '')
+        + '<button type="button" class="sabtn del" data-ext-del="' + esc(e.id) + '">🗑️</button>'
+        + '</div></div></div>';
+    }).join("") + '</div>';
+  }
+  function extSchedBind(){
+    var add = document.getElementById("ext-add");
+    if (add) add.addEventListener("click", function(){
+      var d = new Date(); d.setDate(d.getDate() + 3);
+      document.getElementById("ext-date").value = d.toISOString().slice(0,10);
+      document.getElementById("ext-modal").hidden = false;
+    });
+    var close = document.getElementById("ext-close");
+    if (close) close.addEventListener("click", function(){ document.getElementById("ext-modal").hidden = true; });
+    var save = document.getElementById("ext-save");
+    if (save) save.addEventListener("click", function(){
+      var g = function(id){ return (document.getElementById(id).value || "").trim(); };
+      if (!g("ext-name") && !g("ext-date")){ toast("고객명이나 날짜를 넣어 주세요"); return; }
+      var list = extSchedAll();
+      list.push({ id: "ext_" + Date.now(), name: g("ext-name"), phone: g("ext-phone"), kind: g("ext-kind"),
+                  date: g("ext-date"), time: g("ext-time"), total: Number(g("ext-total")) || 0, memo: g("ext-memo") });
+      extSchedSave(list);
+      document.getElementById("ext-modal").hidden = true;
+      ["ext-name","ext-phone","ext-total","ext-memo"].forEach(function(id){ document.getElementById(id).value = ""; });
+      toast("외부 계약 일정을 추가했습니다");
+      render();
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ext-del]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-ext-del");
+        if (!confirm("이 외부 계약 일정을 삭제할까요?")) return;
+        extSchedSave(extSchedAll().filter(function(e){ return e.id !== id; }));
+        toast("삭제했습니다"); render();
+      });
+    });
+  }
+
   function renderScheduleTab(){
     var items = schedItems();
     var dated = items.filter(function(i){ return i.date; })
@@ -2634,12 +2825,19 @@ function openContractModal(q){
       + '</div>'
       + '<div class="sched-note">⏰ 모든 일정의 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 보통 오전 9시 도착으로 안내합니다.<br>🗓️ <b>일정 미정</b>은 날짜·시간이 비었거나 <b>날짜만 있고 시간이 없는</b> 건입니다 — 시간을 넣어야 달력에 올라갑니다.</div>';
 
+    /* 외부 계약 직접 추가 — 홈페이지 접수 없이 들어온 건도 일정에 세운다 */
+    html += '<div class="sched-note" style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+      + '<b>📌 외부 계약 (직접 등록)</b>'
+      + '<button type="button" class="abtn solid" id="ext-add" style="padding:8px 12px;font-size:12px">＋ 일정 추가</button>'
+      + '</div>' + extSchedHtml();
+
     var ymTop = state.calMonth || today.slice(0, 7);
     html += monthSumHtml(monthSum(dated, ymTop), parseInt(ymTop.split("-")[1], 10));
 
     if (!items.length){
       html += '<div class="empty">아직 접수된 견적 요청이 없습니다.</div>';
       app.innerHTML = html;
+      extSchedBind();
       return;
     }
 
@@ -2785,6 +2983,7 @@ function openContractModal(q){
       }
     }
     app.innerHTML = html;
+    extSchedBind();
 
     Array.prototype.forEach.call(app.querySelectorAll("[data-smode]"), function(b){
       b.addEventListener("click", function(){ state.schedMode = b.getAttribute("data-smode"); renderScheduleTab(); });
@@ -2888,6 +3087,9 @@ function openContractModal(q){
     } else if (state.nav === "sched") {
       topSub.textContent = "설치 일정";
       renderScheduleTab();
+    } else if (state.nav === "price") {
+      topSub.textContent = "단가·견적 스튜디오";
+      renderPriceTab();
     } else {
       topSub.textContent = "도면·사이트";
       renderHubTab();
@@ -3696,6 +3898,312 @@ function openContractModal(q){
     copyCustomer(bookingConfirmMessage(d), "예약 확정 복사 완료");
   });
 
+
+  /* ============================================================
+     💵 단가 · 견적 · 마진 스튜디오
+     - 관리자 키 인증 뒤(render())에서만 그려진다 → 내부 원가·마진은 외부 노출 없음
+     - 3단 라인업(가성비 싱글 / 스탠다드 싱글플러스 / 프리미엄 더블) · VAT 포함 기준
+     - 원가 기준: 2026-11-25 실매입 단가(박사장님·한경희마루·비앤비)
+     ============================================================ */
+  var PS_KEY = "beo_ps";
+  var PS_GRADES = [
+    { k: "value",    t: "가성비 싱글",        s: "외벽 1중 · 방음도어 1짝",      badge: "주력",   wallMul: 1,   doors: 1, days: 1 },
+    { k: "standard", t: "스탠다드 싱글플러스",  s: "정·후면 2중 · 방음도어 1짝",   badge: "",      wallMul: 1.5, doors: 1, days: 1.5 },
+    { k: "premium",  t: "프리미엄 더블",      s: "4면 2중 벽체 · 방음도어 2짝",   badge: "프리미엄", wallMul: 2,   doors: 2, days: 2 }
+  ];
+  var PS_SIZES = [
+    { k: "1800x1500", w: 1800, d: 1500, h: 2280, t: "1800×1500", note: "최소 제작" },
+    { k: "2000x2000", w: 2000, d: 2000, h: 2280, t: "2000×2000", note: "주력 360만" },
+    { k: "2200x2400", w: 2200, d: 2400, h: 2280, t: "2200×2400", note: "더블 기준" },
+    { k: "2400x3000", w: 2400, d: 3000, h: 2280, t: "2400×3000", note: "대형" },
+    { k: "custom",    w: 0,    d: 0,    h: 2280, t: "직접 입력",  note: "" }
+  ];
+  /* 확정 판매가 (부가세 포함) — 여기 없는 조합은 원가 × 1.0 로 자동 산출 */
+  var PS_PRICE = {
+    value:    { "1800x1500": 3400000, "2000x2000": 3600000 },
+    standard: { "2000x2000": 4200000 },
+    premium:  { "2200x2400": 6300000, "2400x3000": 7200000 }
+  };
+  var PS_OPTS = [
+    { k: "win",   ic: "🖼", t: "통합이중창 1200×800", s: "안·밖 돌출 이중창 · 원가 28만", cost: 280000, price: 420000 },
+    { k: "flame", ic: "🔥", t: "방염 아트보드",        s: "비방염 → 방염 업그레이드",       cost: 72800,  price: 190000 },
+    { k: "door",  ic: "🚪", t: "방음도어 추가",        s: "5+5 방음도어 1짝 · 원가 46.8만",  cost: 0, price: 630000 }
+  ];
+  var PS_SHIP = [
+    { k: "metro", t: "수도권",            add: 0 },
+    { k: "near",  t: "충북·천안·강원",     add: 200000 },
+    { k: "mid",   t: "충남·전북·경북",     add: 300000 },
+    { k: "far",   t: "전남·경남",          add: 400000 }
+  ];
+  var PS = { grade: "value", size: "2000x2000", w: 2000, d: 2000, h: 2280,
+             win: false, flame: false, door: false, ship: "metro", day: 1, price: 0 };
+  function psLoad(){
+    try{
+      var s = JSON.parse(localStorage.getItem(PS_KEY) || "null");
+      if (s && typeof s === "object") { for (var k in PS) if (s[k] !== undefined) PS[k] = s[k]; }
+    }catch(e){}
+  }
+  function psSave(){ try{ localStorage.setItem(PS_KEY, JSON.stringify(PS)); }catch(e){} }
+  function psGradeOf(k){ for (var i=0;i<PS_GRADES.length;i++) if (PS_GRADES[i].k===k) return PS_GRADES[i]; return PS_GRADES[0]; }
+  function psDims(){
+    if (PS.size === "custom") return { w: Math.max(800, Number(PS.w)||2000), d: Math.max(800, Number(PS.d)||2000), h: Math.max(1900, Number(PS.h)||2280) };
+    for (var i=0;i<PS_SIZES.length;i++) if (PS_SIZES[i].k === PS.size) return { w: PS_SIZES[i].w, d: PS_SIZES[i].d, h: PS_SIZES[i].h };
+    return { w: 2000, d: 2000, h: 2280 };
+  }
+  /* 원가 — 2000×2000 싱글(공급가 0)을 기준점으로 면적 비례로 확장 */
+  function psCost(){
+    var g = psGradeOf(PS.grade), dim = psDims();
+    var aFloor = dim.w * dim.d / 1e6, aWall = 2 * (dim.w + dim.d) * dim.h / 1e6;
+    var rF = aFloor / 4, rW = aWall / 18.24;
+    var matF = 0.35 * 0 * rF;
+    var matW = 0.65 * 0 * rW * g.wallMul;
+    var work = 0 * (0.35 * rF + 0.65 * rW * (1 + (g.wallMul - 1) * 0.7));
+    var door = 0 * g.doors;
+    var ply = 60000, sub = 70000;
+    var shipRow = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === PS.ship) shipRow = s; });
+    var day = (Number(PS.day) || 0) * 400000;
+    var optCost = 0, optPrice = 0;
+    PS_OPTS.forEach(function(o){ if (PS[o.k]) { optCost += o.cost; optPrice += o.price; } });
+    var lines = [
+      ["판·마감재 (바닥·벽·천장)", matF + matW],
+      ["재단·제작 공임", work],
+      ["방음도어 ×" + g.doors, door],
+      ["합판·부자재", ply + sub],
+      ["운송 (" + shipRow.t + ")", 200000 + shipRow.add],
+      ["현장 시공 " + (PS.day > 0 ? PS.day + "일" : "직접"), day]
+    ];
+    if (optCost) lines.push(["옵션 원가", optCost]);
+    var total = 0; lines.forEach(function(l){ total += l[1]; });
+    return { lines: lines, total: total, aFloor: aFloor, aWall: aWall, optCost: optCost, optPrice: optPrice, grade: g, dim: dim };
+  }
+  function psRound(v){ return Math.round(v / 10000) * 10000; }
+  function psPrice(){
+    var c = psCost();
+    var table = PS_PRICE[PS.grade] || {};
+    var base;
+    if (PS.price > 0) base = PS.price;
+    else if (table[PS.size]) base = table[PS.size];
+    else base = psRound(c.total * 1.0);
+    var optP = c.optPrice;
+    return { base: base, total: base + optP, optP: optP, cost: c };
+  }
+  function krwPS(v){ return Number(Math.round(v)).toLocaleString("ko-KR") + "원"; }
+  function psMarginInfo(){
+    var p = psPrice(), c = p.cost;
+    var supply = Math.round(p.total / 1.1);
+    var margin = supply - c.total;
+    return { p: p, supply: supply, vat: p.total - supply, margin: margin, target: 800000, ok: margin >= 800000 };
+  }
+  function psOptionList(){
+    var out = [];
+    if (PS.win) out.push("통합이중창 1200×800");
+    if (PS.flame) out.push("방염 아트보드");
+    if (PS.door) out.push("방음도어 추가");
+    return out;
+  }
+  function psSpecLine(){
+    var g = psGradeOf(PS.grade), dim = psDims();
+    return g.t + " · " + Number(dim.w).toLocaleString("ko-KR") + "×" + Number(dim.d).toLocaleString("ko-KR") + " · 높이 " + Number(dim.h).toLocaleString("ko-KR");
+  }
+  function psQuoteText(full){
+    var m = psMarginInfo(), g = psGradeOf(PS.grade), opts = psOptionList();
+    var out = [];
+    if (full){
+      out.push("[베오방음] 예약 확정 안내");
+      out.push("· 사양: " + psSpecLine());
+      out.push("· 마감: 아트보드 3면 · 라인타공 1면 · 강화마루");
+      if (opts.length) out.push("· 옵션: " + opts.join(" · "));
+      out.push("· 일정: (희망일) 작업 시작 — 오전 9시 도착 기준");
+      out.push("· 총액: " + krwPS(m.p.total) + " (공급가 " + krwPS(m.supply) + " + 부가세 " + krwPS(m.vat) + ")");
+      out.push("· 계약금: " + krwPS(Math.round(m.p.total * 0.5)) + " / 잔금: " + krwPS(m.p.total - Math.round(m.p.total * 0.5)));
+      out.push("· 입금: 기업은행 301-115608-04-019 (예금주 이시영/베오방음)");
+      out.push("· 제작·설치 약 2주 소요, 일정은 협의 후 확정됩니다.");
+    } else {
+      out.push("[베오방음] 방음부스 견적 안내");
+      out.push("· 사양: " + psSpecLine());
+      out.push("· 마감: 아트보드 3면 · 라인타공 1면 · 강화마루 · COB 매립등 2구 + 중앙등");
+      if (opts.length) out.push("· 옵션: " + opts.join(" · "));
+      out.push("· 금액: 부가세 포함 " + krwPS(m.p.total) + " (공급가 " + krwPS(m.supply) + " · 부가세 " + krwPS(m.vat) + ")");
+      out.push("· 계약금 50%: " + krwPS(Math.round(m.p.total * 0.5)));
+      out.push("· 진행 원하시면 편한 날짜 알려주세요 :)");
+    }
+    return out.join("\n");
+  }
+  function psBlueprintUrl(){
+    var dim = psDims(), g = psGradeOf(PS.grade);
+    var map = { value: "single", standard: "plus", premium: "double" };
+    return "blueprint.html?w=" + dim.w + "&d=" + dim.d + "&h=" + dim.h + "&gr=" + (map[PS.grade] || "single");
+  }
+  function renderPriceTab(){
+    var m = psMarginInfo(), g = psGradeOf(PS.grade), dim = psDims();
+    var gradeBtns = PS_GRADES.map(function(x){
+      return '<button type="button" class="ps-gbtn" data-ps-grade="' + x.k + '" aria-pressed="' + (PS.grade === x.k ? "true" : "false") + '">'
+        + '<b>' + x.t + '</b><span>' + x.s + '</span>'
+        + (x.badge ? '<span class="badge">' + x.badge + '</span>' : '')
+        + '</button>';
+    }).join("");
+    var sizeChips = PS_SIZES.map(function(x){
+      var sub = x.k === "custom" ? "" : (PS_PRICE[PS.grade] && PS_PRICE[PS.grade][x.k] ? "확정가" : (x.note || ""));
+      return '<button type="button" class="ps-chip" data-ps-size="' + x.k + '" aria-pressed="' + (PS.size === x.k ? "true" : "false") + '">'
+        + x.t + (sub ? '<small>' + sub + '</small>' : '') + '</button>';
+    }).join("");
+    var optRows = PS_OPTS.map(function(o){
+      return '<button type="button" class="ps-opt" data-ps-opt="' + o.k + '" aria-pressed="' + (PS[o.k] ? "true" : "false") + '">'
+        + '<span class="ic">' + o.ic + '</span><span class="tx"><b>' + o.t + '</b><span>' + o.s + '</span></span>'
+        + '<span class="pr">+' + Math.round(o.price / 10000) + '만</span><span class="sw"></span></button>';
+    }).join("");
+    var shipChips = PS_SHIP.map(function(s){
+      return '<button type="button" class="ps-chip" data-ps-ship="' + s.k + '" aria-pressed="' + (PS.ship === s.k ? "true" : "false") + '">'
+        + s.t + '<small>' + (s.add ? "+" + Math.round(s.add / 10000) + "만" : "0") + '</small></button>';
+    }).join("");
+    var dayChips = [0,1,2,3].map(function(d){
+      return '<button type="button" class="ps-chip" data-ps-day="' + d + '" aria-pressed="' + (Number(PS.day) === d ? "true" : "false") + '">'
+        + (d === 0 ? "직접 시공" : "동행 " + d + "일") + '<small>' + (d === 0 ? "일당 0" : "+" + d * 40 + "만") + '</small></button>';
+    }).join("");
+    var costLines = m.p.cost.lines.map(function(l){
+      return '<div class="ps-line"><span>' + l[0] + '</span><b>' + krwPS(l[1]) + '</b></div>';
+    }).join("");
+    var opts = psOptionList();
+
+    app.innerHTML = ''
+      + '<div class="ps-wrap">'
+      + '  <div class="ps-hero">'
+      + '    <div class="ps-h1">💵 단가 · 견적 · 마진 스튜디오</div>'
+      + '    <div class="ps-h2">확정 3단 라인업 · 부가세 포함 기준 · 딱 누르면 바로 나옵니다 (관리자 전용 · 원가·마진은 외부에 나가지 않습니다)</div>'
+      + '    <div class="ps-tags"><span class="ps-tag on">' + g.t + '</span><span class="ps-tag">' + dim.w + '×' + dim.d + '</span>'
+      + '      <span class="ps-tag">' + (opts.length ? "옵션 " + opts.length + "개" : "옵션 없음") + '</span>'
+      + '      <span class="ps-tag">' + (PS.day > 0 ? "시공 " + PS.day + "일" : "직접 시공") + '</span></div>'
+      + '  </div>'
+
+      /* KPI */
+      + '  <div class="ps-kpis">'
+      + '    <div class="ps-kpi main"><span class="pslb">고객 안내가 (부가세 포함)</span>'
+      + '      <span class="v">' + krwPS(m.p.total) + '</span>'
+      + '      <span class="sub">공급가 ' + krwPS(m.supply) + ' · 부가세 ' + krwPS(m.vat) + '</span>'
+      + '      <span class="sub">계약금 50% ' + krwPS(Math.round(m.p.total / 2)) + '</span></div>'
+      + '    <div class="ps-kpi money"><span class="pslb">추정 실매입 원가</span>'
+      + '      <span class="v">' + krwPS(m.p.cost.total) + '</span>'
+      + '      <span class="sub">VAT 포함 ' + krwPS(m.p.cost.total * 1.1) + '</span>'
+      + '      <span class="sub">바닥 ' + m.p.cost.aFloor.toFixed(2) + '㎡ · 벽 ' + m.p.cost.aWall.toFixed(2) + '㎡</span></div>'
+      + '    <div class="ps-kpi mine' + (m.ok ? "" : " bad") + '"><span class="pslb">예상 세후 순수익</span>'
+      + '      <span class="v">' + krwPS(m.margin) + '</span>'
+      + '      <span class="ps-badge ' + (m.ok ? "ok" : "no") + '">' + (m.ok ? "목표 80만 달성" : "목표까지 −" + krwPS(m.target - m.margin)) + '</span>'
+      + '      <span class="sub">공급가 매출 − 공급가 원가</span></div>'
+      + '  </div>'
+
+      /* 1 등급 */
+      + '  <div class="ps-card"><div class="ps-step"><span class="n">1</span><span class="t">등급</span><span class="s">딱 누르면 등급이 바뀝니다</span></div>'
+      + '    <div class="ps-grade">' + gradeBtns + '</div></div>'
+
+      /* 2 규격 */
+      + '  <div class="ps-card"><div class="ps-step"><span class="n">2</span><span class="t">규격</span><span class="s">외경 mm · 층고 2280 기준</span></div>'
+      + '    <div class="ps-chips">' + sizeChips + '</div>'
+      + (PS.size === "custom"
+          ? '<div class="ps-custom"><label>가로<input id="ps-w" type="number" value="' + PS.w + '"></label>'
+          + '<label>세로<input id="ps-d" type="number" value="' + PS.d + '"></label>'
+          + '<label>높이<input id="ps-h" type="number" value="' + PS.h + '"></label></div>'
+          : '')
+      + '</div>'
+
+      /* 3 옵션 */
+      + '  <div class="ps-card"><div class="ps-step"><span class="n">3</span><span class="t">옵션</span><span class="s">실제 옵션만 · 라인타공은 기본</span></div>'
+      + '    <div class="ps-opts">' + optRows + '</div>'
+      + '    <div class="ps-step" style="margin-top:12px"><span class="t">운송</span><span class="s">거리별 차등</span></div>'
+      + '    <div class="ps-chips">' + shipChips + '</div>'
+      + '    <div class="ps-step" style="margin-top:12px"><span class="t">현장 시공</span><span class="s">일당 40만원 (VAT 별도)</span></div>'
+      + '    <div class="ps-chips">' + dayChips + '</div>'
+      + '</div>'
+
+      /* 판매가 조정 + 내역 */
+      + '  <div class="ps-card">'
+      + '    <div class="ps-step"><span class="t">판매가</span><span class="s">부가세 포함 · 손으로 조정할 수 있습니다</span></div>'
+      + '    <div class="ps-price"><label>고객 안내가</label>'
+      + '      <input id="ps-price" type="number" step="10000" value="' + m.p.base + '">'
+      + '      <button type="button" class="ps-mini" data-ps-px="-100000">−10만</button>'
+      + '      <button type="button" class="ps-mini" data-ps-px="100000">+10만</button>'
+      + '      <button type="button" class="ps-mini" data-ps-px="reset">확정가로</button></div>'
+      + '    <details class="ps-detail" style="margin-top:10px"><summary><span>원가 내역 · 마진 구조</span><span>열기</span></summary>'
+      + costLines
+      + '      <div class="ps-line sum"><span>실매입 원가 합계 (공급가)</span><b>' + krwPS(m.p.cost.total) + '</b></div>'
+      + (m.p.optP ? '<div class="ps-line"><span>옵션 판매가 (VAT 포함)</span><b>' + krwPS(m.p.optP) + '</b></div>' : '')
+      + '      <div class="ps-line sum"><span>세후 순수익</span><b>' + krwPS(m.margin) + '</b></div>'
+      + '      <p class="ps-note">· 원가는 2000×2000 싱글 실매입(공급가 0원)을 기준점으로 면적·겹수에 따라 비례 계산한 추정치입니다. 운송·일당은 실제 청구서 기준.<br>'
+      + '      · 2중 벽체는 벽 자재·공임만 늘고 바닥·천장은 그대로입니다.<br>'
+      + '      · 실제 발주 전 재단표(도면 A-104)로 장수를 확인하세요.</p>'
+      + '    </details>'
+      + '  </div>'
+
+      /* 원터치 */
+      + '  <div class="ps-acts">'
+      + '    <button type="button" class="ps-act" data-ps-copy="short">📝 간단 견적 복사</button>'
+      + '    <button type="button" class="ps-act solid" data-ps-copy="full">📗 예약 확정 복사</button>'
+      + '    <button type="button" class="ps-act blue" data-ps-blueprint="1">📐 이 규격 도면 보기</button>'
+      + '  </div>'
+      + '</div>';
+
+    psBind();
+  }
+  function psBind(){
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-grade]"), function(b){
+      b.addEventListener("click", function(){ PS.grade = b.getAttribute("data-ps-grade"); PS.price = 0; PS.day = psGradeOf(PS.grade).days; psSave(); render(); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-size]"), function(b){
+      b.addEventListener("click", function(){ PS.size = b.getAttribute("data-ps-size"); PS.price = 0; psSave(); render(); });
+    });
+    ["#ps-w","#ps-d","#ps-h"].forEach(function(sel){
+      var el = document.querySelector(sel); if (!el) return;
+      el.addEventListener("input", function(){ PS[sel.slice(3)] = Number(el.value) || 0; PS.price = 0; psSave(); psRefreshNumbers(); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-opt]"), function(b){
+      b.addEventListener("click", function(){ var k = b.getAttribute("data-ps-opt"); PS[k] = !PS[k]; psSave(); render(); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-ship]"), function(b){
+      b.addEventListener("click", function(){ PS.ship = b.getAttribute("data-ps-ship"); psSave(); render(); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-day]"), function(b){
+      b.addEventListener("click", function(){ PS.day = Number(b.getAttribute("data-ps-day")); psSave(); render(); });
+    });
+    var priceIn = document.getElementById("ps-price");
+    if (priceIn){
+      priceIn.addEventListener("input", function(){ PS.price = Number(priceIn.value) || 0; psSave(); psRefreshNumbers(); });
+    }
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-px]"), function(b){
+      b.addEventListener("click", function(){
+        var d = b.getAttribute("data-ps-px");
+        if (d === "reset") PS.price = 0;
+        else PS.price = Math.max(1000000, (PS.price || psPrice().base) + Number(d));
+        psSave(); render();
+      });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-copy]"), function(b){
+      b.addEventListener("click", function(){
+        var full = b.getAttribute("data-ps-copy") === "full";
+        copyText(psQuoteText(full), full ? "예약 확정 문구 복사 완료" : "간단 견적 문구 복사 완료");
+      });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-blueprint]"), function(b){
+      b.addEventListener("click", function(){ window.open(psBlueprintUrl(), "_blank", "noopener"); });
+    });
+  }
+  /* 가격 입력 중에는 KPI만 다시 계산 (포커스 유지) */
+  function psRefreshNumbers(){
+    var m = psMarginInfo();
+    var v = app.querySelector(".ps-kpi.main .v"); if (v) v.textContent = krwPS(m.p.total);
+    var subs = app.querySelectorAll(".ps-kpi.main .sub");
+    if (subs[0]) subs[0].textContent = "공급가 " + krwPS(m.supply) + " · 부가세 " + krwPS(m.vat);
+    if (subs[1]) subs[1].textContent = "계약금 50% " + krwPS(Math.round(m.p.total / 2));
+    var mv = app.querySelector(".ps-kpi.mine .v"); if (mv) mv.textContent = krwPS(m.margin);
+    var mb = app.querySelector(".ps-kpi.mine .ps-badge");
+    if (mb){
+      mb.className = "ps-badge " + (m.ok ? "ok" : "no");
+      mb.textContent = m.ok ? "목표 80만 달성" : "목표까지 −" + krwPS(m.target - m.margin);
+    }
+    var card = app.querySelector(".ps-kpi.mine");
+    if (card) card.className = "ps-kpi mine" + (m.ok ? "" : " bad");
+  }
+
+  psLoad();
+
   /* ============================================================
      🧮 표준 단가 계산기 (신규설치 · 숨고 응대용)
      - 표준 11규격은 공급가액(부가세 별도) 그대로
@@ -3708,7 +4216,12 @@ function openContractModal(q){
     { w: 2000, d: 2000, p: 327 }, { w: 2000, d: 2500, p: 372 }, { w: 3000, d: 1800, p: 409 },
     { w: 2400, d: 2600, p: 460 }, { w: 3000, d: 3000, p: 563 }
   ];
-  var CALC = { regional: false, targetId: "", w: 2000, d: 2000 };
+  var CALC = { region: "metro", targetId: "", w: 2000, d: 2000 };
+  function calcRegionStep(k){
+    for (var i=0;i<REGION_STEPS.length;i++) if (REGION_STEPS[i].k === k) return REGION_STEPS[i];
+    return REGION_STEPS[0];
+  }
+  function calcShipAdd(){ return calcRegionStep(CALC.region).add; }
   function calcStd(w, d){
     var a = Math.min(w, d), b = Math.max(w, d);
     for (var i = 0; i < STD_SPECS.length; i++){
@@ -3728,10 +4241,11 @@ function openContractModal(q){
       base = Math.round(135 + 48.9 * area) * 10000;
       basis = "규격 외 · 고정 135만 + 48.9만/㎡ 보간 (면적 " + area.toFixed(2) + "㎡)";
     }
-    var supply = Math.round((base + (CALC.regional ? 300000 : 0)) / 10000) * 10000;
+    var shipAdd = calcShipAdd();
+    var supply = Math.round((base + shipAdd) / 10000) * 10000;
     var vat = Math.round(supply * 0.1);
     return { supply: supply, vat: vat, total: supply + vat, deposit: Math.round((supply + vat) / 2),
-             basis: basis, regional: CALC.regional, std: std };
+             basis: basis, region: CALC.region, shipAdd: shipAdd, std: std };
   }
   function calcRead(){
     var w = Math.max(0, Math.round(Number(document.getElementById("calc-w").value) || 0));
@@ -3748,7 +4262,8 @@ function openContractModal(q){
       put("calc-supply", "—"); put("calc-vat", "—"); put("calc-total", "—"); put("calc-deposit", "—");
       return;
     }
-    put("calc-basis", c.basis + (c.regional ? " · 지방 운송비 +300,000원 포함" : " · 수도권 운송비 포함"));
+    put("calc-basis", c.basis + " · 운송 " + calcRegionStep(c.region).t
+      + (c.shipAdd ? " +" + c.shipAdd.toLocaleString("ko-KR") + "원" : " 기본 포함"));
     put("calc-supply", krw(c.supply));
     put("calc-vat", krw(c.vat));
     put("calc-total", krw(c.total));
@@ -3756,10 +4271,11 @@ function openContractModal(q){
     var sel = document.getElementById("calc-spec");
     if (sel && document.activeElement !== sel) sel.value = c.std ? (c.std.w + "x" + c.std.d) : "custom";
   }
-  function calcRegionSet(on){
-    CALC.regional = !!on;
+  function calcRegionSet(k){
+    if (!k) return;
+    CALC.region = calcRegionStep(k).k;
     Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
-      b.classList.toggle("on", (b.getAttribute("data-calc-region") === "1") === CALC.regional);
+      b.classList.toggle("on", b.getAttribute("data-calc-region") === CALC.region);
     });
   }
   function openCalc(id){
@@ -3820,13 +4336,24 @@ function openContractModal(q){
     return null;
   }
   var REGION_METRO = ["서울","경기","인천","김포","부천","고양","파주","수원","성남","안양","안산","시흥","광명","군포","과천","구리","남양주","의정부","용인","화성","평택","오산","이천","안성","포천","양주","동두천","여주","연천","가평","양평","하남","광주시","강화","옹진","일산","분당","수지","판교"];
-  var REGION_LOCAL = ["부산","대구","대전","울산","세종","강원","춘천","원주","강릉","속초","충북","충남","청주","천안","아산","전주","전북","전남","목포","여수","순천","경북","경남","포항","구미","안동","경주","창원","김해","진주","제주","서귀포","광주광역시"];
+  /* 운송비 거리 4단 — 수도권 0 / 근거리(충북·천안·강원) +20만 / 중거리(충남·전북·경북) +30만 / 원거리(전남·경남·제주) +40만 */
+  var REGION_STEPS = [
+    { k: "metro", t: "수도권",            add: 0 },
+    { k: "near",  t: "충북·천안·강원",     add: 200000 },
+    { k: "mid",   t: "충남·전북·경북",     add: 300000 },
+    { k: "far",   t: "전남·경남·제주",     add: 400000 }
+  ];
+  var REGION_NEAR = ["충북","청주","충주","제천","음성","진천","천안","아산","강원","춘천","원주","강릉","속초","동해","삼척","횡성","홍천"];
+  var REGION_MID  = ["충남","대전","세종","공주","논산","당진","서산","보령","전북","전주","익산","군산","정읍","남원","경북","대구","포항","구미","안동","경주","김천","영주","상주"];
+  var REGION_FAR  = ["전남","광주","목포","여수","순천","나주","경남","부산","울산","창원","김해","진주","양산","거제","통영","사천","제주","서귀포"];
+  var REGION_LOCAL = REGION_NEAR.concat(REGION_MID, REGION_FAR);
   function calcRegionOf(txt){
     var t = String(txt || "");
-    var hasLocal = REGION_LOCAL.some(function(k){ return t.indexOf(k) !== -1; });
-    var hasMetro = REGION_METRO.some(function(k){ return t.indexOf(k) !== -1; });
-    if (hasLocal) return "local";
-    if (hasMetro) return "metro";
+    var has = function(list){ return list.some(function(k){ return t.indexOf(k) !== -1; }); };
+    if (has(REGION_FAR))  return "far";
+    if (has(REGION_MID))  return "mid";
+    if (has(REGION_NEAR)) return "near";
+    if (has(REGION_METRO)) return "metro";
     return "";
   }
 
@@ -3848,7 +4375,7 @@ function openContractModal(q){
   });
   Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
     b.addEventListener("click", function(){
-      calcRegionSet(b.getAttribute("data-calc-region") === "1");
+      calcRegionSet(b.getAttribute("data-calc-region"));
       calcPaint();
     });
   });
@@ -3874,11 +4401,12 @@ function openContractModal(q){
       document.getElementById("calc-w").value = sz.w;
       document.getElementById("calc-d").value = sz.d;
     }
-    if (where) calcRegionSet(where === "local");
+    if (where) calcRegionSet(where);
     calcPaint();
     var bits = [];
     bits.push(sz ? ("규격 " + sz.w.toLocaleString("ko-KR") + " × " + sz.d.toLocaleString("ko-KR") + " mm") : "규격을 찾지 못했습니다 — 직접 입력해 주세요");
-    bits.push(where === "local" ? "지방(+30만) 반영" : (where === "metro" ? "수도권" : "지역을 찾지 못했습니다 — 직접 골라 주세요"));
+    var wst = where ? calcRegionStep(where) : null;
+    bits.push(wst ? (wst.t + (wst.add ? " +" + Math.round(wst.add/10000) + "만" : " 0원")) : "지역을 찾지 못했습니다 — 직접 골라 주세요");
     msg.textContent = bits.join(" · ");
   });
   document.getElementById("calc-apply").addEventListener("click", function(){
