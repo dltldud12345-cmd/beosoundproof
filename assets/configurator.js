@@ -2927,10 +2927,10 @@ const PHOTO_LED = {
 };
 function preloadPhotoWins(){
   const map = {
-    '600x800': 'assets/win-600.png?v=8',
+    '600x800': 'assets/win-600.png?v=9',
     '800x800': 'assets/win-800.png?v=8',
     '1200x800': 'assets/win-1200.png?v=8',
-    'double1200': 'assets/win-double.png?v=8',
+    'double1200': 'assets/win-double.png?v=9',
     'rail_ceiling': 'assets/ceiling-rail.png?v=9',
     'slat_nocob': 'assets/slat-nocob.png?v=4',
     'side_left': 'assets/side-slat-left.webp?v=1',
@@ -2939,7 +2939,7 @@ function preloadPhotoWins(){
     'back_600x800': 'assets/win-600x800-back.png?v=4',
     'back_800x800': 'assets/win-800x800-back.png?v=4',
     'back_1200x800': 'assets/win-1200x800-back.png?v=4',
-    'back_double1200': 'assets/win-double-back.png?v=4',
+    'back_double1200': 'assets/win-double-back.png?v=5',
     'ceiling_clean': 'assets/ceiling-clean.webp?v=1',
     'side_light_left': 'assets/side-light-left.webp?v=1',
     'side_light_right': 'assets/side-light-right.webp?v=1',
