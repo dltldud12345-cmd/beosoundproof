@@ -1201,8 +1201,9 @@
   }
 
   /* ---------- 시뮬레이터 사양(SIM_SPEC) → 표시용 · 링크용 ---------- */
-  var ARTBOARD_LABEL = { beige:"연베이지", beige_d:"진베이지", white:"화이트", gray_l:"연그레이", gray_d:"진그레이",
-    black:"블랙", orange:"오렌지", melon:"메론", green:"그린", sky:"스카이블루", blue:"블루", pink:"핑크" };
+  /* 지금 쓰는 아트보드 5색 — 예전 12색 key는 과거 저장 건 표시용 fallback으로 남긴다 */
+  var ARTBOARD_LABEL = { beige:"연베이지", white:"화이트", gray_l:"라이트그레이", charcoal:"차콜", black:"블랙",
+    beige_d:"진베이지", gray_d:"진그레이", orange:"오렌지", melon:"메론", green:"그린", sky:"스카이블루", blue:"블루", pink:"핑크" };
   var SLAT_LABEL = { oak:"내추럴 오크", walnut:"미디엄 월넛", white:"화이트", whitewash:"화이트워시",
     maple:"메이플", teak:"티크", ash:"애쉬 오크", dark:"다크 월넛" };
   var FLOOR_LABEL = { oak:"멜로우 오크", pine:"화이트 파인" };
