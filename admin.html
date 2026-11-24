@@ -323,7 +323,7 @@
   .sedit-box.to{background:#F3FAF7}
   .sedit-box.to .cap{color:#1F6B4A}
   .sedit-amt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .sedit-amt .calc{height:38px;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;border:1px dashed var(--line2);border-radius:9px;background:#FFFCF5;font-size:13px;font-weight:800;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  .sedit-amt .calc{width:auto;min-width:0;max-height:none;height:38px;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;border:1px dashed var(--line2);border-radius:9px;background:#FFFCF5;font-size:13px;font-weight:800;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;box-shadow:none}
   .sedit-amt .calc.strong{color:var(--accent-d)}
   .sedit-amt .calc.plus{color:#17663C;border-color:#BFE6CE;background:#EAF7EF}
   .sedit-amt .calc.loss{color:#8E2020;border-color:#F3C4C4;background:#FDECEC}
@@ -711,7 +711,7 @@
       <div class="sedit-amt">
         <label>공급가액 (원 · 부가세 별도)<input id="sd-supply-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 500000"></label>
         <label><span id="sd-vat-label">부가세 (공급가액×10%)</span><span class="calc" id="sd-vat">—</span></label>
-        <label>전체 금액 · 총액 (부가세 포함)<input id="sd-total-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 550000"></label>
+        <label>전체 금액 (부가세 포함)<input id="sd-total-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 550000"></label>
         <label>계약금 (원)<input id="sd-deposit" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="0"></label>
         <label style="grid-column:span 2">잔금 (자동)<span class="calc" id="sd-balance">—</span></label>
         <label>일당 · 인건비 (원)<input id="sd-day" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 150000"></label>
@@ -2950,7 +2950,7 @@ function openContractModal(q){
       + '    <div class="money-hint" data-hint="supply"></div></div>'
       + '  <div class="money-item"><label>부가세 (자동 · 현금 0원)</label>'
       + '    <div class="amt" data-amt="vat">' + won(m.vat) + '</div></div>'
-      + '  <div class="money-item"><label>전체 금액 · 총액 (VAT 포함)</label>'
+      + '  <div class="money-item"><label>전체 금액 (VAT 포함)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="total" value="' + (m.total === "" ? "" : m.total) + '" placeholder="예: 550000">'
       + '    <div class="money-hint" data-hint="total"></div></div>'
       + '  <div class="money-item"><label>계약금 (원)</label>'
