@@ -242,6 +242,7 @@
   .money-item input:focus{outline:0;border-color:var(--accent)}
   .money-item .amt{min-height:36px;display:flex;align-items:center;justify-content:flex-end;font-size:14px;font-weight:800;color:var(--ink2);text-align:right;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
   .money-item .amt.strong{font-size:15px;color:var(--accent-d)}
+  .money-guide{grid-column:1 / -1;font-size:10.5px;font-weight:700;color:#8A6A1F;line-height:1.4;min-width:0}
   .money-hint{font-size:10px;font-weight:700;color:var(--accent-d);text-align:right}
   .money-hint:empty{display:none}
   .money-item .bal{min-height:36px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;font-size:15.5px;font-weight:800;color:var(--accent-d);text-align:right;padding:0 4px;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -710,7 +711,7 @@
       <div class="sedit-amt">
         <label>공급가액 (원 · 부가세 별도)<input id="sd-supply-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 500000"></label>
         <label><span id="sd-vat-label">부가세 (공급가액×10%)</span><span class="calc" id="sd-vat">—</span></label>
-        <label>총액 · 청구 금액 (자동)<span class="calc strong" id="sd-total-out">—</span></label>
+        <label>전체 금액 · 총액 (부가세 포함)<input id="sd-total-in" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 550000"></label>
         <label>계약금 (원)<input id="sd-deposit" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="0"></label>
         <label style="grid-column:span 2">잔금 (자동)<span class="calc" id="sd-balance">—</span></label>
         <label>일당 · 인건비 (원)<input id="sd-day" type="number" min="0" step="10000" inputmode="numeric" class="sedit-in" placeholder="예: 150000"></label>
@@ -904,9 +905,10 @@
     if (n > 0 && n < 1000) return Math.round(n * 10000);
     return Math.round(n);
   }
-  /* 계약 금액 — 입력은 공급가액.
-     부가세 = 현금결제 0원, 그 외(카드·세금계산서·현금영수증·미정) Math.round(공급가액 × 0.1).
-     총액(청구 금액) = 공급가액 + 부가세.
+  /* 계약 금액 — 공급가액과 전체 금액(총액·부가세 포함) 중 마지막으로 고친 쪽이 기준(amtBase).
+     · 공급가액 기준: 부가세 = Math.round(공급가액 × 0.1) · 총액 = 공급가액 + 부가세
+     · 전체 금액 기준: 부가세 = Math.round(총액 ÷ 11) · 공급가액 = 총액 − 부가세 (입력한 총액이 1원도 안 튄다)
+     현금결제는 부가세 0원이라 총액 = 공급가액.
      예전 '총액 입력' 시절 저장값은 그대로 총액으로 읽어(부가세 = 총액÷11) 화면 숫자가 바뀌지 않게 둔다. */
   function moneyOf(q){
     var p = pipeOf(q.id);
@@ -923,33 +925,59 @@
       if (mt) mTotal = Number(mt[1].replace(/,/g, ""));
       if (md) mDeposit = Number(md[1].replace(/,/g, ""));
     }
-    var total = "", vat = "", supply = "";
+    var total = "", vat = "", supply = "", base = "";
     /* 이 기기에 금액을 저장한 적이 있는지 — 있으면 메모 태그보다 기기 저장값이 우선이라
        입력 칸을 비우면 금액이 실제로 지워진다(예전 메모 [금액]이 되살리지 않게). */
-    var hasLocal = own("supply") || own("total");
-    if (own("supply") && p.supply !== "" && p.supply != null){
+    var hasLocal = own("supply") || own("total") || own("amtBase");
+    var hasS = own("supply") && p.supply !== "" && p.supply != null;
+    var hasT = own("total") && p.total !== "" && p.total != null;
+    /* 마지막으로 고친 칸(amtBase)이 기준 — 전체 금액을 넣었으면 총액을 그대로 두고
+       공급가액 = 총액 − 부가세, 부가세 = Math.round(총액 ÷ 11)로 역산한다. */
+    var wantBase = own("amtBase") ? String(p.amtBase || "") : "";
+    var useTotal = (wantBase === "total") || (wantBase !== "supply" && !hasS && hasT);
+    if (useTotal && hasT){
+      total = rnd(p.total);
+      vat = rate === 0 ? 0 : Math.round(total / 11);
+      supply = total - vat;
+      base = "total";
+    } else if (hasS){
       supply = rnd(p.supply);
       vat = rate === 0 ? 0 : Math.round(supply * rate);
       total = supply + vat;
-    } else if (own("total") && p.total !== "" && p.total != null){
+      base = "supply";
+    } else if (hasT){
       /* 2026-11-23 이전 '총액 입력' 저장값 — 총액 그대로 읽고 부가세를 총액÷11로 되돌린다 */
       total = rnd(p.total);
       vat = rate === 0 ? 0 : Math.round(total / 11);
       supply = total - vat;
+      base = "total";
     } else if (!hasLocal && mSupply != null && !isNaN(mSupply)){
       supply = Math.round(mSupply);
       total = (mTotal != null && !isNaN(mTotal)) ? Math.round(mTotal) : supply + (rate === 0 ? 0 : Math.round(supply * rate));
       vat = total - supply;
+      base = (mTotal != null && !isNaN(mTotal)) ? "total" : "supply";
     } else if (!hasLocal && mTotal != null && !isNaN(mTotal)){
       total = Math.round(mTotal);
       vat = rate === 0 ? 0 : Math.round(total / 11);
       supply = total - vat;
+      base = "total";
     }
+    if (!base) base = wantBase === "total" ? "total" : "supply";
     var deposit = own("deposit") ? rnd(p.deposit) : (mDeposit != null && !isNaN(mDeposit) ? Math.round(mDeposit) : "");
     var balance = (total !== "" && deposit !== "") ? Math.max(0, total - deposit) : null;
-    return { supply: supply, vat: vat, total: total, deposit: deposit, balance: balance };
+    return { supply: supply, vat: vat, total: total, deposit: deposit, balance: balance, base: base };
   }
   function won(v){ return v === "" || v == null || isNaN(v) ? "—" : Number(v).toLocaleString("ko-KR") + "원"; }
+  /* 금액 입력 칸 종류 — supply(공급가액) | total(전체 금액) | deposit(계약금) */
+  function moneyKey(inp){
+    var k = inp.getAttribute("data-money-k");
+    return k === "deposit" ? "deposit" : (k === "total" ? "total" : "supply");
+  }
+  /* 금액 칸을 고칠 때 — 그 칸이 기준이 되고 반대쪽 금액 저장값은 비운다(둘이 섞여 엉키지 않게) */
+  function moneyBasePatch(patch, k){
+    if (k === "supply"){ patch.total = ""; patch.amtBase = "supply"; }
+    else if (k === "total"){ patch.supply = ""; patch.amtBase = "total"; }
+  }
   /* ---------- 손익 (일당 · 경비) — 이 기기 저장 + 메모 태그 [일당]/[경비] ---------- */
   function parseWonTag(tag){
     var m = String(tag || "").match(/([\d,]+)/);
@@ -1007,17 +1035,28 @@
     return h + '</div>';
   }
   function moneyNote(m){
-    if (!m || (m.total === "" && m.supply === "")) return "공급가액을 입력하면 부가세와 총액(청구 금액)이 자동으로 계산됩니다 · 계약금은 직접 입력";
-    if (!m.vat) return "현금결제 — 부가세 0원 · 공급가액 " + won(m.supply) + " = 총액(청구 금액)";
-    return "공급가액 " + won(m.supply) + " + 부가세 " + won(m.vat) + " (10%) = 총액 " + won(m.total);
+    if (!m || (m.total === "" && m.supply === "")) return "공급가액 또는 전체 금액 중 편한 쪽을 입력하면 나머지가 자동 계산됩니다 · 계약금은 직접 입력";
+    if (!m.vat) return "현금결제 — 부가세 0원 · 공급가액 " + won(m.supply) + " = 전체 금액";
+    if (m.base === "total") return "전체 금액 " + won(m.total) + " 입력 → 공급가액 " + won(m.supply) + " + 부가세 " + won(m.vat) + " (역산)";
+    return "공급가액 " + won(m.supply) + " + 부가세 " + won(m.vat) + " (10%) = 전체 금액 " + won(m.total);
   }
-  /* 화면 갱신 — 입력할 때마다 카드 전체를 다시 그리지 않고 계산값만 바꾼다 */
-  function paintMoney(card, m){
+  /* 화면 갱신 — 입력할 때마다 카드 전체를 다시 그리지 않고 계산값만 바꾼다.
+     opts.focus 는 지금 고치고 있는 칸("supply"|"total"), opts.small 은 1000 미만 입력을 만 원 단위로 읽은 경우 —
+     그때는 반대쪽 칸을 건드리지 않아 타이핑 중인 숫자가 튀지 않는다. */
+  function paintMoney(card, m, opts){
     if (!card) return;
+    opts = opts || {};
     var put = function(sel, txt){ var el = card.querySelector(sel); if (el) el.textContent = txt; };
     put('[data-amt="vat"]', won(m.vat));
     put('[data-amt="total"]', won(m.total));
     put('[data-amt="supply"]', won(m.supply));
+    /* 공급가액 · 전체 금액 입력 칸을 서로 맞춰 준다 (지금 고치고 있는 칸은 그대로 둔다) */
+    if (!opts.small){
+      var sIn = card.querySelector('[data-money-k="supply"]');
+      var tIn = card.querySelector('[data-money-k="total"]');
+      if (sIn && opts.focus !== "supply") sIn.value = m.supply === "" ? "" : String(m.supply);
+      if (tIn && opts.focus !== "total") tIn.value = m.total === "" ? "" : String(m.total);
+    }
     var bal = card.querySelector('[data-amt="balance"]');
     if (bal) bal.innerHTML = (m.balance == null ? "—" : won(m.balance)) + '<small>총액 − 계약금</small>';
     var pl = card.querySelector('[data-amt="profit"]');
@@ -2281,6 +2320,7 @@ function openContractModal(q){
   /* ---------- ✏️ 일정 탭에서 바로 수정 ---------- */
   var SEDIT_ID = "";
   var SEDIT_PAY = "";
+  var SEDIT_BASE = "supply";   /* 이번 수정 창에서 마지막으로 고친 금액 칸 — supply | total */
   var SEDIT_CLEARED = false;   /* 이번 수정 창에서 ‘일정 미정’을 직접 누른 경우 */
   var ED_PAY = "";   /* ✏️ 사양 · 주소 수정 모달에서 고른 결제수단(빈 값 = 미정) */
   /* DB는 엘리베이터를 "있음"/"없음" 문자열로, 예전 기기 저장은 true/false로 갖고 있다 — 둘 다 읽는다 */
@@ -2306,25 +2346,46 @@ function openContractModal(q){
   }
   function schedMoneyCalc(){
     var rate = vatRateFor(SEDIT_PAY);
-    var supply = amountOf(document.getElementById("sd-supply-in").value);
-    supply = (supply === "" || isNaN(supply)) ? "" : Math.round(supply);
-    var vat = supply === "" ? "" : (rate === 0 ? 0 : Math.round(supply * rate));
-    var total = supply === "" ? "" : supply + vat;
+    var sv = amountOf(document.getElementById("sd-supply-in").value);
+    var tv = amountOf(document.getElementById("sd-total-in").value);
+    sv = (sv === "" || isNaN(sv)) ? "" : Math.round(Number(sv));
+    tv = (tv === "" || isNaN(tv)) ? "" : Math.round(Number(tv));
+    /* 마지막으로 고친 칸이 기준 — 전체 금액을 고쳤으면 총액을 그대로 두고 공급가액·부가세를 역산한다 */
+    var base = SEDIT_BASE === "total" ? "total" : "supply";
+    if (base === "total" && tv === "" && sv !== "") base = "supply";
+    if (base === "supply" && sv === "" && tv !== "") base = "total";
+    var supply = "", vat = "", total = "";
+    if (base === "total" && tv !== ""){
+      total = tv;
+      vat = rate === 0 ? 0 : Math.round(total / 11);
+      supply = total - vat;
+    } else if (base === "supply" && sv !== ""){
+      supply = sv;
+      vat = rate === 0 ? 0 : Math.round(supply * rate);
+      total = supply + vat;
+    }
     var deposit = amountOf(document.getElementById("sd-deposit").value);
     deposit = (deposit === "" || isNaN(deposit)) ? "" : Math.round(deposit);
     var balance = (total !== "" && deposit !== "") ? Math.max(0, total - deposit) : null;
-    return { total: total, vat: vat, supply: supply, deposit: deposit, balance: balance, cash: rate === 0, unset: !SEDIT_PAY };
+    return { total: total, vat: vat, supply: supply, deposit: deposit, balance: balance, cash: rate === 0, unset: !SEDIT_PAY, base: base };
   }
-  function schedMoneyPaint(){
+  function schedMoneyPaint(opts){
+    opts = opts || {};
     var m = schedMoneyCalc();
     var put = function(sel, txt){ var el = document.getElementById(sel); if (el) el.textContent = txt; };
     put("sd-vat", m.vat === "" ? "—" : won(m.vat));
-    put("sd-total-out", m.total === "" ? "—" : won(m.total));
     put("sd-balance", m.balance == null ? "—" : won(m.balance));
     put("sd-vat-label", m.cash ? "부가세 (현금 · 0원)" : (m.unset ? "부가세 (미정 · 10%)" : "부가세 (공급가액×10%)"));
-    put("sd-money-note", m.supply === ""
-      ? "공급가액을 입력하면 부가세 · 총액(청구 금액) · 잔금이 자동 계산됩니다."
+    put("sd-money-note", (m.supply === "" && m.total === "")
+      ? "공급가액 또는 전체 금액 중 편한 쪽을 입력하면 나머지가 자동 계산됩니다."
       : moneyNote(m));
+    /* 두 금액 칸을 서로 맞추기 — 지금 고치고 있는 칸은 건드리지 않는다 */
+    if (!opts.small){
+      var sIn = document.getElementById("sd-supply-in");
+      var tIn = document.getElementById("sd-total-in");
+      if (sIn && opts.focus !== "supply" && document.activeElement !== sIn) sIn.value = m.supply === "" ? "" : String(m.supply);
+      if (tIn && opts.focus !== "total" && document.activeElement !== tIn) tIn.value = m.total === "" ? "" : String(m.total);
+    }
     /* 순수익 = 공급가액 − 일당 − 기타 경비 (부가세는 고객에게 받아 넘기는 돈이라 손익에서 빠진다) */
     var day = amountOf(document.getElementById("sd-day").value);
     var exp = amountOf(document.getElementById("sd-expense").value);
@@ -2373,7 +2434,9 @@ function openContractModal(q){
       return '<button type="button" class="pay-chip" data-sd-pay="' + p + '">' + p + '</button>';
     }).join("");
     schedPaySet(payOf(q));
+    SEDIT_BASE = (m.base === "total") ? "total" : "supply";
     document.getElementById("sd-supply-in").value = m.supply === "" ? "" : m.supply;
+    document.getElementById("sd-total-in").value = m.total === "" ? "" : m.total;
     document.getElementById("sd-deposit").value = m.deposit === "" ? "" : m.deposit;
     var c = costOf(q);
     document.getElementById("sd-day").value = c.day === "" ? "" : c.day;
@@ -2421,9 +2484,10 @@ function openContractModal(q){
       noDate: dateV ? false : (SEDIT_CLEARED || !!pipeOf(id).noDate),
       stage: nextStage,
       pay: SEDIT_PAY,
-      supply: m.supply === "" ? "" : m.supply,
-      /* 총액은 공급가액에서 자동 계산되므로 예전 총액 저장값은 지운다 */
-      total: "",
+      /* 마지막으로 고친 칸만 저장한다 — 전체 금액으로 넣었으면 총액을 그대로 보관해 1원도 안 튄다 */
+      supply: (m.base === "supply" && m.supply !== "") ? Math.round(Number(m.supply)) : "",
+      total: (m.base === "total" && m.total !== "") ? Math.round(Number(m.total)) : "",
+      amtBase: m.base,
       deposit: m.deposit === "" ? "" : m.deposit,
       dayCost: dayV === "" ? "" : Math.round(Number(dayV)),
       expense: expV === "" ? "" : Math.round(Number(expV)),
@@ -2874,6 +2938,7 @@ function openContractModal(q){
     var cst = costOf(q);
     var payHintTxt = payHintFor(pay);
     var moneyHtml = '<div class="money-row">'
+      + '  <div class="money-guide">공급가액 또는 전체 금액 중 편한 쪽을 입력하면 나머지(부가세 · 총액 · 잔금)가 자동 계산됩니다</div>'
       + '  <div class="pay-line">'
       + '    <label>결제 증빙</label>'
       + '    <span class="pay-fixed' + (pay ? "" : " unset") + '" data-pay-fixed="' + esc(q.id) + '">' + (pay ? (pay === "카드결제" ? "💳 " : "🧾 ") + esc(pay) : "미정") + '</span>'
@@ -2885,8 +2950,9 @@ function openContractModal(q){
       + '    <div class="money-hint" data-hint="supply"></div></div>'
       + '  <div class="money-item"><label>부가세 (자동 · 현금 0원)</label>'
       + '    <div class="amt" data-amt="vat">' + won(m.vat) + '</div></div>'
-      + '  <div class="money-item"><label>총액 · 청구액 (자동)</label>'
-      + '    <div class="amt strong" data-amt="total">' + won(m.total) + '</div></div>'
+      + '  <div class="money-item"><label>전체 금액 · 총액 (VAT 포함)</label>'
+      + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="total" value="' + (m.total === "" ? "" : m.total) + '" placeholder="예: 550000">'
+      + '    <div class="money-hint" data-hint="total"></div></div>'
       + '  <div class="money-item"><label>계약금 (원)</label>'
       + '    <input type="number" min="0" step="10000" inputmode="numeric" data-money-id="' + esc(q.id) + '" data-money-k="deposit" value="' + (m.deposit === "" ? "" : m.deposit) + '" placeholder="0">'
       + '    <div class="money-hint" data-hint="deposit"></div></div>'
@@ -3167,28 +3233,27 @@ function openContractModal(q){
     Array.prototype.forEach.call(app.querySelectorAll("[data-money-id]"), function(inp){
       inp.addEventListener("input", function(){
         var id = inp.getAttribute("data-money-id");
-        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "supply";
+        var k = moneyKey(inp);
         var v = amountOf(inp.value);
         var patch = {}; patch[k] = v;
-        if (k === "supply") patch.total = "";   /* 예전 총액 저장값이 다시 살아나지 않게 */
+        moneyBasePatch(patch, k);
         setPipe(id, patch);
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
-        paintMoney(inp.closest(".qsheet"), moneyOf(q));
         /* 1000 미만 입력은 만 원 단위로 읽었다고 알려 준다 (예: 50 → 50만 원) */
+        var rawNum = Number(String(inp.value).replace(/[^0-9.]/g, ""));
+        var small = (v !== "" && rawNum > 0 && rawNum < 1000);
+        paintMoney(inp.closest(".qsheet"), moneyOf(q), { focus: k, small: small });
         var hint = inp.parentNode.querySelector(".money-hint");
-        if (hint){
-          var rawNum = Number(String(inp.value).replace(/[^0-9.]/g, ""));
-          hint.textContent = (v !== "" && rawNum > 0 && rawNum < 1000) ? ("→ " + won(v) + " (만 원 단위)") : "";
-        }
+        if (hint) hint.textContent = small ? ("→ " + won(v) + " (만 원 단위)") : "";
       });
       inp.addEventListener("change", function(){
         var id = inp.getAttribute("data-money-id");
-        var k = inp.getAttribute("data-money-k") === "deposit" ? "deposit" : "supply";
+        var k = moneyKey(inp);
         var v = amountOf(inp.value);
         inp.value = v === "" ? "" : String(v);
         var patch = {}; patch[k] = v;
-        if (k === "supply") patch.total = "";
+        moneyBasePatch(patch, k);
         setPipe(id, patch);
         var q = state.quotes.filter(function(x){ return String(x.id) === String(id); })[0];
         if (!q) return;
@@ -3440,9 +3505,16 @@ function openContractModal(q){
        (공급가액은 그대로, 현금 0원 / 그 외 부가세 10%가 붙어 청구 총액이 바뀐다) */
     var beforeM = moneyOf(quoteById(id) || {});
     var patch = { ov: ov, pay: ED_PAY };
-    if (beforeM.supply !== "" && beforeM.supply != null && !isNaN(Number(beforeM.supply))){
+    /* 결제수단이 바뀌면 부가세·총액을 ‘마지막으로 고친 금액 칸’ 기준으로 다시 계산한다
+       (전체 금액을 넣었으면 총액이 그대로, 공급가액을 넣었으면 공급가액이 그대로) */
+    if (beforeM.total !== "" && beforeM.base === "total" && !isNaN(Number(beforeM.total))){
+      patch.total = Math.round(Number(beforeM.total));
+      patch.supply = "";
+      patch.amtBase = "total";
+    } else if (beforeM.supply !== "" && beforeM.supply != null && !isNaN(Number(beforeM.supply))){
       patch.supply = Math.round(Number(beforeM.supply));
       patch.total = "";
+      patch.amtBase = "supply";
     }
     setPipe(id, patch);
     var rq = quoteById(id);
@@ -3457,9 +3529,19 @@ function openContractModal(q){
   document.getElementById("sched-modal").addEventListener("click", function(e){
     if (e.target === document.getElementById("sched-modal")) e.currentTarget.hidden = true;
   });
-  Array.prototype.forEach.call(["sd-supply-in", "sd-deposit", "sd-day", "sd-expense"], function(fid){
+  Array.prototype.forEach.call(["sd-supply-in", "sd-total-in", "sd-deposit", "sd-day", "sd-expense"], function(fid){
     var inp = document.getElementById(fid);
-    inp.addEventListener("input", function(){ schedMoneyPaint(); });
+    inp.addEventListener("input", function(){
+      var opts = {};
+      if (fid === "sd-supply-in" || fid === "sd-total-in"){
+        var v = amountOf(inp.value);
+        var raw = Number(String(inp.value).replace(/[^0-9.]/g, ""));
+        opts.focus = (fid === "sd-total-in") ? "total" : "supply";
+        opts.small = (v !== "" && raw > 0 && raw < 1000);
+        SEDIT_BASE = opts.focus;   /* 이번에 고친 칸이 계산 기준 */
+      }
+      schedMoneyPaint(opts);
+    });
     inp.addEventListener("change", function(){
       var v = amountOf(inp.value);
       inp.value = v === "" ? "" : String(v);
@@ -3726,7 +3808,7 @@ function openContractModal(q){
     if (!c){ toast("가로 · 세로를 먼저 입력해 주세요"); return; }
     var q = quoteById(id);
     if (!q){ toast("적용할 견적을 찾지 못했습니다"); return; }
-    setPipe(id, { supply: c.supply, total: "" });
+    setPipe(id, { supply: c.supply, total: "", amtBase: "supply" });
     var eq = effectiveQuote(quoteById(id));
     pushQuoteUpdate(eq, stageOf(eq));
     calcClose();
