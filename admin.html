@@ -350,6 +350,10 @@
     .sedit-grid{grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:7px}
     .sabtn.edit{padding:6px 6px;font-size:11px}
   }
+  .sabtn.del{color:#B3261E;border-color:#E4B4AE;background:#FFF6F4}
+  .sabtn.del:active{background:#FBE7E3}
+  .saddr.only-date{color:#8A6A1F;font-weight:800}
+  .abtn.sedit-del{margin-top:-2px;border-color:#E4B4AE;background:#FFF6F4;color:#B3261E;font-weight:800}
   .cal-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--shadow);margin-bottom:12px}
   .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .cal-head b{font-size:15px;font-weight:800;letter-spacing:-.02em}
@@ -734,6 +738,7 @@
       <button type="button" class="abtn sedit-save" id="sd-copy-confirm" style="background:#fff">📗 예약 확정 복사</button>
     </div>
     <button type="button" class="abtn solid sedit-save" id="sd-save">💾 저장 (일정·달력·계약서에 바로 반영)</button>
+    <button type="button" class="abtn sedit-save sedit-del" id="sd-del">🗑️ 이 상담요청서 삭제</button>
     <div class="sedit-note">진행 단계는 서버(DB)에 저장되고, 날짜·시간·금액·일당·경비·주소·메모 등 나머지 항목은 이 기기에 저장되어 일정 탭과 계약서에 바로 반영됩니다.</div>
   </div>
 </div>
@@ -1128,6 +1133,16 @@
       + " " + String(o.getUTCHours()).padStart(2,"0") + ":" + String(o.getUTCMinutes()).padStart(2,"0");
   }
   function fmtDay(s){ return s ? String(s).replace(/-/g, ".") : "미정"; }
+  /* 날짜로 인정할 값은 실제 달력에 있는 YYYY-MM-DD 뿐 — null · "" · "미정" · 타임스탬프 · 2026-13-45 는 날짜 없음 */
+  function validDay(v){
+    var s = String(v == null ? "" : v).trim();
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return "";
+    var y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    var dt = new Date(y, mo - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return "";
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
   function sizeLine(q){
     var p = [q.width_mm, q.depth_mm, q.height_mm].map(function(v){
       return v ? Number(v).toLocaleString("ko-KR") : "?";
@@ -2304,16 +2319,35 @@ function openContractModal(q){
     if (isNaN(d.getTime())) return "";
     return "일월화수목금토".charAt(d.getDay());
   }
+  /* 달력에 올릴 날짜 계산 — 규칙은 하나다.
+     · 확정 일정 = 날짜 + 시작 시간이 모두 있는 건
+     · 날짜만 있고 시간이 없는 건 = 아직 시간 조율 중 → 고객 희망일이 같이 있을 때만 그 날짜에 세우고,
+       희망일조차 없으면 달력에서 빼고 ‘일정 미정’ 칸에 둔다(날짜는 참고로 남긴다).
+     · 유효한 YYYY-MM-DD 가 아닌 값(null · "" · "미정" · 접수 시각)은 날짜가 없는 것으로 본다. */
   function schedItems(){
     return state.quotes.map(function(rawQ){
       var q = effectiveQuote(rawQ);
+      var p = pipeOf(q.id);
       var inst = installOf(q);
       var stage = stageOf(q);
+      var des = validDay(q.desired_date);
+      var instDate = validDay(inst.date);
+      var instTime = String(inst.time || "").trim();
+      var date = "", time = "", tentative = false, dateOnly = "";
       /* ‘일정 미정’으로 비워 둔 건은 고객 희망일로 되돌리지 않고 미정 칸에 둔다 */
-      var noDate = !!pipeOf(q.id).noDate;
-      var date = inst.date || (noDate ? "" : (q.desired_date || ""));
-      return { q: q, stage: stage, date: date, time: inst.time || "",
-               tentative: !inst.date && !noDate && !!q.desired_date, isNew: isNewBoothQuote(q) };
+      if (!p.noDate){
+        if (instDate && instTime){
+          date = instDate; time = instTime;
+        } else if (instDate && des){
+          date = instDate;   /* 날짜는 정해지고 시간만 미정 — 고객 희망일이 있어 그 날짜에 세운다 */
+        } else if (!instDate && des){
+          date = des; tentative = true;
+        } else if (instDate){
+          dateOnly = instDate;   /* 날짜만 있고 희망일도 없음 → 달력에 올리지 않는다 */
+        }
+      }
+      return { q: q, stage: stage, date: date, time: time,
+               dateOnly: dateOnly, tentative: tentative, isNew: isNewBoothQuote(q) };
     });
   }
 
@@ -2442,9 +2476,13 @@ function openContractModal(q){
     document.getElementById("sd-day").value = c.day === "" ? "" : c.day;
     document.getElementById("sd-expense").value = c.expense === "" ? "" : c.expense;
     document.getElementById("sd-note").value = q.__noteOverride != null ? q.__noteOverride : (parseMemo(q.memo).note || "");
-    document.getElementById("sd-date-hint").textContent = (q.desired_date && inst.date !== q.desired_date)
-      ? "고객 희망일 " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "") + " · ‘일정 미정’을 누르면 달력에서 빠지고 희망일도 잡히지 않습니다."
-      : "날짜를 비우거나 ‘일정 미정’을 누르면 달력·예정에서 빠집니다.";
+    var sdDateV = validDay(inst.date), sdTimeV = String(inst.time || "").trim();
+    document.getElementById("sd-date-hint").textContent = (sdDateV && !sdTimeV)
+      ? "날짜만 " + fmtDay(sdDateV) + "로 잡혀 있고 시작 시간이 비었습니다 — 시간을 넣어야 달력에 올라가고, 비워 두면 ‘일정 미정’에 남습니다."
+        + (q.desired_date && validDay(q.desired_date) && validDay(q.desired_date) !== sdDateV ? " (고객 희망일 " + fmtDay(q.desired_date) + ")" : "")
+      : ((q.desired_date && inst.date !== q.desired_date)
+        ? "고객 희망일 " + fmtDay(q.desired_date) + (q.date_flexible ? " (조율 가능)" : "") + " · ‘일정 미정’을 누르면 달력에서 빠지고 희망일도 잡히지 않습니다."
+        : "날짜를 비우거나 ‘일정 미정’을 누르면 달력·예정에서 빠집니다.");
     var prCar = document.getElementById("sd-promo");
     prCar.checked = promoOf(q);
     document.getElementById("sd-promo-row").classList.toggle("on", prCar.checked);
@@ -2544,11 +2582,46 @@ function openContractModal(q){
       + (sum.cash || sum.taxed ? '<div class="mcap">💵 현금결제 공급가액 ' + won(sum.cash) + ' (부가세 0) · 💳 그 외 공급가액 ' + won(sum.taxed) + ' (부가세 = 공급가액×10%) · 총 청구액 ' + won(sum.bill) + '</div>' : '')
       + '</div>';
   }
+  function isDbId(id){ return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id || "")); }
+  /* 🗑️ 상담요청서 삭제 — 견적 카드 · 일정 카드 · 일정 수정 창이 같은 경로로 지운다 */
+  function deleteQuoteRecord(id, btn, done){
+    id = String(id || "");
+    if (!id){ toast("삭제할 상담요청서를 찾지 못했습니다"); return; }
+    if (btn) btn.disabled = true;
+    var local = function(){
+      /* 이 기기 저장(진행 단계 · 설치일 · 금액 · 주소 · 메모)도 같이 지운다 */
+      try {
+        var o = readPipe();
+        if (Object.prototype.hasOwnProperty.call(o, id)){ delete o[id]; writePipe(o); }
+      } catch (e) {}
+      state.quotes = (state.quotes || []).filter(function(x){ return String(x.id) !== id; });
+      if (String(SEDIT_ID) === id) SEDIT_ID = "";
+      var m = document.getElementById("sched-modal");
+      if (m) m.hidden = true;
+      toast("이 상담요청서를 삭제했습니다");
+      if (done) done();
+      else loadAll();
+    };
+    /* DB에 없는 건(기기 전용 · 타임트리 메모)은 서버 삭제를 건너뛰고 화면·기기 저장만 정리한다 */
+    if (!isDbId(id)){ local(); return; }
+    rpc("relocation_admin", { p_key: state.adminKey, p_action: "delete", p_payload: { id: id } })
+      .then(function(res){
+        if (res && res.ok){ local(); return; }
+        var e = (res && res.error) || "삭제 실패";
+        if (/찾을 수 없|not found/i.test(e)){ local(); return; }   /* 서버에 이미 없는 건 */
+        throw new Error(e);
+      })
+      .catch(function(err){
+        alert(err.message || "삭제하지 못했습니다");
+        if (btn) btn.disabled = false;
+      });
+  }
   function renderScheduleTab(){
     var items = schedItems();
     var dated = items.filter(function(i){ return i.date; })
       .sort(function(a, b){ return (a.date + a.time).localeCompare(b.date + b.time); });
-    var undated = items.filter(function(i){ return !i.date; });
+    var undated = items.filter(function(i){ return !i.date; })
+      .sort(function(a, b){ return (a.dateOnly || "9999-99-99").localeCompare(b.dateOnly || "9999-99-99"); });
     var today = todayStr();
     var todayN = dated.filter(function(i){ return i.date === today && i.stage !== "done"; }).length;
     var openN = dated.filter(function(i){ return i.stage !== "done"; }).length;
@@ -2558,7 +2631,7 @@ function openContractModal(q){
       + '<div class="ss"><b>' + openN + '</b><span>남은 일정</span></div>'
       + '<div class="ss"><b>' + undated.length + '</b><span>일정 미정</span></div>'
       + '</div>'
-      + '<div class="sched-note">⏰ 모든 일정의 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 보통 오전 9시 도착으로 안내합니다.</div>';
+      + '<div class="sched-note">⏰ 모든 일정의 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 보통 오전 9시 도착으로 안내합니다.<br>🗓️ <b>일정 미정</b>은 날짜·시간이 비었거나 <b>날짜만 있고 시간이 없는</b> 건입니다 — 시간을 넣어야 달력에 올라갑니다.</div>';
 
     var ymTop = state.calMonth || today.slice(0, 7);
     html += monthSumHtml(monthSum(dated, ymTop), parseInt(ymTop.split("-")[1], 10));
@@ -2592,6 +2665,7 @@ function openContractModal(q){
         + (promoOf(q) ? '<span class="promo-tag">📣</span>' : '')
         + '      </div>'
         + '      <div class="saddr">' + esc(addr) + (q.to_floor ? ' · ' + esc(q.to_floor) : '') + '</div>'
+        + (i.dateOnly ? '      <div class="saddr only-date">📌 ' + esc(fmtDay(i.dateOnly)) + ' 날짜만 확인됨 · 시간을 넣으면 달력에 올라갑니다</div>' : '')
         + '    </div>'
         + '    <div class="sacts">'
         + (digits(q.customer_phone) ? '<a class="sabtn" href="tel:' + esc(digits(q.customer_phone)) + '" aria-label="전화">📞</a>' : '')
@@ -2601,11 +2675,12 @@ function openContractModal(q){
             ? '<button type="button" class="sabtn done" data-qdone="' + esc(q.id) + '" aria-label="설치 완료">✅</button>'
             : '<button type="button" class="sabtn undo" data-qundone="' + esc(q.id) + '" aria-label="완료 취소">↩️</button>')
         + '<button type="button" class="sabtn edit" data-sedit="' + esc(q.id) + '" aria-label="일정 수정">✏️ 수정</button>'
+        + '<button type="button" class="sabtn del" data-sdel="' + esc(q.id) + '" aria-label="삭제">🗑️</button>'
         + '    </div>'
         + '  </div>'
         + schedPayLine(q)
         + '  <div class="sinline">'
-        + '    <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date) + '" aria-label="작업 날짜 (해체일)">'
+        + '    <input type="date" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="date" value="' + esc(i.date || i.dateOnly || "") + '" aria-label="작업 날짜 (해체일)">'
         + '    <input type="time" class="sin" data-sch-id="' + esc(q.id) + '" data-sch-k="time" value="' + esc(i.time) + '" aria-label="해체 시작 시간">'
         + '    <select class="sstage-sel" data-sstage-id="' + esc(q.id) + '" aria-label="진행 단계">'
         + STAGES.map(function(s){ return '<option value="' + s.v + '"' + (i.stage === s.v ? ' selected' : '') + '>' + s.label + '</option>'; }).join("")
@@ -2732,6 +2807,13 @@ function openContractModal(q){
     /* ✏️ 일정 수정 모달 · 과거 일정 펼치기 */
     Array.prototype.forEach.call(app.querySelectorAll("[data-sedit]"), function(b){
       b.addEventListener("click", function(){ openSchedEdit(b.getAttribute("data-sedit")); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-sdel]"), function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-sdel");
+        if (!confirm("이 상담요청서를 삭제할까요? 되돌릴 수 없습니다.")) return;
+        deleteQuoteRecord(id, b);
+      });
     });
     Array.prototype.forEach.call(app.querySelectorAll("[data-spast]"), function(b){
       b.addEventListener("click", function(){ state.schedPast = !state.schedPast; renderScheduleTab(); });
@@ -3360,15 +3442,8 @@ function openContractModal(q){
 
     Array.prototype.forEach.call(app.querySelectorAll("[data-qdel]"), function(b){
       b.addEventListener("click", function(){
-        var id = b.getAttribute("data-qdel");
         if (!confirm("이 상담요청서를 삭제할까요? 되돌릴 수 없습니다.")) return;
-        b.disabled = true;
-        rpc("relocation_admin", { p_key: state.adminKey, p_action: "delete", p_payload: { id: id } })
-          .then(function(res){
-            if (!res || !res.ok) throw new Error((res && res.error) || "삭제 실패");
-            toast("삭제했습니다");
-            loadAll();
-          }).catch(function(err){ alert(err.message); b.disabled = false; });
+        deleteQuoteRecord(b.getAttribute("data-qdel"), b);
       });
     });
 
@@ -3575,6 +3650,11 @@ function openContractModal(q){
   }
   document.getElementById("sd-clear-when").addEventListener("click", schedClearWhen);
   document.getElementById("sd-save").addEventListener("click", saveSchedEdit);
+  document.getElementById("sd-del").addEventListener("click", function(){
+    if (!SEDIT_ID) return;
+    if (!confirm("이 상담요청서를 삭제할까요? 되돌릴 수 없습니다.")) return;
+    deleteQuoteRecord(SEDIT_ID, this);
+  });
   document.getElementById("sd-promo").addEventListener("change", function(){
     document.getElementById("sd-promo-row").classList.toggle("on", this.checked);
   });
