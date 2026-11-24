@@ -3052,7 +3052,7 @@ function initPhotoCache(cb){
     photoCache.loading = false;
     cb();
   };
-  img.src = 'assets/interior-academy-clean.jpg?v=4';
+  img.src = 'assets/interior-academy-clean.jpg?v=5';
 }
 function drawPhotoCeilingLight(ctx, W, H){
   /* 천장 조명: 후면 타공판이면 사진 원본의 COB 2구를 그대로 쓰고,
