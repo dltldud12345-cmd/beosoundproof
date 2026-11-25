@@ -1161,8 +1161,8 @@ function woodSet(base, grain, seed, planks = 8){
 }
 
 /* 아트보드 — 멜란지 흡음 펠트 (회색조 질감 × 색상, 1024²) */
-function fabricSet(){
-  const key = 'fabric';
+function fabricSet(strong){
+  const key = strong ? 'fabric:strong' : 'fabric';
   if (texCache.has(key)) return texCache.get(key);
   const S = 1024;
   const cA = cv2d(S,S), a = cA.getContext('2d');
@@ -1202,11 +1202,26 @@ function fabricSet(){
     b.lineWidth = a.lineWidth;
     b.beginPath(); b.moveTo(x, y); b.lineTo(x + Math.cos(ang)*len, y + Math.sin(ang)*len); b.stroke();
   }
-  // 패널 이음 (0.9m 마다)
-  a.fillStyle = 'rgba(0,0,0,0.16)'; a.fillRect(S-4, 0, 4, S);
-  a.fillStyle = 'rgba(255,255,255,0.40)'; a.fillRect(S-6, 0, 2, S);
+  // 패널 이음 (0.9m 마다) — 화이트는 이음선이 사라지지 않도록 조금 더 진하게
+  const seamDark = strong ? 0.30 : 0.16, seamLight = strong ? 0.62 : 0.40;
+  a.fillStyle = `rgba(0,0,0,${seamDark})`; a.fillRect(S-4, 0, 4, S);
+  a.fillStyle = `rgba(255,255,255,${seamLight})`; a.fillRect(S-6, 0, 2, S);
   b.fillStyle = 'rgba(40,40,40,0.8)'; b.fillRect(S-4, 0, 4, S);
   ro.fillStyle = 'rgba(120,120,120,0.9)'; ro.fillRect(S-4, 0, 4, S);
+  if (strong){
+    /* 화이트 아트보드 강조: 이음선 양옆 음영 + 펠트 눌림 얼룩을 한 단계 진하게 */
+    a.fillStyle = 'rgba(0,0,0,0.10)'; a.fillRect(S-11, 0, 7, S);
+    a.fillStyle = 'rgba(255,255,255,0.22)'; a.fillRect(S-20, 0, 9, S);
+    for (let i = 0; i < 90; i++){
+      const x = rand()*S, y = rand()*S, r = 22 + rand()*70;
+      const g2 = a.createRadialGradient(x, y, 0, x, y, r);
+      const al = 0.012 + rand()*0.02;
+      g2.addColorStop(0, `rgba(120,112,96,${al.toFixed(3)})`);
+      g2.addColorStop(1, 'rgba(120,112,96,0)');
+      a.fillStyle = g2;
+      a.beginPath(); a.arc(x, y, r, 0, Math.PI*2); a.fill();
+    }
+  }
   // 상단 음영
   const grd = a.createLinearGradient(0, 0, 0, 52);
   grd.addColorStop(0, 'rgba(0,0,0,0.09)');
@@ -1522,16 +1537,21 @@ function buildStudioGround(){
 function stdMat(opts){ return new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, opts)); }
 
 function artboardMaterial(hex, rough){
-  const set = fabricSet();
+  /* 화이트·라이트그레이처럼 밝은 아트보드는 질감이 날아가 희게만 뜨므로
+     이음선·펠트 눌림이 강화된 텍스처를 쓰고 범프·반사도 조금 올립니다 */
+  const n = parseInt(String(hex).replace('#',''), 16);
+  const lum = ((n >> 16 & 255) * 0.299 + (n >> 8 & 255) * 0.587 + (n & 255) * 0.114) / 255;
+  const strong = lum > 0.72;
+  const set = fabricSet(strong);
   const map = set.map.clone(); map.userData._clone = true; map.needsUpdate = true;
   const bump = set.bump.clone(); bump.userData._clone = true; bump.needsUpdate = true;
   const rgh = set.rough.clone(); rgh.userData._clone = true; rgh.needsUpdate = true;
   map.repeat.set(1/0.9, 1/1.9); bump.repeat.copy(map.repeat); rgh.repeat.copy(map.repeat);
   return stdMat({
     color: new THREE.Color(hex), map,
-    bumpMap: bump, bumpScale: 0.0022,
-    roughnessMap: rgh, roughness: Math.min(1, rough),
-    metalness: 0.0, envMapIntensity: 0.28
+    bumpMap: bump, bumpScale: strong ? 0.0042 : 0.0022,
+    roughnessMap: rgh, roughness: Math.min(1, strong ? rough - 0.06 : rough),
+    metalness: 0.0, envMapIntensity: strong ? 0.42 : 0.28
   });
 }
 function skinMaterial(){
@@ -1828,9 +1848,17 @@ function addWindow(parent, o, opts = {}){
       bev.position.set(cx, cy + s * (o.h/2 - 0.004), s * 0.004);
       g.add(bev);
     });
-    const gas = new THREE.Mesh(new THREE.BoxGeometry(o.w + 0.01, o.h + 0.01, 0.02), gasket);
-    gas.position.set(cx, cy, -0.024);
-    g.add(gas);
+    /* 기밀 가스켓 — 개구부를 막는 판이 아니라 창틀 안쪽을 도는 얇은 링입니다.
+       (예전에는 이 자리에 창 전체를 덮는 판이 있어서 시창 안쪽이 보이지 않았습니다) */
+    const gk = 0.014, gz = -0.024, gd = 0.02;
+    [[o.w + 0.01, gk, cx, o.y0 - gk/2 + 0.004],
+     [o.w + 0.01, gk, cx, o.y0 + o.h + gk/2 - 0.004],
+     [gk, o.h - 0.02, cx - o.w/2 - gk/2 + 0.004, cy],
+     [gk, o.h - 0.02, cx + o.w/2 + gk/2 - 0.004, cy]].forEach(([gw, gh, gx, gy]) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(gw, gh, gd), gasket);
+      m.position.set(gx, gy, gz);
+      g.add(m);
+    });
     const glass = new THREE.Mesh(new THREE.PlaneGeometry(o.w - 0.006, o.h - 0.006), glassMaterial());
     glass.position.set(cx, cy, 0);
     glass.renderOrder = 4;
@@ -3006,6 +3034,14 @@ function initPhotoCache(cb){
       [[0.4520,0.1129],[0.5880,0.1129],[0.5660,0.2222],[0.4747,0.2222]],  // 중앙 LED등
       [[0.5340,0.6089],[0.5447,0.6089],[0.5447,0.6338],[0.5340,0.6338]]   // 뒷벽 콘센트
     ];
+    /* 걸레받이(하단 몰딩) 띠 — 후면 타공판 아래와 좌·우벽 바닥 경계를 따라갑니다.
+       사진 속 하단 몰딩은 메이플로 찍혀 있어, 아트보드 색에 따라 자동 선택된
+       몰딩 색(화이트·메이플·블랙)으로 다시 입히기 위한 마스크입니다. */
+    const SKIRT = [
+      [[0.3753,0.6547],[0.6407,0.6547],[0.6407,0.6667],[0.3760,0.6667]],
+      [[0.3760,0.6547],[0.1020,0.9690],[0.1020,1],[0.3760,0.6667]],
+      [[0.6407,0.6547],[0.9573,0.9690],[0.9573,1],[0.6407,0.6667]]
+    ];
     const trace = (x, pts) => {
       x.beginPath();
       pts.forEach(([px, py], i) => i ? x.lineTo(px * W, py * H) : x.moveTo(px * W, py * H));
@@ -3034,7 +3070,8 @@ function initPhotoCache(cb){
       back: buildCov(REGIONS.back),
       backFull: buildCov(REGIONS.back, false),
       floor: buildCov(REGIONS.floor),
-      right: buildCov(REGIONS.right)
+      right: buildCov(REGIONS.right),
+      skirt: buildCov(SKIRT)
     };
     /* 중앙등(천장 확산판) 마스크 — 천장 영역의 밝은 픽셀만 부드럽게 */
     const lm = new Uint8Array(W * H);
@@ -3169,6 +3206,8 @@ function renderPhotoStage(){
 
     const aRgb = photoHexToRgb(pick(ARTBOARD, state.artboard).hex);
     const isWhiteArt = state.artboard === 'white';
+    const mRgb = photoHexToRgb(moldingPick().hex);
+    const cS = photoCache.cov.skirt;
     const sRgb = photoHexToRgb(pick(SLAT, state.slat).hex);
     const fRgb = photoHexToRgb(pick(FLOOR, state.floor).hex);
     const isPine = state.floor === 'pine';
@@ -3230,11 +3269,11 @@ function renderPhotoStage(){
 
       if (wArt > 0.002){
         if (isWhiteArt){
-          /* 화이트 아트보드: 사진 음영이 회색으로 죽지 않도록 밝은 웜화이트로 고정 보정.
-             밝은 면은 거의 순백, 그늘진 면도 밝은 회백으로 남깁니다. */
-          const t = Math.min(1, Math.max(0, lum / 0.74));
-          const wb = 0.82 + 0.20 * t;
-          orr += wArt * 253 * wb; og += wArt * 250 * wb; ob += wArt * 242 * wb;
+          /* 화이트 아트보드: 패널 이음·펠트 눌림이 날아가지 않도록 대비를 남긴다.
+             밝은 면은 웜화이트, 이음선·그늘은 눈에 보일 만큼만 낙니다. */
+          const t = Math.min(1, Math.max(0, lum / 0.70));
+          const wb = 0.70 + 0.40 * t;
+          orr += wArt * 249 * wb; og += wArt * 246 * wb; ob += wArt * 236 * wb;
         } else {
           /* 아트보드: 기본 사진 밝기(~0.68)를 기준으로 목표 색상 입히기 (질감·조명 보존) */
           const gain = Math.min(1.42, lum / 0.68);
@@ -3265,6 +3304,17 @@ function renderPhotoStage(){
           orr += wFloor * (tr * 0.18 + fRgb[0] * gain * 0.82);
           og  += wFloor * (tg * 0.18 + fRgb[1] * gain * 0.82);
           ob  += wFloor * (tb * 0.18 + fRgb[2] * gain * 0.82);
+        }
+      }
+      /* 하단 몰딩(걸레받이) — 사진에 찍힌 메이플을 그대로 쓰지 않고 선택된 몰딩 색으로 */
+      if (cS){
+        const sk = cS[i];
+        if (sk > 2){
+          const k = Math.min(1, sk / 210);
+          const gain = Math.min(1.18, Math.max(0.62, lum / 0.70));
+          orr = orr * (1 - k) + mRgb[0] * gain * k;
+          og  = og  * (1 - k) + mRgb[1] * gain * k;
+          ob  = ob  * (1 - k) + mRgb[2] * gain * k;
         }
       }
       /* 중앙 LED 색온도 — 실내 전체가 그 조명으로 비치는 톤 (밝은 면일수록 영향이 큼) */
