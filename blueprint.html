@@ -1287,23 +1287,34 @@ function buildModel(inp){
         : label + (p.kind==='mod'?' 모듈':(p.kind==='resid'?' 자투리':' 문 개구부'));
       wallRows.push({w:p.w, l:1000, qty:2, note, group:'벽판 95T PB'});
     });
-    /* 2중 벽체 — 내벽 판은 외벽 판과 같은 분할선을 쓰고, 좌·우(앞·뒤) 내벽 두께 110 이
-       닿는 끝판만 110 짧게 재단한다(싱글플러스는 끝판 그대로 = 외벽와 일치). */
+    /* 2중 벽체 — 내벽은 외벽 분할선을 억지로 따르지 않고, 내벽 실제 구간 [b0,b1]에서
+       문·시창 개구부만 비운 뒤 600 모듈 + 마지막 자투리 1개로 새로 나눈다.
+       예) 2000 더블 좌·우 내벽 1780 → 490|600|600|90 이 아니라 600|600|580. */
     if(s.dbl){
       const b0 = s.off + s.ins0 + s.pad0, b1 = s.off + s.len - s.ins1 - s.pad1;
-      const pcs = [];
+      const holes = [];
       s.pieces.forEach(p=>{
-        if(p.kind==='door' || p.kind==='win') return;
+        if(p.kind!=='door' && p.kind!=='win') return;
         const A0 = s.off + s.ins0 + p.at, A1 = A0 + p.w;
         const c0 = Math.max(A0, b0), c1 = Math.min(A1, b1);
-        if(c1 - c0 > 0.5) pcs.push({a:c0, b:c1, w:Math.round(c1-c0), kind:p.kind});
+        if(c1 - c0 > 0.5) holes.push({a:c0, b:c1, kind:p.kind});
       });
-      innerInfo.push({k:s.k, label, a0:b0, a1:b1, pcs});
+      holes.sort((x,y)=> x.a - y.a);
+      const runs = [];                        // 문·시창을 뺀 연속 빈 공간
+      let cur = b0;
+      holes.forEach(h=>{ if(h.a - cur > 0.5) runs.push({a:cur, b:h.a}); cur = Math.max(cur, h.b); });
+      if(b1 - cur > 0.5) runs.push({a:cur, b:b1});
+      const pcs = [];
+      runs.forEach(r=>{
+        let aa = r.a;
+        modSplit(r.b - r.a).forEach(bk=>{ pcs.push({a:aa, b:aa+bk.w, w:Math.round(bk.w), kind:bk.kind}); aa += bk.w; });
+      });
+      innerInfo.push({k:s.k, label, a0:b0, a1:b1, pcs, holes});
       pcs.forEach(p=> innerRows.push({w:p.w, l:1000, qty:2, note:'내벽 '+label}));
     }
   });
   merge2(wallRows).forEach(p=>add('벽판 95T PB', p.w, p.l, p.qty, p.note));
-  /* 2중 벽체 — 내벽 판(외벽 판 분할을 그대로 따르되 끝판 110 짧게) */
+  /* 2중 벽체 — 내벽 판(내벽 구간을 600 모듈 + 자투리 1개로 분할) */
   if(dblFaces.length && innerRows.length){
     merge2(innerRows).forEach(p=>add('내벽 95T PB (2중)', p.w, p.l, p.qty, p.note));
   }
@@ -1815,10 +1826,10 @@ function sheetPlan(m){
   });
 
   /* ── 등급별 내벽 층 — 싱글플러스(정면 2중) · 더블(4면 2중 · 부스 안에 부스) ──
-     내벽 판은 외벽 판과 **같은 600 모듈 분할선**을 그대로 쓰고, 좌·우(앞·뒤) 내벽
-     두께 110 이 닿는 끝판만 110 짧게 세운다 → 바깥 판과 안쪽 판·문이 일직선으로 맞는다.
-     싱글플러스는 좌·우 내벽이 없으므로 정면 내벽 판이 외벽 정면판과 100% 일치한다.
-     (모델 innerInfo : 면별 절대좌표 a0~a1 · 판 조각 pcs)                        */
+     내벽 판은 내벽 실제 구간(문·시창 개구부 제외)을 **600 모듈 + 마지막 자투리 1개**로
+     새로 나눈다 → 1780 이면 600 | 600 | 580 (양끝 자투리 2개가 생기지 않는다).
+     싱글플러스는 좌·우 내벽이 없어 구간이 외벽 스팬과 같으므로 외벽 판과 100% 일치한다.
+     (모델 innerInfo : 면별 절대좌표 a0~a1 · 판 조각 pcs · 개구부 holes)                        */
   const isDbl = k => (m.dblFaces||[]).indexOf(k) >= 0;
   const innerList = m.innerInfo || [];
   const hasInner = innerList.length > 0;
@@ -1863,7 +1874,8 @@ function sheetPlan(m){
     let cur = g0;
     (inf.pcs||[]).forEach(p=>{ if(p.a - cur > 1) gaps.push([cur, p.a]); cur = Math.max(cur, p.b); });
     if(g1 - cur > 1) gaps.push([cur, g1]);
-    const gp = gaps.sort((a,b)=> (b[1]-b[0])-(a[1]-a[0]))[0];
+    const gp = (inf.holes||[]).filter(h=>h.kind==='door').map(h=>[h.a,h.b])[0]
+            || gaps.sort((a,b)=> (b[1]-b[0])-(a[1]-a[0]))[0];
     if(inf.k === m.doorSide && gp && (gp[1]-gp[0]) > 60){
       const rr = innerRect(inf.k, gp[0], gp[1]);
       if(rr){
@@ -2268,7 +2280,7 @@ function sheetPlan(m){
       : ['cob','COB 매립등 2구 Ø'+m.cobDia+' 타공 — 내부 '+m.lineLen+' ÷ 3 = '+m.cobGap+' (1/3·2/3 지점)'],
     ['ctr','중앙등 1구 — 천장 정중앙 (내부 가로·세로 ÷ 2), COB 2구와 별도']
   ];
-  if(hasInner) items.splice(1, 0, ['hInner','내벽 110 (2중) — 외벽 판과 같은 600 모듈 분할 · 끝판만 110 짧게']);
+  if(hasInner) items.splice(1, 0, ['hInner','내벽 110 (2중) — 600 모듈 + 자투리 1개 (문·시창 자리 제외)']);
   if(m.notch.on) items.push(['hCol','건물 기둥 — 코너 '+m.notch.cw+'×'+m.notch.cd+' 따냄 (바닥·천장 제외)']);
   const legH = 26 + items.length*13.4 + 5;
   s += R(M+12, ly, lw, legH, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
@@ -2327,7 +2339,7 @@ function sheetPlan(m){
   if(hasInner){
     const dInf = innerList.find(v=>v.k===m.doorSide) || innerList[0];
     const ex = (dInf.pcs||[]).map(p=>Math.round(p.w)).join(' | ');
-    notes.push('· 내벽 95T PB — 외벽 판과 같은 600 모듈 + 끝 자투리, 좌·우 내벽이 닿는 끝판만 110 짧게'
+    notes.push('· 내벽 95T PB — 600 모듈 + 자투리 1개(문·시창 자리 제외 · 끝 110은 옆 내벽 두께)'
       + (ex? ' ('+dInf.label+' '+ex+')' : '') + '.');
   }
   if(m.notch.on){
