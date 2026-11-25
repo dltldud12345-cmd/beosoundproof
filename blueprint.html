@@ -3609,7 +3609,7 @@ function sheetField(m){
      타공 줄과 COB 2구 · 중앙등을 실제 축척(sc)으로 한 장에 얹는다.                    */
   const px0 = M+8, py0 = inY+inH+10, pwAll = SW-2*M-16, phAll = 550;
   const outW = m.W, outD = m.D;
-  const padL = 78, padR = 258, padT = 108, padB = 56;
+  const padL = 78, padR = 274, padT = 108, padB = 56;
   const sc = Math.min((pwAll-padL-padR)/outW, (phAll-padT-padB)/outD);
   const pw = outW*sc, ph = outD*sc;
   const ox = px0 + padL + Math.max(0,(pwAll-padL-padR-pw)/2);
@@ -3775,8 +3775,18 @@ function sheetField(m){
     const i = panOf(g), S0 = ceilPans[i] ? ceilPans[i].a : 0;
     return Object.assign({}, p, {g, i, S0, d: Math.round(g - S0), seam: Math.round(seamGap(g))});
   });
-  const panList = splitOn ? panInfo.filter(p=> p.i > 0 || p.seam <= 50) : [];
   const panName = ['①','②','③','④'];
+  /* 판 색 — 평면도의 판①·판② 라벨과 오른쪽 카드 배지가 같은 색을 쓴다(현장 대조) */
+  const panFill = ['#2E6FA3', '#1F7A69', '#8A5A20', '#6B4E9E'];
+  /* 이음선 위 판정 — 타공 반지름 + 6㎜ 안에 이음선이 들어오면 «이음선 위» */
+  const seamTol = (m.cobDia/2) + 6;
+  /* 판 기준 거리 — 판①·판② 구분 없이 «자기 판이 맞닿는 이음선»에서 잰 값.
+     이음선이 둘 이상(3분할)이면 그 점에서 가까운 이음선을 그 판의 기준으로 쓴다. */
+  const panRows = splitOn ? panInfo.map(p=>{
+    let seamAbs = seamMM[0];
+    seamMM.forEach(j=>{ if(Math.abs(p.g-j) < Math.abs(p.g-seamAbs)) seamAbs = j; });
+    return { k:p.k, i:p.i, seamAbs, d:p.seam, on: p.seam <= seamTol };
+  }) : [];
   /* 이음선 — 분할일 때만 나타나는 선이라 파란 굵은 일점쇄선으로 구분한다 */
   (m.lenJoints||[]).forEach(j=>{
     if(grainAxisX) s += L(X(j), oy+finT, X(j), oy+ph-finB, {stroke: SPLITC, sw: 1.7, dash:'9 3 2 3'});
@@ -3969,34 +3979,36 @@ function sheetField(m){
      않고, 판② 이후에 들어간 타공만 「이음선에서 몇 ㎜」로 한 값을 얹는다.        */
   if(splitOn){
     const alongIsSplit = (horizFace === splitIsX);     /* 결 축 = 타공면 방향 */
-    const holeR2 = (m.cobDia/2) + 6;
-    /* 이음선 라벨 — 타공점·중앙등 치수와 겹치지 않는 자리(20% 지점)에 얹는다 */
-    seamMM.forEach(j=>{
+    /* 이음선 라벨 — 타공점·중앙등 치수와 겹치지 않는 자리(20% 지점)에 얹는다.
+       3분할 이상이면 이음선마다 «왼쪽 판 / 오른쪽 판» 번호가 이어지게 적는다. */
+    seamMM.forEach((j, jj)=>{
       const lbl = '이음선 ' + fmt(j);
+      const pL = panFill[jj] || SPLITC, pR = panFill[jj+1] || SPLITC;
+      const nmL = '판' + panName[jj], nmR = '판' + panName[jj+1];
       if(splitIsX){
         const yy = oy + finT + ih*0.72;
         if(alongIsSplit){
-          s += tag(X(j) - 30, yy, '판①', {size:6.8, fill:'#5C666D', weight:800, bg:'#fff', bgop:.96, stroke:'#D5DEE6', sw:0.5, mono:false});
-          s += tag(X(j) + 30, yy, '판②', {size:6.8, fill:'#5C666D', weight:800, bg:'#fff', bgop:.96, stroke:'#D5DEE6', sw:0.5, mono:false});
-          s += tag(X(j), yy + 12, lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.5, mono:false});
+          s += tag(X(j) - 30, yy, nmL, {size:6.8, fill:pL, weight:800, bg:'#fff', bgop:.96, stroke:pL, sw:0.6, mono:false});
+          s += tag(X(j) + 30, yy, nmR, {size:6.8, fill:pR, weight:800, bg:'#fff', bgop:.96, stroke:pR, sw:0.6, mono:false});
+          s += tag(X(j), yy + 12, lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.6, mono:false});
         } else {
-          s += tag(X(j), yy, lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.5, mono:false});
+          s += tag(X(j), yy, lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.6, mono:false});
         }
       } else {
         const xx = ox + finL + iw*0.72;
         if(alongIsSplit){
-          s += tag(xx, Y(j) - 12, '판①', {size:6.8, fill:'#5C666D', weight:800, bg:'#fff', bgop:.96, stroke:'#D5DEE6', sw:0.5, mono:false});
-          s += tag(xx, Y(j) + 12, '판②', {size:6.8, fill:'#5C666D', weight:800, bg:'#fff', bgop:.96, stroke:'#D5DEE6', sw:0.5, mono:false});
-          s += tag(xx + 30, Y(j), lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.5, mono:false});
+          s += tag(xx, Y(j) - 12, nmL, {size:6.8, fill:pL, weight:800, bg:'#fff', bgop:.96, stroke:pL, sw:0.6, mono:false});
+          s += tag(xx, Y(j) + 12, nmR, {size:6.8, fill:pR, weight:800, bg:'#fff', bgop:.96, stroke:pR, sw:0.6, mono:false});
+          s += tag(xx + 30, Y(j), lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.6, mono:false});
         } else {
-          s += tag(xx, Y(j), lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.5, mono:false});
+          s += tag(xx, Y(j), lbl, {size:7.2, fill:SPLITC, weight:800, bg:'#fff', bgop:.97, stroke:SPLITC, sw:0.6, mono:false});
         }
       }
     });
     /* 판 기준 거리는 오른쪽 판정 상자에 모아 적는다 — 도면 안에는 이음선과
        걸침 표시만 두어 숫자가 뒤엉키지 않게 한다. */
     /* 이음선을 넘어 타공되는 점 — 빨간 테두리로만 표시 (문구는 오른쪽 판정 상자에) */
-    panInfo.filter(p=> p.seam <= holeR2).forEach(p=>{
+    panInfo.filter(p=> p.seam <= seamTol).forEach(p=>{
       const c = (p.k === '중앙등') ? [X(m.ctrX), Y(m.ctrY)] : holePt(p.along - fOff);
       s += C(c[0], c[1], Math.max(9.5, rHole + 5), {stroke:'#C0563A', sw:1.6, dash:'3 2.4'});
     });
@@ -4004,57 +4016,77 @@ function sheetField(m){
 
   /* ---------- 판정 · 이음매 범례 (평면도 오른쪽) ---------- */
   {
-    const cx0 = px0+pwAll-232, cy0 = py0+40, cw0 = 220;
-    const legRows = splitOn ? 3 : 2;
-    const boxH = 80 + (splitOn ? 18 + Math.max(1,panList.length)*11 + 6 : 0) + 14 + legRows*15 + 10;
+    const cw0 = 236, cx0 = px0+pwAll-12-cw0, cy0 = py0+40;
+    /* 천장 분할 카드 — 판①·판② 가리지 않고 «이음선에서 몇 ㎜»를 큰 글씨로 */
+    const multiSeam = seamMM.length > 1;
+    const rowH = multiSeam ? 34 : 26;
+    const nRows = panRows.length;
+    const spX = cx0+6, spW = cw0-12, spY = cy0+86;
+    const spH = splitOn ? 86 + nRows*rowH : 0;
+    const boxH = 80 + (splitOn ? spH + 12 : 0) + 14 + (splitOn ? 3 : 2)*16 + 12;
     s += R(cx0, cy0, cw0, boxH, {fill:'#fff', stroke:'#DDD6C8', sw:0.8, rx:3});
-    s += T(cx0+9, cy0+15, '타공 판정 · 판 이음매', {size:7.4, weight:800, fill:SOFT, ls:'0.04em'});
+    s += T(cx0+10, cy0+16, '타공 판정 · 판 이음매', {size:8.6, weight:800, fill:SOFT, ls:'0.04em'});
     const cf2 = m.cobFit;
     if(rail){
-      s += T(cx0+9, cy0+31, '레일등 모드', {size:7.8, weight:800, fill:'#1F7A69'});
-      s += T(cx0+9, cy0+45, '깊이 '+fmt(f.railDepth)+' = '+wallTxt+' + 400 이격', {size:7.2, fill:'#3B4248'});
-      s += T(cx0+9, cy0+57, '레일 '+fmt(f.railStart)+' ~ '+fmt(f.railEnd)+' (양 끝에서)', {size:7.2, fill:'#3B4248'});
-      s += T(cx0+9, cy0+69, '전선 여백 '+m.railGap+' / '+m.railGapB, {size:7.2, fill:'#3B4248'});
+      s += T(cx0+10, cy0+33, '레일등 모드', {size:9, weight:800, fill:'#1F7A69'});
+      s += T(cx0+10, cy0+47, '깊이 '+fmt(f.railDepth)+' = '+wallTxt+' + 400 이격', {size:7.8, fill:'#3B4248'});
+      s += T(cx0+10, cy0+59, '레일 '+fmt(f.railStart)+' ~ '+fmt(f.railEnd)+' (양 끝에서)', {size:7.8, fill:'#3B4248'});
+      s += T(cx0+10, cy0+71, '전선 여백 '+m.railGap+' / '+m.railGapB, {size:7.8, fill:'#3B4248'});
     } else {
-      s += T(cx0+9, cy0+31, cf2 && cf2.ok ? '✓ 2구 한 600판 안' : '⚠ 판 이음매 확인', {size:7.8, weight:800, fill: cf2 && cf2.ok ? '#1B7A5F' : '#A8551F'});
-      s += T(cx0+9, cy0+45, '타공 줄 = 맨 끝에서 '+fmt(f.depth), {size:7.2, fill:'#3B4248'});
-      s += T(cx0+9, cy0+57, '등 위치 '+fmt(f.pos1)+' · '+fmt(f.pos2)+' (같은 쪽 끝)', {size:7.2, fill:'#3B4248'});
-      s += T(cx0+9, cy0+69, '간격 '+fmt(f.seg2)+' = 내부 '+m.lineLen+' ÷ 3', {size:7.2, fill:'#3B4248'});
+      s += T(cx0+10, cy0+33, cf2 && cf2.ok ? '✓ 2구 한 600판 안' : '⚠ 판 이음매 확인', {size:9, weight:800, fill: cf2 && cf2.ok ? '#1B7A5F' : '#A8551F'});
+      s += T(cx0+10, cy0+47, '타공 줄 = 맨 끝에서 '+fmt(f.depth), {size:7.8, fill:'#3B4248'});
+      s += T(cx0+10, cy0+59, '등 위치 '+fmt(f.pos1)+' · '+fmt(f.pos2)+' (같은 쪽 끝)', {size:7.8, fill:'#3B4248'});
+      s += T(cx0+10, cy0+71, '간격 '+fmt(f.seg2)+' = 내부 '+m.lineLen+' ÷ 3', {size:7.8, fill:'#3B4248'});
     }
     s += L(cx0+9, cy0+80, cx0+cw0-9, cy0+80, {stroke:'#E1DACB', sw:0.7});
     let ly = cy0 + 80;
-    /* 천장이 분할될 때만 — 판 기준 거리와 이음선 위치를 같은 상자에 모은다 */
     if(splitOn){
-      ly += 12;
-      s += T(cx0+9, ly, '천장 분할 · 판 기준', {size:7, weight:800, fill:SPLITC, ls:'0.03em'});
-      ly += 12;
-      s += T(cx0+9, ly, m.ceil.len + ' → ' + m.ceilLens.join(' + ') + ' · 이음선 ' + Math.max(1, m.ceilLens.length-1) + '곳', {size:7.2, fill:'#3B4248', weight:700});
-      if(panList.length){
-        panList.forEach(p=>{
-          ly += 11;
-          const on = p.seam <= 25;
-          s += T(cx0+9, ly, p.k + (on ? ' → 이음선 위' : ' → 판'+panName[p.i]+' +' + fmt(p.d)), {size:7.4, weight:800, fill: on ? '#A8261A' : SPLITC});
-        });
-      } else {
-        ly += 11;
-        s += T(cx0+9, ly, '타공점 모두 판① 안 — 판 기준값 더 없음', {size:7, fill:'#7B8389'});
-      }
-      ly += 6;
-      s += L(cx0+9, ly, cx0+cw0-9, ly, {stroke:'#E1DACB', sw:0.7});
-    }
-    ly += 14;
-    s += L(cx0+14, ly-3, cx0+38, ly-3, {stroke:'#B9B2A4', sw:0.9, dash:'5 3'});
-    s += T(cx0+44, ly, '600 판 이음매 (15T 띠)', {size:6.8, fill:'#5C666D'});
-    if(splitOn){
-      ly += 15;
-      s += L(cx0+14, ly-3, cx0+38, ly-3, {stroke:SPLITC, sw:1.7, dash:'9 3 2 3'});
-      s += T(cx0+44, ly, '천장 분할 이음선 (2000 초과)', {size:6.8, fill:SPLITC, weight:700});
+      /* 파란 머리띠 + 큰 숫자 표 — 줄자 들고 한눈에 읽히는 것이 목적 */
+      s += R(spX, spY, spW, spH, {fill:'#F2F7FC', stroke:SPLITC, sw:1.1, rx:4});
+      s += R(spX, spY, spW, 23, {fill:SPLITC, stroke:'none', sw:0, rx:4});
+      s += T(spX+10, spY+16, '천장 분할 · 판 기준', {size:10.2, weight:800, fill:'#fff', ls:'0.02em'});
+      s += T(spX+spW-10, spY+15.2, '이음선 '+seamMM.length+'곳', {size:8.2, weight:800, fill:'#D8E9F7', anchor:'end'});
+      s += T(spX+10, spY+39, m.ceil.len + ' → ' + m.ceilLens.join(' + '), {size:8.8, weight:800, fill:'#1B4F7A'});
+      s += T(spX+spW-10, spY+39, seamMM.length === 1 ? '이음선 ' + fmt(seamMM[0]) : '', {size:8.8, weight:800, fill:SPLITC, anchor:'end'});
+      s += L(spX+9, spY+46, spX+spW-9, spY+46, {stroke:'#C9DCEF', sw:0.8});
+      /* 표 머리 */
+      s += T(spX+11, spY+59, '타공점', {size:7.4, weight:800, fill:'#4F6B84'});
+      s += T(spX+101, spY+59, '판', {size:7.4, weight:800, fill:'#4F6B84', anchor:'middle'});
+      s += T(spX+spW-10, spY+59, '이음선에서', {size:7.4, weight:800, fill:'#4F6B84', anchor:'end'});
+      let ry = spY + 62;
+      panRows.forEach((p, idx)=>{
+        const cyR = ry + rowH/2 + 0.5;
+        if(p.on)            s += R(spX+3, ry, spW-6, rowH, {fill:'#FDECE9', stroke:'none', sw:0, rx:3});
+        else if(idx%2===1)  s += R(spX+3, ry, spW-6, rowH, {fill:'#E7F1FA', stroke:'none', sw:0, rx:3});
+        s += T(spX+11, cyR+3.6, p.k, {size:9.6, weight:800, fill:INK});
+        s += tag(spX+101, cyR, '판'+panName[p.i], {size:9.2, w:33, bg: panFill[p.i]||SPLITC, stroke:'none', sw:0, fill:'#fff', weight:800, mono:false});
+        if(p.on){
+          s += tag(spX+spW-48, cyR, '⚠ 이음선 위', {size:9, w:86, bg:'#C0241A', stroke:'none', sw:0, fill:'#fff', weight:800, mono:false});
+        } else {
+          const numY = multiSeam ? ry+19.5 : cyR+5.4;
+          s += T(spX+spW-24, numY, fmt(p.d), {size: multiSeam ? 15 : 16, weight:800, fill: (p.d <= seamTol+12) ? '#B4531F' : INK, mono:true, anchor:'end'});
+          s += T(spX+spW-9, numY-0.2, '㎜', {size:8, weight:700, fill:'#4F585F', anchor:'end'});
+          if(multiSeam) s += T(spX+spW-9, ry+30.5, '이음선 '+fmt(p.seamAbs), {size:7.4, weight:700, fill:'#4F6B84', anchor:'end'});
+        }
+        s += L(spX+9, ry+rowH, spX+spW-9, ry+rowH, {stroke:'#D5E4F1', sw:0.7});
+        ry += rowH;
+      });
+      s += T(spX+11, ry+15, '판마다 자기 이음선(파란선)에서 잰 값', {size:7.6, weight:700, fill:'#3E6280'});
+      ly = spY + spH + 4;
     }
     ly += 15;
+    s += L(cx0+14, ly-3, cx0+38, ly-3, {stroke:'#B9B2A4', sw:0.9, dash:'5 3'});
+    s += T(cx0+44, ly, '600 판 이음매 (15T 띠)', {size:7.2, fill:'#5C666D'});
+    if(splitOn){
+      ly += 16;
+      s += L(cx0+14, ly-3, cx0+38, ly-3, {stroke:SPLITC, sw:1.7, dash:'9 3 2 3'});
+      s += T(cx0+44, ly, '천장 분할 이음선 (2000 초과)', {size:7.2, fill:SPLITC, weight:800});
+    }
+    ly += 16;
     s += L(cx0+14, ly-3, cx0+38, ly-3, {stroke:'#C0563A', sw:1.5, dash:'5 3'});
-    s += T(cx0+44, ly, '타공 자리와 겹치는 이음매', {size:6.8, fill:'#8A4517'});
-    ly += 14;
-    s += T(cx0+9, ly, '※ 이음선 위에는 타공하지 않습니다', {size:6.4, fill:'#8A939A'});
+    s += T(cx0+44, ly, '타공 자리와 겹치는 이음매', {size:7.2, fill:'#8A4517'});
+    ly += 16;
+    s += T(cx0+10, ly, '※ 이음선 위에는 타공하지 않습니다', {size:7.6, weight:800, fill:'#A8261A'});
   }
 
   /* ---------- 아래 두 박스: 타공 순서 / 값 정리 ---------- */
@@ -4075,7 +4107,7 @@ function sheetField(m){
     '4. Ø'+m.cobDia+' 두 곳을 한 번에 타공하고, 중앙등은 '+fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' 지점.',
     '5. 타공 깊이는 9T 아트보드 + 45T 마블폼 2장 관통 — 배선 후 커버 설치.'
   ];
-  if(splitOn) steps.push('6. 천장판 이음선(파란 일점쇄선) 위에는 타공하지 않습니다 — 판② 값은 이음선에서 잰 거리.');
+  if(splitOn) steps.push('6. 천장판 이음선(파란 일점쇄선) 위에는 타공하지 않습니다 — 판 기준값은 판마다 자기 이음선에서 잰 거리.');
   steps.forEach((tx,i)=> s += T(bx0+12, by0+34+i*16.2, tx, {size:7.3, fill:'#2E353B'}));
   const cf = m.cobFit;
   const fitTxt = rail ? '레일등 모드 — 2구 한 판 수용 판정은 COB 모드에서 표시'
