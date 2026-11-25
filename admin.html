@@ -615,12 +615,16 @@
   .ps-opt .tx{flex:1;min-width:0;text-align:left}
   .ps-opt .tx b{display:block;font-size:12px;font-weight:800;color:var(--ink)}
   .ps-opt .tx span{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin-top:1px}
-  .ps-opt .pr{font-size:11.5px;font-weight:800;color:var(--accent-d);white-space:nowrap}
+  .ps-opt .pr{font-size:11.5px;font-weight:800;color:var(--accent-d);white-space:nowrap;text-align:right;line-height:1.25}
+  .ps-opt .pr small{display:block;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:0}
   .ps-opt .sw{width:34px;height:20px;border-radius:99px;background:#D8D2C6;position:relative;flex:none;transition:.18s}
   .ps-opt .sw::after{content:"";position:absolute;top:2.5px;left:2.5px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
   .ps-opt[aria-pressed=true]{border-color:var(--accent);background:#F5FBF9}
   .ps-opt[aria-pressed=true] .sw{background:var(--accent)}
   .ps-opt[aria-pressed=true] .sw::after{transform:translateX(14px)}
+  .ps-opt-sum{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:9px 11px;
+    border:1px dashed #9FC6BC;border-radius:10px;background:#F5FBF9;font-size:11.5px;font-weight:800;color:#1F7A69}
+  .ps-opt-sum b{font-size:14px;color:var(--ink)}
 
   .ps-kpis{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px}
   @media (max-width:720px){ .ps-kpis{grid-template-columns:1fr 1fr} .ps-kpis .ps-kpi.main{grid-column:1 / -1} .ps-grade{grid-template-columns:1fr} }
@@ -3907,10 +3911,20 @@ function openContractModal(q){
      ============================================================ */
   var PS_KEY = "beo_ps";
   var PS_GRADES = [
-    { k: "value",    t: "가성비 싱글",        s: "외벽 1중 · 방음도어 1짝",      badge: "주력",   wallMul: 1,   doors: 1, days: 1 },
-    { k: "standard", t: "스탠다드 싱글플러스",  s: "정·후면 2중 · 방음도어 1짝",   badge: "",      wallMul: 1.5, doors: 1, days: 1.5 },
-    { k: "premium",  t: "프리미엄 더블",      s: "4면 2중 벽체 · 방음도어 2짝",   badge: "프리미엄", wallMul: 2,   doors: 2, days: 2 }
+    { k: "value",    t: "가성비 싱글",        s: "외벽 1중 · 방음도어 1짝",      badge: "주력",   wallMul: 1,    doors: 1, days: 1 },
+    { k: "standard", t: "스탠다드 싱글플러스",  s: "정면만 2중 · 방음도어 1짝",   badge: "",      wallMul: 1.25, doors: 1, days: 1.5 },
+    { k: "premium",  t: "프리미엄 더블",      s: "4면 2중 벽체 · 방음도어 2짝",   badge: "프리미엄", wallMul: 2,    doors: 2, days: 2 }
   ];
+  /* 벽 자재 배수 — 4면 중 정면(문 면) 1면만 2중이면 그 면 몫만큼만 늘어난다
+     (2000×2000 이면 정면 1면 = 벽 면적의 1/4 → 1 + 0.25 = 1.25배) */
+  function psWallMul(g, dim){
+    if (g.k === "premium") return 2;
+    if (g.k === "standard"){
+      var share = dim.w / (2 * (dim.w + dim.d));   // 정면 1면이 전체 벽 면적에서 차지하는 비율
+      return 1 + Math.min(0.5, Math.max(0.15, share));
+    }
+    return 1;
+  }
   var PS_SIZES = [
     { k: "1800x1500", w: 1800, d: 1500, h: 2280, t: "1800×1500", note: "최소 제작" },
     { k: "2000x2000", w: 2000, d: 2000, h: 2280, t: "2000×2000", note: "주력 360만" },
@@ -3924,11 +3938,23 @@ function openContractModal(q){
     standard: { "2000x2000": 4200000 },
     premium:  { "2200x2400": 6300000, "2400x3000": 7200000 }
   };
+  /* 옵션 — 금액은 모두 **부가세 포함(고객 안내가 기준)**입니다.
+     buy = 부가세 포함 매입가 · price = 부가세 포함 판매가
+     est: true = 실매입 명세서에 없는 품목이라 시세로 잡은 추정치 (표에 '추정'으로 표기)
+     원가 합계·마진은 내부에서 공급가(buy ÷ 1.1)로 환산해 계산합니다. */
   var PS_OPTS = [
-    { k: "win",   ic: "🖼", t: "통합이중창 1200×800", s: "안·밖 돌출 이중창 · 원가 28만", cost: 280000, price: 420000 },
-    { k: "flame", ic: "🔥", t: "방염 아트보드",        s: "비방염 → 방염 업그레이드",       cost: 72800,  price: 190000 },
-    { k: "door",  ic: "🚪", t: "방음도어 추가",        s: "5+5 방음도어 1짝 · 원가 46.8만",  cost: 0, price: 630000 }
+    { k: "win600",   ic: "🪟", t: "시창 600×800",        s: "600×800 · 하부 1000 코스",        buy: 0, price: 220000, est: true },
+    { k: "win800",   ic: "🪟", t: "시창 800×800",        s: "검사창 · 아래 400 + 위 400",       buy: 0, price: 280000, est: true },
+    { k: "win1200",  ic: "🪟", t: "시창 1200×800",       s: "600×2열 · 아래·위 400",           buy: 0, price: 350000, est: true },
+    { k: "dblwin",   ic: "🖼", t: "이중창 1200×800",      s: "통합이중창 224N2SL (실매입)", buy: 0, price: 420000, est: false },
+    { k: "casement", ic: "🪟", t: "캐스먼트창 600×600",   s: "600×600 · 개폐형",               buy: 0, price: 330000, est: true },
+    { k: "project",  ic: "🪟", t: "프로젝트창 (천장)",   s: "천장 개폐형 프로젝트창",          buy: 0, price: 390000, est: true },
+    { k: "flame",    ic: "🔥", t: "방염 아트보드",        s: "비방염 → 방염 업그레이드",        buy: 0,  price: 190000, est: false, diff: true },
+    { k: "door",     ic: "🚪", t: "방음도어 추가 1짝",   s: "5+5 방음도어 (실매입)",    buy: 0, price: 630000, est: false },
+    { k: "aircon",   ic: "❄", t: "에어컨 타공·매설",     s: "배관 매설 + 벽체 타공 1대",        buy: 0, price: 440000, est: true },
+    { k: "slat",     ic: "▤", t: "라인타공 추가 1면",    s: "라인타공판 + 재단·시공 (기본 1면 외)", buy: 0, price: 385000, est: true }
   ];
+  function psOptCost(o){ return Math.round(o.buy / 1.1); }   // 공급가 환산 (원가 합계용)
   var PS_SHIP = [
     { k: "metro", t: "수도권",            add: 0 },
     { k: "near",  t: "충북·천안·강원",     add: 200000 },
@@ -3936,7 +3962,8 @@ function openContractModal(q){
     { k: "far",   t: "전남·경남",          add: 400000 }
   ];
   var PS = { grade: "value", size: "2000x2000", w: 2000, d: 2000, h: 2280,
-             win: false, flame: false, door: false, ship: "metro", day: 1, price: 0 };
+             ship: "metro", day: 1, price: 0 };
+  PS_OPTS.forEach(function(o){ PS[o.k] = false; });
   function psLoad(){
     try{
       var s = JSON.parse(localStorage.getItem(PS_KEY) || "null");
@@ -3955,15 +3982,16 @@ function openContractModal(q){
     var g = psGradeOf(PS.grade), dim = psDims();
     var aFloor = dim.w * dim.d / 1e6, aWall = 2 * (dim.w + dim.d) * dim.h / 1e6;
     var rF = aFloor / 4, rW = aWall / 18.24;
+    var wMul = psWallMul(g, dim);                       // 정면만 2중 = 1.25 · 4면 2중 = 2
     var matF = 0.35 * 0 * rF;
-    var matW = 0.65 * 0 * rW * g.wallMul;
-    var work = 0 * (0.35 * rF + 0.65 * rW * (1 + (g.wallMul - 1) * 0.7));
+    var matW = 0.65 * 0 * rW * wMul;
+    var work = 0 * (0.35 * rF + 0.65 * rW * (1 + (wMul - 1) * 0.7));
     var door = 0 * g.doors;
     var ply = 60000, sub = 70000;
     var shipRow = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === PS.ship) shipRow = s; });
     var day = (Number(PS.day) || 0) * 400000;
-    var optCost = 0, optPrice = 0;
-    PS_OPTS.forEach(function(o){ if (PS[o.k]) { optCost += o.cost; optPrice += o.price; } });
+    var optCost = 0, optPrice = 0, optBuy = 0;
+    PS_OPTS.forEach(function(o){ if (PS[o.k]) { optCost += psOptCost(o); optPrice += o.price; optBuy += o.buy; } });
     var lines = [
       ["판·마감재 (바닥·벽·천장)", matF + matW],
       ["재단·제작 공임", work],
@@ -3972,9 +4000,9 @@ function openContractModal(q){
       ["운송 (" + shipRow.t + ")", 200000 + shipRow.add],
       ["현장 시공 " + (PS.day > 0 ? PS.day + "일" : "직접"), day]
     ];
-    if (optCost) lines.push(["옵션 원가", optCost]);
+    if (optCost) lines.push(["옵션 원가 (부가세 포함 " + krwPS(Math.round(optBuy)) + ")", optCost]);
     var total = 0; lines.forEach(function(l){ total += l[1]; });
-    return { lines: lines, total: total, aFloor: aFloor, aWall: aWall, optCost: optCost, optPrice: optPrice, grade: g, dim: dim };
+    return { lines: lines, total: total, aFloor: aFloor, aWall: aWall, optCost: optCost, optPrice: optPrice, optBuy: optBuy, wallMul: wMul, grade: g, dim: dim };
   }
   function psRound(v){ return Math.round(v / 10000) * 10000; }
   function psPrice(){
@@ -3996,14 +4024,18 @@ function openContractModal(q){
   }
   function psOptionList(){
     var out = [];
-    if (PS.win) out.push("통합이중창 1200×800");
-    if (PS.flame) out.push("방염 아트보드");
-    if (PS.door) out.push("방음도어 추가");
+    PS_OPTS.forEach(function(o){ if (PS[o.k]) out.push(o.t); });
     return out;
   }
+  function psMan(v){ var x = Math.round(v / 1000) / 10; return (x % 1 === 0 ? x.toFixed(0) : x.toFixed(1)) + "만"; }
   function psSpecLine(){
     var g = psGradeOf(PS.grade), dim = psDims();
     return g.t + " · " + Number(dim.w).toLocaleString("ko-KR") + "×" + Number(dim.d).toLocaleString("ko-KR") + " · 높이 " + Number(dim.h).toLocaleString("ko-KR");
+  }
+  function psOptionLines(){
+    var out = [];
+    PS_OPTS.forEach(function(o){ if (PS[o.k]) out.push(o.t + " +" + krwPS(o.price)); });
+    return out;
   }
   function psQuoteText(full){
     var m = psMarginInfo(), g = psGradeOf(PS.grade), opts = psOptionList();
@@ -4012,7 +4044,7 @@ function openContractModal(q){
       out.push("[베오방음] 예약 확정 안내");
       out.push("· 사양: " + psSpecLine());
       out.push("· 마감: 아트보드 3면 · 라인타공 1면 · 강화마루");
-      if (opts.length) out.push("· 옵션: " + opts.join(" · "));
+      if (opts.length) out.push("· 옵션: " + psOptionLines().join(" · "));
       out.push("· 일정: (희망일) 작업 시작 — 오전 9시 도착 기준");
       out.push("· 총액: " + krwPS(m.p.total) + " (공급가 " + krwPS(m.supply) + " + 부가세 " + krwPS(m.vat) + ")");
       out.push("· 계약금: " + krwPS(Math.round(m.p.total * 0.5)) + " / 잔금: " + krwPS(m.p.total - Math.round(m.p.total * 0.5)));
@@ -4022,7 +4054,7 @@ function openContractModal(q){
       out.push("[베오방음] 방음부스 견적 안내");
       out.push("· 사양: " + psSpecLine());
       out.push("· 마감: 아트보드 3면 · 라인타공 1면 · 강화마루 · COB 매립등 2구 + 중앙등");
-      if (opts.length) out.push("· 옵션: " + opts.join(" · "));
+      if (opts.length) out.push("· 옵션 (부가세 포함): " + psOptionLines().join(" · "));
       out.push("· 금액: 부가세 포함 " + krwPS(m.p.total) + " (공급가 " + krwPS(m.supply) + " · 부가세 " + krwPS(m.vat) + ")");
       out.push("· 계약금 50%: " + krwPS(Math.round(m.p.total * 0.5)));
       out.push("· 진행 원하시면 편한 날짜 알려주세요 :)");
@@ -4049,8 +4081,9 @@ function openContractModal(q){
     }).join("");
     var optRows = PS_OPTS.map(function(o){
       return '<button type="button" class="ps-opt" data-ps-opt="' + o.k + '" aria-pressed="' + (PS[o.k] ? "true" : "false") + '">'
-        + '<span class="ic">' + o.ic + '</span><span class="tx"><b>' + o.t + '</b><span>' + o.s + '</span></span>'
-        + '<span class="pr">+' + Math.round(o.price / 10000) + '만</span><span class="sw"></span></button>';
+        + '<span class="ic">' + o.ic + '</span><span class="tx"><b>' + o.t + '</b><span>' + o.s
+        + ' · ' + (o.diff ? '매입 차액 ' : '매입 ') + psMan(o.buy) + ' (VAT 포함' + (o.est ? ' · 추정' : '') + ')</span></span>'
+        + '<span class="pr">+' + psMan(o.price) + '<small>VAT 포함</small></span><span class="sw"></span></button>';
     }).join("");
     var shipChips = PS_SHIP.map(function(s){
       return '<button type="button" class="ps-chip" data-ps-ship="' + s.k + '" aria-pressed="' + (PS.ship === s.k ? "true" : "false") + '">'
@@ -4081,14 +4114,14 @@ function openContractModal(q){
       + '      <span class="v">' + krwPS(m.p.total) + '</span>'
       + '      <span class="sub">공급가 ' + krwPS(m.supply) + ' · 부가세 ' + krwPS(m.vat) + '</span>'
       + '      <span class="sub">계약금 50% ' + krwPS(Math.round(m.p.total / 2)) + '</span></div>'
-      + '    <div class="ps-kpi money"><span class="pslb">추정 실매입 원가</span>'
-      + '      <span class="v">' + krwPS(m.p.cost.total) + '</span>'
-      + '      <span class="sub">VAT 포함 ' + krwPS(m.p.cost.total * 1.1) + '</span>'
-      + '      <span class="sub">바닥 ' + m.p.cost.aFloor.toFixed(2) + '㎡ · 벽 ' + m.p.cost.aWall.toFixed(2) + '㎡</span></div>'
+      + '    <div class="ps-kpi money"><span class="pslb">추정 실매입 원가 (부가세 포함)</span>'
+      + '      <span class="v">' + krwPS(Math.round(m.p.cost.total * 1.1)) + '</span>'
+      + '      <span class="sub">공급가 ' + krwPS(m.p.cost.total) + ' + 부가세 ' + krwPS(Math.round(m.p.cost.total * 0.1)) + '</span>'
+      + '      <span class="sub">바닥 ' + m.p.cost.aFloor.toFixed(2) + '㎡ · 벽 ' + m.p.cost.aWall.toFixed(2) + '㎡' + (m.p.cost.wallMul>1? ' · 벽 '+Math.round(m.p.cost.wallMul*100)+'%':'') + '</span></div>'
       + '    <div class="ps-kpi mine' + (m.ok ? "" : " bad") + '"><span class="pslb">예상 세후 순수익</span>'
       + '      <span class="v">' + krwPS(m.margin) + '</span>'
       + '      <span class="ps-badge ' + (m.ok ? "ok" : "no") + '">' + (m.ok ? "목표 80만 달성" : "목표까지 −" + krwPS(m.target - m.margin)) + '</span>'
-      + '      <span class="sub">공급가 매출 − 공급가 원가</span></div>'
+      + '      <span class="sub">부가세 제외 매출 − 부가세 제외 원가</span></div>'
       + '  </div>'
 
       /* 1 등급 */
@@ -4106,8 +4139,11 @@ function openContractModal(q){
       + '</div>'
 
       /* 3 옵션 */
-      + '  <div class="ps-card"><div class="ps-step"><span class="n">3</span><span class="t">옵션</span><span class="s">실제 옵션만 · 라인타공은 기본</span></div>'
+      + '  <div class="ps-card"><div class="ps-step"><span class="n">3</span><span class="t">옵션</span><span class="s">금액은 모두 부가세 포함 · 라인타공 1면은 기본</span></div>'
       + '    <div class="ps-opts">' + optRows + '</div>'
+      + (opts.length
+          ? '    <div class="ps-opt-sum"><span>옵션 합계 (' + opts.length + '개 · 부가세 포함)</span><b>+' + krwPS(m.p.optP) + '</b></div>'
+          : '')
       + '    <div class="ps-step" style="margin-top:12px"><span class="t">운송</span><span class="s">거리별 차등</span></div>'
       + '    <div class="ps-chips">' + shipChips + '</div>'
       + '    <div class="ps-step" style="margin-top:12px"><span class="t">현장 시공</span><span class="s">일당 40만원 (VAT 별도)</span></div>'
@@ -4125,10 +4161,14 @@ function openContractModal(q){
       + '    <details class="ps-detail" style="margin-top:10px"><summary><span>원가 내역 · 마진 구조</span><span>열기</span></summary>'
       + costLines
       + '      <div class="ps-line sum"><span>실매입 원가 합계 (공급가)</span><b>' + krwPS(m.p.cost.total) + '</b></div>'
-      + (m.p.optP ? '<div class="ps-line"><span>옵션 판매가 (VAT 포함)</span><b>' + krwPS(m.p.optP) + '</b></div>' : '')
+      + '      <div class="ps-line"><span>실매입 원가 합계 (부가세 포함)</span><b>' + krwPS(Math.round(m.p.cost.total * 1.1)) + '</b></div>'
+      + (m.p.optP ? '<div class="ps-line"><span>옵션 판매가 (VAT 포함)</span><b>' + krwPS(m.p.optP) + '</b></div>'
+        + '<div class="ps-line"><span>옵션 매입가 (VAT 포함)</span><b>' + krwPS(m.p.cost.optBuy) + '</b></div>' : '')
       + '      <div class="ps-line sum"><span>세후 순수익</span><b>' + krwPS(m.margin) + '</b></div>'
-      + '      <p class="ps-note">· 원가는 2000×2000 싱글 실매입(공급가 0원)을 기준점으로 면적·겹수에 따라 비례 계산한 추정치입니다. 운송·일당은 실제 청구서 기준.<br>'
-      + '      · 2중 벽체는 벽 자재·공임만 늘고 바닥·천장은 그대로입니다.<br>'
+
+      + '      <p class="ps-note">· 옵션 금액은 모두 <b>부가세 포함</b>입니다(매입·판매 동일 기준). 순수익만 부가세를 뺴고 계산합니다 — 부가세 포함 금액끼리 바로 빼면 실제 남는 돈보다 크게 보입니다.<br>'
+      + '      · 원가는 2000×2000 싱글 실매입(공급가 0원)을 기준점으로 면적·겹수에 따라 비례 계산한 추정치입니다. 운송·일당은 실제 청구서 기준.<br>'
+      + '      · 2중은 늘어나는 면만 반영합니다 — 싱글플러스는 정면 1면만 2중(벽 자재 1.25배), 더블은 4면 2중(2배).<br>'
       + '      · 실제 발주 전 재단표(도면 A-104)로 장수를 확인하세요.</p>'
       + '    </details>'
       + '  </div>'
