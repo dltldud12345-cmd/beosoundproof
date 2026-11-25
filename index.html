@@ -1069,51 +1069,84 @@
   }
 
   /* ---------- 벽체 단면 3D 레이어 그림 (제품안내) ---------- */
-.wf2-fig{
-  --wf2-ink:#1A1D1E; --wf2-body:#4F585F; --wf2-muted:#7B8389;
-  --wf2-line:#E5DFD4; --wf2-line-soft:#EFEAE1; --wf2-card:#FFFFFF;
-  --wf2-emerald:#1E3F35; --wf2-accent:#2E9C86; --wf2-accent-dark:#1F7A69;
-  margin:26px 0 10px;padding:clamp(18px,2.6vw,30px);background:var(--wf2-card);
-  border:1px solid var(--wf2-line);border-radius:20px;
-}
-.wf2-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-.wf2-eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.22em;color:var(--wf2-accent-dark);text-transform:uppercase}
-.wf2-head p{margin:0;max-width:680px;font-size:13.5px;line-height:1.65;color:var(--wf2-body)}
-.wf2-head b{color:var(--wf2-ink)}
-.wf2-canvas{margin-top:14px;padding:8px 4px 4px;background:#FAF7F1;border:1px solid var(--wf2-line-soft);border-radius:14px}
-.wf2-canvas svg{display:block;width:100%;max-width:840px;height:auto;margin:0 auto}
-.wf2-canvas text{font-family:inherit}
-.wf2-canvas .wf2-stack{display:none}
-.wf2-cap{margin:12px 0 0;font-size:12px;font-weight:600;color:var(--wf2-muted);line-height:1.55}
-.wf2-cap b{color:var(--wf2-accent-dark)}
-.wf2-legend{display:none}
-.wf2-lg{display:flex;gap:7px;align-items:flex-start;background:#FAF7F1;border:1px solid var(--wf2-line-soft);border-radius:11px;padding:8px 9px}
-.wf2-lg .n{flex:0 0 18px;height:18px;margin-top:1px;border-radius:50%;background:var(--wf2-emerald);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
-.wf2-lg b{display:block;font-size:11.3px;font-weight:800;letter-spacing:-.01em;color:var(--wf2-ink);line-height:1.35}
-.wf2-lg em{display:block;margin-top:3px;font-style:normal;font-size:10.6px;line-height:1.5;color:var(--wf2-muted)}
+  .wf2-fig{
+    --wf2-ink:#1A1D1E; --wf2-body:#4F585F; --wf2-muted:#7B8389;
+    --wf2-line:#E5DFD4; --wf2-line-soft:#EFEAE1; --wf2-card:#FFFFFF;
+    --wf2-emerald:#1E3F35; --wf2-accent:#2E9C86; --wf2-accent-dark:#1F7A69;
+    margin:26px 0 10px;padding:clamp(18px,2.6vw,30px);background:var(--wf2-card);
+    border:1px solid var(--wf2-line);border-radius:20px;
+  }
+  .wf2-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .wf2-eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.22em;color:var(--wf2-accent-dark);text-transform:uppercase}
+  .wf2-head p{margin:0;max-width:680px;font-size:13.5px;line-height:1.65;color:var(--wf2-body)}
+  .wf2-head b{color:var(--wf2-ink)}
+  .wf2-canvas{position:relative;margin-top:14px;padding:8px 4px 4px;background:#FAF7F1;border:1px solid var(--wf2-line-soft);border-radius:14px}
+  .wf2-canvas svg{display:block;width:100%;max-width:840px;height:auto;margin:0 auto}
+  .wf2-canvas text{font-family:inherit}
+  .wf2-canvas .wf2-stack{display:none}
+  .wf2-bar{display:flex;justify-content:center;margin-top:12px}
+  .wf2-toggle{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    font:inherit;font-size:12.5px;font-weight:800;letter-spacing:-.01em;color:var(--wf2-accent-dark);
+    background:#fff;border:1px solid #CFE3DC;border-radius:999px;padding:9px 16px 9px 13px;
+    box-shadow:0 1px 2px rgba(26,29,30,.04);transition:background .2s,border-color .2s,transform .2s;
+  }
+  .wf2-toggle:hover{background:#F2FAF7;border-color:#9CCDBF}
+  .wf2-toggle:active{transform:translateY(1px)}
+  .wf2-toggle:focus-visible{outline:2px solid var(--wf2-accent);outline-offset:2px}
+  .wf2-toggle .ic{position:relative;width:15px;height:12px;flex:0 0 15px}
+  .wf2-toggle .ic i{position:absolute;left:0;width:15px;height:1.8px;border-radius:2px;background:var(--wf2-accent);transition:transform .45s cubic-bezier(.22,.7,.15,1),opacity .3s}
+  .wf2-toggle .ic i:nth-child(1){top:0}
+  .wf2-toggle .ic i:nth-child(2){top:5.1px}
+  .wf2-toggle .ic i:nth-child(3){top:10.2px}
+  .wf2-fig.is-open .wf2-toggle .ic i:nth-child(1){transform:translateY(-2.2px)}
+  .wf2-fig.is-open .wf2-toggle .ic i:nth-child(3){transform:translateY(2.2px)}
+  .wf2-fig.is-open .wf2-toggle .ic i:nth-child(2){opacity:0}
+  .wf2-cap{margin:12px 0 0;font-size:12px;font-weight:600;color:var(--wf2-muted);line-height:1.55}
+  .wf2-cap b{color:var(--wf2-accent-dark)}
+  .wf2-legend{display:none}
+  .wf2-lg{display:flex;gap:7px;align-items:flex-start;background:#FAF7F1;border:1px solid var(--wf2-line-soft);border-radius:11px;padding:8px 9px}
+  .wf2-lg .n{flex:0 0 18px;height:18px;margin-top:1px;border-radius:50%;background:var(--wf2-emerald);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
+  .wf2-lg b{display:block;font-size:11.3px;font-weight:800;letter-spacing:-.01em;color:var(--wf2-ink);line-height:1.35}
+  .wf2-lg em{display:block;margin-top:3px;font-style:normal;font-size:10.6px;line-height:1.5;color:var(--wf2-muted)}
 
-@keyframes wf2Wave{
-  0%{opacity:0;transform:translate(0,0)}
-  9%{opacity:1;transform:translate(0,0)}
-  42%{opacity:.85;transform:translate(5px,0)}
-  68%{opacity:0;transform:translate(11px,0)}
-  100%{opacity:0;transform:translate(11px,0)}
-}
-.wf2-iso .wf2-an{animation:wf2Wave 3.6s cubic-bezier(.4,0,.5,1) infinite}
-.wf2-stack .wf2-an{animation:wf2Wave 3.6s cubic-bezier(.4,0,.5,1) infinite}
-.wf2d-sealglow{animation:wf2Seal 3.6s ease-in-out infinite}
-@keyframes wf2Seal{0%,84%{opacity:0}90%{opacity:.5}100%{opacity:0}}
-@media (max-width:720px){
-  .wf2-canvas .wf2-iso{display:none}
-  .wf2-canvas .wf2-stack{display:block}
-  .wf2-head p{font-size:12.5px}
-  .wf2-canvas{padding:6px 2px 2px}
-  .wf2-fig{padding:16px 14px;border-radius:16px}
-  .wf2-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-}
-@media (prefers-reduced-motion:reduce){
-  .wf2-iso .wf2-an,.wf2-stack .wf2-an,.wf2d-sealglow{animation:none!important;opacity:.55}
-}
+  /* 레이어 합체 ↔ 분해 */
+  .wf2-ly{transition:transform 1.15s cubic-bezier(.24,.72,.14,1);will-change:transform}
+  .wf2-fig.is-open .wf2-ly-1{transform:translateX(-55px)}
+  .wf2-fig.is-open .wf2-ly-3{transform:translateX(55px)}
+  .wf2-in{opacity:0;transition:opacity .3s ease}
+  .wf2-fig.is-open .wf2-in{opacity:1;transition:opacity .4s ease .52s}
+  .wf2-chip{opacity:0;transition:opacity .28s ease,transform .28s ease;transform:translateY(7px)}
+  .wf2-fig.is-open .wf2-chip{opacity:1;transform:none;transition:opacity .45s ease .58s,transform .55s cubic-bezier(.24,.72,.14,1) .58s}
+  .wf2-asm{opacity:1;transition:opacity .35s ease .7s}
+  .wf2-fig.is-open .wf2-asm{opacity:0;transition:opacity .2s ease}
+
+  @keyframes wf2Wave{
+    0%{opacity:0;transform:translate(-6px,0)}
+    14%{opacity:1;transform:translate(0,0)}
+    58%{opacity:.7;transform:translate(6px,0)}
+    86%{opacity:0;transform:translate(12px,0)}
+    100%{opacity:0;transform:translate(12px,0)}
+  }
+  .wf2-iso .wf2-an{animation:wf2Wave 4.2s cubic-bezier(.4,0,.5,1) infinite}
+  .wf2-stack .wf2-an{animation:wf2Wave 4.2s cubic-bezier(.4,0,.5,1) infinite}
+  .wf2-an g{will-change:opacity}
+  @media (max-width:720px){
+    .wf2-canvas .wf2-iso{display:none}
+    .wf2-canvas .wf2-stack{display:block}
+    .wf2-head p{font-size:12.5px}
+    .wf2-canvas{padding:6px 2px 2px}
+    .wf2-fig{padding:16px 14px;border-radius:16px}
+    .wf2-legend{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}
+    .wf2-bar{margin-top:10px}
+    .wf2-toggle{font-size:12px;padding:8px 15px 8px 12px}
+    .wf2-fig.is-open .wf2-ly-1{transform:translateX(-28px)}
+    .wf2-fig.is-open .wf2-ly-3{transform:translateX(28px)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .wf2-iso .wf2-an,.wf2-stack .wf2-an{animation:none!important;opacity:.55}
+    .wf2-ly,.wf2-in,.wf2-chip,.wf2-asm{transition:none!important}
+  }
 </style>
 </head>
 <body>
@@ -1198,7 +1231,7 @@
         <div class="intro-in">
           <span class="eyebrow rise" style="--d:0s">BEO SOUNDPROOF</span>
           <h1 class="rise" style="--d:.14s">공간과 소리에 맞춘<br><em>맞춤 방음부스</em></h1>
-          <p class="intro-lead rise" style="--d:.34s">신규 시공부터 타사 이전·재설치까지, 11년 동안 수백 건의 현장을 직접 지어 왔습니다</p>
+          <p class="intro-lead rise" style="--d:.34s">신규 시공부터 타사 이전·재설치까지, 수백 건의 현장을 직영팀이 직접 지어 왔습니다</p>
           <div class="intro-cta rise" style="--d:.52s">
             <a class="btn btn-primary btn-lg" href="#contact">무료 견적 상담</a>
             <a class="btn btn-line btn-lg" href="#products">제품 라인업 보기</a>
@@ -1452,11 +1485,11 @@
             <span class="eyebrow">About</span>
             <h1 style="margin-top:18px">짓는 일과 옮기는 일을<br>같이 합니다.</h1>
             <p>방음부스는 인테리어 소품이 아니라 소리가 새지 않게 만드는 구조물입니다. 그래서 벽을 세우기 전에 방의 가로·세로·천장 높이를 재고, 문이 어디로 열릴지, 콘센트와 조명이 어디에 있어야 할지부터 정합니다.</p>
-            <p>방음부스 한 길만 11년입니다. 신규 시공과 타사 제품 이전·재설치를 합쳐 수백 건을 같은 팀이 직접 지어 왔습니다. 설계도, 재단도, 마감도 중간 업체를 거치지 않습니다. 이미 쓰던 부스가 있으면 해체해서 새 집까지 옮겨 다시 세웁니다. <span class="hl">다른 업체에서 만든 부스도 옮깁니다.</span></p>
+            <p>설계도, 재단도, 마감도 중간 업체를 거치지 않습니다. 신규 시공부터 타사 제품 이전·재설치까지 수백 건을 같은 직영팀이 직접 지어 왔습니다. 이미 쓰던 부스가 있으면 해체해서 새 집까지 옮겨 다시 세웁니다. <span class="hl">다른 업체에서 만든 부스도 옮깁니다.</span></p>
             <p>드림디자인·조용한청년들·탐소리큐브 등 다양한 타사 브랜드의 부스를 옮겨 왔습니다.</p>
 
             <div class="stats rv">
-              <div><b>11년</b><span>방음부스 한 길</span></div>
+              <div><b>10년+</b><span>방음부스 한 길</span></div>
               <div><b>수백 건</b><span>신규 · 이전 누적</span></div>
               <div><b>직접 시공</b><span>중간 업체 없이</span></div>
             </div>
@@ -1862,298 +1895,267 @@
 
           <p class="grade-note rv">모든 등급은 방을 실측해 맞춤 재단하며, 외부·내부 치수는 견적서에 적어 드립니다.</p>
 
-          <figure class="wf2-fig">
+          <figure class="wf2-fig" id="wallfig">
   <div class="wf2-head">
     <span class="wf2-eyebrow">Wall Section · 기본 벽체</span>
-    <p>기본 벽체는 네 겹으로 구성됩니다. 바깥에서 들어온 소리가 <b>외부 마감 → 프레임·충진 → 실링 → 내부 마감</b> 순서로 지나면서 작아지고, 플러스(정면 더블)와 더블(부스 안에 부스)은 여기에 이중 구조가 더해집니다.</p>
+    <p>기본 벽체는 세 겹입니다. 바깥 <b>외장 알판</b>, 그 안을 채우는 <b>방음 코어</b>, 실내 쪽 <b>아트보드 마감</b> — 소리가 이 세 겹을 지나며 작아집니다. 플러스(정면 더블)와 더블(부스 안에 부스)은 여기에 벽체가 한 겹 더해집니다.</p>
   </div>
   <div class="wf2-canvas">
-    <svg class="wf2-iso" viewBox="0 0 800 570" role="img" aria-label="바닥 위에 세워진 벽체 단면. 바깥 소리가 1 외부 백색 알판, 2 PB 프레임과 2중 흡음, 3 벽체 간 실링, 4 내부 라인타공과 아트보드를 차례로 지나며 작아져 실내에서는 거의 들리지 않습니다.">
-
-    <defs>
-      <linearGradient id="wf2dWhite" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#FBF7EE"/><stop offset="1" stop-color="#E9DFCB"/>
-      </linearGradient>
-      <linearGradient id="wf2dWhiteTop" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EFE9DD"/>
-      </linearGradient>
-      <linearGradient id="wf2dWhiteSide" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E2DAC7"/><stop offset="1" stop-color="#C7BCA4"/>
-      </linearGradient>
-      <linearGradient id="wf2dFrame" x1="0" y1="0" x2="1" y2=".12">
-        <stop offset="0" stop-color="#CBAE8C"/><stop offset=".55" stop-color="#C6A783"/><stop offset="1" stop-color="#BC9C75"/>
-      </linearGradient>
-      <linearGradient id="wf2dBoard" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#F2E9D7"/><stop offset="1" stop-color="#DFD0B0"/>
-      </linearGradient>
-      <linearGradient id="wf2dBoardTop" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#F7F0E1"/><stop offset="1" stop-color="#E4D7BB"/>
-      </linearGradient>
-      <linearGradient id="wf2dBoardSide" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E2D3B4"/><stop offset="1" stop-color="#CEBE9A"/>
-      </linearGradient>
-      <linearGradient id="wf2dFloor" x1="0" y1="0" x2=".3" y2="1">
-        <stop offset="0" stop-color="#FCF8F1"/><stop offset="1" stop-color="#EFE6D5"/>
-      </linearGradient>
-      <pattern id="wf2dSpeck" width="14" height="14" patternUnits="userSpaceOnUse">
-        <rect width="14" height="14" fill="#F4F0E4"/>
-        <circle cx="2.1" cy="2.7" r="1.5" fill="#E3CB46" opacity=".9"/>
-        <circle cx="6.9" cy="1.5" r="1.15" fill="#6FA8DC" opacity=".85"/>
-        <circle cx="11.7" cy="3.1" r="1.35" fill="#E59AB0" opacity=".72"/>
-        <circle cx="4.5" cy="6.3" r="1.25" fill="#B6CE68" opacity=".85"/>
-        <circle cx="9.1" cy="6.7" r="1.5" fill="#4A6FA5" opacity=".55"/>
-        <circle cx="12.9" cy="8.3" r="1.05" fill="#E3CB46" opacity=".85"/>
-        <circle cx="1.7" cy="9.9" r="1.35" fill="#8CA887" opacity=".62"/>
-        <circle cx="6.3" cy="10.5" r="1.1" fill="#FFFFFF" opacity=".95"/>
-        <circle cx="10.5" cy="11.9" r="1.4" fill="#6FA8DC" opacity=".62"/>
-        <circle cx="3.1" cy="12.9" r="1" fill="#E59AB0" opacity=".62"/>
-        <circle cx="8.3" cy="13.3" r="0.95" fill="#E3CB46" opacity=".75"/>
-        <circle cx="0.6" cy="6.0" r="0.8" fill="#4A6FA5" opacity=".6"/>
-        <circle cx="13.4" cy="12.4" r="0.85" fill="#B6CE68" opacity=".6"/>
-      </pattern>
-      <filter id="wf2dSoft" x="-40%" y="-80%" width="180%" height="260%"><feGaussianBlur stdDeviation="4"/></filter>
-      <filter id="wf2dSoftL" x="-40%" y="-80%" width="180%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
-    </defs>
-<polygon points="30.00,534.00 600.00,534.00 686.00,484.00 116.00,484.00" fill="url(#wf2dFloor)" stroke="#E2D9C8" stroke-width="1"/>
-<polygon points="46.00,530.00 596.00,530.00 666.00,488.00 116.00,488.00" fill="#1A1D1E" opacity="0.07" filter="url(#wf2dSoftL)"/>
-<polygon points="63.00,524.00 97.00,524.00 149.00,494.00 115.00,494.00" fill="#1A1D1E" opacity="0.12" filter="url(#wf2dSoft)"/>
-<polygon points="179.00,524.00 299.00,524.00 351.00,494.00 231.00,494.00" fill="#1A1D1E" opacity="0.12" filter="url(#wf2dSoft)"/>
-<polygon points="381.00,524.00 397.00,524.00 449.00,494.00 433.00,494.00" fill="#1A1D1E" opacity="0.12" filter="url(#wf2dSoft)"/>
-<polygon points="479.00,524.00 525.00,524.00 577.00,494.00 531.00,494.00" fill="#1A1D1E" opacity="0.12" filter="url(#wf2dSoft)"/>
-<polygon points="94.00,520.00 146.00,490.00 146.00,254.00 94.00,284.00" fill="url(#wf2dWhiteSide)" stroke="#C6BCA9" stroke-width="1.2"/>
-<polygon points="60.00,284.00 94.00,284.00 146.00,254.00 112.00,254.00" fill="url(#wf2dWhiteTop)" stroke="#BDB29C" stroke-width="1.3"/>
-<polygon points="60.00,520.00 94.00,520.00 94.00,284.00 60.00,284.00" fill="url(#wf2dWhite)" stroke="#B7AC96" stroke-width="1.4"/>
-<line x1="77.00" y1="510.00" x2="77.00" y2="296.00" stroke="#E4DCCA" stroke-width="1"/>
-<line x1="146.00" y1="257.00" x2="146.00" y2="486.00" stroke="#FFFFFF" stroke-width="1.4" opacity="0.85"/>
-<polygon points="90.00,508.00 94.00,508.00 94.00,298.00 90.00,298.00" fill="#1A1D1E" opacity="0.05"/>
-<polygon points="296.00,520.00 348.00,490.00 348.00,254.00 296.00,284.00" fill="#AF9269" stroke="#9C8058" stroke-width="1.1"/>
-<polygon points="176.00,284.00 296.00,284.00 348.00,254.00 228.00,254.00" fill="#D3B893" stroke="#B4976C" stroke-width="1.2"/>
-<polygon points="176.00,520.00 296.00,520.00 296.00,284.00 176.00,284.00" fill="url(#wf2dFrame)" stroke="#A0855D" stroke-width="1.3"/>
-<polygon points="181.00,511.00 291.00,511.00 291.00,295.00 181.00,295.00" fill="#9E825B" stroke="#8C7350" stroke-width="0.9"/>
-<polygon points="181.00,399.00 233.50,399.00 233.50,295.00 181.00,295.00" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="181.00,399.00 233.50,399.00 233.50,295.00 181.00,295.00" fill="url(#wf2dSpeck)"/>
-<polygon points="181.00,511.00 233.50,511.00 233.50,407.00 181.00,407.00" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="181.00,511.00 233.50,511.00 233.50,407.00 181.00,407.00" fill="url(#wf2dSpeck)"/>
-<polygon points="238.50,399.00 291.00,399.00 291.00,295.00 238.50,295.00" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="238.50,399.00 291.00,399.00 291.00,295.00 238.50,295.00" fill="url(#wf2dSpeck)"/>
-<polygon points="238.50,511.00 291.00,511.00 291.00,407.00 238.50,407.00" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="238.50,511.00 291.00,511.00 291.00,407.00 238.50,407.00" fill="url(#wf2dSpeck)"/>
-<polygon points="192.80,282.50 230.00,282.50 273.68,257.30 236.48,257.30" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="192.80,282.50 230.00,282.50 273.68,257.30 236.48,257.30" fill="url(#wf2dSpeck)"/>
-<polygon points="242.00,282.50 279.20,282.50 322.88,257.30 285.68,257.30" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="242.00,282.50 279.20,282.50 322.88,257.30 285.68,257.30" fill="url(#wf2dSpeck)"/>
-<polygon points="300.00,406.00 344.00,376.00 344.00,270.00 300.00,300.00" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="300.00,406.00 344.00,376.00 344.00,270.00 300.00,300.00" fill="url(#wf2dSpeck)"/>
-<polygon points="300.00,506.00 344.00,476.00 344.00,388.00 300.00,418.00" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="300.00,506.00 344.00,476.00 344.00,388.00 300.00,418.00" fill="url(#wf2dSpeck)"/>
-<line x1="176.60" y1="283.60" x2="296.60" y2="283.60" stroke="#F6E5CB" stroke-width="1.4" opacity="0.7"/>
-<polygon points="394.00,520.00 446.00,490.00 446.00,254.00 394.00,284.00" fill="#24836F" stroke="#1B6B5C" stroke-width="1"/>
-<polygon points="378.00,284.00 394.00,284.00 446.00,254.00 430.00,254.00" fill="#57B9A3" stroke="#2E9C86" stroke-width="1"/>
-<polygon points="378.00,520.00 394.00,520.00 394.00,284.00 378.00,284.00" fill="#2E9C86" stroke="#1F7A69" stroke-width="1.1"/>
-<line x1="386.00" y1="508.00" x2="386.00" y2="298.00" stroke="#FFFFFF" stroke-width="2.2" stroke-dasharray="8 7" stroke-linecap="round" opacity="0.85"/>
-<line x1="386.00" y1="508.00" x2="386.00" y2="298.00" stroke="#EAFFF8" stroke-width="9" stroke-linecap="round" opacity="0" class="wf2d-sealglow"/>
-<polygon points="522.00,520.00 574.00,490.00 574.00,254.00 522.00,284.00" fill="url(#wf2dBoardSide)" stroke="#C9B996" stroke-width="1.2"/>
-<polygon points="476.00,284.00 522.00,284.00 574.00,254.00 528.00,254.00" fill="url(#wf2dBoardTop)" stroke="#C9B996" stroke-width="1.2"/>
-<polygon points="476.00,520.00 522.00,520.00 522.00,284.00 476.00,284.00" fill="url(#wf2dBoard)" stroke="#C9B996" stroke-width="1.3"/>
-<line x1="481.00" y1="512.00" x2="481.00" y2="292.00" stroke="#B79C72" stroke-width="1.9"/>
-<line x1="489.50" y1="512.00" x2="489.50" y2="292.00" stroke="#B79C72" stroke-width="1.9"/>
-<line x1="498.00" y1="512.00" x2="498.00" y2="292.00" stroke="#B79C72" stroke-width="1.9"/>
-<line x1="506.50" y1="512.00" x2="506.50" y2="292.00" stroke="#B79C72" stroke-width="1.9"/>
-<line x1="515.00" y1="512.00" x2="515.00" y2="292.00" stroke="#B79C72" stroke-width="1.9"/>
-<line x1="481.00" y1="285.20" x2="526.76" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="486.60" y1="285.20" x2="532.36" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="492.20" y1="285.20" x2="537.96" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="497.80" y1="285.20" x2="543.56" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="503.40" y1="285.20" x2="549.16" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="509.00" y1="285.20" x2="554.76" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="514.60" y1="285.20" x2="560.36" y2="258.80" stroke="#B79C72" stroke-width="1.7"/>
-<line x1="476.60" y1="283.60" x2="522.60" y2="283.60" stroke="#FBF3E2" stroke-width="1.4" opacity="0.8"/>
-<line x1="60.60" y1="520.00" x2="94.60" y2="520.00" stroke="#1A1D1E" stroke-width="1.8" opacity="0.13"/>
-<line x1="94.60" y1="520.00" x2="146.60" y2="490.00" stroke="#1A1D1E" stroke-width="1.5" opacity="0.09"/>
-<line x1="176.60" y1="520.00" x2="296.60" y2="520.00" stroke="#1A1D1E" stroke-width="1.8" opacity="0.13"/>
-<line x1="296.60" y1="520.00" x2="348.60" y2="490.00" stroke="#1A1D1E" stroke-width="1.5" opacity="0.09"/>
-<line x1="378.60" y1="520.00" x2="394.60" y2="520.00" stroke="#1A1D1E" stroke-width="1.8" opacity="0.13"/>
-<line x1="394.60" y1="520.00" x2="446.60" y2="490.00" stroke="#1A1D1E" stroke-width="1.5" opacity="0.09"/>
-<line x1="476.60" y1="520.00" x2="522.60" y2="520.00" stroke="#1A1D1E" stroke-width="1.8" opacity="0.13"/>
-<line x1="522.60" y1="520.00" x2="574.60" y2="490.00" stroke="#1A1D1E" stroke-width="1.5" opacity="0.09"/>
-<g class="wf2-an" style="animation-delay:0.0s"><g opacity="0.95"><path d="M 12 386 a 16 16 0 0 1 0 32 M 12 373 a 29 29 0 0 1 0 58 M 12 360 a 42 42 0 0 1 0 84" fill="none" stroke="#1F7A69" stroke-width="2.8" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:0.9s"><g opacity="0.66"><path d="M 158 393 a 9 9 0 0 1 0 18 M 158 385 a 17 17 0 0 1 0 34" fill="none" stroke="#6DC4B0" stroke-width="2.3" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:1.5s"><g opacity="0.54"><path d="M 360 395 a 7 7 0 0 1 0 14 M 360 389 a 13 13 0 0 1 0 26" fill="none" stroke="#3EA98F" stroke-width="2.0" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:2.1s"><g opacity="0.44"><path d="M 458 396 a 6 6 0 0 1 0 12 M 458 391 a 11 11 0 0 1 0 22" fill="none" stroke="#3EA98F" stroke-width="1.8" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:2.7s"><g opacity="0.38"><path d="M 586 397 a 5 5 0 0 1 0 10 M 586 393 a 9 9 0 0 1 0 18" fill="none" stroke="#6DC4B0" stroke-width="1.5" stroke-linecap="round"/></g></g>
-<text x="2.00" y="262.00" font-size="11.5" font-weight="800" fill="#7B8389">외부 소리</text>
-<text x="600.00" y="314.00" font-size="12" font-weight="800" fill="#1F7A69">조용한 실내</text>
-<text x="600.00" y="330.00" font-size="10" font-weight="600" fill="#7B8389">들어오는 소리 거의 없음</text>
-<polyline points="27.00,216.00 27.00,258.00 103.50,268.00" fill="none" stroke="#B4ABA0" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="103.50" cy="268" r="3.6" fill="#1E3F35"/>
-<circle cx="103.50" cy="268" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
-<rect x="14.00" y="175" width="170.95" height="41" rx="9" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
-<rect x="14.00" y="175" width="3.4" height="41" rx="1.7" fill="#2E9C86"/>
-<circle cx="34.00" cy="190" r="8.8" fill="#1E3F35"/>
-<text x="34.00" y="193.80" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
-<text x="49.00" y="194.60" font-size="13" font-weight="800" fill="#1A1D1E">외부 백색 알판</text>
-<text x="49.00" y="208.00" font-size="10.5" font-weight="600" fill="#7B8389">밖을 마감하는 화이트 패널</text>
-<polyline points="209.95,170.00 209.95,258.00 262.00,268.00" fill="none" stroke="#B4ABA0" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="262.00" cy="268" r="3.6" fill="#1E3F35"/>
-<circle cx="262.00" cy="268" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
-<rect x="196.95" y="129" width="187.75" height="41" rx="9" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
-<rect x="196.95" y="129" width="3.4" height="41" rx="1.7" fill="#2E9C86"/>
-<circle cx="216.95" cy="144" r="8.8" fill="#1E3F35"/>
-<text x="216.95" y="147.80" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
-<text x="231.95" y="148.60" font-size="13" font-weight="800" fill="#1A1D1E">PB 프레임 · 2중 흡음</text>
-<text x="231.95" y="162.00" font-size="10.5" font-weight="600" fill="#7B8389">틀 안을 고밀도 흡음으로 두 겹</text>
-<polyline points="409.70,124.00 409.70,258.00 412.00,268.00" fill="none" stroke="#B4ABA0" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="412.00" cy="268" r="3.6" fill="#1E3F35"/>
-<circle cx="412.00" cy="268" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
-<rect x="396.70" y="83" width="170.95" height="41" rx="9" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
-<rect x="396.70" y="83" width="3.4" height="41" rx="1.7" fill="#2E9C86"/>
-<circle cx="416.70" cy="98" r="8.8" fill="#1E3F35"/>
-<text x="416.70" y="101.80" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
-<text x="431.70" y="102.60" font-size="13" font-weight="800" fill="#1A1D1E">벽체 간 실링</text>
-<text x="431.70" y="116.00" font-size="10.5" font-weight="600" fill="#7B8389">맞닿는 이음새를 기밀 처리</text>
-<polyline points="592.65,78.00 592.65,258.00 525.00,268.00" fill="none" stroke="#B4ABA0" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="525.00" cy="268" r="3.6" fill="#1E3F35"/>
-<circle cx="525.00" cy="268" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
-<rect x="579.65" y="37" width="200.70" height="41" rx="9" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
-<rect x="579.65" y="37" width="3.4" height="41" rx="1.7" fill="#2E9C86"/>
-<circle cx="599.65" cy="52" r="8.8" fill="#1E3F35"/>
-<text x="599.65" y="55.80" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
-<text x="614.65" y="56.60" font-size="13" font-weight="800" fill="#1A1D1E">내부 라인타공 · 아트보드</text>
-<text x="614.65" y="70.00" font-size="10.5" font-weight="600" fill="#7B8389">1면 타공 · 3면 아트보드</text>
-</svg>
-    <svg class="wf2-stack" viewBox="0 0 340 292" role="img" aria-label="바닥 위에 세워진 벽체 단면. 왼쪽 바깥 소리가 1 외부 백색 알판, 2 PB 프레임과 2중 흡음, 3 벽체 간 실링, 4 내부 라인타공과 아트보드를 차례로 지나 오른쪽 조용한 실내로 들어오며 작아집니다.">
-    <defs>
-      <linearGradient id="wf2mWhite" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#FBF7EE"/><stop offset="1" stop-color="#E8DECA"/>
-      </linearGradient>
-      <linearGradient id="wf2mWhiteTop" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EDE6D8"/>
-      </linearGradient>
-      <linearGradient id="wf2mWhiteSide" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E2DAC7"/><stop offset="1" stop-color="#C9BEA7"/>
-      </linearGradient>
-      <linearGradient id="wf2mBoard" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#F2E9D7"/><stop offset="1" stop-color="#DFD0B0"/>
-      </linearGradient>
-      <linearGradient id="wf2mBoardTop" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#F7F0E1"/><stop offset="1" stop-color="#E4D7BB"/>
-      </linearGradient>
-      <linearGradient id="wf2mBoardSide" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E2D3B4"/><stop offset="1" stop-color="#CEBE9A"/>
-      </linearGradient>
-      <linearGradient id="wf2mFloor" x1="0" y1="0" x2=".35" y2="1">
-        <stop offset="0" stop-color="#FBF7F0"/><stop offset="1" stop-color="#F1EADC"/>
-      </linearGradient>
-      <pattern id="wf2mSpeck" width="11" height="11" patternUnits="userSpaceOnUse">
-        <rect width="11" height="11" fill="#F4F0E4"/>
-        <circle cx="1.8" cy="2.2" r="1.25" fill="#E3CB46" opacity=".9"/>
-        <circle cx="5.6" cy="1.2" r="0.95" fill="#6FA8DC" opacity=".85"/>
-        <circle cx="9.3" cy="2.6" r="1.15" fill="#E59AB0" opacity=".72"/>
-        <circle cx="3.6" cy="5.1" r="1.05" fill="#B6CE68" opacity=".85"/>
-        <circle cx="7.4" cy="5.5" r="1.25" fill="#4A6FA5" opacity=".55"/>
-        <circle cx="10.2" cy="6.8" r="0.85" fill="#E3CB46" opacity=".85"/>
-        <circle cx="1.4" cy="8.0" r="1.15" fill="#8CA887" opacity=".62"/>
-        <circle cx="5.1" cy="8.5" r="0.95" fill="#FFFFFF" opacity=".95"/>
-        <circle cx="8.5" cy="9.7" r="1.1" fill="#6FA8DC" opacity=".62"/>
-        <circle cx="2.5" cy="10.5" r="0.85" fill="#E59AB0" opacity=".62"/>
-      </pattern>
-      <filter id="wf2mSoft" x="-30%" y="-60%" width="160%" height="220%">
-        <feGaussianBlur stdDeviation="3.4"/>
-      </filter>
-      <filter id="wf2mSoftL" x="-30%" y="-60%" width="160%" height="220%">
-        <feGaussianBlur stdDeviation="6"/>
-      </filter>
-    </defs>
-<polygon points="8.00,280.00 262.00,280.00 336.00,232.00 82.00,232.00" fill="url(#wf2mFloor)" stroke="#E7DFD0" stroke-width="1"/>
-<polygon points="24.00,276.00 266.00,276.00 326.00,234.00 84.00,234.00" fill="#1A1D1E" opacity=".07" filter="url(#wf2mSoftL)"/>
-<polygon points="33.00,270.00 45.00,270.00 69.00,256.00 57.00,256.00" fill="#1A1D1E" opacity=".12" filter="url(#wf2mSoft)"/>
-<polygon points="87.00,270.00 127.00,270.00 151.00,256.00 111.00,256.00" fill="#1A1D1E" opacity=".12" filter="url(#wf2mSoft)"/>
-<polygon points="169.00,270.00 179.00,270.00 203.00,256.00 193.00,256.00" fill="#1A1D1E" opacity=".12" filter="url(#wf2mSoft)"/>
-<polygon points="221.00,270.00 239.00,270.00 263.00,256.00 245.00,256.00" fill="#1A1D1E" opacity=".12" filter="url(#wf2mSoft)"/>
-<polygon points="44.00,268.00 68.00,254.00 68.00,96.00 44.00,110.00" fill="url(#wf2mWhiteSide)" stroke="#C6BCA9" stroke-width="1.1"/>
-<polygon points="32.00,110.00 44.00,110.00 68.00,96.00 56.00,96.00" fill="url(#wf2mWhiteTop)" stroke="#BDB29C" stroke-width="1.1"/>
-<polygon points="32.00,268.00 44.00,268.00 44.00,110.00 32.00,110.00" fill="url(#wf2mWhite)" stroke="#B7AC96" stroke-width="1.2"/>
-<line x1="38.00" y1="262.00" x2="38.00" y2="118.00" stroke="#E1D9C8" stroke-width="1"/>
-<line x1="68.00" y1="98.00" x2="68.00" y2="251.00" stroke="#F6F1E6" stroke-width="1.2" opacity=".8"/>
-<polygon points="126.00,268.00 150.00,254.00 150.00,96.00 126.00,110.00" fill="#AF9269" stroke="#9C8058" stroke-width="1.1"/>
-<polygon points="86.00,110.00 126.00,110.00 150.00,96.00 110.00,96.00" fill="#D3B893" stroke="#B4976C" stroke-width="1.1"/>
-<polygon points="86.00,268.00 126.00,268.00 126.00,110.00 86.00,110.00" fill="#C6A783" stroke="#A0855D" stroke-width="1.2"/>
-<polygon points="89.50,261.00 122.50,261.00 122.50,119.00 89.50,119.00" fill="#9E825B" stroke="#8C7350" stroke-width=".8"/>
-<polygon points="89.50,187.50 104.50,187.50 104.50,119.00 89.50,119.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="89.50,187.50 104.50,187.50 104.50,119.00 89.50,119.00" fill="url(#wf2mSpeck)"/>
-<polygon points="89.50,261.00 104.50,261.00 104.50,192.50 89.50,192.50" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="89.50,261.00 104.50,261.00 104.50,192.50 89.50,192.50" fill="url(#wf2mSpeck)"/>
-<polygon points="107.50,187.50 122.50,187.50 122.50,119.00 107.50,119.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="107.50,187.50 122.50,187.50 122.50,119.00 107.50,119.00" fill="url(#wf2mSpeck)"/>
-<polygon points="107.50,261.00 122.50,261.00 122.50,192.50 107.50,192.50" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="107.50,261.00 122.50,261.00 122.50,192.50 107.50,192.50" fill="url(#wf2mSpeck)"/>
-<polygon points="92.40,108.80 104.40,108.80 124.08,97.32 112.08,97.32" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="92.40,108.80 104.40,108.80 124.08,97.32 112.08,97.32" fill="url(#wf2mSpeck)"/>
-<polygon points="107.60,108.80 119.60,108.80 139.28,97.32 127.28,97.32" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="107.60,108.80 119.60,108.80 139.28,97.32 127.28,97.32" fill="url(#wf2mSpeck)"/>
-<polygon points="128.50,182.00 147.50,168.00 147.50,110.00 128.50,124.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="128.50,182.00 147.50,168.00 147.50,110.00 128.50,124.00" fill="url(#wf2mSpeck)"/>
-<polygon points="128.50,258.00 147.50,244.00 147.50,176.00 128.50,190.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
-<polygon points="128.50,258.00 147.50,244.00 147.50,176.00 128.50,190.00" fill="url(#wf2mSpeck)"/>
-<polygon points="178.00,268.00 202.00,254.00 202.00,96.00 178.00,110.00" fill="#24836F" stroke="#1B6B5C" stroke-width="1"/>
-<polygon points="168.00,110.00 178.00,110.00 202.00,96.00 192.00,96.00" fill="#57B9A3" stroke="#2E9C86" stroke-width="1"/>
-<polygon points="168.00,268.00 178.00,268.00 178.00,110.00 168.00,110.00" fill="#2E9C86" stroke="#1F7A69" stroke-width="1.1"/>
-<line x1="173.00" y1="260.00" x2="173.00" y2="120.00" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="6 5" opacity=".85"/>
-<line class="wf2d-sealglow" x1="173.00" y1="260.00" x2="173.00" y2="120.00" stroke="#EAFFF8" stroke-width="7" opacity="0" stroke-linecap="round"/>
-<polygon points="238.00,268.00 262.00,254.00 262.00,96.00 238.00,110.00" fill="url(#wf2mBoardSide)" stroke="#C9B996" stroke-width="1.1"/>
-<polygon points="220.00,110.00 238.00,110.00 262.00,96.00 244.00,96.00" fill="url(#wf2mBoardTop)" stroke="#C9B996" stroke-width="1.1"/>
-<polygon points="220.00,268.00 238.00,268.00 238.00,110.00 220.00,110.00" fill="url(#wf2mBoard)" stroke="#C9B996" stroke-width="1.2"/>
-<line x1="223.00" y1="263.00" x2="223.00" y2="115.00" stroke="#B79C72" stroke-width="1.5"/>
-<line x1="228.50" y1="263.00" x2="228.50" y2="115.00" stroke="#B79C72" stroke-width="1.5"/>
-<line x1="234.00" y1="263.00" x2="234.00" y2="115.00" stroke="#B79C72" stroke-width="1.5"/>
-<line x1="223.00" y1="110.60" x2="243.64" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
-<line x1="225.97" y1="110.60" x2="246.61" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
-<line x1="228.94" y1="110.60" x2="249.58" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
-<line x1="231.91" y1="110.60" x2="252.55" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
-<line x1="234.88" y1="110.60" x2="255.52" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
-<line x1="32.50" y1="268.00" x2="44.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
-<line x1="44.50" y1="268.00" x2="68.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
-<line x1="86.50" y1="268.00" x2="126.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
-<line x1="126.50" y1="268.00" x2="150.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
-<line x1="168.50" y1="268.00" x2="178.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
-<line x1="178.50" y1="268.00" x2="202.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
-<line x1="220.50" y1="268.00" x2="238.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
-<line x1="238.50" y1="268.00" x2="262.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
-<line x1="50.00" y1="84" x2="50.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
-<circle cx="50.00" cy="95" r="2.1" fill="#1E3F35"/>
-<circle cx="50.00" cy="72.00" r="9.5" fill="#1E3F35"/>
-<text x="50.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
-<line x1="118.00" y1="84" x2="118.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
-<circle cx="118.00" cy="95" r="2.1" fill="#1E3F35"/>
-<circle cx="118.00" cy="72.00" r="9.5" fill="#1E3F35"/>
-<text x="118.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
-<line x1="185.00" y1="84" x2="185.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
-<circle cx="185.00" cy="95" r="2.1" fill="#1E3F35"/>
-<circle cx="185.00" cy="72.00" r="9.5" fill="#1E3F35"/>
-<text x="185.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
-<line x1="241.00" y1="84" x2="241.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
-<circle cx="241.00" cy="95" r="2.1" fill="#1E3F35"/>
-<circle cx="241.00" cy="72.00" r="9.5" fill="#1E3F35"/>
-<text x="241.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
-
-<g class="wf2-an" style="animation-delay:0.0s"><g opacity="0.95"><path d="M 8 203 a 7 7 0 0 1 0 14 M 8 197 a 13 13 0 0 1 0 26 M 8 191 a 19 19 0 0 1 0 38" fill="none" stroke="#1F7A69" stroke-width="2.4" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:0.9s"><g opacity="0.68"><path d="M 70 204.5 a 5.5 5.5 0 0 1 0 11.0 M 70 199 a 11 11 0 0 1 0 22" fill="none" stroke="#6DC4B0" stroke-width="2.1" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:1.5s"><g opacity="0.55"><path d="M 152 206 a 4 4 0 0 1 0 8 M 152 202 a 8 8 0 0 1 0 16" fill="none" stroke="#3EA98F" stroke-width="1.7" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:2.1s"><g opacity="0.45"><path d="M 204 206.8 a 3.2 3.2 0 0 1 0 6.4 M 204 203.6 a 6.4 6.4 0 0 1 0 12.8" fill="none" stroke="#3EA98F" stroke-width="1.5" stroke-linecap="round"/></g></g>
-<g class="wf2-an" style="animation-delay:2.7s"><g opacity="0.38"><path d="M 266 207.4 a 2.6 2.6 0 0 1 0 5.2 M 266 204.8 a 5.2 5.2 0 0 1 0 10.4" fill="none" stroke="#6DC4B0" stroke-width="1.3" stroke-linecap="round"/></g></g>
-<text x="6.00" y="34.00" font-size="11.5" font-weight="800" fill="#7B8389">외부 소리</text>
-<text x="6.00" y="48.00" font-size="9.5" font-weight="600" fill="#A7AEB3">벽을 통과</text>
-<text x="334.00" y="34.00" font-size="11.5" font-weight="800" fill="#1F7A69" text-anchor="end">조용한 실내</text>
-<text x="334.00" y="48.00" font-size="9.5" font-weight="600" fill="#7B8389" text-anchor="end">거의 들리지 않음</text>
+    <svg class="wf2-iso" viewBox="0 0 780 560" role="img" aria-label="바닥 위에 세워진 방음 벽체 단면. 세 겹이 하나로 맞물렸다가 펼쳐지며 1 외장 알판, 2 내부 방음 코어, 3 실내 아트보드 마감으로 나뉘고, 바깥 소리가 이 세 겹을 지나며 작아집니다.">
+<defs>
+<linearGradient id="wf2dWhite" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#FBF7EE"/><stop offset="1" stop-color="#E9DFCB"/></linearGradient>
+<linearGradient id="wf2dWhiteTop" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EFE9DD"/></linearGradient>
+<linearGradient id="wf2dWhiteSide" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FBF6EA"/><stop offset=".55" stop-color="#F3ECDC"/><stop offset="1" stop-color="#DED4BE"/></linearGradient>
+<linearGradient id="wf2dFrame" x1="0" y1="0" x2="1" y2=".15">
+<stop offset="0" stop-color="#D3B893"/><stop offset=".55" stop-color="#C6A783"/><stop offset="1" stop-color="#BC9C75"/></linearGradient>
+<linearGradient id="wf2dBoard" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#F7F0E1"/><stop offset="1" stop-color="#E3D4B6"/></linearGradient>
+<linearGradient id="wf2dBoardTop" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FBF5E9"/><stop offset="1" stop-color="#E6D9BF"/></linearGradient>
+<linearGradient id="wf2dBoardSide" x1="0" y1="0" x2=".2" y2="1">
+<stop offset="0" stop-color="#F7EFDF"/><stop offset="1" stop-color="#E0D0AF"/></linearGradient>
+<linearGradient id="wf2dFloor" x1="0" y1="0" x2=".3" y2="1">
+<stop offset="0" stop-color="#FDFAF4"/><stop offset="1" stop-color="#EFE6D5"/></linearGradient>
+<pattern id="wf2dSpeck" width="13" height="13" patternUnits="userSpaceOnUse">
+<rect width="13" height="13" fill="#F4F0E4"/>
+<circle cx="1.95" cy="2.6" r="1.36" fill="#E3CB46" opacity="0.68"/>
+<circle cx="6.5" cy="1.43" r="0.97" fill="#6FA8DC" opacity="0.62"/>
+<circle cx="10.66" cy="3.12" r="1.24" fill="#E59AB0" opacity="0.55"/>
+<circle cx="4.29" cy="5.85" r="1.3" fill="#B6CE68" opacity="0.62"/>
+<circle cx="8.58" cy="6.37" r="1.36" fill="#4A6FA5" opacity="0.42"/>
+<circle cx="11.7" cy="8.06" r="0.97" fill="#E3CB46" opacity="0.62"/>
+<circle cx="1.69" cy="9.36" r="1.24" fill="#8CA887" opacity="0.48"/>
+<circle cx="5.98" cy="9.88" r="1.04" fill="#FFFFFF" opacity="0.8"/>
+<circle cx="9.88" cy="11.31" r="1.24" fill="#6FA8DC" opacity="0.48"/>
+<circle cx="3.12" cy="12.22" r="0.91" fill="#E59AB0" opacity="0.48"/>
+</pattern>
+<filter id="wf2dSoft" x="-60%" y="-300%" width="220%" height="700%"><feGaussianBlur stdDeviation="4"/></filter>
+<filter id="wf2dShadow" x="-60%" y="-400%" width="220%" height="900%"><feGaussianBlur stdDeviation="7.2"/></filter>
+</defs>
+<g class="wf2-ly wf2-ly-1">
+<polygon points="204,514 310,473 320,485 212,526" fill="#1A1D1E" opacity=".15" filter="url(#wf2dShadow)"/>
+<polygon points="232,506 308,470 308,188 232,224" fill="url(#wf2dWhiteSide)" stroke="#D5CCBA" stroke-width="1.1" class="wf2-in"/>
+<polygon points="210,224 232,224 308,188 286,188" fill="url(#wf2dWhiteTop)" stroke="#C6BCA9" stroke-width="1.2"/>
+<polygon points="210,506 232,506 232,224 210,224" fill="url(#wf2dWhite)" stroke="#B7AC96" stroke-width="1.3"/>
+<line x1="212.2" y1="504" x2="212.2" y2="227" stroke="#FFFFFF" stroke-width="1.6" opacity=".8"/>
+<line x1="230.8" y1="505" x2="230.8" y2="226" stroke="#C6BCA9" stroke-width="0.9" opacity=".7"/>
+</g>
+<g class="wf2-ly wf2-ly-2">
+<polygon points="226,514 394,473 404,485 234,526" fill="#1A1D1E" opacity=".17" filter="url(#wf2dShadow)"/>
+<polygon points="316,506 392,470 392,188 316,224" fill="#AF9269" stroke="#9C8058" stroke-width="1.1" class="wf2-in"/>
+<polygon points="318,502 389,467 389,194 318,228" fill="#E9E2D2" class="wf2-in" opacity=".55"/>
+<polygon points="232,224 316,224 392,188 308,188" fill="#D3B893" stroke="#B4976C" stroke-width="1.2"/>
+<line x1="235" y1="223.4" x2="390" y2="187.4" stroke="#F3E3C9" stroke-width="1.1" opacity=".75"/>
+<polygon points="232,506 316,506 316,224 232,224" fill="url(#wf2dFrame)" stroke="#A0855D" stroke-width="1.3"/>
+<polygon points="239,499 309,499 309,231 239,231" fill="#9E825B" stroke="#8C7350" stroke-width="0.9"/>
+<polygon points="241.5,363.75 272.75,363.75 272.75,233.5 241.5,233.5" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="277.75,363.75 309,363.75 309,233.5 277.75,233.5" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="241.5,500.25 272.75,500.25 272.75,370 241.5,370" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="277.75,500.25 309,500.25 309,370 277.75,370" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<line x1="314.8" y1="503" x2="314.8" y2="227" stroke="#2E9C86" stroke-width="2.2" class="wf2-in" stroke-dasharray="7 5.6" stroke-linecap="round" opacity=".95"/>
+</g>
+<g class="wf2-ly wf2-ly-3">
+<polygon points="310,514 424,473 434,485 318,526" fill="#1A1D1E" opacity=".15" filter="url(#wf2dShadow)"/>
+<polygon points="346,506 422,470 422,188 346,224" fill="url(#wf2dBoardSide)" stroke="#C9B996" stroke-width="1.2"/>
+<line x1="356.64" y1="498.96" x2="356.64" y2="220.96" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<line x1="374.88" y1="490.32" x2="374.88" y2="212.32" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<line x1="393.12" y1="481.68" x2="393.12" y2="203.68" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<line x1="411.36" y1="473.04" x2="411.36" y2="195.04" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<polygon points="316,224 346,224 422,188 392,188" fill="url(#wf2dBoardTop)" stroke="#C9B996" stroke-width="1.2"/>
+<polygon points="316,506 346,506 346,224 316,224" fill="url(#wf2dBoard)" stroke="#C9B996" stroke-width="1.3"/>
+<line x1="324" y1="504" x2="324" y2="226" stroke="#C0A57C" stroke-width="1.3" opacity=".55"/>
+<line x1="334" y1="504" x2="334" y2="226" stroke="#C0A57C" stroke-width="1.3" opacity=".55"/>
+<line x1="340" y1="504" x2="340" y2="226" stroke="#C0A57C" stroke-width="1.3" opacity=".55"/>
+<line x1="316.8" y1="223.6" x2="421.2" y2="187.6" stroke="#FDF7EA" stroke-width="1.2" opacity=".85"/>
+</g>
+<g class="wf2-an"><g opacity=".95">
+<path d="M 96 366 a 24 24 0 0 1 0 48 M 96 350 a 40 40 0 0 1 0 80 M 96 334 a 56 56 0 0 1 0 112" fill="none" stroke="#1F7A69" stroke-width="2.8" stroke-linecap="round"/>
+</g></g>
+<g class="wf2-an" style="animation-delay:1.1s"><g opacity=".55">
+<path d="M 128 376 a 10 10 0 0 1 0 20 M 128 368 a 18 18 0 0 1 0 36" fill="none" stroke="#6DC4B0" stroke-width="2.1" stroke-linecap="round"/>
+</g></g>
+<g class="wf2-an" style="animation-delay:2.2s"><g opacity=".4">
+<path d="M 140 382 a 6 6 0 0 1 0 12" fill="none" stroke="#6DC4B0" stroke-width="1.8" stroke-linecap="round"/>
+</g></g>
+<g opacity=".35">
+<path d="M 508 386 a 8 8 0 0 1 0 16 M 508 376 a 18 18 0 0 1 0 36" fill="none" stroke="#8FC9B8" stroke-width="1.6" stroke-linecap="round"/>
+</g>
+<text x="104" y="310" font-size="11.5" font-weight="800" fill="#7B8389" text-anchor="middle">외부 소리</text>
+<text x="530" y="382" font-size="12.5" font-weight="800" fill="#1F7A69">조용한 실내</text>
+<text x="530" y="398.88" font-size="10.5" font-weight="600" fill="#7B8389">들어오는 소리 거의 없음</text>
+<g class="wf2-chip">
+<line x1="163" y1="180" x2="163" y2="236" stroke="#9AA39F" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="163" cy="236" r="3.6" fill="#1E3F35"/>
+<circle cx="163" cy="236" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
+</g>
+<g class="wf2-chip">
+<rect x="107" y="144" width="112" height="36" rx="9.36" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
+<rect x="107" y="152" width="3.2" height="20" rx="1.6" fill="#2E9C86"/>
+<circle cx="128" cy="162" r="8.6" fill="#1E3F35"/>
+<text x="128" y="165.88" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<text x="145.6" y="166.68" font-size="13" font-weight="800" fill="#1A1D1E">외장 알판</text>
+</g>
+<g class="wf2-chip">
+<line x1="274" y1="136" x2="274" y2="236" stroke="#9AA39F" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="274" cy="236" r="3.6" fill="#1E3F35"/>
+<circle cx="274" cy="236" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
+</g>
+<g class="wf2-chip">
+<rect x="198" y="100" width="152" height="36" rx="9.36" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
+<rect x="198" y="108" width="3.2" height="20" rx="1.6" fill="#2E9C86"/>
+<circle cx="219" cy="118" r="8.6" fill="#1E3F35"/>
+<text x="219" y="121.89" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<text x="236.6" y="122.68" font-size="13" font-weight="800" fill="#1A1D1E">내부 방음 코어</text>
+</g>
+<g class="wf2-chip">
+<line x1="389" y1="180" x2="389" y2="236" stroke="#9AA39F" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="389" cy="236" r="3.6" fill="#1E3F35"/>
+<circle cx="389" cy="236" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
+</g>
+<g class="wf2-chip">
+<rect x="300" y="144" width="178" height="36" rx="9.36" fill="#FFFFFF" stroke="#E5DFD4" stroke-width="1"/>
+<rect x="300" y="152" width="3.2" height="20" rx="1.6" fill="#2E9C86"/>
+<circle cx="321" cy="162" r="8.6" fill="#1E3F35"/>
+<text x="321" y="165.88" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<text x="338.6" y="166.68" font-size="13" font-weight="800" fill="#1A1D1E">실내 아트보드 마감</text>
+</g>
+<g class="wf2-chip">
+<line x1="278" y1="146" x2="278" y2="236" stroke="#9AA39F" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="278" cy="236" r="3.6" fill="#1E3F35"/>
+<circle cx="278" cy="236" r="7.2" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
+</g>
+<g class="wf2-asm">
+<rect x="174" y="100" width="208" height="46" rx="10" fill="#1E3F35"/>
+<text x="278" y="119.32" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle">완성된 방음 벽체</text>
+<text x="278" y="134.27" font-size="10.5" font-weight="600" fill="#B7D8CD" text-anchor="middle">세 겹이 빈틈없이 맞물린 한 장</text>
+</g>
+    </svg>
+    <svg class="wf2-stack" viewBox="0 0 360 334" role="img" aria-label="바닥 위에 세워진 방음 벽체 단면. 세 겹이 하나로 맞물렸다가 펼쳐지며 1 외장 알판, 2 내부 방음 코어, 3 실내 아트보드 마감으로 나뉘고, 바깥 소리가 이 세 겹을 지나며 작아집니다.">
+<defs>
+<linearGradient id="wf2mWhite" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#FBF7EE"/><stop offset="1" stop-color="#E9DFCB"/></linearGradient>
+<linearGradient id="wf2mWhiteTop" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EFE9DD"/></linearGradient>
+<linearGradient id="wf2mWhiteSide" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FBF6EA"/><stop offset=".55" stop-color="#F3ECDC"/><stop offset="1" stop-color="#DED4BE"/></linearGradient>
+<linearGradient id="wf2mFrame" x1="0" y1="0" x2="1" y2=".15">
+<stop offset="0" stop-color="#D3B893"/><stop offset=".55" stop-color="#C6A783"/><stop offset="1" stop-color="#BC9C75"/></linearGradient>
+<linearGradient id="wf2mBoard" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#F7F0E1"/><stop offset="1" stop-color="#E3D4B6"/></linearGradient>
+<linearGradient id="wf2mBoardTop" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FBF5E9"/><stop offset="1" stop-color="#E6D9BF"/></linearGradient>
+<linearGradient id="wf2mBoardSide" x1="0" y1="0" x2=".2" y2="1">
+<stop offset="0" stop-color="#F7EFDF"/><stop offset="1" stop-color="#E0D0AF"/></linearGradient>
+<linearGradient id="wf2mFloor" x1="0" y1="0" x2=".3" y2="1">
+<stop offset="0" stop-color="#FDFAF4"/><stop offset="1" stop-color="#EFE6D5"/></linearGradient>
+<pattern id="wf2mSpeck" width="9" height="9" patternUnits="userSpaceOnUse">
+<rect width="9" height="9" fill="#F4F0E4"/>
+<circle cx="1.35" cy="1.8" r="0.94" fill="#E3CB46" opacity="0.68"/>
+<circle cx="4.5" cy="0.99" r="0.67" fill="#6FA8DC" opacity="0.62"/>
+<circle cx="7.38" cy="2.16" r="0.85" fill="#E59AB0" opacity="0.55"/>
+<circle cx="2.97" cy="4.05" r="0.9" fill="#B6CE68" opacity="0.62"/>
+<circle cx="5.94" cy="4.41" r="0.94" fill="#4A6FA5" opacity="0.42"/>
+<circle cx="8.1" cy="5.58" r="0.67" fill="#E3CB46" opacity="0.62"/>
+<circle cx="1.17" cy="6.48" r="0.85" fill="#8CA887" opacity="0.48"/>
+<circle cx="4.14" cy="6.84" r="0.72" fill="#FFFFFF" opacity="0.8"/>
+<circle cx="6.84" cy="7.83" r="0.85" fill="#6FA8DC" opacity="0.48"/>
+<circle cx="2.16" cy="8.46" r="0.63" fill="#E59AB0" opacity="0.48"/>
+</pattern>
+<filter id="wf2mSoft" x="-60%" y="-300%" width="220%" height="700%"><feGaussianBlur stdDeviation="3"/></filter>
+<filter id="wf2mShadow" x="-60%" y="-400%" width="220%" height="900%"><feGaussianBlur stdDeviation="5.4"/></filter>
+</defs>
+<g class="wf2-ly wf2-ly-1">
+<polygon points="86,290 142,269 152,281 94,302" fill="#1A1D1E" opacity=".15" filter="url(#wf2mShadow)"/>
+<polygon points="106,282 140,266 140,98 106,114" fill="url(#wf2mWhiteSide)" stroke="#D5CCBA" stroke-width="1.1" class="wf2-in"/>
+<polygon points="92,114 106,114 140,98 126,98" fill="url(#wf2mWhiteTop)" stroke="#C6BCA9" stroke-width="1.2"/>
+<polygon points="92,282 106,282 106,114 92,114" fill="url(#wf2mWhite)" stroke="#B7AC96" stroke-width="1.3"/>
+<line x1="94.2" y1="280" x2="94.2" y2="117" stroke="#FFFFFF" stroke-width="1.6" opacity=".8"/>
+<line x1="104.8" y1="281" x2="104.8" y2="116" stroke="#C6BCA9" stroke-width="0.9" opacity=".7"/>
+</g>
+<g class="wf2-ly wf2-ly-2">
+<polygon points="100,290 192,269 202,281 108,302" fill="#1A1D1E" opacity=".17" filter="url(#wf2mShadow)"/>
+<polygon points="156,282 190,266 190,98 156,114" fill="#AF9269" stroke="#9C8058" stroke-width="1.1" class="wf2-in"/>
+<polygon points="158,278 187,263 187,104 158,118" fill="#E9E2D2" class="wf2-in" opacity=".55"/>
+<polygon points="106,114 156,114 190,98 140,98" fill="#D3B893" stroke="#B4976C" stroke-width="1.2"/>
+<line x1="109" y1="113.4" x2="188" y2="97.4" stroke="#F3E3C9" stroke-width="1.1" opacity=".75"/>
+<polygon points="106,282 156,282 156,114 106,114" fill="url(#wf2mFrame)" stroke="#A0855D" stroke-width="1.3"/>
+<polygon points="110,278 152,278 152,118 110,118" fill="#9E825B" stroke="#8C7350" stroke-width="0.9"/>
+<polygon points="111.75,197.12 130.12,197.12 130.12,119.75 111.75,119.75" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="133.62,197.12 152,197.12 152,119.75 133.62,119.75" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="111.75,278.88 130.12,278.88 130.12,201.5 111.75,201.5" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="133.62,278.88 152,278.88 152,201.5 133.62,201.5" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<line x1="154.8" y1="279" x2="154.8" y2="117" stroke="#2E9C86" stroke-width="2.2" class="wf2-in" stroke-dasharray="5 4" stroke-linecap="round" opacity=".95"/>
+</g>
+<g class="wf2-ly wf2-ly-3">
+<polygon points="150,290 212,269 222,281 158,302" fill="#1A1D1E" opacity=".15" filter="url(#wf2mShadow)"/>
+<polygon points="176,282 210,266 210,98 176,114" fill="url(#wf2mBoardSide)" stroke="#C9B996" stroke-width="1.2"/>
+<line x1="181.44" y1="277.44" x2="181.44" y2="113.44" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<line x1="190.28" y1="273.28" x2="190.28" y2="109.28" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<line x1="199.12" y1="269.12" x2="199.12" y2="105.12" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<line x1="207.28" y1="265.28" x2="207.28" y2="101.28" stroke="#C0A57C" stroke-width="1.5" opacity=".8"/>
+<polygon points="156,114 176,114 210,98 190,98" fill="url(#wf2mBoardTop)" stroke="#C9B996" stroke-width="1.2"/>
+<polygon points="156,282 176,282 176,114 156,114" fill="url(#wf2mBoard)" stroke="#C9B996" stroke-width="1.3"/>
+<line x1="161" y1="280" x2="161" y2="116" stroke="#C0A57C" stroke-width="1.3" opacity=".55"/>
+<line x1="168" y1="280" x2="168" y2="116" stroke="#C0A57C" stroke-width="1.3" opacity=".55"/>
+<line x1="172" y1="280" x2="172" y2="116" stroke="#C0A57C" stroke-width="1.3" opacity=".55"/>
+<line x1="156.8" y1="113.6" x2="209.2" y2="97.6" stroke="#FDF7EA" stroke-width="1.2" opacity=".85"/>
+</g>
+<g class="wf2-an"><g opacity=".95">
+<path d="M 34 216 a 12 12 0 0 1 0 24 M 34 206 a 22 22 0 0 1 0 44 M 34 196 a 32 32 0 0 1 0 64" fill="none" stroke="#1F7A69" stroke-width="2.0" stroke-linecap="round"/>
+</g></g>
+<g class="wf2-an" style="animation-delay:1.1s"><g opacity=".55">
+<path d="M 50 221 a 6 6 0 0 1 0 12 M 50 216 a 11 11 0 0 1 0 22" fill="none" stroke="#6DC4B0" stroke-width="1.6" stroke-linecap="round"/>
+</g></g>
+<g class="wf2-an" style="animation-delay:2.2s"><g opacity=".4">
+<path d="M 62 225 a 4 4 0 0 1 0 8" fill="none" stroke="#6DC4B0" stroke-width="1.4" stroke-linecap="round"/>
+</g></g>
+<g opacity=".35">
+<path d="M 252 222 a 5 5 0 0 1 0 10 M 252 216 a 11 11 0 0 1 0 22" fill="none" stroke="#8FC9B8" stroke-width="1.3" stroke-linecap="round"/>
+</g>
+<text x="46" y="166" font-size="10" font-weight="800" fill="#7B8389" text-anchor="middle">외부 소리</text>
+<text x="268" y="218" font-size="10.5" font-weight="800" fill="#1F7A69">조용한 실내</text>
+<text x="268" y="232.18" font-size="9" font-weight="600" fill="#7B8389">들어오는 소리 거의 없음</text>
+<g class="wf2-chip">
+<line x1="140" y1="96" x2="140" y2="150" stroke="#9AA39F" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="140" cy="150" r="3" fill="#1E3F35"/>
+<circle cx="140" cy="150" r="6" fill="none" stroke="#1E3F35" stroke-width="1" opacity=".22"/>
+</g>
+<g class="wf2-asm">
+<rect x="72" y="60" width="136" height="34" rx="10" fill="#1E3F35"/>
+<text x="140" y="74.28" font-size="10.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">완성된 방음 벽체</text>
+<text x="140" y="86.36" font-size="8.5" font-weight="600" fill="#B7D8CD" text-anchor="middle">세 겹이 맞물린 한 장</text>
+</g>
+<g class="wf2-chip">
+<line x1="99" y1="76" x2="99" y2="110" stroke="#B4ABA0" stroke-width="1.0" stroke-linecap="round"/>
+<circle cx="99" cy="68" r="7.4" fill="#1E3F35"/>
+<text x="99" y="71.33" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+</g>
+<g class="wf2-chip">
+<line x1="131" y1="54" x2="131" y2="110" stroke="#B4ABA0" stroke-width="1.0" stroke-linecap="round"/>
+<circle cx="131" cy="46" r="7.4" fill="#1E3F35"/>
+<text x="131" y="49.33" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+</g>
+<g class="wf2-chip">
+<line x1="176" y1="76" x2="176" y2="110" stroke="#B4ABA0" stroke-width="1.0" stroke-linecap="round"/>
+<circle cx="176" cy="68" r="7.4" fill="#1E3F35"/>
+<text x="176" y="71.33" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+</g>
     </svg>
   </div>
-  <div class="wf2-legend">
-    <div class="wf2-lg"><span class="n">1</span><div><b>외부 백색 알판</b><em>밖을 마감하는 화이트 패널</em></div></div>
-    <div class="wf2-lg"><span class="n">2</span><div><b>PB 프레임 · 2중 흡음</b><em>틀 안을 고밀도 흡음으로 두 겹</em></div></div>
-    <div class="wf2-lg"><span class="n">3</span><div><b>벽체 간 실링</b><em>맞닿는 이음새를 기밀 처리</em></div></div>
-    <div class="wf2-lg"><span class="n">4</span><div><b>내부 라인타공 · 아트보드</b><em>1면 타공 · 3면 아트보드</em></div></div>
+  <div class="wf2-bar">
+    <button type="button" class="wf2-toggle" aria-pressed="false">
+      <span class="ic" aria-hidden="true"><i></i><i></i><i></i></span><span class="wf2-toggle-txt">구조 펼쳐보기</span>
+    </button>
   </div>
-  <figcaption class="wf2-cap">기본 벽체 단면 — <b>마감 · 흡음 · 실링</b>이 한 겹씩 소리를 줄입니다.</figcaption>
+  <div class="wf2-legend">
+    <div class="wf2-lg"><span class="n">1</span><div><b>외장 알판</b><em>밖을 마감하는 화이트 패널</em></div></div>
+    <div class="wf2-lg"><span class="n">2</span><div><b>내부 방음 코어</b><em>뼈대 안을 흡음으로 채우고 이음새는 기밀 처리</em></div></div>
+    <div class="wf2-lg"><span class="n">3</span><div><b>실내 아트보드 마감</b><em>실내 쪽 마감 · 라인타공 1면</em></div></div>
+  </div>
+  <figcaption class="wf2-cap">기본 벽체 — <b>외장 · 코어 · 마감</b> 세 겹이 한 장으로 맞물립니다.</figcaption>
 </figure>
         </div>
 
@@ -2396,7 +2398,7 @@
         <div class="sec-head rv">
           <span class="eyebrow">Used &amp; Consignment</span>
           <h2>중고 방음부스,<br>옮기는 일까지 함께 넘깁니다</h2>
-          <p>개인 간 거래에서 가장 자주 멈추는 곳은 가격이 아니라 해체·운반·재설치입니다. 11년간 타사 부스를 옮겨온 베오방음이 매물 연결과 이전설치를 한 번에 맡습니다.</p>
+          <p>개인 간 거래에서 가장 자주 멈추는 곳은 가격이 아니라 해체·운반·재설치입니다. 수많은 타사 부스를 옮겨온 베오방음이 매물 연결과 이전설치를 한 번에 맡습니다.</p>
         </div>
 
         <!-- ===== 중고 매물 마켓 (Supabase 연동) ===== -->
@@ -2534,7 +2536,7 @@
 
         <div class="opt-grid three rv" style="margin-top:clamp(28px,3.6vw,40px)">
           <div class="opt">
-            <b>① 타사 포함 11년 해체·재조립</b>
+            <b>① 타사 포함 직영 해체·재조립</b>
             <span>드림디자인·조용한청년들·탐소리큐브·뮤트홈·도피오 등 여러 브랜드의 부스를 해체하고 다시 세워 왔습니다. 구조를 모르는 부스도 순서대로 풀어 옮깁니다.</span>
           </div>
           <div class="opt">
@@ -3749,5 +3751,62 @@
     .rv{opacity:1 !important;transform:none !important}
   </style>
 </noscript>
+<script>
+/* 벽체 단면 — 합체 ↔ 분해 자동 루프 + 수동 전환 */
+(function(){
+  "use strict";
+  var figs = document.querySelectorAll(".wf2-fig");
+  if (!figs.length) return;
+  var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  Array.prototype.forEach.call(figs, function(fig){
+    var btn  = fig.querySelector(".wf2-toggle");
+    var txt  = fig.querySelector(".wf2-toggle-txt");
+    var open = false, manual = false, timer = null, onScreen = false, started = false;
+
+    function paint(v){
+      open = !!v;
+      if (open) fig.classList.add("is-open"); else fig.classList.remove("is-open");
+      if (btn) btn.setAttribute("aria-pressed", open ? "true" : "false");
+      if (txt) txt.textContent = open ? "합체 보기" : "구조 펼쳐보기";
+    }
+    function schedule(ms){
+      clearTimeout(timer);
+      timer = setTimeout(step, ms);
+    }
+    function step(){
+      timer = null;
+      if (manual || reduce || !onScreen) return;
+      paint(!open);
+      schedule(open ? 5800 : 3600);
+    }
+    function kick(){
+      if (manual || reduce || !onScreen || timer) return;
+      if (!started){ started = true; schedule(2200); }
+      else schedule(open ? 5800 : 3600);
+    }
+
+    if (btn){
+      btn.addEventListener("click", function(){
+        manual = true;
+        clearTimeout(timer); timer = null;
+        paint(!open);
+      });
+    }
+
+    if ("IntersectionObserver" in window){
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          onScreen = e.isIntersecting;
+          if (onScreen) kick();
+          else { clearTimeout(timer); timer = null; }
+        });
+      }, {threshold: 0.3}).observe(fig);
+    } else {
+      onScreen = true; kick();
+    }
+  });
+})();
+</script>
 </body>
 </html>
