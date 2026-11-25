@@ -3,6 +3,7 @@ Allow: /
 Disallow: /admin.html
 Disallow: /relocation-admin.html
 Disallow: /blueprint.html
+Disallow: /smartstore-preview.html
 
 # 네이버 서치어드바이저(Yeti) · 구글(Googlebot) 모두 전체 수집 허용 (관리자·도면 화면은 제외)
 User-agent: Yeti
@@ -10,11 +11,13 @@ Allow: /
 Disallow: /admin.html
 Disallow: /relocation-admin.html
 Disallow: /blueprint.html
+Disallow: /smartstore-preview.html
 
 User-agent: Googlebot
 Allow: /
 Disallow: /admin.html
 Disallow: /relocation-admin.html
 Disallow: /blueprint.html
+Disallow: /smartstore-preview.html
 
 Sitemap: https://beosoundproof.com/sitemap.xml

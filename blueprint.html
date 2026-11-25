@@ -169,16 +169,37 @@
     font-size:12.5px;font-weight:700;padding:11px 20px;border-radius:99px;opacity:0;pointer-events:none;
     transition:.22s;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.28);white-space:nowrap}
   .toast.on{opacity:1;transform:translate(-50%,0)}
+  /* ---------- 방 배치 참고도 · 현장 타공 가이드 ---------- */
+  .fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .fg{background:var(--accent-t);border:1px solid #C9E2DA;border-radius:10px;padding:7px 9px 8px}
+  .fg span{display:block;font-size:10px;font-weight:800;color:#1F7A69;letter-spacing:.02em;line-height:1.3}
+  .fg b{display:block;margin-top:1px;font-size:17px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#14171A;line-height:1.18}
+  .fg i{font-style:normal;font-size:10px;color:#5C666D;font-weight:600}
+  .fg.wide{grid-column:1 / -1}
+  .fit{margin:9px 0 0;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:700;line-height:1.5;letter-spacing:-.01em}
+  .fit.ok{background:#EFF7F5;color:#1B7A5F;border:1px solid #BFDDD5}
+  .fit.no{background:#FDF3EC;color:#9A4E1E;border:1px solid #EFD3BC}
+  .fit b{font-weight:800}
+  .fit button{display:block;margin-top:7px;width:100%;padding:7px;border:1px solid #C99B70;background:#fff;color:#8A4517;border-radius:7px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+  .fit button:hover{background:#FBEEE4}
+  .room-adv{margin:8px 0 0;font-size:11.5px;color:#6C757C;line-height:1.6}
+  .room-adv b{color:#2E353B}
+  .room-adv .no{color:var(--warn);font-weight:700}
+  .room-adv .ok{color:#1B7A5F;font-weight:700}
+
   /* ---------- print ---------- */
-  @page{size:A4 portrait;margin:0}
+  @page{size:A4 portrait;margin:8mm}
   @media print{
-    body{background:#fff}
+    html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .topbar,.panel,.foot,.sheet-bar,.bnb-card,.toast{display:none !important}
     .layout{display:block;padding:0;gap:0;max-width:none}
     .sheets{display:block}
-    .sheet-wrap{box-shadow:none;border-radius:0;margin:0;overflow:visible;break-after:page;page-break-after:always}
+    .sheet-wrap{box-shadow:none;border-radius:0;margin:0;overflow:visible;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
     .sheet-wrap:last-child{break-after:auto;page-break-after:auto}
-    .sheet svg{width:210mm;height:297mm}
+    /* A4 8mm 여백 안에 도면 한 장이 잘림 없이 들어가도록 폭 기준으로 맞춘다 */
+    .sheet{overflow:visible !important}
+    .sheet svg{display:block;width:194mm;height:auto;max-width:100%;min-width:0 !important;text-rendering:geometricPrecision}
+    .sheet svg text{stroke:#fff;stroke-width:.12px;paint-order:stroke fill;-webkit-text-stroke:.16px currentColor}
   }
 
   /* ---------- 관리자 키 인증 게이트 ---------- */
@@ -303,6 +324,59 @@
     </section>
 
     <section class="card">
+      <h2>방 배치 참고도 <span style="font-size:10px;font-weight:700;color:#9AA4AC">선택</span></h2>
+      <label class="switch" for="roomOn">방 치수 들었으면 켜기
+        <input type="checkbox" id="roomOn">
+      </label>
+      <div id="roomFields" style="display:none;margin-top:13px">
+        <div class="row2">
+          <div class="field"><label for="roomW">방 가로 <span class="hint">mm</span></label><input type="number" id="roomW" value="3000" min="800" max="12000" step="10"></div>
+          <div class="field"><label for="roomD">방 세로 <span class="hint">mm</span></label><input type="number" id="roomD" value="3500" min="800" max="12000" step="10"></div>
+        </div>
+        <div class="field"><label>방문 있는 벽</label>
+          <div class="seg" id="roomDoorWall">
+            <button type="button" data-v="top" aria-pressed="false">상</button>
+            <button type="button" data-v="bottom" aria-pressed="true">하</button>
+            <button type="button" data-v="left" aria-pressed="false">좌</button>
+            <button type="button" data-v="right" aria-pressed="false">우</button>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>방문 위치</label>
+            <div class="seg" id="roomDoorPos">
+              <button type="button" data-v="left" aria-pressed="false">좌</button>
+              <button type="button" data-v="center" aria-pressed="true">가운데</button>
+              <button type="button" data-v="right" aria-pressed="false">우</button>
+            </div>
+          </div>
+          <div class="field"><label for="roomDoorW">방문 폭 <span class="hint">mm</span></label><input type="number" id="roomDoorW" value="900" min="600" max="2000" step="10"></div>
+        </div>
+        <div class="field"><label>부스 문 방향 <span class="hint">부스 문이 향하는 쪽</span></label>
+          <div class="seg" id="boothDir">
+            <button type="button" data-v="down" aria-pressed="true">아래</button>
+            <button type="button" data-v="up" aria-pressed="false">위</button>
+            <button type="button" data-v="left" aria-pressed="false">좌</button>
+            <button type="button" data-v="right" aria-pressed="false">우</button>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="boothClear">벽 이격 <span class="hint">mm</span></label><input type="number" id="boothClear" value="100" min="0" max="2000" step="10"></div>
+          <div class="field"><label for="boothAnchor">붙이는 벽</label>
+            <select id="boothAnchor">
+              <option value="center">가운데 (안 붙임)</option>
+              <option value="top" selected>위벽</option>
+              <option value="bottom">아래벽</option>
+              <option value="left">좌벽</option>
+              <option value="right">우벽</option>
+            </select>
+          </div>
+        </div>
+        <div class="room-adv" id="roomAdv"></div>
+        <p class="note-small">부스 자체 도면(문=아래변 고정)은 그대로 두고, <b>A-106 방 배치 참고도</b>에 방 테두리·방문·부스 문 방향을 함께 그립니다. 고객용 페이지는 건드리지 않습니다.</p>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>시창</h2>
       <div class="field"><label>시창 규격 <span class="hint">한 번 눌러 적용</span></label>
         <div class="seg" id="winSpec">
@@ -393,7 +467,14 @@
         </select>
       </div>
       <p class="note-small" id="cobNote">—</p>
+      <div id="cobFit"></div>
       <p class="note-small">COB 매립등 <b>2구</b>(Ø55 · 2인치)는 항상 <b>라인타공 면 상단 천장</b>에 두고, <b>벽 안쪽면에서 200㎜(20cm)</b> 띄운 뒤 그 면의 <b>내부 유효 길이 1/3 · 2/3</b> 지점에 놓습니다. <b>레일등</b>은 같은 면에서 <b>벽 안쪽면 400㎜(40cm)</b> 이격해 내부 길이 가운데에 걸고, 길이는 내부 <b>2100 미만 → 1m · 2100~2699 → 1.5m · 2700 이상 → 2m</b>로 자동 추천합니다. <b>천장 정중앙</b>에는 두 방식 모두 <b>중앙등 1구</b>를 표시하고, 발주표는 라인타공 면을 빼고 <b>나머지 3면 + 천장</b>만 산출합니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>현장 타공 가이드 <span style="font-size:10px;font-weight:700;color:#1F7A69">부스 맨 끝 기준</span></h2>
+      <div class="fg-grid" id="fieldGuide"></div>
+      <p class="note-small" style="margin-top:9px">줄자를 부스 <b>바깥 맨 끝</b>에 걸고 재는 값입니다 — 외벽 <b>110</b>이 이미 들어가 있습니다. 같은 값이 <b>A-105 도면</b>에 크게 실립니다.</p>
     </section>
 
     <section class="card">
@@ -785,6 +866,150 @@ function buildModel(inp){
   /* 600 열마다 [2000 | 나머지] ↔ [나머지 | 2000] 로 순서를 바꿔 이음선이 일자로 겹치지 않게 한다 */
   const ceilPieces = cWidths.map((w)=>({w, l:cLen, lens:[...ceilLens]}));
 
+  /* --- 천장 결 방향 · COB 2구 한 판 수용 판정 ----------------------------
+     현장 노하우: 매립등 두 개는 한 천장판에 들어가는 게 낫다 — 판 하나 잡고
+     치수 점 찍고 타공을 한 번에 하기 때문. 결(판 길이)이 라인타공 면과
+     나란하면 타공 줄(부스 맨 끝에서 310)이 첫 600판 안에 들어가 2구를 한 판에
+     뚫을 수 있고, 수직이면 2구가 서로 다른 600판에 걸린다.
+     실제 판 분할선(600 폭 · 15T 띠 · 2000 초과 반씩 대칭 분할)과 타공 중심이
+     겹치는지 좌표로 계산해 판정한다 — 판정만 하고 도면 산출은 건드리지 않는다. */
+  const ceilAxis = ceilAlongLong ? (W >= D ? 'x' : 'y') : (W < D ? 'x' : 'y');
+  const faceAxis  = (lineFace==='front' || lineFace==='back') ? 'x' : 'y';
+  const grainParallel = (ceilAxis === faceAxis);
+  const holeR = Math.max(0, cobDia/2) + 12;                 // 타공 반지름 + 시공 여유
+  const perpFromWall = CFG.FIN + cobInset;                  // 타공면 벽 맨 끝 → 타공 줄 (310)
+  const alongHole1 = CFG.FIN + Math.round(cobPos[0]);       // 면 왼·위 맨 끝 → 1구 (703)
+  const alongHole2 = CFG.FIN + Math.round(cobPos[1]);       // 면 왼·위 맨 끝 → 2구 (1,297)
+  /* 타공 줄의 '결 폭 방향' 좌표 — 뒤(또는 왼) 바깥 맨 끝을 0으로 잡는다 */
+  const spanAxisOf = (ceilAxis === 'x') ? 'y' : 'x';
+  const perpCoord = (() => {
+    if(spanAxisOf === 'y') return (lineFace === 'back') ? perpFromWall : D - perpFromWall;
+    return (lineFace === 'left') ? perpFromWall : W - perpFromWall;
+  })();
+  /* 결 방향 이음매 — 천장 길이 분할(2000 초과 반씩 대칭) 좌표 */
+  const lenJoints = [];
+  { let a = 0; for(let i=0;i<ceilLens.length-1;i++){ a += ceilLens[i]; lenJoints.push(Math.round(a)); } }
+  /* 결 폭 방향 이음매 — 600 판 끝 + 15T 띠 (뒤·왼 끝을 0으로) */
+  const spanJoints = [];
+  { let a = 0; for(let i=0;i<cWidths.length;i++){ a += cWidths[i]; if(i < cWidths.length-1){ spanJoints.push(Math.round(a), Math.round(a+JOINT)); } } }
+  const lengthRanges = (()=>{ const out=[]; let a=0; ceilLens.forEach(l=>{ out.push({a, b:a+l}); a += l; }); return out; })();
+  const spanRanges   = (()=>{ const out=[]; let a=0; cWidths.forEach(w=>{ out.push({a, b:a+w}); a += w + JOINT; }); return out; })();
+  const nearJoint = (p, js) => js.find(j => Math.abs(p - j) <= holeR) || null;
+  const cobFit = (() => {
+    if(lightMode === 'rail') return null;
+    const panelOf = (along, perp) => {
+      const g = grainParallel ? along : perp;            // 결 방향 좌표
+      const c = grainParallel ? perp  : along;           // 결 폭 방향 좌표
+      const li = lengthRanges.findIndex(r => g >= r.a - 0.5 && g <= r.b + 0.5);
+      const si = spanRanges.findIndex(r => c >= r.a - 0.5 && c <= r.b + 0.5);
+      return {li, si, key: li+':'+si};
+    };
+    const p1 = panelOf(alongHole1, perpCoord);
+    const p2 = panelOf(alongHole2, perpCoord);
+    const samePanel = p1.key === p2.key && p1.li >= 0 && p1.si >= 0;
+    /* 이음매와 타공 중심이 겹치는지 — 결 방향 이음매 / 결 폭 방향 이음매 */
+    const hitLen  = (grainParallel ? [alongHole1, alongHole2] : [perpCoord]).map(p=>nearJoint(p, lenJoints)).filter(Boolean);
+    const hitSpan = (grainParallel ? [perpCoord] : [alongHole1, alongHole2]).map(p=>nearJoint(p, spanJoints)).filter(Boolean);
+    const ok = samePanel && !hitLen.length && !hitSpan.length;
+    /* 결 방향을 타공 면과 나란히 만드는 천장 결 설정 */
+    const wantCeilDir = (() => {
+      if(faceAxis === 'x') return (W >= D) ? 'long' : 'short';
+      return (D >= W) ? 'long' : 'short';
+    })();
+    const curDirVal = ceilAlongLong ? 'long' : 'short';
+    const square = (W === D);
+    const strip = spanRanges[p1.si] || {a:0,b:0};
+    const piece = lengthRanges[p1.li] || {a:0,b:0};
+    return {
+      parallel: grainParallel, ok, samePanel, hitLen, hitSpan, square,
+      grainTxt: (ceilAxis==='x' ? '가로' : '세로') + ' 결',
+      faceTxt: sideName[lineFace] + ' (' + (faceAxis==='x'?'가로':'세로') + ' 면)',
+      wantCeilDir, curDirVal, canFix: (wantCeilDir !== curDirVal) && !square,
+      stripA: Math.round(strip.a), stripB: Math.round(strip.b),
+      pieceA: Math.round(piece.a), pieceB: Math.round(piece.b),
+      perpFromWall, alongHole1, alongHole2, perpCoord
+    };
+  })();
+
+  /* --- 현장 타공 가이드 — 부스 바깥 맨 끝(외벽 110 포함) 기준 ---------------- */
+  const faceOuterLen = (faceAxis === 'x') ? W : D;
+  const field = (() => {
+    const depth = CFG.FIN + cobInset;                         // 310
+    const pos1 = CFG.FIN + Math.round(cobPos[0]);             // 703
+    const pos2 = CFG.FIN + Math.round(cobPos[1]);             // 1,297
+    const railDepth = CFG.FIN + railInset;                    // 510
+    const railStart = CFG.FIN + railGap;
+    const railEnd = CFG.FIN + railGap + railLen;
+    return {
+      faceOuterLen, depth, pos1, pos2,
+      far1: faceOuterLen - pos2, far2: faceOuterLen - pos1,
+      seg1: pos1, seg2: pos2 - pos1, seg3: faceOuterLen - pos2,
+      railDepth, railStart, railEnd, railLen,
+      centerAlong: Math.round(faceOuterLen/2),
+      centerPerp: Math.round(((faceAxis === 'x') ? D : W)/2),
+      wallBand: CFG.FIN
+    };
+  })();
+
+  /* --- 방 배치 참고도 (선택) ----------------------------------------------
+     방 치수 정보를 들었을 때만 켠다. 부스 자체 도면(문=항상 아래변 고정)은
+     손대지 않고, 별도 참고도(A-106)에 방 테두리·방문·부스(문 방향 화살표)와
+     벽 이격을 함께 그려 현장 혼선을 줄인다.                                */
+  const clampR = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(v)));
+  const room = (() => {
+    const on = !!inp.roomOn;
+    const RW = clampR(+inp.roomW || 3000, 800, 12000);
+    const RD = clampR(+inp.roomD || 3500, 800, 12000);
+    const doorWall = ['top','bottom','left','right'].indexOf(inp.roomDoorWall)>=0 ? inp.roomDoorWall : 'bottom';
+    const doorPos  = ['left','center','right'].indexOf(inp.roomDoorPos)>=0 ? inp.roomDoorPos : 'center';
+    const rDoorW   = clampR(+inp.roomDoorW || 900, 500, 3000);
+    const dir      = ['down','up','left','right'].indexOf(inp.boothDir)>=0 ? inp.boothDir : 'down';
+    const clear    = clampR((inp.boothClear === 0 ? 0 : (+inp.boothClear || 0)), 0, 3000);
+    const anchor   = ['center','top','bottom','left','right'].indexOf(inp.boothAnchor)>=0 ? inp.boothAnchor : 'center';
+    const rot = (dir === 'left' || dir === 'right');
+    const bw = rot ? D : W, bh = rot ? W : D;
+    let bx, by;
+    if(anchor === 'top'){ bx = (RW-bw)/2; by = clear; }
+    else if(anchor === 'bottom'){ bx = (RW-bw)/2; by = RD-clear-bh; }
+    else if(anchor === 'left'){ bx = clear; by = (RD-bh)/2; }
+    else if(anchor === 'right'){ bx = RW-clear-bw; by = (RD-bh)/2; }
+    else { bx = (RW-bw)/2; by = (RD-bh)/2; }
+    bx = Math.round(bx); by = Math.round(by);
+    /* 부스 로컬 좌표(문 = 아래변 v=D) → 방 좌표. 90° 단위 회전만 쓴다 */
+    const EX = {down:[1,0], up:[-1,0], left:[0,1], right:[0,-1]}[dir];
+    const EY = {down:[0,1], up:[0,-1], left:[-1,0], right:[1,0]}[dir];
+    const O  = {down:[bx,by], up:[bx+bw,by+bh], left:[bx+bw,by], right:[bx,by+bh]}[dir];
+    const P = (u,v) => [O[0] + EX[0]*u + EY[0]*v, O[1] + EX[1]*u + EY[1]*v];
+    const gap = { left: bx, top: by, right: RW-(bx+bw), bottom: RD-(by+bh) };
+    /* 부스 문 개구부 — 로컬 아래변 */
+    const dal = usedAlign || doorAlign;
+    const du0 = dal === 'right' ? W-dw : (dal === 'center' ? (W-dw)/2 : 0);
+    const doorSeg = [P(du0, D), P(du0+dw, D)];
+    const doorGap = dir==='down' ? gap.bottom : dir==='up' ? gap.top : dir==='left' ? gap.left : gap.right;
+    /* 면별 바깥 방향 (방 기준) */
+    const faceNormal = f => f==='front' ? EY
+      : f==='back' ? [-EY[0], -EY[1]]
+      : f==='left' ? [-EX[0], -EX[1]] : EX;
+    const dirName = v => (v[0]===0 && v[1]>0) ? '아래쪽' : (v[0]===0 && v[1]<0) ? '위쪽' : (v[0]>0 ? '오른쪽' : '왼쪽');
+    /* 방문 — 벽 구간과 개구부 위치 */
+    const wallLen = (doorWall==='top' || doorWall==='bottom') ? RW : RD;
+    const rd0 = doorPos==='left' ? 0 : (doorPos==='right' ? wallLen-rDoorW : (wallLen-rDoorW)/2);
+    const fits = (RW >= bw) && (RD >= bh) && gap.left >= 0 && gap.right >= 0 && gap.top >= 0 && gap.bottom >= 0;
+    const warns = [];
+    if(!fits) warns.push('부스 외경 '+bw+' × '+bh+' 이(가) 방 '+RW+' × '+RD+' 에 들어가지 않습니다');
+    if(fits && doorGap < dw + 60) warns.push('부스 문 앞 여유 '+doorGap+' ㎜ — 문 폭 '+dw+' 가 열리지 않습니다 (방향·붙이는 벽 조정)');
+    const lineToward = dirName(faceNormal(lineFace));
+    const winToward  = winCount ? dirName(faceNormal(winSideKey)) : null;
+    return {
+      on, W:RW, D:RD, doorWall, doorPos, doorW:rDoorW, dir, clear, anchor,
+      bw, bh, bx, by, gap, fits, warns,
+      P, doorSeg, doorGap, wallLen, rd0,
+      lineToward, winToward,
+      dirName: {down:'아래(기본)', up:'위', left:'좌', right:'우'}[dir],
+      gapTxt: '좌 '+gap.left+' · 우 '+gap.right+' · 위 '+gap.top+' · 아래 '+gap.bottom
+    };
+  })();
+
   /* --- 외벽 알판 ---------------------------------------------- */
   const extRows = [];
   sides.forEach(s=>{
@@ -974,7 +1199,8 @@ function buildModel(inp){
     perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
     lineFace, lineLen, cobDia, cobInset, cobGap, cobPos, cobSegs,
     lightMode, railAuto, railKind, railLen, railInset, railGap, railGapB, railTight, railClamp,
-    extRows
+    extRows, field, cobFit, ceilAxis, faceAxis, grainParallel, lenJoints, spanJoints, lengthRanges, spanRanges,
+    room
   };
 }
 
@@ -1135,7 +1361,7 @@ function sheetHead(no,title,sub){
          L(M+6,M+64,SW-M-6,M+64,{stroke:INK,sw:1.4});
 }
 function pageNo(no,i,total){
-  return T(SW-M-8, M+30, 'SHEET '+i+' / '+total, {size:6.4,fill:SOFT,anchor:'end',ls:'0.08em'});
+  return T(SW-M-8, M+30, 'SHEET '+i+' / '+(total||PAGE_TOTAL), {size:6.4,fill:SOFT,anchor:'end',ls:'0.08em'});
 }
 
 /* =====================================================================
@@ -1183,7 +1409,7 @@ function layoutPieces(sd){
 
 function sheetPlan(m){
   let s = sheetHead('A-101','벽체 평면도','PLAN · 외경 '+m.W+' × '+m.D+' · 벽체 110㎜ 액자틀(15T 원판 + 95T 날개) · 등급 '+m.gradeName+'('+m.gradeSub+') · 문 외부 열림('+hingeName(m.doorHinge)+') · 좌·우 벽 전길이');
-  s += pageNo('A-101',1,4);
+  s += pageNo('A-101',1,PAGE_TOTAL);
 
   /* 도면 영역 — 문이 있는 면은 바깥 여닫이 호(반지름 = 문 폭)만큼 자리를 비우고 축척을 역산 */
   const boxX0 = M+18, boxX1 = SW-M-10;
@@ -1955,7 +2181,7 @@ function cobCeilPanel(m, x, y, w, h){
 
 function sheetFloorCeil(m){
   let s = sheetHead('A-102','바닥 2겹 · 천장 마블폼 45T 2겹 분할도','FLOOR 60T+15T×2 & CEILING 45T×2 · 천장 2000 초과 '+ceilSplitName+' 분할 · 바닥 '+splitModeName(m.lenSplit)+' · '+(m.lightMode==='rail'? '레일등':'COB 매립등 2구')+' + 중앙등 위치');
-  s += pageNo('A-102',2,4);
+  s += pageNo('A-102',2,PAGE_TOTAL);
   const boxW = (SW-2*M-30)/2;
   const xL = M+8, xR = M+8+boxW+14;
 
@@ -2039,12 +2265,12 @@ function sheetFloorCeil(m){
   if(m.lightMode === 'rail'){
     const rs = CFG.FIN + Math.round(m.railInset), rd = CFG.FIN + Math.round(m.railGap);
     s += T(gbX+8, gbY+13, '레일등 가이드 — 천장 바깥 끝 기준 (줄자로 바로 점찍기)', {size:6.2, weight:800, fill:'#1F7A69', ls:'0.04em'});
-    s += T(gbX+gbW-8, gbY+13, 'A4 1:1 인쇄 · 실척', {size:5.8, weight:700, fill:'#1F7A69', anchor:'end', ls:'0.04em'});
+    s += T(gbX+gbW-8, gbY+13, 'A4 인쇄 기준', {size:5.8, weight:700, fill:'#1F7A69', anchor:'end', ls:'0.04em'});
     s += T(gbX+8, gbY+28, '깊이 '+fmt(rs)+' ㎜ (벽 안쪽면 '+fmt(m.railInset)+' 이격) · 레일 '+fmt(m.railLen)+' ㎜ 는 '+fmt(rd)+' / '+fmt(rd+m.railLen)+' ㎜ (양 끝 '+fmt(rd)+' ㎜)', {size:8, weight:700, mono:true, fill:'#14171A'});
     s += T(gbX+8, gbY+40, '= 벽체 110 + 이격·여백 · 천장 끝에서 '+fmt(cMid1)+' / '+fmt(cMid2)+' ㎜ = 중앙등 중심 (내부 '+fmt(m.innerW)+'·'+fmt(m.innerD)+' ÷ 2)', {size:5.7, fill:'#5C666D'});
   } else {
     s += T(gbX+8, gbY+13, 'COB 타공 가이드 — 천장 바깥 끝 기준 (줄자로 바로 점찍기)', {size:6.2, weight:800, fill:'#1F7A69', ls:'0.04em'});
-    s += T(gbX+gbW-8, gbY+13, 'A4 1:1 인쇄 · 실척', {size:5.8, weight:700, fill:'#1F7A69', anchor:'end', ls:'0.04em'});
+    s += T(gbX+gbW-8, gbY+13, 'A4 인쇄 기준', {size:5.8, weight:700, fill:'#1F7A69', anchor:'end', ls:'0.04em'});
     s += T(gbX+8, gbY+28, '깊이 '+fmt(gd)+' ㎜ · 가로 '+fmt(gx1)+' / '+fmt(gx2)+' ㎜ (양 끝에서 '+fmt(gx1r)+' ㎜) · Ø'+m.cobDia+' ㎜',
       {size:8.2, weight:700, mono:true, fill:'#14171A'});
     s += T(gbX+8, gbY+40, '= 벽체 110 + 내부 '+fmt(m.cobPos[0])+' / '+fmt(m.cobPos[1])+' ㎜ (내부 '+fmt(m.lineLen)+' ÷ 3) · 타공면 '+faceTxt+' · 벽 안쪽면 '+m.cobInset+' ㎜ · 중앙등 '+fmt(cMid1)+' / '+fmt(cMid2)+' ㎜',
@@ -2061,7 +2287,7 @@ function sheetFloorCeil(m){
 function sheetElevation(m){
   let s = sheetHead('A-103','벽체 전개도 · 벽체 단면','ELEVATION (UNFOLDED) · 벽판 95T PB 1000 2단 · 문 상단 '+m.fillH+' 채움판'
     + (m.winCount? ' · 시창 '+m.winW+'×'+m.winH+' ('+m.winStackTxt+' = '+CFG.HEAD+')' : ''));
-  s += pageNo('A-103',3,4);
+  s += pageNo('A-103',3,PAGE_TOTAL);
   const EDGE_E = '#14171A';
 
   /* ---------- 벽면 1개 그리기 ---------- */
@@ -2320,7 +2546,7 @@ function svgTable(x,y,w,cols,rows,opt={}){
 
 function sheetTables(m){
   let s = sheetHead('A-104','재단 치수표 · 자재 산출표','CUT LIST & BILL OF MATERIALS · 원판 600×2400 기준 · 천장 2000 초과 '+ceilSplitName+' 분할 · 바닥 길이 분할 '+splitModeName(m.lenSplit)+' · 샷시·문 2mm 여유');
-  s += pageNo('A-104',4,4);
+  s += pageNo('A-104',4,PAGE_TOTAL);
 
   const groups = ['바닥 15T (2겹 교차)','천장 마블폼 45T','벽판 95T PB','내벽 95T PB (2중)','문·개구부','외벽 알판'];
   const rows = [];
@@ -2429,6 +2655,384 @@ function sheetTables(m){
   });
 
   s += titleBlock(m,{no:'A-104',title:'재단표·자재표',scale:'N.T.S'});
+  return sheetShell(s);
+}
+
+/* =====================================================================
+   7-A. A-105 현장 타공 가이드 (부스 바깥 맨 끝 기준)
+   ===================================================================== */
+function sheetField(m){
+  const f = m.field, rail = (m.lightMode === 'rail');
+  const horizFace = (m.faceAxis === 'x');
+  const faceTop = (m.lineFace === 'back'), faceBottom = (m.lineFace === 'front');
+  const faceLeft = (m.lineFace === 'left'), faceRight = (m.lineFace === 'right');
+  let s = sheetHead('A-105','현장 타공 가이드 · 부스 바깥 맨 끝 기준',
+    'FIELD DRILL GUIDE · 줄자를 붓스 바깥 맨 끝(외벽 110 포함)에 걸고 바로 점찍기 · '
+    + (rail ? '레일등' : 'COB 매립등 2구 Ø'+m.cobDia) + ' · 타공면 '+m.sideName[m.lineFace]
+    + ' · 중앙등 1구');
+  s += pageNo('A-105',5,PAGE_TOTAL);
+
+  /* ---------- 큰 숫자 타일 ---------- */
+  const tiles = rail ? [
+    ['타공면 벽 끝 → 레일', fmt(f.railDepth), '110 + 400 이격', '타공면 '+m.sideName[m.lineFace]],
+    ['레일 시작 (양 끝에서)', fmt(f.railStart), '110 + 여백 '+m.railGap, '레일 '+fmt(f.railLen)+' ㎜'],
+    ['레일 끝 (양 끝에서)', fmt(f.railEnd), '시작 '+fmt(f.railStart)+' + '+fmt(f.railLen), '내부 가운데 정렬'],
+    ['중앙등 (맨 끝에서)', fmt(f.centerAlong)+' / '+fmt(f.centerPerp), '가로 ÷ 2 · 세로 ÷ 2', '내부 '+m.innerW+' · '+m.innerD]
+  ] : [
+    ['타공면 벽 끝 → 타공 줄', fmt(f.depth), '110 + '+m.cobInset+' 이격', '타공면 '+m.sideName[m.lineFace]],
+    ['1구 (양 끝에서)', fmt(f.pos1), '반대쪽 끝에서 '+fmt(f.far1), '110 + '+m.cobPos[0]],
+    ['2구 (양 끝에서)', fmt(f.pos2), '반대쪽 끝에서 '+fmt(f.far2), '110 + '+m.cobPos[1]],
+    ['중앙등 (맨 끝에서)', fmt(f.centerAlong)+' / '+fmt(f.centerPerp), '가로 ÷ 2 · 세로 ÷ 2', '내부 '+m.innerW+' · '+m.innerD]
+  ];
+  const tileY = M+80, tileH = 84, tileGap = 10;
+  const tileW = (SW-2*M-8 - tileGap*3)/4;
+  tiles.forEach((t,i)=>{
+    const tx = M+8 + i*(tileW+tileGap);
+    s += R(tx, tileY, tileW, tileH, {fill:'#F3F8F6', stroke:'#9FC6BC', sw:1.0, rx:3});
+    s += T(tx+9, tileY+15, t[0], {size:6.4, weight:800, fill:'#1F7A69', ls:'0.02em'});
+    s += T(tx+9, tileY+45, t[1], {size:23, weight:800, fill:INK, mono:true, ls:'-0.02em'});
+    s += T(tx+9, tileY+59, '㎜', {size:7.4, weight:800, fill:'#4F585F'});
+    s += T(tx+9, tileY+71, t[2], {size:6.1, fill:'#5C666D', weight:600});
+    s += T(tileW+tx-9, tileY+71, t[3], {size:5.9, fill:'#8A939A', anchor:'end'});
+  });
+
+  /* ---------- 큰 천장 평면도 (맨 끝 기준 치수) ---------- */
+  const px0 = M+8, py0 = tileY+tileH+16, pwAll = SW-2*M-16, phAll = 500;
+  const outW = m.W, outD = m.D;
+  const padL = 82, padR = 82, padT = 72, padB = 76;
+  const sc = Math.min((pwAll-padL-padR)/outW, (phAll-padT-padB)/outD);
+  const pw = outW*sc, ph = outD*sc;
+  const ox = px0 + padL + Math.max(0,(pwAll-padL-padR-pw)/2);
+  const oy = py0 + padT + Math.max(0,(phAll-padT-padB-ph)/2);
+  const X = mm => ox + mm*sc, Y = mm => oy + mm*sc;
+  const WALLB = CFG.FIN*sc;
+
+  s += R(px0, py0, pwAll, phAll, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8, rx:3});
+  s += T(px0+10, py0+15, '천장 마감 평면 (아래에서 본 모습) — 부스 바깥 맨 끝에서 잰 치수', {size:7.4, weight:800, fill:'#2E353B'});
+  s += T(px0+10, py0+25, (rail? '레일등' : 'COB 2구')+' 과 중앙등이 천장 어디에 오는지 · 점선은 천장판(600 모듈·2000 대칭) 이음매', {size:6.2, fill:'#7B8389'});
+
+  /* 벽체 110 띠 */
+  s += R(ox, oy, pw, ph, {fill:'#F1ECE2', stroke:INK, sw:1.7});
+  s += R(ox+WALLB, oy+WALLB, pw-2*WALLB, ph-2*WALLB, {fill:'#fff', stroke:'#B9B2A4', sw:0.9});
+  /* 라인타공 벽면 */
+  const band = faceTop ? {x:ox, y:oy, w:pw, h:WALLB}
+    : faceBottom ? {x:ox, y:oy+ph-WALLB, w:pw, h:WALLB}
+    : faceLeft ? {x:ox, y:oy, w:WALLB, h:ph}
+    : {x:ox+pw-WALLB, y:oy, w:WALLB, h:ph};
+  s += R(band.x, band.y, band.w, band.h, {fill:'url(#hSlat)', stroke:ACC, sw:1.5});
+  s += faceTop ? T(ox+pw/2, oy+WALLB*0.72, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})
+    : faceBottom ? T(ox+pw/2, oy+ph-WALLB*0.28, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})
+    : faceLeft ? `<g transform="rotate(-90 ${n(ox+WALLB*0.62)} ${n(oy+ph/2)})">${T(ox+WALLB*0.62, oy+ph/2, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})}</g>`
+    : `<g transform="rotate(-90 ${n(ox+pw-WALLB*0.32)} ${n(oy+ph/2)})">${T(ox+pw-WALLB*0.32, oy+ph/2, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})}</g>`;
+
+  /* 천장판 이음매 (점선) — 실제 분할선. 타공 자리와 겹치면 빨간색 */
+  const jointNear = (mmPos, holeMMs) => holeMMs.some(h => Math.abs(h-mmPos) <= (m.cobDia/2 + 12));
+  const holeAlong = [f.pos1, f.pos2];
+  const holePerp = [(faceTop || faceLeft) ? f.depth : ((horizFace ? outD : outW) - f.depth)];
+  const grainAxisX = (m.ceilAxis === 'x');
+  (m.lenJoints||[]).forEach(j=>{
+    const bad = jointNear(j, grainAxisX ? holeAlong : holePerp);
+    if(grainAxisX) s += L(X(j), oy+WALLB, X(j), oy+ph-WALLB, {stroke: bad? '#C0563A':'#B9B2A4', sw: bad? 1.5:0.9, dash:'5 3'});
+    else           s += L(ox+WALLB, Y(j), ox+pw-WALLB, Y(j), {stroke: bad? '#C0563A':'#B9B2A4', sw: bad? 1.5:0.9, dash:'5 3'});
+  });
+  (m.spanJoints||[]).forEach(j=>{
+    const bad = jointNear(j, grainAxisX ? holePerp : holeAlong);
+    if(grainAxisX) s += L(ox+WALLB, Y(j), ox+pw-WALLB, Y(j), {stroke: bad? '#C0563A':'#CFC8B8', sw: bad? 1.5:0.8, dash:'3 3'});
+    else           s += L(X(j), oy+WALLB, X(j), oy+ph-WALLB, {stroke: bad? '#C0563A':'#CFC8B8', sw: bad? 1.5:0.8, dash:'3 3'});
+  });
+
+  /* 타공점 좌표 */
+  const holePt = along => {
+    if(horizFace){
+      return [X(along), faceTop ? Y(f.depth) : Y(outD - f.depth)];
+    }
+    return [faceLeft ? X(f.depth) : X(outW - f.depth), Y(along)];
+  };
+  const rHole = Math.max(5.2, (m.cobDia/2)*sc);
+  if(rail){
+    const a = holePt(f.railStart), b = holePt(f.railEnd);
+    if(horizFace){
+      s += R(a[0], a[1]-3.2, b[0]-a[0], 6.4, {fill:'#EFF7F5', stroke:ACC, sw:1.4, rx:2});
+      s += L(a[0], a[1]-9, a[0], a[1]+9, {stroke:ACC, sw:1.3});
+      s += L(b[0], b[1]-9, b[0], b[1]+9, {stroke:ACC, sw:1.3});
+    } else {
+      s += R(a[0]-3.2, a[1], 6.4, b[1]-a[1], {fill:'#EFF7F5', stroke:ACC, sw:1.4, rx:2});
+      s += L(a[0]-9, a[1], a[0]+9, a[1], {stroke:ACC, sw:1.3});
+      s += L(b[0]-9, b[1], b[0]+9, b[1], {stroke:ACC, sw:1.3});
+    }
+    s += T((a[0]+b[0])/2, horizFace? a[1]-13 : a[1] , '레일등 '+fmt(f.railLen), {size:7.2, weight:800, fill:ACC, anchor:'middle', rotate: horizFace? undefined : -90});
+  } else {
+    [[f.pos1,'1'],[f.pos2,'2']].forEach(([al,k])=>{
+      const c = holePt(al);
+      s += C(c[0], c[1], rHole, {fill:'#fff', stroke:ACC, sw:1.5});
+      s += C(c[0], c[1], Math.max(1.1, rHole*0.2), {fill:ACC, stroke:'none'});
+      s += T(c[0], c[1]+rHole+9, 'Ø'+m.cobDia+' · '+k+'구', {size:6.2, weight:800, fill:'#1F7A69', anchor:'middle'});
+    });
+  }
+  /* 중앙등 */
+  {
+    const cx = ox+pw/2, cy = oy+ph/2;
+    s += C(cx, cy, Math.max(5.4, 6.4), {fill:'#fff', stroke:ACC, sw:1.5});
+    s += C(cx, cy, Math.max(2.4, 2.8), {fill:'none', stroke:ACC, sw:0.8, dash:'1.8 1.2'});
+    s += T(cx, cy-9, '중앙등', {size:6.8, weight:800, fill:ACC, anchor:'middle'});
+  }
+
+  /* ---------- 치수 — 타공면 쪽 체인 / 맞은편 중앙 치수 ---------- */
+  const dimC = '#1F7A69';
+  if(faceTop){
+    s += dimH(X(0), X(f.pos1), oy-24, String(f.pos1), {size:8.4, color:dimC});
+    s += dimH(X(f.pos1), X(f.pos2), oy-24, String(f.seg2), {size:8.4, color:dimC});
+    s += dimH(X(f.pos2), X(outW), oy-24, String(f.seg3), {size:8.4, color:dimC});
+    s += dimH(X(0), X(outW), oy-46, String(outW), {size:7.6, ext1:oy, ext2:oy});
+    s += dimV(oy, Y(f.depth), ox-30, String(f.depth), {size:9.4, color:'#B4622A', ext1:ox, ext2:ox, labelX:ox-33});
+    s += dimV(Y(f.depth), oy+ph, ox-30, String(outD-f.depth), {size:7.2, ext1:ox, ext2:ox, labelX:ox-33});
+    s += dimV(oy, oy+ph, ox-56, String(outD), {size:7.4, ext1:ox, ext2:ox, labelX:ox-59});
+    s += dimH(X(0), ox+pw/2, oy+ph+22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy+ph+18});
+    s += dimV(oy, oy+ph/2, ox+pw+28, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox+pw+31});
+  } else if(faceBottom){
+    s += dimH(X(0), X(f.pos1), oy+ph+24, String(f.pos1), {size:8.4, color:dimC});
+    s += dimH(X(f.pos1), X(f.pos2), oy+ph+24, String(f.seg2), {size:8.4, color:dimC});
+    s += dimH(X(f.pos2), X(outW), oy+ph+24, String(f.seg3), {size:8.4, color:dimC});
+    s += dimH(X(0), X(outW), oy+ph+46, String(outW), {size:7.6, ext1:oy+ph, ext2:oy+ph});
+    s += dimV(Y(outD-f.depth), oy+ph, ox-30, String(f.depth), {size:9.4, color:'#B4622A', ext1:ox, ext2:ox, labelX:ox-33});
+    s += dimV(oy, Y(outD-f.depth), ox-30, String(outD-f.depth), {size:7.2, ext1:ox, ext2:ox, labelX:ox-33});
+    s += dimV(oy, oy+ph, ox-56, String(outD), {size:7.4, ext1:ox, ext2:ox, labelX:ox-59});
+    s += dimH(X(0), ox+pw/2, oy-22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy-25});
+    s += dimV(oy, oy+ph/2, ox+pw+28, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox+pw+31});
+  } else if(faceLeft){
+    s += dimV(Y(0), Y(f.pos1), ox-24, String(f.pos1), {size:8.4, color:dimC});
+    s += dimV(Y(f.pos1), Y(f.pos2), ox-24, String(f.seg2), {size:8.4, color:dimC});
+    s += dimV(Y(f.pos2), Y(outD), ox-24, String(f.seg3), {size:8.4, color:dimC});
+    s += dimV(Y(0), Y(outD), ox-46, String(outD), {size:7.6, ext1:ox, ext2:ox});
+    s += dimH(ox, X(f.depth), oy-26, String(f.depth), {size:9.4, color:'#B4622A', ext1:oy, ext2:oy, labelY:oy-30});
+    s += dimH(X(f.depth), ox+pw, oy-26, String(outW-f.depth), {size:7.2, ext1:oy, ext2:oy, labelY:oy-30});
+    s += dimH(ox, ox+pw, oy-48, String(outW), {size:7.4, ext1:oy, ext2:oy, labelY:oy-52});
+    s += dimV(Y(0), oy+ph/2, ox+pw+26, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox+pw+29});
+    s += dimH(X(0), ox+pw/2, oy+ph+22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy+ph+18});
+  } else {
+    s += dimV(Y(0), Y(f.pos1), ox+pw+24, String(f.pos1), {size:8.4, color:dimC, labelX:ox+pw+27});
+    s += dimV(Y(f.pos1), Y(f.pos2), ox+pw+24, String(f.seg2), {size:8.4, color:dimC, labelX:ox+pw+27});
+    s += dimV(Y(f.pos2), Y(outD), ox+pw+24, String(f.seg3), {size:8.4, color:dimC, labelX:ox+pw+27});
+    s += dimV(Y(0), Y(outD), ox+pw+46, String(outD), {size:7.6, ext1:ox+pw, ext2:ox+pw, labelX:ox+pw+49});
+    s += dimH(ox+pw-X(f.depth), ox+pw, oy-26, String(f.depth), {size:9.4, color:'#B4622A', ext1:oy, ext2:oy, labelY:oy-30});
+    s += dimH(ox, ox+pw-X(f.depth), oy-26, String(outW-f.depth), {size:7.2, ext1:oy, ext2:oy, labelY:oy-30});
+    s += dimH(ox, ox+pw, oy-48, String(outW), {size:7.4, ext1:oy, ext2:oy, labelY:oy-52});
+    s += dimV(Y(0), oy+ph/2, ox-26, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox-29});
+    s += dimH(X(0), ox+pw/2, oy+ph+22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy+ph+18});
+  }
+  /* 맨 끝 → 타공 줄 큰 표식 */
+  if(horizFace){
+    const yMid = faceTop ? (oy+Y(f.depth))/2 : (Y(outD-f.depth)+oy+ph)/2;
+    s += tag(ox-30, yMid, '맨 끝 → '+fmt(f.depth), {size:6.8, fill:'#8A4517', bg:'#FFF3E6', bgop:1, stroke:'#D2A57A', sw:0.5, rot:-90});
+  } else {
+    const xMid = faceLeft ? (ox+X(f.depth))/2 : (X(outW-f.depth)+ox+pw)/2;
+    s += tag(xMid, oy-26, '맨 끝 → '+fmt(f.depth), {size:6.8, fill:'#8A4517', bg:'#FFF3E6', bgop:1, stroke:'#D2A57A', sw:0.5});
+  }
+
+  /* ---------- 아래 두 박스: 타공 순서 / 값 정리 ---------- */
+  const bx0 = M+8, by0 = py0+phAll+12, bh2 = 252;
+  const bwL = 372, bwR = SW-2*M-16-bwL-12;
+  s += R(bx0, by0, bwL, bh2, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  s += T(bx0+10, by0+15, '현장 타공 순서 (줄자 · 연필)', {size:6.6, weight:800, fill:SOFT, ls:'0.1em'});
+  const steps = rail ? [
+    '1. 줄자를 라인타공 면 벽 바깥 맨 끝에 걸고, 그 벽에서 '+fmt(f.railDepth)+' 들어온 선을 천장에 수평으로 긋는다.',
+    '2. 같은 선 위에서 같은 쪽 끝에서 '+fmt(f.railStart)+' 지점부터 레일 '+fmt(f.railLen)+' 길이를 표시한다.',
+    '3. 천장판 이음매(점선) 근처면 레일 브라켓을 이음매에서 50 이상 띄워 잡는다.',
+    '4. 전선은 양 끝 여백 '+m.railGap+' ㎜ 안에서 빼고, 중앙등은 '+fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' 지점.',
+    '5. 레일 중심 (벽 안쪽 면 '+m.railInset+') 에 맞춰 레일을 걸고 수평 확인.'
+  ] : [
+    '1. 줄자를 라인타공 면 벽 바깥 맨 끝에 걸고, 그 벽에서 '+fmt(f.depth)+' 들어온 선을 천장에 수평으로 긋는다.',
+    '2. 같은 선 위에서 같은 쪽 벽 끝에서 '+fmt(f.pos1)+' · '+fmt(f.pos2)+' 지점을 표시한다.',
+    '3. 두 점이 한 600판 안에 있는지 확인 — 이음매(15T) 위면 판 하나를 잡고 다시 점을 찍는다.',
+    '4. Ø'+m.cobDia+' 두 곳을 한 번에 타공하고, 중앙등은 '+fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' 지점.',
+    '5. 타공 깊이는 9T 아트보드 + 45T 마블폼 2장 관통 — 배선 후 커버 설치.'
+  ];
+  steps.forEach((tx,i)=> s += T(bx0+12, by0+34+i*16.5, tx, {size:6.4, fill:'#2E353B'}));
+  const cf = m.cobFit;
+  const fitTxt = rail ? '레일등 모드 — 2구 한 판 수용 판정은 COB 모드에서 표시'
+    : (cf && cf.ok ? '✓ COB 2구 단일 600판 내 타공 가능 — '+cf.grainTxt+' · 판 폭 '+cf.stripA+'~'+cf.stripB+', 길이 '+cf.pieceA+'~'+cf.pieceB
+      : '⚠ '+(cf && cf.parallel ? '판 이음매가 타공 자리(±'+Math.round(m.cobDia/2+12)+')에 걸립니다 — 3단계에서 점을 이음매 반대쪽으로 옮기세요'
+        : '천장 결이 라인타공 면과 수직 — 2구가 서로 다른 600판에 걸립니다 (좌측 패널에서 결 방향 전환 권장)'));
+  s += T(bx0+12, by0+bh2-12, fitTxt, {size:6.2, weight:800, fill: (cf && cf.ok) || rail ? '#1B7A5F' : '#A8551F'});
+
+  /* 오른쪽 — 값 정리표 */
+  s += R(bx0+bwL+12, by0, bwR, bh2, {fill:'#F3F8F6', stroke:'#C7DED7', sw:0.8});
+  s += T(bx0+bwL+22, by0+15, '맨 끝 기준 값 정리', {size:6.6, weight:800, fill:'#1F7A69', ls:'0.1em'});
+  const rows = rail ? [
+    ['타공면', m.sideName[m.lineFace]+' · 외경 '+fmt(f.faceOuterLen)],
+    ['타공면 벽 끝 → 레일', fmt(f.railDepth)+' ㎜ (110 + 400)'],
+    ['레일 시작 / 끝', fmt(f.railStart)+' / '+fmt(f.railEnd)+' ㎜'],
+    ['레일 길이', fmt(f.railLen)+' ㎜ (추천 '+fmt(m.railAuto)+')'],
+    ['전선 여백', m.railGap+' / '+m.railGapB+' ㎜'],
+    ['중앙등', fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' ㎜'],
+    ['내부 유효', m.innerW+' × '+m.innerD+' ㎜']
+  ] : [
+    ['타공면', m.sideName[m.lineFace]+' · 외경 '+fmt(f.faceOuterLen)],
+    ['타공면 벽 끝 → 타공 줄', fmt(f.depth)+' ㎜ (110 + '+m.cobInset+')'],
+    ['1구', fmt(f.pos1)+' ㎜ (110 + '+m.cobPos[0]+')'],
+    ['2구', fmt(f.pos2)+' ㎜ (110 + '+m.cobPos[1]+')'],
+    ['1구 · 2구 간격', fmt(f.seg2)+' ㎜ (내부 '+m.lineLen+' ÷ 3)'],
+    ['중앙등', fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' ㎜'],
+    ['타공 / 내부 유효', 'Ø'+m.cobDia+' / '+m.innerW+' × '+m.innerD]
+  ];
+  rows.forEach((r,i)=>{
+    const yy = by0+34+i*15;
+    s += T(bx0+bwL+22, yy, r[0], {size:6.2, fill:'#5C666D', weight:700});
+    s += T(bx0+bwL+22+128, yy, r[1], {size:6.6, weight:800, fill:INK, mono:true});
+  });
+  s += T(bx0+bwL+22, by0+bh2-12, '전부 부스 바꿘 맨 끝에서 재는 값 — 외벽 110 포함', {size:5.8, fill:'#7B8389'});
+
+  s += titleBlock(m,{no:'A-105',title:'현장 타공 가이드',scale:'N.T.S'});
+  return sheetShell(s);
+}
+
+/* =====================================================================
+   7-B. A-106 방 배치 참고도 (선택)
+   ===================================================================== */
+function sheetRoomLayout(m){
+  const r = m.room;
+  let s = sheetHead('A-106','방 배치 참고도 (참고용)',
+    'ROOM REFERENCE · 부스 도면이 아님 · 방 '+r.W+' × '+r.D+' · 부스 '+r.bw+' × '+r.bh
+    + ' (외경) · 부스 문 '+r.dirName+' · 벽 이격 '+r.clear+' ㎜ · 라인타공 면은 방의 '+r.lineToward+' 벽을 향함');
+  s += pageNo('A-106',6,PAGE_TOTAL);
+
+  const bx0 = M+8, by0 = M+80, bw0 = SW-2*M-16, bh0 = 620;
+  s += R(bx0, by0, bw0, bh0, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8, rx:3});
+  s += T(bx0+10, by0+15, '방 · 부스 배치 (위에서 본 모습)', {size:7.4, weight:800, fill:'#2E353B'});
+  s += T(bx0+10, by0+25, '부스 도면의 문은 항상 아래변 고정 — 이 참고도에서만 방향을 돌려 배치합니다', {size:6.2, fill:'#7B8389'});
+
+  const padL = 76, padR = 58, padT = 44, padB = 76;
+  const sc = Math.min((bw0-padL-padR)/r.W, (bh0-padT-padB)/r.D);
+  const pw = r.W*sc, ph = r.D*sc;
+  const ox = bx0+padL+Math.max(0,(bw0-padL-padR-pw)/2);
+  const oy = by0+padT+Math.max(0,(bh0-padT-padB-ph)/2);
+  const X = mm => ox+mm*sc, Y = mm => oy+mm*sc;
+  const WALLT = Math.max(4, 120*sc);
+
+  /* 방 바깥 테두리 (벽) + 내부 바탕 */
+  s += R(ox-WALLT, oy-WALLT, pw+2*WALLT, ph+2*WALLT, {fill:'#EFEAE1', stroke:INK, sw:1.6});
+  s += R(ox, oy, pw, ph, {fill:'#fff', stroke:'#C9C2B4', sw:0.8});
+
+  /* 방문 — 벽을 콬고 여닫이 호를 방 안쪽으로 */
+  const rd0 = r.rd0, rdW2 = r.doorW;
+  const doorOnH = (r.doorWall==='top'||r.doorWall==='bottom');
+  if(doorOnH){
+    const yy = (r.doorWall==='top') ? oy-WALLT : oy+ph;
+    s += R(X(rd0), yy, rdW2*sc, WALLT, {fill:'#fff', stroke:'none'});
+    s += L(X(rd0), yy, X(rd0), yy+WALLT, {stroke:INK, sw:1.2});
+    s += L(X(rd0+rdW2), yy, X(rd0+rdW2), yy+WALLT, {stroke:INK, sw:1.2});
+    const hy = (r.doorWall==='top') ? oy-WALLT : oy+ph+WALLT;
+    const sw0 = (r.doorWall==='top') ? 1 : -1;
+    s += L(X(rd0), hy, X(rd0), hy + sw0*rdW2*sc, {stroke:'#6B7378', sw:1.3});
+    s += P(`M ${n(X(rd0+rdW2))} ${n(hy)} A ${n(rdW2*sc)} ${n(rdW2*sc)} 0 0 ${sw0>0?0:1} ${n(X(rd0))} ${n(hy+sw0*rdW2*sc)}`, {stroke:'#6B7378', sw:0.7, dash:'4 2.5'});
+    s += T(X(rd0+rdW2/2), hy + sw0*(rdW2*sc+8), '방문 '+rdW2, {size:6.4, weight:800, fill:'#4F585F', anchor:'middle'});
+  } else {
+    const xx2 = (r.doorWall==='left') ? ox-WALLT : ox+pw;
+    s += R(xx2, Y(rd0), WALLT, rdW2*sc, {fill:'#fff', stroke:'none'});
+    s += L(xx2, Y(rd0), xx2+WALLT, Y(rd0), {stroke:INK, sw:1.2});
+    s += L(xx2, Y(rd0+rdW2), xx2+WALLT, Y(rd0+rdW2), {stroke:INK, sw:1.2});
+    const hx = (r.doorWall==='left') ? ox-WALLT : ox+pw+WALLT;
+    const sw0 = (r.doorWall==='left') ? 1 : -1;
+    s += L(hx, Y(rd0), hx + sw0*rdW2*sc, Y(rd0), {stroke:'#6B7378', sw:1.3});
+    s += P(`M ${n(hx)} ${n(Y(rd0+rdW2))} A ${n(rdW2*sc)} ${n(rdW2*sc)} 0 0 ${sw0>0?1:0} ${n(hx+sw0*rdW2*sc)} ${n(Y(rd0))}`, {stroke:'#6B7378', sw:0.7, dash:'4 2.5'});
+    s += T(hx + sw0*(rdW2*sc+8), Y(rd0+rdW2/2), '방문 '+rdW2, {size:6.4, weight:800, fill:'#4F585F', anchor:'middle', rotate:-90});
+  }
+
+  /* 부스 */
+  const bx = X(r.bx), by = Y(r.by), bw = r.bw*sc, bh = r.bh*sc;
+  s += R(bx, by, bw, bh, {fill:'url(#hWall)', stroke:INK, sw:2.0});
+  s += R(bx+4, by+4, Math.max(0,bw-8), Math.max(0,bh-8), {fill:'#FFFDF8', stroke:'#BDB6A8', sw:0.6, op:0.9});
+
+  /* 부스 문 — 개구부 + 바깥 열림 표시 */
+  const ds = r.doorSeg;
+  s += L(X(ds[0][0]), Y(ds[0][1]), X(ds[1][0]), Y(ds[1][1]), {stroke:'#fff', sw:Math.max(4, CFG.FIN*sc*0.9)});
+  s += L(X(ds[0][0]), Y(ds[0][1]), X(ds[1][0]), Y(ds[1][1]), {stroke:'#8A4210', sw:2.2});
+  const dmid = [(ds[0][0]+ds[1][0])/2, (ds[0][1]+ds[1][1])/2];
+  const nrm = {down:[0,1], up:[0,-1], left:[-1,0], right:[1,0]}[r.dir];
+  const arrowLen = Math.max(28, m.dw*sc);
+  const ax1 = X(dmid[0]), ay1 = Y(dmid[1]);
+  const ax2 = ax1 + nrm[0]*arrowLen, ay2 = ay1 + nrm[1]*arrowLen;
+  s += L(ax1, ay1, ax2, ay2, {stroke:'#8A4210', sw:1.8});
+  const ang = Math.atan2(nrm[1], nrm[0])*180/Math.PI;
+  s += P(`M ${n(ax2)} ${n(ay2)} l ${n(-6*Math.cos((ang+20)*Math.PI/180))} ${n(-6*Math.sin((ang+20)*Math.PI/180))} M ${n(ax2)} ${n(ay2)} l ${n(-6*Math.cos((ang-20)*Math.PI/180))} ${n(-6*Math.sin((ang-20)*Math.PI/180))}`, {stroke:'#8A4210', sw:1.8, cap:'round'});
+  s += T(ax2 + nrm[0]*8, ay2 + nrm[1]*8 + 2, '부스 문 '+m.dw, {size:6.6, weight:800, fill:'#8A4210', anchor: nrm[0]>0? 'start' : nrm[0]<0? 'end':'middle'});
+
+  /* 문 앞 열림 여유 (점선 박스) */
+  {
+    const d0 = [X(ds[0][0]), Y(ds[0][1])], d1 = [X(ds[1][0]), Y(ds[1][1])];
+    const dep = Math.min(r.doorGap, m.dw)*sc;
+    const pts = nrm[0]!==0
+      ? [[d0[0], d0[1]],[d1[0], d1[1]],[d1[0]+nrm[0]*dep, d1[1]],[d0[0]+nrm[0]*dep, d0[1]]]
+      : [[d0[0], d0[1]],[d1[0], d1[1]],[d1[0], d1[1]+nrm[1]*dep],[d0[0], d0[1]+nrm[1]*dep]];
+    s += P('M '+pts.map(p=>n(p[0])+' '+n(p[1])).join(' L ')+' Z', {stroke:'#C08A4A', sw:0.8, dash:'4 3', fill:'#FFF6E6', op:1});
+  }
+
+  /* 부스 라인타공 면 · 시창 면 강조 */
+  const locFaceSeg = fk => {
+    const P = r.P;
+    if(fk==='front') return [P(0,m.D), P(m.W,m.D)];
+    if(fk==='back')  return [P(0,0), P(m.W,0)];
+    if(fk==='left')  return [P(0,0), P(0,m.D)];
+    return [P(m.W,0), P(m.W,m.D)];
+  };
+  {
+    const a = locFaceSeg(m.lineFace);
+    s += L(X(a[0][0]), Y(a[0][1]), X(a[1][0]), Y(a[1][1]), {stroke:ACC, sw:4.2});
+    const mid = [(a[0][0]+a[1][0])/2, (a[0][1]+a[1][1])/2];
+    s += tag(X(mid[0]), Y(mid[1]), '라인타공', {size:6.2, fill:'#1F7A69', bg:'#fff', bgop:0.96, stroke:'#9BD6C7', sw:0.4});
+    if(m.winCount){
+      const b2 = locFaceSeg(m.winSideKey);
+      s += L(X(b2[0][0]), Y(b2[0][1]), X(b2[1][0]), Y(b2[1][1]), {stroke:DIMC, sw:2.6, dash:'7 3'});
+    }
+  }
+  s += T(bx+bw/2, by+bh/2-3, '부스 '+r.bw+' × '+r.bh, {size:8.8, weight:800, anchor:'middle', fill:'#2E353B'});
+  s += T(bx+bw/2, by+bh/2+9, '외경 · 문 '+r.dirName, {size:6.2, anchor:'middle', fill:'#7B8389'});
+
+  /* 치수 — 방 전체 · 부스 · 이격 */
+  s += dimH(ox-WALLT, ox+pw+0, oy+ph+WALLT+18, String(r.W), {size:8.6, ext1:oy+ph+WALLT, ext2:oy+ph+WALLT});
+  s += dimV(oy-WALLT, oy+ph+WALLT, ox-WALLT-26, String(r.D), {size:8.6, ext1:ox-WALLT, ext2:ox-WALLT, labelX:ox-WALLT-30});
+  s += dimH(bx, bx+bw, by-16, String(r.bw), {size:7.4, color:DIMC});
+  s += dimV(by, by+bh, bx-16, String(r.bh), {size:7.4, color:DIMC, labelX:bx-19});
+  /* 이격 — 좁은 틈은 따로, 넓은 쪽은 한 곳만 */
+  if(r.gap.top > 0)    s += dimV(oy, by, bx+bw/2, String(r.gap.top), {size:6.6, color:WARN, labelX:bx+bw/2-4});
+  if(r.gap.bottom > 0) s += dimV(by+bh, oy+ph, bx+bw/2, String(r.gap.bottom), {size:6.6, color:WARN, labelX:bx+bw/2-4});
+  if(r.gap.left > 0)   s += dimH(ox, bx, by+bh/2, String(r.gap.left), {size:6.6, color:WARN, labelY:by+bh/2-4});
+  if(r.gap.right > 0)  s += dimH(bx+bw, ox+pw, by+bh/2, String(r.gap.right), {size:6.6, color:WARN, labelY:by+bh/2-4});
+
+  /* ---------- 아래: 값 · 확인 ---------- */
+  const ny = by0+bh0+10, nh = 250;
+  s += R(M+8, ny, (SW-2*M-16-12)/2, nh, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  const halfW = (SW-2*M-16-12)/2;
+  s += R(M+8+halfW+12, ny, halfW, nh, {fill: r.warns.length? '#FDF3EC' : '#F3F8F6', stroke: r.warns.length? '#EFD3BC':'#C7DED7', sw:0.8});
+  s += T(M+18, ny+15, '배치 값', {size:6.6, weight:800, fill:SOFT, ls:'0.1em'});
+  const rows = [
+    ['방 (내부)', r.W+' × '+r.D],
+    ['부스 (외경)', r.bw+' × '+r.bh+(r.dir==='left'||r.dir==='right'? ' (회전)' : '')],
+    ['부스 문', r.dirName+' · 폭 '+m.dw],
+    ['붙이는 벽 / 이격', r.anchor==='center'? '가운데' : ({top:'위벽',bottom:'아래벽',left:'좌벽',right:'우벽'}[r.anchor])+' / '+r.clear+' ㎜'],
+    ['이격 좌·우·위·아래', r.gap.left+' · '+r.gap.right+' · '+r.gap.top+' · '+r.gap.bottom],
+    ['문 앞 여유', r.doorGap+' ㎜']
+  ];
+  rows.forEach((p,i)=>{
+    s += T(M+18, ny+34+i*15, p[0], {size:6.3, fill:'#5C666D', weight:700});
+    s += T(M+18+128, ny+34+i*15, p[1], {size:6.7, weight:800, fill:INK, mono:true});
+  });
+  s += T(M+18, ny+nh-12, '참고도 — 최종 배치는 현장 실측으로 확인', {size:5.9, fill:'#8A939A'});
+
+  s += T(M+8+halfW+22, ny+15, '현장 확인', {size:6.6, weight:800, fill: r.warns.length? '#9A4E1E':'#1F7A69', ls:'0.1em'});
+  const checks = [];
+  checks.push((r.fits ? '✓' : '✕')+' 부스가 방 안에 들어감');
+  checks.push((r.doorGap >= m.dw+60 ? '✓' : '⚠')+' 부스 문 앞 '+r.doorGap+' ㎜ (문 '+m.dw+' 열림'+(r.doorGap >= m.dw+60 ? '' : ' 부족')+')');
+  checks.push('· 라인타공 면 → 방의 '+r.lineToward+' 벽');
+  if(m.winCount) checks.push('· 시창 면 → 방의 '+r.winToward+' 벽');
+  checks.push('· 방문 앞 · 복도 반입 동선 확인');
+  checks.push('· 방 콘센트 위치 · 문 안열림 방향 확인');
+  checks.forEach((tx,i)=> s += T(M+8+halfW+22, ny+34+i*15, tx, {size:6.4, fill: i<2 && tx.indexOf('⚠')>=0 || tx.indexOf('✕')>=0 ? '#9A4E1E' : '#2E353B'}));
+  if(r.warns.length){
+    s += T(M+8+halfW+22, ny+34+checks.length*15+4, r.warns[0], {size:6.2, weight:800, fill:'#9A4E1E'});
+  }
+
+  s += titleBlock(m,{no:'A-106',title:'방 배치 참고도',scale:'N.T.S'});
   return sheetShell(s);
 }
 
@@ -2657,16 +3261,85 @@ function syncCobUI(m){
     + ' — 타공 중심 <b>'+m.cobPos[0]+'</b> / <b>'+m.cobPos[1]+'</b> ㎜ (면 시작 기준)';
 }
 
+/* --- 현장 타공 가이드 · COB 한 판 수용 · 방 배치 안내 (좌측 패널) --------- */
+function syncFieldUI(m){
+  const f = m.field;
+  const host = $('#fieldGuide');
+  const num = v => (typeof v === 'number' ? fmt(v) : v);
+  if(host){
+    const cells = (m.lightMode === 'rail') ? [
+      ['타공면 벽 끝 → 레일', f.railDepth, '110 + 400 이격'],
+      ['레일 시작 (양 끝에서)', f.railStart, '110 + 여백 ' + m.railGap],
+      ['레일 끝', f.railEnd, '레일 ' + f.railLen + ' ㎜'],
+      ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
+    ] : [
+      ['타공면 벽 끝 → 타공 줄', f.depth, '110 + ' + m.cobInset + ' 이격'],
+      ['1구 (양 끝에서)', f.pos1 + ' / ' + f.far1, '110 + ' + m.cobPos[0]],
+      ['2구 (양 끝에서)', f.pos2 + ' / ' + f.far2, '110 + ' + m.cobPos[1]],
+      ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
+    ];
+    host.innerHTML = cells.map(c=>`<div class="fg"><span>${c[0]}</span><b>${num(c[1])} ㎜</b><i>${c[2]}</i></div>`).join('');
+  }
+
+  const fitEl = $('#cobFit');
+  if(fitEl){
+    const c = m.cobFit;
+    if(!c){ fitEl.innerHTML = ''; }
+    else if(c.ok){
+      fitEl.innerHTML = `<div class="fit ok">✓ COB 2구 단일 600판 내 타공 가능
+        <div style="font-weight:600;margin-top:3px;line-height:1.55">${c.grainTxt} — 판 폭 ${c.stripA}~${c.stripB} ㎜ · 길이 ${c.pieceA}~${c.pieceB} ㎜ 한 판 안<br>타공 줄은 부스 맨 끝에서 ${fmt(c.perpFromWall)} ㎜ → 2구를 한 번에 타공</div></div>`;
+    } else {
+      const why = c.parallel
+        ? `결은 나란하지만 <b>판 이음매</b>가 타공 자리에 걸립니다 — 길이 이음매${c.hitLen.length? ' '+c.hitLen.join(' / '):''}${c.hitSpan.length? ' · 폭 이음매 '+c.hitSpan.join(' / '):''} ㎜ (타공 반경 + 여유 ${Math.round(holeRSafe(m))} ㎜ 기준)`
+        : `<b>천장 결이 라인타공 면과 수직</b>입니다 — 2구가 서로 다른 600판에 걸려 이음매(15T 띠) 위를 타공하게 됩니다`;
+      fitEl.innerHTML = `<div class="fit no">⚠ ${why}
+        ${c.canFix? `<button type="button" id="cobFitFix">천장 결 방향 바꾸기 (라인타공 면과 나란히)</button>`:''}
+        </div>`;
+      const fx = $('#cobFitFix');
+      if(fx) fx.addEventListener('click', ()=>{
+        $('#ceilDir').value = c.wantCeilDir;
+        render();
+        toast('천장 결 방향을 라인타공 면과 나란히 바꿨습니다');
+      });
+    }
+  }
+
+  const adv = $('#roomAdv');
+  if(adv){
+    const r = m.room;
+    if(!r.on){ adv.innerHTML = ''; }
+    else {
+      const ok = r.fits && !r.warns.length;
+      adv.innerHTML = '방 <b>'+r.W+' × '+r.D+'</b> · 부스 <b>'+r.bw+' × '+r.bh+'</b> · 문 '+r.dirName+'<br>'
+        + '이격 — 좌 '+r.gap.left+' · 우 '+r.gap.right+' · 위 '+r.gap.top+' · 아래 '+r.gap.bottom+' ㎜<br>'
+        + (r.warns.length
+            ? '<span class="no">· '+r.warns.join('<br>· ')+'</span>'
+            : '<span class="ok">✓ 배치됩니다 · 문 앞 여유 '+r.doorGap+' ㎜</span>')
+        + '<br>라인타공 면 → 방의 <b>'+r.lineToward+'</b> 쪽'
+        + (r.winToward? ' · 시창 면 → 방의 <b>'+r.winToward+'</b> 쪽' : '')
+        + (ok? '' : '');
+    }
+  }
+}
+function holeRSafe(m){ return Math.max(0, (m.cobDia||55)/2) + 12; }
+
 /* =====================================================================
    8. 렌더링 · 상태
    ===================================================================== */
 const state = {};
-const SHEETS = [
-  {id:'plan', label:'A-101 벽체 평면도', fn:sheetPlan},
-  {id:'flr',  label:'A-102 바닥·천장 분할도', fn:sheetFloorCeil},
-  {id:'ele',  label:'A-103 벽체 전개도·단면', fn:sheetElevation},
-  {id:'tbl',  label:'A-104 재단표·자재표', fn:sheetTables}
-];
+let PAGE_TOTAL = 5;
+function sheetsFor(m){
+  const list = [
+    {id:'plan', label:'A-101 벽체 평면도', fn:sheetPlan},
+    {id:'flr',  label:'A-102 바닥·천장 분할도', fn:sheetFloorCeil},
+    {id:'ele',  label:'A-103 벽체 전개도·단면', fn:sheetElevation},
+    {id:'tbl',  label:'A-104 재단표·자재표', fn:sheetTables},
+    {id:'fld',  label:'A-105 현장 타공 가이드', fn:sheetField}
+  ];
+  if(m && m.room && m.room.on) list.push({id:'room', label:'A-106 방 배치 참고도', fn:sheetRoomLayout});
+  return list;
+}
+let SHEETS = sheetsFor(null);
 
 function readInputs(){
   return {
@@ -2701,7 +3374,17 @@ function readInputs(){
     slatColor: ($('#slatColor').value || '내추럴 오크').trim(),
     floorColor: ($('#floorColor').value || '멜로우 오크').trim(),
     ledTemp: state.ledTemp || '4000',
-    projectWin: state.projectWin || 'none'
+    projectWin: state.projectWin || 'none',
+    /* 방 배치 참고도 (선택) */
+    roomOn: !!($('#roomOn') && $('#roomOn').checked),
+    roomW: +$('#roomW').value || 3000,
+    roomD: +$('#roomD').value || 3500,
+    roomDoorWall: state.roomDoorWall || 'bottom',
+    roomDoorPos: state.roomDoorPos || 'center',
+    roomDoorW: +$('#roomDoorW').value || 900,
+    boothDir: state.boothDir || 'down',
+    boothClear: ($('#boothClear').value === '' ? 100 : (+$('#boothClear').value || 0)),
+    boothAnchor: ($('#boothAnchor') && $('#boothAnchor').value) || 'center'
   };
 }
 
@@ -2778,14 +3461,17 @@ function render(){
   }
   syncWinUI(m);
   syncCobUI(m);
+  syncFieldUI(m);
 
   // sheets
+  SHEETS = sheetsFor(m);
+  PAGE_TOTAL = SHEETS.length;
   const host = $('#sheets');
   host.innerHTML = SHEETS.map((sh,i)=>`
     <div class="sheet-wrap" data-sheet="${sh.id}">
       <div class="sheet-bar">
         <span class="tagno">${sh.label}</span>
-        <span class="lbl">· A4 210×297㎜ · 1:1 인쇄</span><span class="hint">· 좌우로 밀어 확대</span>
+        <span class="lbl">· A4 1장 · 8㎜ 여백</span><span class="hint">· 좌우로 밀어 확대</span>
         <span class="spacer"></span>
         <button class="btn sm ghost" data-png="${sh.id}">PNG</button>
       </div>
@@ -2871,6 +3557,12 @@ function syncURL(inp){
   if(inp.floorColor) q.set('fl', inp.floorColor);
   if(inp.ledTemp && inp.ledTemp !== '4000') q.set('lt', inp.ledTemp);
   if(inp.projectWin === 'in') q.set('pj', 'in');
+  /* 방 배치 참고도 (선택) */
+  if(inp.roomOn){
+    q.set('ro','1'); q.set('rw',inp.roomW); q.set('rd',inp.roomD);
+    q.set('rdw',inp.roomDoorWall); q.set('rdp',inp.roomDoorPos); q.set('rdl',inp.roomDoorW);
+    q.set('bd',inp.boothDir); q.set('bc',inp.boothClear); q.set('ba',inp.boothAnchor);
+  }
   try{ history.replaceState(null,'','?'+q.toString()); }catch(e){}
 }
 
@@ -3030,6 +3722,19 @@ function init(){
   segInit('#projectWin','projectWin','none');
   segInit('#bbFlame','bbFlame','non');
   segInit('#winSpec','winSpec','none', ()=>{ state.winCenter = null; });
+  /* 방 배치 참고도 — 기본 OFF, 방 치수 들었을 때만 켠다 */
+  segInit('#roomDoorWall','roomDoorWall','bottom');
+  segInit('#roomDoorPos','roomDoorPos','center');
+  segInit('#boothDir','boothDir','down');
+  const roomOnEl = $('#roomOn');
+  if(roomOnEl){
+    roomOnEl.addEventListener('change', ()=>{
+      const on = roomOnEl.checked;
+      $('#roomFields').style.display = on ? '' : 'none';
+      render();
+      toast(on ? '방 배치 참고도(A-106)를 켰습니다 — 방 치수를 넣어 주세요' : '방 배치 참고도를 껐습니다');
+    });
+  }
 
   $('#presets').addEventListener('click', e=>{
     const b = e.target.closest('.chip'); if(!b) return;
@@ -3038,8 +3743,9 @@ function init(){
   });
 
   ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
-   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor']
-    .forEach(s=>{ const el=$(s); el.addEventListener('input', render); el.addEventListener('change', render); });
+   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor',
+   '#roomW','#roomD','#roomDoorW','#boothClear','#boothAnchor']
+    .forEach(s=>{ const el=$(s); if(!el) return; el.addEventListener('input', render); el.addEventListener('change', render); });
 
   /* 시창 위치 슬라이더 · 중앙 정렬 */
   $('#winPos').addEventListener('input', e=>{ state.winCenter = +e.target.value; render(); });
@@ -3129,6 +3835,26 @@ function init(){
   if(q.get('sim') === '1' || q.get('from') === 'admin'){
     if($('#simNote')) $('#simNote').hidden = false;
   }
+
+  /* 방 배치 참고도 (선택) — 저장값·링크 파라미터 복원. 기본 OFF */
+  const roomOnSaved = (q.get('ro') !== null) ? (q.get('ro') === '1') : !!src.roomOn;
+  if(roomOnSaved){ $('#roomOn').checked = true; $('#roomFields').style.display = ''; }
+  const rwQ = q.get('rw') || src.roomW, rdQ = q.get('rd') || src.roomD;
+  if(rwQ) $('#roomW').value = rwQ;
+  if(rdQ) $('#roomD').value = rdQ;
+  const rdlQ = q.get('rdl') || src.roomDoorW;
+  if(rdlQ) $('#roomDoorW').value = rdlQ;
+  const rdwQ = q.get('rdw') || src.roomDoorWall;
+  if(['top','bottom','left','right'].indexOf(rdwQ) >= 0) setSeg('#roomDoorWall','roomDoorWall', rdwQ);
+  const rdpQ = q.get('rdp') || src.roomDoorPos;
+  if(['left','center','right'].indexOf(rdpQ) >= 0) setSeg('#roomDoorPos','roomDoorPos', rdpQ);
+  const bdQ = q.get('bd') || src.boothDir;
+  if(['down','up','left','right'].indexOf(bdQ) >= 0) setSeg('#boothDir','boothDir', bdQ);
+  const bcQ = q.get('bc');
+  if(bcQ !== null && bcQ !== '') $('#boothClear').value = bcQ;
+  else if(src.boothClear !== undefined && src.boothClear !== null) $('#boothClear').value = src.boothClear;
+  const baQ = q.get('ba') || src.boothAnchor;
+  if(['center','top','bottom','left','right'].indexOf(baQ) >= 0) $('#boothAnchor').value = baQ;
 
   render();
 }
