@@ -594,6 +594,7 @@
   .calc-gbtn[aria-pressed=true]{border-color:var(--accent);background:linear-gradient(180deg,#F4FBF9,#E9F5F2);box-shadow:0 0 0 2px var(--accent-t) inset}
   .calc-gbtn[aria-pressed=true] b{color:var(--accent-d)}
   #calc-copy-customer{grid-column:1 / -1;font-size:13.5px;padding:11px 12px}
+  #calc-copy-link{grid-column:1 / -1}
   .calc-pre{margin:0;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 11px;font-family:inherit;font-size:11.5px;font-weight:600;line-height:1.55;color:var(--body);white-space:pre-wrap;word-break:break-word}
   .sedit-copy{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   /* ============================================================
@@ -4435,7 +4436,7 @@ function openContractModal(q){
     }
     var st = calcRegionStep(c.region);
     put("calc-basis", c.grade.t + " · " + calcWon(dim.w) + " × " + calcWon(dim.d)
-      + " (높이 " + calcWon(CALC_H) + ") · " + (c.fixed ? "확정가" : "산출가(확정가 없는 규격)"));
+      + " · " + (c.fixed ? "확정가" : "산출가(확정가 없는 규격)"));
     put("calc-total", krw(c.total));
     put("calc-supply", krw(c.supply));
     put("calc-vat", krw(c.vat));
