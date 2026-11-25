@@ -1160,7 +1160,9 @@ function buildModel(inp){
   })();
 
   /* --- 현장 타공 가이드 — 부스 바깥 맨 끝(외벽 110 포함) 기준 ---------------- */
-  const faceOuterLen = (faceAxis === 'x') ? W : D;
+  /* 타공면 외경 길이 — 코너를 따낸 면은 그 면의 실제 길이(줄자 기준)로 잡는다 */
+  const faceSide = sides.find(v=>v.k===lineFace) || {};
+  const faceOuterLen = (faceSide.len !== undefined) ? faceSide.len : ((faceAxis === 'x') ? W : D);
   const field = (() => {
     /* 등급 2중이면 라인타공 면의 안쪽 면은 외벽 110 + 내벽 110 = 220 안쪽 */
     const wallLayers = dblFaces.indexOf(lineFace) >= 0 ? 2 : 1;
