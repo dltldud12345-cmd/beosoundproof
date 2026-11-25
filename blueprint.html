@@ -1925,7 +1925,7 @@ function sheetPlan(m){
   s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
-    ['hSlat','라인타공 1면 ('+m.sideName[m.lineFace]+') · 슬랫 마감 · 발주표에서 제외'],
+    ['hSlat','라인타공 1면 ('+m.sideName[m.lineFace]+') · 라인타공 마감 · 발주표에서 제외'],
     ['hGlass','시창 '+(m.winCount? m.winW+'×'+m.winH : '600×800')+' 유리 5mm · 드래그로 위치 이동'],
     m.lightMode==='rail'
       ? ['rail','레일등 '+m.railLen+' ㎜ — 벽 안쪽면 '+m.railInset+' ㎜ 이격, 내부 길이 가운데 정렬']

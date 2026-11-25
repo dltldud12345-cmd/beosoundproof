@@ -362,7 +362,7 @@ function buildPanel(){
         </button>`).join('')}
       </div>
       ${posBlock('slat')}
-      <p class="note">RG-LT3203 라인타공 8종. 슬랫 사이로는 검정 흡음 펠트가 보입니다.</p>
+      <p class="note">RG-LT3203 라인타공 8종. 선 사이로는 검정 흡음 펠트가 보입니다.</p>
     </section>
 
     <section class="sec">

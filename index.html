@@ -560,10 +560,16 @@
   .block h3{font-size:clamp(22px,2.6vw,30px)}
   .block h4{margin-top:0;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dark);font-weight:800}
   .block p{margin-top:16px;color:var(--body);font-size:15.5px}
-  .spec-list{margin-top:24px;border-top:1px solid var(--line)}
-  .spec-list div{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px}
-  .spec-list dt{color:var(--muted);font-weight:600}
-  .spec-list dd{color:var(--ink-2)}
+  .spec-head{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(26px,4vw,54px);align-items:center}
+  .spec-lead{margin-top:16px;color:var(--body);font-size:15.5px;line-height:1.85;word-break:keep-all}
+  .spec-photo{margin:0;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#F6F2EA}
+  .spec-photo img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+  .spec-grid{margin-top:clamp(28px,3.6vw,42px);display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.6vw,18px)}
+  .spec-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;padding:clamp(20px,2.2vw,26px);word-break:keep-all}
+  .spec-card .sk{display:block;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-dark)}
+  .spec-card b{display:block;margin-top:10px;font-size:15.5px;line-height:1.5;letter-spacing:-.01em;color:var(--ink)}
+  .spec-card .sd{display:block;margin-top:9px;font-size:13.8px;line-height:1.78;color:var(--body)}
+  .spec-note{margin-top:20px;font-size:13px;line-height:1.8;color:var(--muted);word-break:keep-all}
   .included-img{border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#F6F2EA}
   .included-img img{width:100%}
   .chips6{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
@@ -774,6 +780,7 @@
     .callout{grid-template-columns:1fr;gap:26px}
     .clinic-note{grid-template-columns:1fr;gap:26px}
     .block-2{grid-template-columns:1fr;gap:30px}
+    .spec-grid{grid-template-columns:1fr 1fr}
     .option-feature{grid-template-columns:1fr;gap:24px}
     .opt-grid.three{grid-template-columns:1fr 1fr}
     .contact-grid{grid-template-columns:1fr;gap:36px}
@@ -791,6 +798,7 @@
     .burger{display:flex}
     .site-head .inner{height:64px}
     .hero{min-height:calc(100vh - 64px);min-height:calc(100svh - 64px)}
+    .spec-head{grid-template-columns:1fr;gap:24px}
     .grid-3,.gallery{grid-template-columns:1fr 1fr}
     .stats div{padding:22px 16px 24px}
     .feat-media img{max-height:380px}
@@ -817,7 +825,12 @@
     .stats div{border-left:0;border-top:1px solid var(--line);padding:18px 0}
     .stats div:first-child{border-top:0;padding-top:0}
     .stats b{font-size:27px}
-    .spec-list div{grid-template-columns:110px 1fr;gap:12px;font-size:14px}
+    .spec-head{grid-template-columns:1fr;gap:22px}
+    .spec-photo img{aspect-ratio:16/10}
+    .spec-grid{grid-template-columns:1fr;gap:10px}
+    .spec-card{padding:18px 20px}
+    .spec-card b{font-size:15px}
+    .spec-card .sd{font-size:13.5px}
     .opt-grid{grid-template-columns:1fr}
     .opt-grid.three{grid-template-columns:1fr}
     .used-cta .btn{flex:1 1 100%}
@@ -1228,8 +1241,8 @@
           </figure>
 
           <figure class="shot rv">
-            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-lab.jpg" alt="인천 연수구 연구실 부스 내부. 우드 슬랫 포인트 벽과 아트보드, 매립 조명." loading="lazy"></div>
-            <figcaption><b>인천 연수구 · 연구실</b><span>좁은 공간에 맞춰 재단한 부스. 우드 슬랫 한 면이 포인트입니다.</span></figcaption>
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-lab.jpg" alt="인천 연수구 연구실 부스 내부. 라인타공 포인트 벽과 아트보드, 매립 조명." loading="lazy"></div>
+            <figcaption><b>인천 연수구 · 연구실</b><span>좁은 공간에 맞춰 재단한 부스. 라인타공 한 면이 포인트입니다.</span></figcaption>
           </figure>
 
           <figure class="shot rv">
@@ -1243,13 +1256,13 @@
           </figure>
 
           <figure class="shot rv">
-            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-2.jpg" alt="사무실에 세운 블랙 프레임·화이트 아트보드 방음부스 정면. 도어가 열려 내부 슬랫 마감이 보인다." loading="lazy"></div>
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-2.jpg" alt="사무실에 세운 블랙 프레임·화이트 아트보드 방음부스 정면. 도어가 열려 내부 라인타공 마감이 보인다." loading="lazy"></div>
             <figcaption><b>이전 설치 · 사무실</b><span>블랙 프레임에 화이트 아트보드. 문을 열면 내부 마감이 그대로 이어집니다.</span></figcaption>
           </figure>
 
           <figure class="shot rv">
-            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-5.jpg" alt="블랙 벽과 세로 우드 슬랫, 헤링본 마루로 마감한 방음부스 내부. 천장 매립등 세 구." loading="lazy"></div>
-            <figcaption><b>이전 설치 · 다크 우드</b><span>블랙 벽에 세로 우드 슬랫, 헤링본 마루. 조명을 낮춰도 공간이 깊어 보입니다.</span></figcaption>
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-5.jpg" alt="블랙 벽과 세로 라인타공, 헤링본 마루로 마감한 방음부스 내부. 천장 매립등 세 구." loading="lazy"></div>
+            <figcaption><b>이전 설치 · 다크 우드</b><span>블랙 벽에 세로 라인타공, 헤링본 마루. 조명을 낮춰도 공간이 깊어 보입니다.</span></figcaption>
           </figure>
         </div>
       </div>
@@ -1281,7 +1294,7 @@
           <a class="p-card rv" href="quote.html?spec=ssp">
             <span class="kicker">PLUS</span>
             <h3>슈퍼싱글 플러스</h3>
-            <p class="desc">보컬 · 악기 · 방송. 앞·뒤(정·후면) 더블 벽체 구조로 차음 성능을 높인 상위 모델입니다.</p>
+            <p class="desc">보컬 · 악기 · 방송. 정면 더블 벽체 구조로 차음 성능을 높인 상위 모델입니다.</p>
             <dl>
               <div><dt>크기(예시)</dt><dd>슈퍼싱글과 같은 치수</dd></div>
               <div><dt>시공 기간</dt><dd>1~2일</dd></div>
@@ -1612,7 +1625,7 @@
 
         <div class="gallery" id="gallery">
           <figure class="shot rv" data-kind="new">
-            <div class="ph"><span class="badge">신규 설치</span><img src="assets/exterior-home.jpg" alt="거실 창가에 맞춰 세운 부스. 문을 열면 우드 슬랫 포인트 벽과 아트보드 내부가 보인다." loading="lazy"></div>
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/exterior-home.jpg" alt="거실 창가에 맞춰 세운 부스. 문을 열면 라인타공 포인트 벽과 아트보드 내부가 보인다." loading="lazy"></div>
             <figcaption><b>맞춤 시공 · 외관</b><span>창가 자리에 맞춰 세운 부스. 문 너머로 내부 마감이 이어집니다.</span></figcaption>
           </figure>
 
@@ -1657,8 +1670,8 @@
           </figure>
 
           <figure class="shot rv" data-kind="new">
-            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-lab.jpg" alt="인천 연수구 연구실 부스 내부. 우드 슬랫 포인트 벽과 아트보드, 매립 조명." loading="lazy"></div>
-            <figcaption><b>인천 연수구 · 연구실</b><span>좁은 공간에 맞춰 재단하고 우드 슬랫으로 포인트를 준 내부.</span></figcaption>
+            <div class="ph"><span class="badge">신규 설치</span><img src="assets/interior-lab.jpg" alt="인천 연수구 연구실 부스 내부. 라인타공 포인트 벽과 아트보드, 매립 조명." loading="lazy"></div>
+            <figcaption><b>인천 연수구 · 연구실</b><span>좁은 공간에 맞춰 재단하고 라인타공으로 포인트를 준 내부.</span></figcaption>
           </figure>
 
           <figure class="shot rv" data-kind="new">
@@ -1672,8 +1685,8 @@
           </figure>
 
           <figure class="shot rv" data-kind="new">
-            <div class="ph"><span class="badge">프로젝트창</span><img src="assets/project-window-open.jpg" alt="우드 라인타공 천장에 설치한 프로젝트창이 완전히 열린 모습." loading="lazy"></div>
-            <figcaption><b>맞춤 시공 · 천장 개폐형</b><span>우드 라인타공 천장에 단 프로젝트창. 창 전체가 위로 열립니다.</span></figcaption>
+            <div class="ph"><span class="badge">프로젝트창</span><img src="assets/project-window-open.jpg" alt="우드 톤 라인타공 천장에 설치한 프로젝트창이 완전히 열린 모습." loading="lazy"></div>
+            <figcaption><b>맞춤 시공 · 천장 개폐형</b><span>우드 톤 라인타공 천장에 단 프로젝트창. 창 전체가 위로 열립니다.</span></figcaption>
           </figure>
 
           <figure class="shot rv" data-kind="new">
@@ -1692,7 +1705,7 @@
           </figure>
 
           <figure class="shot rv" data-kind="move">
-            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-2.jpg" alt="사무실에 세운 블랙 프레임·화이트 아트보드 방음부스 정면. 도어가 열려 내부 슬랫 마감이 보인다." loading="lazy"></div>
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-2.jpg" alt="사무실에 세운 블랙 프레임·화이트 아트보드 방음부스 정면. 도어가 열려 내부 라인타공 마감이 보인다." loading="lazy"></div>
             <figcaption><b>사무실 · 정면</b><span>블랙 프레임에 화이트 아트보드를 붙인 부스. 문을 열면 내부 마감과 바닥이 그대로 이어집니다.</span></figcaption>
           </figure>
 
@@ -1702,13 +1715,13 @@
           </figure>
 
           <figure class="shot rv" data-kind="move">
-            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-4.jpg" alt="방송·작업용 부스 내부. 블랙 천장과 밝은 아트보드 벽, 양쪽 우드 슬랫 패널과 책상." loading="lazy"></div>
-            <figcaption><b>방송·작업 · 내부</b><span>천장은 블랙, 벽은 밝은 아트보드. 양쪽 벽에 우드 슬랫 패널을 대고 책상을 놓았습니다.</span></figcaption>
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-4.jpg" alt="방송·작업용 부스 내부. 블랙 천장과 밝은 아트보드 벽, 양쪽 라인타공 패널과 책상." loading="lazy"></div>
+            <figcaption><b>방송·작업 · 내부</b><span>천장은 블랙, 벽은 밝은 아트보드. 양쪽 벽에 라인타공 패널을 대고 책상을 놓았습니다.</span></figcaption>
           </figure>
 
           <figure class="shot rv" data-kind="move">
-            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-5.jpg" alt="블랙 벽과 세로 우드 슬랫, 헤링본 마루로 마감한 부스 내부. 천장 매립등 세 구가 켜져 있다." loading="lazy"></div>
-            <figcaption><b>다크 우드 · 내부</b><span>블랙 벽에 우드 슬랫을 세로로 세우고 헤링본 마루를 깐 내부. 천장 매립등 세 구로 마감했습니다.</span></figcaption>
+            <div class="ph"><span class="badge move">이전 설치</span><img src="assets/case-move-5.jpg" alt="블랙 벽과 세로 라인타공, 헤링본 마루로 마감한 부스 내부. 천장 매립등 세 구가 켜져 있다." loading="lazy"></div>
+            <figcaption><b>다크 우드 · 내부</b><span>블랙 벽에 라인타공을 세로로 세우고 헤링본 마루를 깐 내부. 천장 매립등 세 구로 마감했습니다.</span></figcaption>
           </figure>
 
           <figure class="shot rv" data-kind="move">
@@ -1755,7 +1768,7 @@
           <div class="p-card rv">
             <span class="kicker">PLUS</span>
             <h3>슈퍼싱글 플러스</h3>
-            <p class="desc">보컬 · 악기 · 방송. 앞·뒤(정·후면) 더블 벽체 구조로 차음 성능을 높인 상위 모델입니다.</p>
+            <p class="desc">보컬 · 악기 · 방송. 정면 더블 벽체 구조로 차음 성능을 높인 상위 모델입니다.</p>
             <dl>
               <div><dt>크기(예시)</dt><dd>슈퍼싱글과 같은 치수</dd></div>
               <div><dt>시공 기간</dt><dd>1~2일</dd></div>
@@ -1791,7 +1804,7 @@
           <div class="sec-head rv">
             <span class="eyebrow">Grades</span>
             <h2>용도에 맞춘 세 가지 벽체 구조</h2>
-            <p>슈퍼싱글(기본 단일), 플러스(앞·뒤 더블), 더블(부스 안에 부스) — 연주하는 악기와 공간 환경에 맞춰 벽체 구조부터 다르게 시공합니다.</p>
+            <p>슈퍼싱글(기본 단일), 플러스(정면 더블), 더블(부스 안에 부스) — 연주하는 악기와 공간 환경에 맞춰 벽체 구조부터 다르게 시공합니다.</p>
           </div>
 
           <div class="grade-grid">
@@ -1816,15 +1829,15 @@
               <span class="gk">PLUS</span>
               <h3>슈퍼싱글 플러스</h3>
               <div class="gwall">
-                <span class="gtag">벽체 구조 · 앞뒤 더블</span>
-                <span class="gname">앞·뒤(정·후면) 더블 벽체</span>
-                <span class="gdesc">앞면과 뒷면에 벽체를 한 겹씩 더 세운 구조입니다. 보컬 · 악기 · 방송처럼 소리가 큰 작업에서 한 단계 더 막아 줍니다.</span>
+                <span class="gtag">벽체 구조 · 정면 더블</span>
+                <span class="gname">정면 더블 벽체</span>
+                <span class="gdesc">문이 있는 앞면 안쪽에 벽체를 한 겹 더 세운 구조입니다. 뒷면은 기본 단일 벽체로 두고, 보컬 · 악기 · 방송처럼 소리가 큰 작업에서 한 단계 더 막아 줍니다.</span>
               </div>
               <dl>
                 <div><dt>규격(예시)</dt><dd>1,800×2,000 · 3.6㎡</dd></div>
                 <div><dt>권장 용도</dt><dd>보컬 · 악기 · 방송</dd></div>
                 <div><dt>시공 기간</dt><dd>1~2일</dd></div>
-                <div><dt>차이</dt><dd>앞·뒤(정·후면) 더블 벽체 구조로 차음 성능을 높인 구성</dd></div>
+                <div><dt>차이</dt><dd>정면 더블 벽체 구조로 차음 성능을 높인 구성 (후면 제외)</dd></div>
               </dl>
               <a class="gcta" href="quote.html?spec=ssp">이 규격으로 견적 보기 →</a>
             </article>
@@ -1852,7 +1865,7 @@
           <figure class="wf2-fig">
   <div class="wf2-head">
     <span class="wf2-eyebrow">Wall Section · 기본 벽체</span>
-    <p>기본 벽체는 네 겹으로 구성됩니다. 바깥에서 들어온 소리가 <b>외부 마감 → 프레임·충진 → 실링 → 내부 마감</b> 순서로 지나면서 작아지고, 플러스(앞뒤 더블)와 더블(부스 안에 부스)은 여기에 이중 구조가 더해집니다.</p>
+    <p>기본 벽체는 네 겹으로 구성됩니다. 바깥에서 들어온 소리가 <b>외부 마감 → 프레임·충진 → 실링 → 내부 마감</b> 순서로 지나면서 작아지고, 플러스(정면 더블)와 더블(부스 안에 부스)은 여기에 이중 구조가 더해집니다.</p>
   </div>
   <div class="wf2-canvas">
     <svg class="wf2-iso" viewBox="0 0 800 570" role="img" aria-label="바닥 위에 세워진 벽체 단면. 바깥 소리가 1 외부 백색 알판, 2 PB 프레임과 2중 흡음, 3 벽체 간 실링, 4 내부 라인타공과 아트보드를 차례로 지나며 작아져 실내에서는 거의 들리지 않습니다.">
@@ -2145,25 +2158,50 @@
         </div>
 
         <div class="blocks">
-          <div class="block block-2 rv">
-            <div>
-              <h4>Spec</h4>
-              <h3 style="margin-top:12px">규격과 사양</h3>
-              <p>사용 목적에 맞춰 싱글(기본) · 플러스(앞뒤 더블) · 더블(부스 안에 부스) 세 가지 구조로 제작합니다. 어느 구조든 현장 치수에 맞춰 재단하고, 마감 색과 옵션은 현장에 맞춰 정합니다.</p>
-              <div class="spec-list">
-                <div><dt>벽체</dt><dd>PB 액자틀 · 고밀도 흡음 2중 충진 · 벽체 사이 실링 마감</dd></div>
-                <div><dt>내부 마감</dt><dd>1면 라인타공 · 3면 아트보드(지정색·패턴)</dd></div>
-                <div><dt>외부 마감</dt><dd>백색 알판</dd></div>
-                <div><dt>문</dt><dd>시스템도어 · 문 상단 마감판 · 문틈 현장 마감</dd></div>
-                <div><dt>조명</dt><dd>COB 매립등 + 중앙 LED등 · 대형은 레일등</dd></div>
-                <div><dt>전기</dt><dd>2구 스위치 · 세로 2구 콘센트 (배선 벽체 매립)</dd></div>
-                <div><dt>바닥</dt><dd>강화마루 (밝은 오크·메이플 톤 기본)</dd></div>
-                <div><dt>사이즈</dt><dd>1,500×1,500 이상 맞춤 재단 (외부·내부 치수는 견적서에 표기)</dd></div>
+          <div class="block rv">
+            <div class="spec-head">
+              <div>
+                <h4>Spec</h4>
+                <h3 style="margin-top:12px">규격과 사양</h3>
+                <p class="spec-lead">사용 목적에 맞춰 싱글(기본) · 플러스(정면 더블) · 더블(부스 안에 부스) 세 가지 구조로 제작합니다. 어느 구조든 현장 치수에 맞춰 재단하고, 마감 색과 옵션은 현장에 맞춰 정합니다.</p>
               </div>
+              <figure class="spec-photo">
+                <img src="assets/interior-academy-clean.jpg" alt="시그니처 내부. 메이플 톤 라인타공 한 면과 아트보드 세 면, COB 매립등과 중앙 LED등." loading="lazy">
+              </figure>
             </div>
-            <div class="included-img">
-              <img src="assets/interior-academy-clean.jpg" alt="시그니처 내부. 메이플 톤 라인타공 한 면과 아트보드 세 면, COB 매립등과 중앙 LED등." loading="lazy">
+            <div class="spec-grid">
+              <article class="spec-card">
+                <span class="sk">Structure · 구조</span>
+                <b>PB 액자틀 · 흡음 2중</b>
+                <span class="sd">틀 안을 고밀도 흡음으로 두 겹 채우고, 벽체가 맞닿는 이음새는 실링으로 막습니다.</span>
+              </article>
+              <article class="spec-card">
+                <span class="sk">Finish · 마감</span>
+                <b>안쪽 라인타공 1면 · 아트보드 3면</b>
+                <span class="sd">아트보드는 지정색·패턴으로 맞추고, 바깥면은 백색 알판으로 마감합니다.</span>
+              </article>
+              <article class="spec-card">
+                <span class="sk">Door · 문</span>
+                <b>시스템도어 1짝</b>
+                <span class="sd">문 상단 마감판과 문틈 현장 마감까지 처음부터 함께 시공합니다.</span>
+              </article>
+              <article class="spec-card">
+                <span class="sk">Floor · 바닥</span>
+                <b>강화마루</b>
+                <span class="sd">밝은 오크 · 메이플 톤이 기본입니다. 바닥재에 따라 내부 전체 톤이 달라집니다.</span>
+              </article>
+              <article class="spec-card">
+                <span class="sk">Light · Power · 조명·전기</span>
+                <b>COB 매립등 + 중앙 LED등</b>
+                <span class="sd">2구 스위치와 세로 2구 콘센트를 벽체 배선으로 넣습니다. 가로·세로 2,400 이상은 레일등으로 시공합니다.</span>
+              </article>
+              <article class="spec-card">
+                <span class="sk">Size · 규격</span>
+                <b>1,500×1,500부터 맞춤 재단</b>
+                <span class="sd">정형 규격을 그대로 쓰지 않고 방을 실측해 재단하며, 외부·내부 치수는 견적서에 표기합니다.</span>
+              </article>
             </div>
+            <p class="spec-note">위 사진은 1면 라인타공 · 3면 아트보드 · COB 매립등으로 마감한 실제 시공 내부입니다.</p>
           </div>
 
           <div class="block block-2 rv">
@@ -2205,7 +2243,7 @@
                   <i style="background:#C9B393"></i><i style="background:#A08063"></i><i style="background:#E0CBA6"></i><i style="background:#BC8A64"></i><i style="background:#B5A896"></i><i style="background:#5B483A"></i><i style="background:#F0EFEA"></i><i style="background:#DFDBD0"></i>
                 </span>
                 <b>1면 라인타공</b>
-                <span class="ms">RG-LT3203 8종. 슬랫 사이로는 검정 흡음 펠트가 보여, 어떤 색을 골라도 선이 살아 있습니다.</span>
+                <span class="ms">RG-LT3203 8종. 선 사이로는 검정 흡음 펠트가 보여, 어떤 색을 골라도 선이 살아 있습니다.</span>
                 <em>내추럴 오크 · 월넛 · 메이플 · 티크 · 애쉬 · 다크</em>
               </div>
 
@@ -2241,7 +2279,7 @@
               <div class="option-media">
                 <img src="assets/project-window-main.jpg" alt="천장에 개폐형 프로젝트창을 설치한 부스 내부. 창을 열면 천장 시스템에어컨이 보이고, 창문이 위로 열린다." loading="lazy">
                 <div class="option-media-pair">
-                  <img src="assets/project-window-open.jpg" alt="우드 라인타공 천장의 프로젝트창이 완전히 열린 모습." loading="lazy">
+                  <img src="assets/project-window-open.jpg" alt="우드 톤 라인타공 천장의 프로젝트창이 완전히 열린 모습." loading="lazy">
                   <img src="assets/project-window-closed.jpg" alt="프로젝트창을 닫은 상태. 창 너머로 천장 시스템에어컨 취출구가 보인다." loading="lazy">
                 </div>
               </div>
@@ -2269,8 +2307,8 @@
                 <em>값은 견적서에 미리</em>
               </div>
               <div class="opt">
-                <b>타공판 추가 면적 · 우드 슬랫 마감</b>
-                <span>기본 마감 외 면적에 타공판을 더하거나, 한 면을 우드 슬랫으로 바꿔 톤을 맞춥니다.</span>
+                <b>타공판 추가 면적 · 라인타공 마감</b>
+                <span>기본 마감 외 면적에 타공판을 더하거나, 한 면을 라인타공으로 바꿔 톤을 맞춥니다.</span>
                 <em>값은 견적서에 미리</em>
               </div>
             </div>
