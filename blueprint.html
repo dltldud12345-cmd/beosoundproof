@@ -2670,7 +2670,7 @@ function sheetField(m){
   const faceTop = (m.lineFace === 'back'), faceBottom = (m.lineFace === 'front');
   const faceLeft = (m.lineFace === 'left'), faceRight = (m.lineFace === 'right');
   let s = sheetHead('A-105','현장 타공 가이드 · 부스 바깥 맨 끝 기준',
-    'FIELD DRILL GUIDE · 줄자를 붓스 바깥 맨 끝(외벽 110 포함)에 걸고 바로 점찍기 · '
+    'FIELD DRILL GUIDE · 줄자를 부스 바깥 맨 끝(외벽 110 포함)에 걸고 바로 점찍기 · '
     + (rail ? '레일등' : 'COB 매립등 2구 Ø'+m.cobDia) + ' · 타공면 '+m.sideName[m.lineFace]
     + ' · 중앙등 1구');
   s += pageNo('A-105',5,PAGE_TOTAL);
@@ -2782,10 +2782,15 @@ function sheetField(m){
 
   /* ---------- 치수 — 타공면 쪽 체인 / 맞은편 중앙 치수 ---------- */
   const dimC = '#1F7A69';
+  /* 타공면 방향 체인 — COB: 1구 / 2구 사이 / 끝 · 레일: 시작 / 길이 / 끝 */
+  const chainA = rail ? [0, f.railStart, f.railEnd, f.faceOuterLen] : [0, f.pos1, f.pos2, f.faceOuterLen];
+  const chainL = rail ? [f.railStart, f.railLen, f.faceOuterLen - f.railEnd] : [f.pos1, f.seg2, f.seg3];
+  const chainH = (atY, opt) => { let o=''; for(let i=0;i<3;i++){ const a=chainA[i], b=chainA[i+1]; if(b-a < 4) continue;
+      o += dimH(X(a), X(b), atY, String(chainL[i]), Object.assign({size:8.4, color:dimC}, opt)); } return o; };
+  const chainV = (atX, opt) => { let o=''; for(let i=0;i<3;i++){ const a=chainA[i], b=chainA[i+1]; if(b-a < 4) continue;
+      o += dimV(Y(a), Y(b), atX, String(chainL[i]), Object.assign({size:8.4, color:dimC}, opt)); } return o; };
   if(faceTop){
-    s += dimH(X(0), X(f.pos1), oy-24, String(f.pos1), {size:8.4, color:dimC});
-    s += dimH(X(f.pos1), X(f.pos2), oy-24, String(f.seg2), {size:8.4, color:dimC});
-    s += dimH(X(f.pos2), X(outW), oy-24, String(f.seg3), {size:8.4, color:dimC});
+    s += chainH(oy-24);
     s += dimH(X(0), X(outW), oy-46, String(outW), {size:7.6, ext1:oy, ext2:oy});
     s += dimV(oy, Y(f.depth), ox-30, String(f.depth), {size:9.4, color:'#B4622A', ext1:ox, ext2:ox, labelX:ox-33});
     s += dimV(Y(f.depth), oy+ph, ox-30, String(outD-f.depth), {size:7.2, ext1:ox, ext2:ox, labelX:ox-33});
@@ -2793,9 +2798,7 @@ function sheetField(m){
     s += dimH(X(0), ox+pw/2, oy+ph+22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy+ph+18});
     s += dimV(oy, oy+ph/2, ox+pw+28, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox+pw+31});
   } else if(faceBottom){
-    s += dimH(X(0), X(f.pos1), oy+ph+24, String(f.pos1), {size:8.4, color:dimC});
-    s += dimH(X(f.pos1), X(f.pos2), oy+ph+24, String(f.seg2), {size:8.4, color:dimC});
-    s += dimH(X(f.pos2), X(outW), oy+ph+24, String(f.seg3), {size:8.4, color:dimC});
+    s += chainH(oy+ph+24);
     s += dimH(X(0), X(outW), oy+ph+46, String(outW), {size:7.6, ext1:oy+ph, ext2:oy+ph});
     s += dimV(Y(outD-f.depth), oy+ph, ox-30, String(f.depth), {size:9.4, color:'#B4622A', ext1:ox, ext2:ox, labelX:ox-33});
     s += dimV(oy, Y(outD-f.depth), ox-30, String(outD-f.depth), {size:7.2, ext1:ox, ext2:ox, labelX:ox-33});
@@ -2803,9 +2806,7 @@ function sheetField(m){
     s += dimH(X(0), ox+pw/2, oy-22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy-25});
     s += dimV(oy, oy+ph/2, ox+pw+28, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox+pw+31});
   } else if(faceLeft){
-    s += dimV(Y(0), Y(f.pos1), ox-24, String(f.pos1), {size:8.4, color:dimC});
-    s += dimV(Y(f.pos1), Y(f.pos2), ox-24, String(f.seg2), {size:8.4, color:dimC});
-    s += dimV(Y(f.pos2), Y(outD), ox-24, String(f.seg3), {size:8.4, color:dimC});
+    s += chainV(ox-24);
     s += dimV(Y(0), Y(outD), ox-46, String(outD), {size:7.6, ext1:ox, ext2:ox});
     s += dimH(ox, X(f.depth), oy-26, String(f.depth), {size:9.4, color:'#B4622A', ext1:oy, ext2:oy, labelY:oy-30});
     s += dimH(X(f.depth), ox+pw, oy-26, String(outW-f.depth), {size:7.2, ext1:oy, ext2:oy, labelY:oy-30});
@@ -2813,9 +2814,7 @@ function sheetField(m){
     s += dimV(Y(0), oy+ph/2, ox+pw+26, String(f.centerPerp), {size:7.2, color:ACC, labelX:ox+pw+29});
     s += dimH(X(0), ox+pw/2, oy+ph+22, String(f.centerAlong), {size:7.2, color:ACC, labelY:oy+ph+18});
   } else {
-    s += dimV(Y(0), Y(f.pos1), ox+pw+24, String(f.pos1), {size:8.4, color:dimC, labelX:ox+pw+27});
-    s += dimV(Y(f.pos1), Y(f.pos2), ox+pw+24, String(f.seg2), {size:8.4, color:dimC, labelX:ox+pw+27});
-    s += dimV(Y(f.pos2), Y(outD), ox+pw+24, String(f.seg3), {size:8.4, color:dimC, labelX:ox+pw+27});
+    s += chainV(ox+pw+24, {labelX:ox+pw+27});
     s += dimV(Y(0), Y(outD), ox+pw+46, String(outD), {size:7.6, ext1:ox+pw, ext2:ox+pw, labelX:ox+pw+49});
     s += dimH(ox+pw-X(f.depth), ox+pw, oy-26, String(f.depth), {size:9.4, color:'#B4622A', ext1:oy, ext2:oy, labelY:oy-30});
     s += dimH(ox, ox+pw-X(f.depth), oy-26, String(outW-f.depth), {size:7.2, ext1:oy, ext2:oy, labelY:oy-30});
@@ -2883,7 +2882,7 @@ function sheetField(m){
     s += T(bx0+bwL+22, yy, r[0], {size:6.2, fill:'#5C666D', weight:700});
     s += T(bx0+bwL+22+128, yy, r[1], {size:6.6, weight:800, fill:INK, mono:true});
   });
-  s += T(bx0+bwL+22, by0+bh2-12, '전부 부스 바꿘 맨 끝에서 재는 값 — 외벽 110 포함', {size:5.8, fill:'#7B8389'});
+  s += T(bx0+bwL+22, by0+bh2-12, '전부 부스 바깥 맨 끝에서 재는 값 — 외벽 110 포함', {size:5.8, fill:'#7B8389'});
 
   s += titleBlock(m,{no:'A-105',title:'현장 타공 가이드',scale:'N.T.S'});
   return sheetShell(s);
