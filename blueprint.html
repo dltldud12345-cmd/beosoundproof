@@ -1971,6 +1971,32 @@ function sheetPlan(m){
         s += L(b[0]-4.8, b[1], b[0]+4.8, b[1], {stroke:ACC, sw:1.05});
         [1,2,3].forEach(i=> s += C(a[0], a[1]+rl*i/4, 1.05, {fill:'#fff', stroke:ACC, sw:0.65}));
       }
+      /* 전선 인출 타공 — 레일 좌·우 끝 중 1곳만 (전선 2가닥) */
+      {
+        [[a[0], a[1]], [b[0], b[1]]].forEach((q,i)=>{
+          s += C(q[0], q[1], 2.0, {fill:'#fff', stroke:'#B4622A', sw:0.95, dash:'1.6 1.1'});
+          if(i===0) s += tag(q[0] + (horiz?0:0) + (horiz? 0 : -12), q[1] + (horiz? -11 : 0),
+            '전선 타공 1곳 (좌·우 택1)', {size:5.6, fill:'#8A4517', weight:800, bg:'#fff', bgop:.95, stroke:'#E6C3A4', sw:0.4, rot: horiz? 0 : -90});
+        });
+      }
+      /* 스팟 방향 — 항상 라인타공 면(벽) 쪽을 비춘다 */
+      {
+        const aim = -inward;
+        [0.22, 0.5, 0.78].forEach(k=>{
+          const q = ptAt((m.lineLen-m.railLen)/2 + m.railLen*k, m.railInset);
+          if(horiz){
+            const y2 = q[1] + aim*11;
+            s += L(q[0], q[1] + aim*2.6, q[0], y2, {stroke:ACC, sw:0.95});
+            s += L(q[0], y2, q[0]-2.5, y2 - aim*3.2, {stroke:ACC, sw:0.95});
+            s += L(q[0], y2, q[0]+2.5, y2 - aim*3.2, {stroke:ACC, sw:0.95});
+          } else {
+            const x2 = q[0] + aim*11;
+            s += L(q[0] + aim*2.6, q[1], x2, q[1], {stroke:ACC, sw:0.95});
+            s += L(x2, q[1], x2 - aim*3.2, q[1]-2.5, {stroke:ACC, sw:0.95});
+            s += L(x2, q[1], x2 - aim*3.2, q[1]+2.5, {stroke:ACC, sw:0.95});
+          }
+        });
+      }
       /* 양쪽 여백 = 전선 시작 여백 (내부 길이 − 레일 길이) ÷ 2 — 벽 쪽에 치수선 */
       const w0 = ptAt(0, 0), w1 = ptAt(m.lineLen, 0);
       if(horiz){
@@ -1989,13 +2015,14 @@ function sheetPlan(m){
       const lx = horiz ? lp[0] : lp[0] + inward*15;
       const ly2 = horiz ? lp[1] + inward*15 : lp[1];
       const lbl = compact
-        ? '레일등 '+m.railLen+' · 여백 ('+m.lineLen+'−'+m.railLen+')÷2 = '+m.railGap
-        : '레일등 '+m.railLen+' ㎜ · 벽 안쪽면 '+m.railInset+' ㎜';
+        ? '레일등 '+m.railLen+' · 여백 '+m.railGap+' · 스팟→라인타공'
+        : (horiz ? '레일등 '+m.railLen+' ㎜ · 벽 안쪽면 '+m.railInset+' ㎜ · 스팟→'+m.sideName[m.lineFace]
+                 : '레일등 '+m.railLen+' · 스팟→라인타공');
       s += horiz ? tag(lx, ly2, lbl, {size:7.4, fill:ACC, weight:800, bg:'#fff', bgop:0.95, stroke:'#9BD6C7', sw:0.5})
                  : tag(lx, ly2, lbl, {size:7.4, fill:ACC, weight:800, bg:'#fff', bgop:0.95, stroke:'#9BD6C7', sw:0.5, rot:-90});
       if(!compact){
         const ftxt = '전선 시작 여백 ('+m.lineLen+' − '+m.railLen+') ÷ 2 = '+m.railGap+' ㎜';
-        const fx = horiz ? lp[0] : lp[0] + inward*24;
+        const fx = horiz ? lp[0] : lp[0] + inward*30;
         const fy = horiz ? lp[1] + inward*26 : lp[1];
         s += horiz ? T(fx, fy, ftxt, {size:6.2, anchor:'middle', fill:'#2E353B', weight:700})
                    : T(fx, fy, ftxt, {size:6.2, anchor:'middle', fill:'#2E353B', weight:700, rotate:-90});
@@ -2056,8 +2083,10 @@ function sheetPlan(m){
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
       s += L(cx+d[0]*(r0+1.8), cy+d[1]*(r0+1.8), cx+d[0]*(r0+4.8), cy+d[1]*(r0+4.8), {stroke:ACC, sw:0.8});
     });
-    s += T(cx + r0 + 8, cy + 1.4, '중앙등', {size:8.2, weight:800, fill:ACC});
-    s += T(cx + r0 + 8, cy + 11.6, '중심 '+cw+' / '+cd+' ㎜', {size:6.3, weight:700, fill:'#2E353B'});
+    const flipL = (m.lightMode==='rail' && m.lineFace==='right');
+    const lx0 = flipL ? cx - r0 - 8 : cx + r0 + 8;
+    s += T(lx0, cy + 1.4, '중앙등', {size:8.2, weight:800, fill:ACC, anchor: flipL? 'end':'start'});
+    s += T(lx0, cy + 11.6, '중심 '+cw+' / '+cd+' ㎜', {size:6.3, weight:700, fill:'#2E353B', anchor: flipL? 'end':'start'});
     /* 중심 치수 — 라인타공 면 반대쪽 내부 면에서 중심까지 (내부 ÷ 2) */
     const dy = cy + r0 + 13, ex = cy + r0 + 4;
     if(m.lineFace==='left') s += dimH(cx, ox+pw-innerInset('right'), dy, String(cw), {size:6.6, color:ACC, ext1:ex, ext2:ex, labelY:dy-3.6});
@@ -2173,8 +2202,8 @@ function sheetPlan(m){
     const backN = m.notch.y0 < 1, frontN = m.notch.y1 > m.D - 1;
     const yl = backN ? ny + nh - 9 : ny + 9;
     s += dimH(nx, nx+nw, yl, String(m.notch.cw), {size:6.8, color:'#2E6FA3', labelY: backN? yl+8 : yl-3});
-    s += dimV(ny, ny+nh, nx + (m.notch.x1 > m.W-1 ? -9 : nw - 9), String(m.notch.cd),
-      {size:6.8, color:'#2E6FA3', labelX: nx + (m.notch.x1 > m.W-1 ? -12 : nw - 12)});
+    s += dimV(ny, ny+nh, nx + (m.notch.x1 > m.W-1 ? 9 : nw - 9), String(m.notch.cd),
+      {size:6.8, color:'#2E6FA3', labelX: nx + (m.notch.x1 > m.W-1 ? 12 : nw - 12)});
     /* 남은 외벽 길이 — 따낸 쪽 바깥에 */
     if(backN || frontN){
       const yb = backN ? oy - 33 : oy + ph + 40;
@@ -2597,6 +2626,24 @@ function cobCeilPanel(m, x, y, w, h){
       s += L(ra[0]-3.2, ra[1], ra[0]+3.2, ra[1], {stroke:ACC, sw:0.85});
       s += L(rb[0]-3.2, rb[1], rb[0]+3.2, rb[1], {stroke:ACC, sw:0.85});
     }
+    /* 스팟 방향 — 항상 라인타공 면 쪽 */
+    {
+      const aim = -inward;
+      [0.25, 0.5, 0.75].forEach(k=>{
+        const q = pt((m.lineLen-m.railLen)/2 + m.railLen*k, m.railInset);
+        if(horiz){
+          const y2 = q[1] + aim*7;
+          s += L(q[0], q[1] + aim*1.8, q[0], y2, {stroke:ACC, sw:0.8});
+          s += L(q[0], y2, q[0]-1.8, y2 - aim*2.4, {stroke:ACC, sw:0.8});
+          s += L(q[0], y2, q[0]+1.8, y2 - aim*2.4, {stroke:ACC, sw:0.8});
+        } else {
+          const x2 = q[0] + aim*7;
+          s += L(q[0] + aim*1.8, q[1], x2, q[1], {stroke:ACC, sw:0.8});
+          s += L(x2, q[1], x2 - aim*2.4, q[1]-1.8, {stroke:ACC, sw:0.8});
+          s += L(x2, q[1], x2 - aim*2.4, q[1]+1.8, {stroke:ACC, sw:0.8});
+        }
+      });
+    }
     const q0 = pt(0,0), q1 = pt(m.lineLen,0);
     /* 여백이 좁으면(90 ㎜ 등) 치수선이 읽히지 않아 라벨·값 목록으로 대신한다 */
     if(m.railGap*sc >= 13){
@@ -2632,8 +2679,10 @@ function cobCeilPanel(m, x, y, w, h){
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
       s += L(cx+d[0]*(rc+0.9), cy+d[1]*(rc+0.9), cx+d[0]*(rc+2.4), cy+d[1]*(rc+2.4), {stroke:ACC, sw:0.7});
     });
-    s += T(cx + rc + 3.4, cy - 0.2, '중앙등', {size:5.6, weight:800, fill:ACC});
-    s += T(cx + rc + 3.4, cy + 6.2, ctw+' / '+ctd, {size:4.7, weight:700, fill:'#4F585F', mono:true});
+    const flip = (f==='right');
+    const txa = flip ? cx - rc - 3.4 : cx + rc + 3.4;
+    s += T(txa, cy - 0.2, '중앙등', {size:5.6, weight:800, fill:ACC, anchor: flip? 'end':'start'});
+    s += T(txa, cy + 6.2, ctw+' / '+ctd, {size:4.7, weight:700, fill:'#4F585F', mono:true, anchor: flip? 'end':'start'});
   }
 
   /* 치수선 — COB: 면 시작 ~ 1/3 ~ 2/3 ~ 끝 */
@@ -3284,7 +3333,7 @@ function sheetField(m){
   /* ---------- 큰 숫자 타일 ---------- */
   const tiles = rail ? [
     ['타공면 벽 끝 → 레일', fmt(f.railDepth), wallTxt+' + 400 이격', '타공면 '+m.sideName[m.lineFace]],
-    ['레일 시작 (양 끝에서)', fmt(f.railStart), '110 + 여백 '+m.railGap, '레일 '+fmt(f.railLen)+' ㎜'],
+    ['레일 시작 (양 끝에서)', fmt(f.railStart), '110 + 여백 '+m.railGap+' · 전선 타공 1곳', '레일 '+fmt(f.railLen)+' ㎜'],
     ['레일 끝 (양 끝에서)', fmt(f.railEnd), '시작 '+fmt(f.railStart)+' + '+fmt(f.railLen), '내부 가운데 정렬'],
     ['중앙등 (맨 끝에서)', fmt(f.centerAlong)+' / '+fmt(f.centerPerp), '가로 ÷ 2 · 세로 ÷ 2', '내부 '+m.innerW+' · '+m.innerD]
   ] : [
@@ -3413,7 +3462,26 @@ function sheetField(m){
       s += L(a[0]-9, a[1], a[0]+9, a[1], {stroke:ACC, sw:1.3});
       s += L(b[0]-9, b[1], b[0]+9, b[1], {stroke:ACC, sw:1.3});
     }
-    s += T((a[0]+b[0])/2, horizFace? a[1]-13 : a[1] , '레일등 '+fmt(f.railLen), {size:7.2, weight:800, fill:ACC, anchor:'middle', rotate: horizFace? undefined : -90});
+    /* 스팟 방향 — 라인타공 면 쪽 화살표 3개 */
+    {
+      const aim = (faceTop || faceLeft) ? 1 : -1;
+      [0.25, 0.5, 0.75].forEach(k=>{
+        const al = f.railStart + f.railLen*k;
+        const c = holePt(al);
+        if(horizFace){
+          const y2 = c[1] + aim*13;
+          s += L(c[0], c[1] + aim*2.4, c[0], y2, {stroke:ACC, sw:1.1});
+          s += L(c[0], y2, c[0]-3, y2 - aim*4, {stroke:ACC, sw:1.1});
+          s += L(c[0], y2, c[0]+3, y2 - aim*4, {stroke:ACC, sw:1.1});
+        } else {
+          const x2 = c[0] + aim*13;
+          s += L(c[0] + aim*2.4, c[1], x2, c[1], {stroke:ACC, sw:1.1});
+          s += L(x2, c[1], x2 - aim*4, c[1]-3, {stroke:ACC, sw:1.1});
+          s += L(x2, c[1], x2 - aim*4, c[1]+3, {stroke:ACC, sw:1.1});
+        }
+      });
+    }
+    s += T((a[0]+b[0])/2, horizFace? a[1]-13 : a[1] , '레일등 '+fmt(f.railLen)+' · 스팟→라인타공 면', {size:7.2, weight:800, fill:ACC, anchor:'middle', rotate: horizFace? undefined : -90});
   } else {
     [[f.pos1,'1'],[f.pos2,'2']].forEach(([al,k])=>{
       const c = holePt(al);
@@ -3548,6 +3616,7 @@ function sheetField(m){
   if(rail){
     rows.push(['벽 안쪽면 → 레일', fmt(m.railInset)+' ㎜']);
     rows.push(['레일 시작 / 끝', fmt(m.railGap)+' / '+fmt(m.railGap+m.railLen)+' ㎜']);
+    rows.push(['전선 인출 타공', '레일 끝 1곳 (좌·우 택1)']);
   } else {
     rows.push(['타공 줄 (안쪽 면에서)', fmt(m.cobInset)+' ㎜']);
     rows.push(['첫 번째 등 · 두 번째 등', fmt(m.cobPos[0])+' · '+fmt(m.cobPos[1])+' ㎜']);
@@ -3935,7 +4004,9 @@ function syncCobUI(m){
       + ' · 레일 <b>'+m.railLen+'</b> ㎜ (벽 안쪽면 <b>'+m.railInset+'</b> ㎜ 이격, 가운데 정렬)'
       + (m.railClamp? ' <span style="color:#B4622A">· 내부에 맞춰 축소</span>' : '')
       + ' — 전선 시작 여백 <b>('+m.lineLen+' − '+m.railLen+') ÷ 2 = '+m.railGap+'</b> ㎜'
-      + (m.railTight? ' <span style="color:#B4622A">· 여백 부족 — 짧은 레일 권장</span>' : '');
+      + (m.railTight? ' <span style="color:#B4622A">· 여백 부족 — 짧은 레일 권장</span>' : '')
+      + (state.autoRail? '<br><span style="color:#B4622A;font-weight:800">· 2,400㎜ 이상 규격 → 레일등 자동 적용</span>' : '')
+      + '<br>스팟 방향은 항상 <b>라인타공 면('+m.sideName[m.lineFace]+')</b>을 비춥니다.';
     return;
   }
   el.innerHTML = '<b>'+m.sideName[m.lineFace]+'</b> 내부 <b>'+m.lineLen+'</b> ÷ 3 = <b>'+m.cobGap+'</b> ㎜ — 등은 <b>한쪽 끝에서 '
@@ -3957,6 +4028,7 @@ function syncFieldUI(m){
           ['벽 안쪽면 → 레일 중심', m.railInset, '내부 기준 (천장 올린 뒤)'],
           ['레일 시작 (양쪽 안쪽 벽에서)', m.railGap, '레일 ' + m.railLen + ' ㎜'],
           ['레일 끝', m.railGap + m.railLen, '안쪽 벽에서 ' + m.railGapB + ' 남음'],
+          ['전선 인출 타공 1곳', '레일 끝', '좌·우 끝 중 택1 · 전선 2가닥'],
           ['중앙등 (안쪽 벽에서)', ctrW + ' / ' + ctrD, '내부 ' + m.innerW + '·' + m.innerD + ' ÷ 2']
         ] : [
           ['벽 안쪽면 → 타공 줄', m.cobInset, '내부 기준 (천장 올린 뒤)'],
@@ -3968,6 +4040,7 @@ function syncFieldUI(m){
           ['타공면 벽 끝 → 레일', f.railDepth, wallTxt + ' + 400 이격'],
           ['레일 시작 (양 끝에서)', f.railStart, wallTxt + ' + 여백 ' + m.railGap],
           ['레일 끝', f.railEnd, '레일 ' + f.railLen + ' ㎜'],
+          ['전선 인출 타공 1곳', '레일 끝', '좌·우 끝 중 택1 · 전선 2가닥'],
           ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
         ] : [
           ['타공면 벽 끝 → 타공 줄', f.depth, wallTxt + ' + ' + m.cobInset + ' 이격'],
@@ -4183,6 +4256,17 @@ function syncCornerUI(m){
 }
 
 function render(){
+  /* 2,400㎜ 이상 규격은 레일등 자동 (quote·configurator 와 같은 규칙) */
+  const bigNow = ((+$('#W').value || 0) >= 2400) || ((+$('#D').value || 0) >= 2400);
+  if(bigNow !== state.bigSize){
+    state.bigSize = bigNow;
+    if(bigNow && state.lightMode !== 'rail'){
+      state.lightMode = 'rail';
+      state.autoRail = true;
+      const lm = $('#lightMode');
+      if(lm) lm.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v==='rail')));
+    }
+  }
   const inp = readInputs();
   const m = buildModel(inp);
   state.model = m;
@@ -4549,7 +4633,7 @@ function init(){
   segInit('#cornerPos','cornerPos','none');
   segInit('#fieldBasis','fieldBasis','out');
   segInit('#lineFace','lineFace','back');
-  segInit('#lightMode','lightMode','cob');
+  segInit('#lightMode','lightMode','cob', ()=>{ state.autoRail = false; });
   segInit('#ledTemp','ledTemp','4000');
   segInit('#projectWin','projectWin','none');
   segInit('#bbFlame','bbFlame','non');
