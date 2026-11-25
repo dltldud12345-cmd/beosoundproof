@@ -782,16 +782,16 @@ function buildModel(inp){
        (예: 2400×2000 뒤-좌 기둥 450×680 → 단차 A y 110~790 · 단차 B x 220~560) */
     if(notch.pos === 'back-right'){
       steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'right', at:W-notch.cw, off:0, len:notch.cd+FH, ins0:0, ins1:0, adj:['back','right'], inA0:A, inA1:notch.cd+A});
-      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'top', at:notch.cd, off:W-notch.cw, len:notch.cw, ins0:0, ins1:FH, adj:['right','stepV'], inA0:W-notch.cw-A, inA1:W-2*A});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'top', at:notch.cd, off:W-notch.cw, len:notch.cw, ins0:0, ins1:FH, adj:['right','stepV'], inA0:W-notch.cw-2*A, inA1:W-2*A});
     } else if(notch.pos === 'back-left'){
       steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'left', at:notch.cw, off:0, len:notch.cd+FH, ins0:0, ins1:0, adj:['back','left'], inA0:A, inA1:notch.cd+A});
-      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'top', at:notch.cd, off:0, len:notch.cw, ins0:FH, ins1:0, adj:['left','stepV'], inA0:2*A, inA1:notch.cw+A});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'top', at:notch.cd, off:0, len:notch.cw, ins0:FH, ins1:0, adj:['left','stepV'], inA0:2*A, inA1:notch.cw+2*A});
     } else if(notch.pos === 'front-right'){
       steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'right', at:W-notch.cw, off:D-notch.cd-FH, len:notch.cd+FH, ins0:0, ins1:0, adj:['front','right'], inA0:D-notch.cd-A, inA1:D-A});
-      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'bottom', at:D-notch.cd, off:W-notch.cw, len:notch.cw, ins0:0, ins1:FH, adj:['right','stepV'], inA0:W-notch.cw-A, inA1:W-2*A});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'bottom', at:D-notch.cd, off:W-notch.cw, len:notch.cw, ins0:0, ins1:FH, adj:['right','stepV'], inA0:W-notch.cw-2*A, inA1:W-2*A});
     } else {
       steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'left', at:notch.cw, off:D-notch.cd-FH, len:notch.cd+FH, ins0:0, ins1:0, adj:['front','left'], inA0:D-notch.cd-A, inA1:D-A});
-      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'bottom', at:D-notch.cd, off:0, len:notch.cw, ins0:FH, ins1:0, adj:['left','stepV'], inA0:2*A, inA1:notch.cw+A});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'bottom', at:D-notch.cd, off:0, len:notch.cw, ins0:FH, ins1:0, adj:['left','stepV'], inA0:2*A, inA1:notch.cw+2*A});
     }
     steps.forEach(st=>{ st.span = Math.max(120, st.len - st.ins0 - st.ins1); });
   }
@@ -1285,11 +1285,16 @@ function buildModel(inp){
   merge(cellsOf(f2)).forEach(p=>add('바닥 15T (2겹 교차)', p.w, p.l, p.qty, '2층(가로 결)'));
   /* 천장 */
   merge(cellsOf(ceilPieces)).forEach(p=>add('천장 마블폼 45T', p.w, p.l, p.qty*2, '45T · 2겹 · 결 ' + (ceilAlongLong?'긴 변':'짧은 변')));
-  /* 천장 아트보드 — 600 폭 열 × 길이는 반씩 대칭 분할 (2475 → 1238 + 1237) */
-  ceilPieces.forEach(st=>{
-    st.lens.forEach(l=>{
-      add('천장 아트보드 (대칭 분할)', Math.min(st.w, 600), l, 1,
-        '천장 아트보드 ' + Math.min(st.w,600) + '×' + l + (st.lens.length>1? ' · 반씩 대칭' : ''));
+  /* 천장 아트보드 — 천장 먼저 시공 기준: 내부에서 가로·세로 각 5㎜ 작게(BNB.GAP) 발주.
+     600 폭 열 × 길이는 2000 넘으면 반씩 대칭 분할 (2475 → 1238 + 1237) */
+  const artShort = Math.round(Math.min(clearW, clearD) - BNB.GAP);
+  const artLong  = Math.round(Math.max(clearW, clearD) - BNB.GAP);
+  const artWidths = bnbSplit(artShort, MOD);
+  const artLens   = splitCeilLen(artLong);
+  artWidths.forEach(w=>{
+    artLens.forEach(l=>{
+      add('천장 아트보드 (대칭 분할)', w, l, 1,
+        '천장 아트보드 ' + w + '×' + l + ' · 내부 ' + Math.min(clearW,clearD) + ' − ' + BNB.GAP + (artLens.length>1? ' · 반씩 대칭' : ''));
     });
   });
   /* 벽판 */
@@ -1445,7 +1450,7 @@ function buildModel(inp){
     {mat:'PB 95T — 벽판 (액자틀 날개)', spec:'95T 적층', amount: n(wallArea), unit:'㎡', boards: stockCount(cutCells('벽판 95T PB')), note:'15T 원판 + 95T 날개 · 18T×5 기준'},
     {mat:'PB 95T — 내벽 (2중)', spec: gradeDef.name+' · '+dblFaces.map(k=>sideName[k]).join('·'), amount: n(dblArea), unit:'㎡', boards: stockCount(cutCells('내벽 95T PB (2중)')), note: dblFaces.length? '외벽 안쪽 내벽 층 · 액자틀 동일' : '해당 없음 (싱글)'},
     {mat:'마블폼 — 천장 (45T 2겹)', spec:'45T · 575×970', amount: String(mableCeilSheets), unit:'장', boards: null, note:'천장 2겹 · 여유 10% 포함'},
-    {mat:'천장 아트보드', spec:'1220×2420 · 반씩 대칭', amount: String(Math.ceil(ceilArtArea*1.1/(1.22*2.42))), unit:'장', boards: null, note:'이음 한가운데 · 매립등 일자 배치'},
+    {mat:'천장 아트보드', spec:'1220×2420 · 반씩 대칭', amount: String(Math.ceil(((artShort*artLong)/1e6)*1.1/(1.22*2.42))), unit:'장', boards: null, note:'천장 먼저 시공 — 내부에서 가로·세로 각 '+BNB.GAP+'㎜ 작게 · 이음 한가운데'},
     {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H, amount: n(extArea), unit:'㎡', boards: stockCount(cutCells('외벽 알판')), note:'외부 마감 9T'},
     {mat:'9T 마감재 — 내부 (3면)', spec:'1220×2420', amount: n(artArea), unit:'㎡', boards: artSheets, note:'아트보드 '+(inp.bbColor||'연베이지')+' · 라인타공 '+(inp.slatColor||'내추럴 오크')+' 면 제외 · 후접 9㎜ 차감'},
     {mat:'마블폼 — 벽체 충전', spec:'45T · 575×970', amount: String(mableWallSheets), unit:'장', boards: null, note:'벽 '+(1+dblFaces.length/4).toFixed(2)+'겹 · 여유 10% 포함'},
@@ -3717,92 +3722,109 @@ function sheetField(m){
     s += T(cx, cy-11.4, '중앙등', {size:6.6, weight:800, fill:ACC, anchor:'middle'});
   }
 
-  /* ---------- 타공점 좌표 배지 — 외부(가로·세로) / 내부(가로·세로) 둘 다 ---------- */
+  /* ---------- 타공점 치수 — 바깥 끝 기준(검정 실선) / 안쪽 벽면 기준(주황 점선) ----------
+     숫자 배지를 띄우는 대신, 잰 자리에서 타공점까지 선을 그어 타공점에서 만나게 한다.
+     · 검정 실선 = 부스 바깥 맨 끝에서 잰 값 (바깥) — 시작점에 '바깥 끝' 표시
+     · 주황 점선 = 벽 안쪽 마감면에서 잰 값 (안쪽) — 시작점에 '안쪽 면' 표시
+     · 회색 점선 = 그 값이 어느 타공점 것인지 보여 주는 안내선 (타공점 십자에서 만난다) */
   {
-    const inSign = (faceTop || faceLeft) ? 1 : -1;      // 벽 → 방 안쪽 방향
-    const badge = (cx, cy, l1, l2, o={}) => {
-      const s1 = o.size||9.4;
-      const w = Math.max(tagWidth(l1, s1), tagWidth(l2, s1*0.94)) + 14;
-      const h = s1*2.5, x = cx - w/2, y = cy - h/2;
-      return R(x, y, w, h, {fill:'#fff', stroke:'#9FC6BC', sw:0.8, rx:2.5})
-        + T(cx, y+s1*0.98, l1, {size:s1, weight:800, fill:'#14171A', anchor:'middle', mono:true})
-        + T(cx, y+s1*2.08, l2, {size:s1*0.94, weight:800, fill:'#B4622A', anchor:'middle', mono:true});
-    };
-    const place = (p, al, inn, ttl) => {           // p = 화면 좌표
-      if(horizFace) return badge(p[0], p[1] + inSign*34, ttl+' 외 '+fmt(al)+' · '+fmt(inn0), '내 '+fmt(inAl)+' · '+fmt(inIn));
-    };
-    if(rail){
-      const a = holePt(f.railStart), b = holePt(f.railEnd);
-      const inEnd = m.railGap + m.railLen;
-      if(horizFace){
-        s += badge(a[0], a[1]+inSign*34, '레일 시작 외 '+fmt(f.railStart)+' · '+fmt(f.railDepth), '내 '+fmt(m.railGap)+' · '+fmt(m.railInset));
-        s += badge(b[0], b[1]+inSign*34, '레일 끝 외 '+fmt(f.railEnd)+' · '+fmt(f.railDepth), '내 '+fmt(inEnd)+' · '+fmt(m.railInset));
-      } else {
-        s += badge(a[0], a[1]+30, '레일 시작 외 '+fmt(f.railStart)+' · '+fmt(f.railDepth), '내 '+fmt(m.railGap)+' · '+fmt(m.railInset));
-        s += badge(b[0], b[1]+30, '레일 끝 외 '+fmt(f.railEnd)+' · '+fmt(f.railDepth), '내 '+fmt(inEnd)+' · '+fmt(m.railInset));
+    const C_OUT = '#14171A', C_IN = '#B4622A', C_GUIDE = '#9AA3A9';
+    const wallFin = (m.field.wallFin || (m.field.wallLayers>1 ? 220 : 110));
+    const fin0 = (f.fin0 || wallFin);
+    const alongStart = fOff;                 // 타공면 바깥 시작(코너 따내기 반영)
+    const alongStartIn = fOff + fin0;        // 타공면 안쪽 마감면 시작
+    const A_ = a => (horizFace ? X(a) : Y(a));
+    const D_ = d => (horizFace ? (faceTop ? Y(d) : Y(outD - d)) : (faceLeft ? X(d) : X(outW - d)));
+    const D_In = () => (horizFace ? (faceTop ? Y(wallFin) : Y(outD - wallFin)) : (faceLeft ? X(wallFin) : X(outW - wallFin)));
+    const outSign = (faceTop || faceLeft) ? -1 : 1;   // 면 바깥쪽(위/왼) 방향
+    const baseA = () => (horizFace ? (faceTop ? oy : oy + ph) : (faceLeft ? ox : ox + pw));
+    const levelY = lv => baseA() + outSign*lv;
+
+    const cross = (x, y, c, d) => L(x-3, y-3, x+3, y+3, {stroke:c, sw:1.05, dash:d}) + L(x-3, y+3, x+3, y-3, {stroke:c, sw:1.05, dash:d});
+
+    /* 이어서 재는 치수 체인 — positions 는 면 방향 절대값(㎜). 각 구간에 값을 적는다 */
+    const chain = (positions, lv, c, dash, prefix, startTxt) => {
+      let o = '';
+      const y0 = levelY(lv);
+      for(let i=0;i<positions.length-1;i++){
+        const p1 = A_(positions[i]), p2 = A_(positions[i+1]);
+        const val = Math.round(positions[i+1] - positions[i]);
+        if(Math.abs(p2-p1) < 6) continue;
+        if(horizFace){
+          o += L(p1, y0, p2, y0, {stroke:c, sw: dash?1.1:0.95, dash});
+          o += cross(p1, y0, c, dash) + cross(p2, y0, c, dash);
+          o += tag((p1+p2)/2, y0 + (outSign<0? -5.6 : 10.2), (i===0? prefix+' ':'') + fmt(val),
+                   {size:7.8, fill:c, weight:800, bg:'#fff', bgop:.96, stroke:c, sw:0.45, mono:true});
+        } else {
+          o += L(y0, p1, y0, p2, {stroke:c, sw: dash?1.1:0.95, dash});
+          o += cross(y0, p1, c, dash) + cross(y0, p2, c, dash);
+          o += tag(y0 + (outSign<0? -6.6 : 6.6), (p1+p2)/2, (i===0? prefix+' ':'') + fmt(val),
+                   {size:7.8, fill:c, weight:800, bg:'#fff', bgop:.96, stroke:c, sw:0.45, mono:true, rot:-90});
+        }
       }
+      /* 시작점 — 어디서부터 잰 값인지는 라벨 앞 '바깥/안쪽'과 아래 범례로 구분한다 */
+      const p0 = A_(positions[0]);
+      if(horizFace) o += L(p0, y0, p0, y0 - outSign*5, {stroke:c, sw:1.2});
+      else o += L(y0, p0, y0 - outSign*5, p0, {stroke:c, sw:1.2});
+      return o;
+    };
+
+    const holes = rail ? [fOff + f.railStart, fOff + f.railEnd]
+                       : [fOff + f.pos1, fOff + f.pos2];
+    /* 가로(면 방향) — 바깥 체인 / 안쪽 체인 */
+    s += chain([alongStart].concat(holes), 26, C_OUT, null, '바깥', '바깥 끝');
+    s += chain([alongStartIn].concat(holes), 44, C_IN, '6 3', '안쪽', '안쪽 면');
+    /* 외경 총 길이 — 맨 바깥 줄에 한 번만 */
+    if(horizFace){
+      s += dimH(X(alongStart), X(fOff+f.faceOuterLen), levelY(66), String(Math.round(f.faceOuterLen)), {size:8.2, ext1:levelY(26), ext2:levelY(26), color:'#2E6FA3', labelY:levelY(66)-4});
     } else {
-      const p1 = holePt(f.pos1), p2 = holePt(f.pos2);
-      if(horizFace){
-        s += badge(p1[0], p1[1]+inSign*36, '1구 외 '+fmt(f.pos1)+' · '+fmt(f.depth), '내 '+fmt(m.cobPos[0])+' · '+fmt(m.cobInset));
-        s += badge(p2[0], p2[1]+inSign*36, '2구 외 '+fmt(f.pos2)+' · '+fmt(f.depth), '내 '+fmt(m.cobPos[1])+' · '+fmt(m.cobInset));
-      } else {
-        s += badge(p1[0], p1[1]+30, '1구 외 '+fmt(f.pos1)+' · '+fmt(f.depth), '내 '+fmt(m.cobPos[0])+' · '+fmt(m.cobInset));
-        s += badge(p2[0], p2[1]+30, '2구 외 '+fmt(f.pos2)+' · '+fmt(f.depth), '내 '+fmt(m.cobPos[1])+' · '+fmt(m.cobInset));
-      }
+      s += dimV(Y(alongStart), Y(fOff+f.faceOuterLen), levelY(66), String(Math.round(f.faceOuterLen)), {size:8.2, ext1:levelY(26), ext2:levelY(26), color:'#2E6FA3', labelX:levelY(66)-4});
     }
-    /* 중앙등 — 가로·세로 둘 다 */
+    /* 세로(깊이) — 바깥 끝 → 타공 줄 / 벽 안쪽면 → 타공 줄 */
+    {
+      const xOut = ox - 18, xIn = ox - 34;
+      const yOut = D_(0), yIn = D_In(), yH = D_(f.depth);
+      let o = '';
+      o += L(xOut, yOut, xOut, yH, {stroke:C_OUT, sw:0.95}); o += cross(xOut, yOut, C_OUT, null) + cross(xOut, yH, C_OUT, null);
+      o += tag(xOut - 6.4, (yOut+yH)/2, '바깥 ' + fmt(Math.round(f.depth)), {size:7.8, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
+      o += L(xIn, yIn, xIn, yH, {stroke:C_IN, sw:1.1, dash:'6 3'}); o += cross(xIn, yIn, C_IN, '6 3') + cross(xIn, yH, C_IN, '6 3');
+      o += tag(xIn - 6.4, (yIn+yH)/2, '안쪽 ' + fmt(Math.round(f.depth - wallFin)), {size:7.8, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
+      s += o;
+    }
+    /* 안내선 — 각 타공점에서 위 치수선까지 (값 ↔ 타공점 연결) */
+    holes.forEach(al=>{
+      const hx = horizFace ? X(al) : D_(f.depth);
+      const hy = horizFace ? D_(f.depth) : Y(al);
+      if(horizFace) s += L(hx, hy, hx, levelY(48), {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
+      else s += L(hx, hy, levelY(48), hy, {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
+    });
+    /* 타공점 십자 + 이름 */
+    const marks = rail ? [['레일 시작'], ['레일 끝']] : [[], []];
+    holes.forEach((al, i)=>{
+      const hx = horizFace ? X(al) : D_(f.depth);
+      const hy = horizFace ? D_(f.depth) : Y(al);
+      s += L(hx-12, hy, hx+12, hy, {stroke:C_IN, sw:0.5, dash:'2.4 1.6'});
+      s += L(hx, hy-12, hx, hy+12, {stroke:C_IN, sw:0.5, dash:'2.4 1.6'});
+      if(marks[i][0]) s += tag(hx, hy + ((faceTop||faceLeft)? 18 : -18), marks[i][0], {size:6.8, fill:'#2E6FA3', weight:800, bg:'#fff', bgop:.96, stroke:'#9FC6BC', sw:0.45});
+    });
+    /* 중앙등 — 바깥 끝 / 안쪽 면 두 값 */
     {
       const cx = X(m.ctrX), cy = Y(m.ctrY);
-      s += badge(cx, cy + 44, '중앙등 외 '+fmt(Math.round(m.ctrX))+' · '+fmt(Math.round(m.ctrY)),
-                                  '내 '+fmt(Math.round(m.clearW/2))+' · '+fmt(Math.round(m.clearD/2)));
+      s += L(X(0), cy, cx, cy, {stroke:C_OUT, sw:0.9});
+      s += cross(X(0), cy, C_OUT, null) + cross(cx, cy, C_OUT, null);
+      s += tag((X(0)+cx)/2, cy-5.6, '바깥 ' + fmt(Math.round(m.ctrX)), {size:7.6, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true});
+      s += L(X(fLmm), cy+12, cx, cy+12, {stroke:C_IN, sw:1.1, dash:'6 3'});
+      s += cross(X(fLmm), cy+12, C_IN, '6 3') + cross(cx, cy+12, C_IN, '6 3');
+      s += L(cx + 26, Y(fTmm), cx + 26, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
+      s += tag(cx + 33, (Y(fTmm)+cy)/2, '안쪽 ' + fmt(Math.round(m.ctrY - fTmm)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
+      s += L(cx - 29, Y(0), cx - 29, cy, {stroke:C_OUT, sw:0.85});
+      s += tag(cx - 36, (Y(0)+cy)/2, '바깥 ' + fmt(Math.round(m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
+      s += tag((X(fLmm)+cx)/2, cy+21, '안쪽 ' + fmt(Math.round(m.ctrX - fLmm)), {size:7.6, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true});
+
     }
-    s += T(px0+10, py0+35, '배지 = 외부(가로 · 세로) / 내부(가로 · 세로) ㎜ — 외부는 부스 바깥 맨 끝, 내부는 벽 안쪽 마감면에서', {size:7, fill:'#8A5A20', weight:700});
+    s += T(px0+10, py0+38, '검정 실선 = 부스 바깥 맨 끝(0)에서 / 주황 점선 = 벽 안쪽 마감면('+wallTxt+')에서 잰 값 ㎜ — 회색 안내선이 타공점에서 만납니다', {size:7, fill:'#8A5A20', weight:700});
   }
 
-  /* ---------- 치수 — 타공면 쪽 체인 / 맞은편 중앙 치수 ---------- */
-  const dimC = '#1F7A69';
-  /* 타공면 방향 체인 — COB: 1구 / 2구 사이 / 끝 · 레일: 시작 / 길이 / 끝 */
-  const chainA = rail ? [fOff, fOff+f.railStart, fOff+f.railEnd, fOff+f.faceOuterLen]
-                      : [fOff, fOff+f.pos1, fOff+f.pos2, fOff+f.faceOuterLen];
-  const chainL = rail ? [f.railStart, f.railLen, f.faceOuterLen - f.railEnd]
-                      : [f.pos1, f.seg2, f.seg3];
-  const chainH = (atY, opt) => { let o=''; for(let i=0;i<3;i++){ const a=chainA[i], b=chainA[i+1]; if(b-a < 4) continue;
-      o += dimH(X(a), X(b), atY, String(chainL[i]), Object.assign({size:10.4, color:dimC}, opt)); } return o; };
-  const chainV = (atX, opt) => { let o=''; for(let i=0;i<3;i++){ const a=chainA[i], b=chainA[i+1]; if(b-a < 4) continue;
-      o += dimV(Y(a), Y(b), atX, String(chainL[i]), Object.assign({size:10.4, color:dimC}, opt)); } return o; };
-  if(faceTop){
-    s += chainH(oy-24);
-    s += dimH(X(fOff), X(fOff+f.faceOuterLen), oy-46, String(f.faceOuterLen), {size:9.6, ext1:oy, ext2:oy});
-    s += dimV(oy, Y(f.depth), ox-32, String(f.depth), {size:11.4, color:'#B4622A', ext1:ox, ext2:ox, labelX:ox-35});
-    s += dimV(Y(f.depth), oy+ph, ox-32, String(outD-f.depth), {size:9, ext1:ox, ext2:ox, labelX:ox-35});
-    s += dimV(oy, oy+ph, ox-60, String(outD), {size:9.4, ext1:ox, ext2:ox, labelX:ox-63});
-    s += dimH(X(0), X(m.ctrX), oy+ph+26, String(Math.round(m.ctrX)), {size:9.2, color:ACC, labelY:oy+ph+21});
-
-  } else if(faceBottom){
-    s += chainH(oy+ph+24);
-    s += dimH(X(fOff), X(fOff+f.faceOuterLen), oy+ph+46, String(f.faceOuterLen), {size:9.6, ext1:oy+ph, ext2:oy+ph});
-    s += dimV(Y(outD-f.depth), oy+ph, ox-32, String(f.depth), {size:11.4, color:'#B4622A', ext1:ox, ext2:ox, labelX:ox-35});
-    s += dimV(oy, Y(outD-f.depth), ox-32, String(outD-f.depth), {size:9, ext1:ox, ext2:ox, labelX:ox-35});
-    s += dimV(oy, oy+ph, ox-60, String(outD), {size:9.4, ext1:ox, ext2:ox, labelX:ox-63});
-    s += dimH(X(0), X(m.ctrX), oy-26, String(Math.round(m.ctrX)), {size:9.2, color:ACC, labelY:oy-29});
-  } else if(faceLeft){
-    s += chainV(ox-24);
-    s += dimV(Y(fOff), Y(fOff+f.faceOuterLen), ox-46, String(f.faceOuterLen), {size:9.6, ext1:ox, ext2:ox});
-    s += dimH(ox, X(f.depth), oy-28, String(f.depth), {size:11.4, color:'#B4622A', ext1:oy, ext2:oy, labelY:oy-32});
-    s += dimH(X(f.depth), ox+pw, oy-28, String(outW-f.depth), {size:9, ext1:oy, ext2:oy, labelY:oy-32});
-    s += dimH(ox, ox+pw, oy-52, String(outW), {size:9.4, ext1:oy, ext2:oy, labelY:oy-56});
-
-    s += dimH(X(0), X(m.ctrX), oy+ph+26, String(Math.round(m.ctrX)), {size:9.2, color:ACC, labelY:oy+ph+21});
-  } else {
-    s += chainV(ox+pw+24, {labelX:ox+pw+27});
-    s += dimV(Y(fOff), Y(fOff+f.faceOuterLen), ox+pw+46, String(f.faceOuterLen), {size:9.6, ext1:ox+pw, ext2:ox+pw, labelX:ox+pw+49});
-    s += dimH(ox+pw-X(f.depth), ox+pw, oy-28, String(f.depth), {size:11.4, color:'#B4622A', ext1:oy, ext2:oy, labelY:oy-32});
-    s += dimH(ox, ox+pw-X(f.depth), oy-28, String(outW-f.depth), {size:9, ext1:oy, ext2:oy, labelY:oy-32});
-    s += dimH(ox, ox+pw, oy-52, String(outW), {size:9.4, ext1:oy, ext2:oy, labelY:oy-56});
-
-    s += dimH(X(0), X(m.ctrX), oy+ph+22, String(Math.round(m.ctrX)), {size:7.2, color:ACC, labelY:oy+ph+18});
-  }
   /* ---------- 판정 · 이음매 범례 (평면도 오른쪽) ---------- */
   {
     const cx0 = px0+pwAll-232, cy0 = py0+40, cw0 = 220;
@@ -4046,13 +4068,13 @@ function sheetRoomLayout(m){
    7-B. 비앤비(B&B) 아트보드 발주표
    실물 카톡 발주서 3건(2026-11-21 IMG_1408 · 1409 · 1410)의 표기를 따른다.
    · 라인타공 1면을 먼저 빼고 나머지 3면 + 천장만 산출
-   · 벽 1990쪽 면치기 = 600 모듈 + 자투리, 라인타공 면에 인접한 2면은 후접 9T 차감(490 → 481) · 반대 1면은 선접
+   · 벽 1980쪽 면치기 = 600 모듈 + 자투리, 라인타공 면에 인접한 2면은 후접 9T 차감(490 → 481) · 반대 1면은 선접
    · 문 위 189면치기 = 693 × 189 (702 − 9)
    · 천장 = 내부 −5 면치기, 2000 초과 시 반씩 대칭(양쪽 면치기)
    · 시창 위·아래는 800 면치기(400×800 2개) · 391 면치기(800×391 1개)로 따로
    ===================================================================== */
 const BNB = {
-  WALL_H: 1990,   // 벽 아트보드 높이 — '1990쪽 면치기'
+  WALL_H: 1980,   // 벽 아트보드 높이 — '1980쪽 면치기' (벽 먼저 세우고 마루·아트보드를 그 위에 깔기 때문에 2000 − 20)
   T: 9,           // 모서리 후접 9T 차감
   GAP: 5,         // 천장 면치기 여유 (내부 1780 → 1775)
   MAXL: 2000      // 천장 판 길이 상한 — 넘으면 반씩 대칭 분할
@@ -4089,9 +4111,11 @@ function bnbOrder(m, inp){
     if(rows.length) groups.push({header, rows});
   };
 
-  /* 1) 천장 — 내부 유효에서 면치기 여유 5㎜씩 뺀 판, 폭은 600 모듈 */
-  const cLong  = Math.round(Math.max(m.innerW, m.innerD) - BNB.GAP);
-  const cShort = Math.round(Math.min(m.innerW, m.innerD) - BNB.GAP);
+  /* 1) 천장 — 천장을 먼저 올리는 기준: 내부 유효(벽 안쪽면)에서 가로·세로 각 5㎜ 작게.
+     예) 외경 2000×2000 싱글 → 내부 1780×1780 → 발주 1775×1775 (끼워 넣을 수 있게)
+     코너 기둥을 따낸 현장은 전체 치수에서 5㎜만 빼고, 단차 벽 쪽 모서리는 현장 재단으로 남긴다. */
+  const cLong  = Math.round(Math.max(m.clearW, m.clearD) - BNB.GAP);
+  const cShort = Math.round(Math.min(m.clearW, m.clearD) - BNB.GAP);
   const cWidths = bnbSplit(cShort, MOD);
   let ceilNote;
   if(cLong > BNB.MAXL){
