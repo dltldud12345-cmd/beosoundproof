@@ -1232,7 +1232,7 @@ function merge2(list){
 /* =====================================================================
    2. SVG 헬퍼
    ===================================================================== */
-const INK='#14171A', LINE='#2B3238', SOFT='#9AA4AC', DIMC='#2E6FA3',
+const INK='#14171A', LINE='#2B3238', SOFT='#7E878E', DIMC='#2E6FA3',
       ACC='#2E9C86', WARN='#B4622A', PAPER='#FFFFFF', CREAM='#F4F0E7';
 
 function A(o){
@@ -1246,7 +1246,10 @@ const C = (cx,cy,r,o={}) => `<circle cx="${n(cx)}" cy="${n(cy)}" r="${n(r)}" ${A
 function T(x,y,s,o={}){
   const anchor = o.anchor||'start';
   const xx = anchor==='middle'? x : (anchor==='end'? x : x);
-  return `<text x="${n(xx)}" y="${n(y)}" ${A({fill:o.fill||INK,'font-size':o.size||7,'font-weight':o.weight||400,
+  /* A4 인쇄 시인성 — 작은 글자는 8% 키워 194mm 인쇄에서도 읽히게 */
+  const sz0 = o.size||7;
+  const sz = (sz0 >= 4.5 && sz0 < 7) ? Math.round(sz0*1.08*100)/100 : sz0;
+  return `<text x="${n(xx)}" y="${n(y)}" ${A({fill:o.fill||INK,'font-size':sz,'font-weight':o.weight||400,
     'text-anchor':anchor,'font-family':o.mono?'ui-monospace,SFMono-Regular,Menlo,monospace':undefined,
     'letter-spacing':o.ls,transform:o.rotate?`rotate(${o.rotate} ${n(x)} ${n(y)})`:undefined,opacity:o.op})}>${esc(s)}</text>`;
 }
@@ -1262,7 +1265,7 @@ function tagWidth(label,size){
 /* 라벨 필(pill) — 해치·경계선 위에서도 숫자가 또렷하게 */
 function tag(cx,cy,label,o={}){
   const size = o.size||8, w = o.w || tagWidth(label,size), h = size*1.44;
-  const rot = o.rot||0, bg = o.bg||PAPER, bgop = o.bgop!==undefined? o.bgop : 0.97;
+  const rot = o.rot||0, bg = o.bg||PAPER, bgop = o.bgop!==undefined? o.bgop : 1;
   const st = o.stroke===undefined? 'none' : o.stroke, sw = o.sw!==undefined? o.sw : (o.stroke? 0.5 : 0);
   return `<g transform="rotate(${rot} ${n(cx)} ${n(cy)})">`
     + `<rect x="${n(cx-w/2)}" y="${n(cy-h/2)}" width="${n(w)}" height="${n(h)}" rx="${n(h/2)}" fill="${bg}" fill-opacity="${bgop}" stroke="${st}" stroke-width="${n(sw)}"/>`
@@ -1271,7 +1274,7 @@ function tag(cx,cy,label,o={}){
 }
 /* 치수선 (건축식 사선 틱) */
 function dimH(x1,x2,y,label,o={}){
-  const c = o.color||DIMC, sw = o.sw||0.7, t = o.size||7.2, ty = o.labelY!==undefined? o.labelY : y-3.4;
+  const c = o.color||DIMC, sw = o.sw||0.85, t = o.size||7.2, ty = o.labelY!==undefined? o.labelY : y-3.4;
   let s = L(x1,y,x2,y,{stroke:c,sw});
   s += L(x1-2.2,y-2.2,x1+2.2,y+2.2,{stroke:c,sw}) + L(x2-2.2,y-2.2,x2+2.2,y+2.2,{stroke:c,sw});
   if(o.ext1) s += L(x1,o.ext1,x1,y,{stroke:c,sw,opacity:.55});
@@ -1280,7 +1283,7 @@ function dimH(x1,x2,y,label,o={}){
   return s;
 }
 function dimV(y1,y2,x,label,o={}){
-  const c = o.color||DIMC, sw=o.sw||0.7, t=o.size||7.2, tx = o.labelX!==undefined? o.labelX : x-3;
+  const c = o.color||DIMC, sw=o.sw||0.85, t=o.size||7.2, tx = o.labelX!==undefined? o.labelX : x-3;
   let s = L(x,y1,x,y2,{stroke:c,sw});
   s += L(x-2.2,y1-2.2,x+2.2,y1+2.2,{stroke:c,sw}) + L(x-2.2,y2-2.2,x+2.2,y2+2.2,{stroke:c,sw});
   if(o.ext1) s += L(o.ext1,y1,x,y1,{stroke:c,sw,opacity:.55});
@@ -1297,7 +1300,7 @@ const SW=794, SH=1123, M=16;
 function defs(){
   return `<defs>
     <pattern id="hWall" width="5.2" height="5.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <line x1="0" y1="0" x2="0" y2="5.2" stroke="#A6AFB6" stroke-width="0.72"/>
+      <line x1="0" y1="0" x2="0" y2="5.2" stroke="#8E979E" stroke-width="0.8"/>
     </pattern>
     <pattern id="hCorner" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
       <line x1="0" y1="0" x2="0" y2="4" stroke="#8A4210" stroke-width="1.15" opacity="1"/>
@@ -2998,7 +3001,7 @@ function sheetRoomLayout(m){
     const a = locFaceSeg(m.lineFace);
     s += L(X(a[0][0]), Y(a[0][1]), X(a[1][0]), Y(a[1][1]), {stroke:ACC, sw:4.2});
     const mid = [(a[0][0]+a[1][0])/2, (a[0][1]+a[1][1])/2];
-    const inset = Math.max(16, 120*sc);
+    const inset = Math.max(26, 160*sc);
     const midY = (m.lineFace==='back') ? Y(mid[1]) + inset : (m.lineFace==='front') ? Y(mid[1]) - inset : Y(mid[1]);
     const midX = (m.lineFace==='left') ? X(mid[0]) + inset : (m.lineFace==='right') ? X(mid[0]) - inset : X(mid[0]);
     s += tag(midX, midY, '라인타공', {size:6.2, fill:'#1F7A69', bg:'#fff', bgop:0.96, stroke:'#9BD6C7', sw:0.4});
@@ -3013,8 +3016,8 @@ function sheetRoomLayout(m){
   /* 치수 — 방 전체 · 부스 · 이격 */
   s += dimH(ox-WALLT, ox+pw+0, oy+ph+WALLT+18, String(r.W), {size:8.6, ext1:oy+ph+WALLT, ext2:oy+ph+WALLT});
   s += dimV(oy-WALLT, oy+ph+WALLT, ox-WALLT-26, String(r.D), {size:8.6, ext1:ox-WALLT, ext2:ox-WALLT, labelX:ox-WALLT-30});
-  s += dimH(bx, bx+bw, by-16, String(r.bw), {size:7.4, color:DIMC});
-  s += dimV(by, by+bh, bx-16, String(r.bh), {size:7.4, color:DIMC, labelX:bx-19});
+  s += dimH(bx+wt, bx+bw-wt, by+wt+15, String(r.bw), {size:7.4, color:DIMC});
+  s += dimV(by+wt, by+bh-wt, bx+bw-wt-15, String(r.bh), {size:7.4, color:DIMC, labelX:bx+bw-wt-12});
   /* 이격 — 좁은 틈은 따로, 넓은 쪽은 한 곳만 */
   if(r.gap.top > 0)    s += dimV(oy, by, bx+bw/2, String(r.gap.top), {size:6.6, color:WARN, labelX:bx+bw/2-4});
   if(r.gap.bottom > 0) s += dimV(by+bh, oy+ph, bx+bw/2, String(r.gap.bottom), {size:6.6, color:WARN, labelX:bx+bw/2-4});
