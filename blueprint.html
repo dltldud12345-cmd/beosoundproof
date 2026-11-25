@@ -3424,6 +3424,9 @@ function sheetTables(m){
    ===================================================================== */
 function sheetField(m){
   const f = m.field, rail = (m.lightMode === 'rail');
+  /* 타공 줄 깊이 — 레일등은 레일 중심(안쪽 400), COB은 타공 줄(안쪽 200).
+     평면도·왼쪽 세로 치수·안내선·십자 표시가 모두 이 한 값을 쓴다. */
+  const depthHole = rail ? f.railDepth : f.depth;
   const horizFace = (m.faceAxis === 'x');
   const faceTop = (m.lineFace === 'back'), faceBottom = (m.lineFace === 'front');
   const faceLeft = (m.lineFace === 'left'), faceRight = (m.lineFace === 'right');
@@ -3635,8 +3638,8 @@ function sheetField(m){
 
   /* 천장판 이음매 (점선) — 실제 분할선. 타공 자리와 겹치면 빨간색 */
   const jointNear = (mmPos, holeMMs) => holeMMs.some(h => Math.abs(h-mmPos) <= (m.cobDia/2 + 12));
-  const holeAlong = [fOff + f.pos1, fOff + f.pos2];
-  const holePerp = [(faceTop || faceLeft) ? f.depth : ((horizFace ? outD : outW) - f.depth)];
+  const holeAlong = rail ? [fOff + f.railStart, fOff + f.railEnd] : [fOff + f.pos1, fOff + f.pos2];
+  const holePerp = [(faceTop || faceLeft) ? depthHole : ((horizFace ? outD : outW) - depthHole)];
   const grainAxisX = (m.ceilAxis === 'x');
   (m.lenJoints||[]).forEach(j=>{
     const bad = jointNear(j, grainAxisX ? holeAlong : holePerp);
@@ -3651,8 +3654,8 @@ function sheetField(m){
 
   /* 타공 줄 (벽 안쪽면에서 이격) + 두 점 */
   const holePt = along => {
-    if(horizFace) return [X(fOff + along), faceTop ? Y(f.depth) : Y(outD - f.depth)];
-    return [faceLeft ? X(f.depth) : X(outW - f.depth), Y(fOff + along)];
+    if(horizFace) return [X(fOff + along), faceTop ? Y(depthHole) : Y(outD - depthHole)];
+    return [faceLeft ? X(depthHole) : X(outW - depthHole), Y(fOff + along)];
   };
   const rHole = Math.max(5.2, (m.cobDia/2)*sc);
   const lineTxt = {stroke: '#1F7A69', sw:0.65, dash:'6 2 1.4 2'};
@@ -3783,26 +3786,26 @@ function sheetField(m){
     /* 세로(깊이) — 바깥 끝 → 타공 줄 / 벽 안쪽면 → 타공 줄 */
     {
       const xOut = ox - 18, xIn = ox - 34;
-      const yOut = D_(0), yIn = D_In(), yH = D_(f.depth);
+      const yOut = D_(0), yIn = D_In(), yH = D_(depthHole);
       let o = '';
       o += L(xOut, yOut, xOut, yH, {stroke:C_OUT, sw:0.95}); o += cross(xOut, yOut, C_OUT, null) + cross(xOut, yH, C_OUT, null);
-      o += tag(xOut - 6.4, (yOut+yH)/2, '바깥 ' + fmt(Math.round(f.depth)), {size:7.8, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
+      o += tag(xOut - 6.4, (yOut+yH)/2, '바깥 ' + fmt(Math.round(depthHole)), {size:7.8, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
       o += L(xIn, yIn, xIn, yH, {stroke:C_IN, sw:1.1, dash:'6 3'}); o += cross(xIn, yIn, C_IN, '6 3') + cross(xIn, yH, C_IN, '6 3');
-      o += tag(xIn - 6.4, (yIn+yH)/2, '안쪽 ' + fmt(Math.round(f.depth - wallFin)), {size:7.8, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
+      o += tag(xIn - 6.4, (yIn+yH)/2, '안쪽 ' + fmt(Math.round(depthHole - wallFin)), {size:7.8, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
       s += o;
     }
     /* 안내선 — 각 타공점에서 위 치수선까지 (값 ↔ 타공점 연결) */
     holes.forEach(al=>{
-      const hx = horizFace ? X(al) : D_(f.depth);
-      const hy = horizFace ? D_(f.depth) : Y(al);
+      const hx = horizFace ? X(al) : D_(depthHole);
+      const hy = horizFace ? D_(depthHole) : Y(al);
       if(horizFace) s += L(hx, hy, hx, levelY(48), {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
       else s += L(hx, hy, levelY(48), hy, {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
     });
     /* 타공점 십자 + 이름 */
     const marks = rail ? [['레일 시작'], ['레일 끝']] : [[], []];
     holes.forEach((al, i)=>{
-      const hx = horizFace ? X(al) : D_(f.depth);
-      const hy = horizFace ? D_(f.depth) : Y(al);
+      const hx = horizFace ? X(al) : D_(depthHole);
+      const hy = horizFace ? D_(depthHole) : Y(al);
       s += L(hx-12, hy, hx+12, hy, {stroke:C_IN, sw:0.5, dash:'2.4 1.6'});
       s += L(hx, hy-12, hx, hy+12, {stroke:C_IN, sw:0.5, dash:'2.4 1.6'});
       if(marks[i][0]) s += tag(hx, hy + ((faceTop||faceLeft)? 18 : -18), marks[i][0], {size:6.8, fill:'#2E6FA3', weight:800, bg:'#fff', bgop:.96, stroke:'#9FC6BC', sw:0.45});
