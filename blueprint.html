@@ -873,7 +873,7 @@ function buildModel(inp){
      뚫을 수 있고, 수직이면 2구가 서로 다른 600판에 걸린다.
      실제 판 분할선(600 폭 · 15T 띠 · 2000 초과 반씩 대칭 분할)과 타공 중심이
      겹치는지 좌표로 계산해 판정한다 — 판정만 하고 도면 산출은 건드리지 않는다. */
-  const ceilAxis = ceilAlongLong ? (W >= D ? 'x' : 'y') : (W < D ? 'x' : 'y');
+  const ceilAxis = (cLen === W) ? 'x' : 'y';   /* 천장 분할도와 같은 기준(길이 축) */
   const faceAxis  = (lineFace==='front' || lineFace==='back') ? 'x' : 'y';
   const grainParallel = (ceilAxis === faceAxis);
   const holeR = Math.max(0, cobDia/2) + 12;                 // 타공 반지름 + 시공 여유
@@ -911,13 +911,15 @@ function buildModel(inp){
     const hitLen  = (grainParallel ? [alongHole1, alongHole2] : [perpCoord]).map(p=>nearJoint(p, lenJoints)).filter(Boolean);
     const hitSpan = (grainParallel ? [perpCoord] : [alongHole1, alongHole2]).map(p=>nearJoint(p, spanJoints)).filter(Boolean);
     const ok = samePanel && !hitLen.length && !hitSpan.length;
-    /* 결 방향을 타공 면과 나란히 만드는 천장 결 설정 */
-    const wantCeilDir = (() => {
-      if(faceAxis === 'x') return (W >= D) ? 'long' : 'short';
-      return (D >= W) ? 'long' : 'short';
-    })();
+    /* 결 방향을 타공 면과 나란히 만드는 천장 결 설정 — 적용했을 때의 축으로 고른다 */
+    const axisIf = v => ((v === 'long' ? Math.max(W,D) : Math.min(W,D)) === W) ? 'x' : 'y';
+    const wantCeilDir = (axisIf('long') === faceAxis) ? 'long' : (axisIf('short') === faceAxis ? 'short' : (ceilAlongLong ? 'long':'short'));
     const curDirVal = ceilAlongLong ? 'long' : 'short';
-    const square = (W === D);
+    const square = (W === D);   /* 정사각 천장은 결이 가로로 고정 — 전환해도 바뀌지 않는다 */
+    /* 2구 사이에 끼는 판 이음매 */
+    const between = (a,b,js) => js.filter(j => j > Math.min(a,b)+0.5 && j < Math.max(a,b)-0.5);
+    const betweenLen  = grainParallel ? between(alongHole1, alongHole2, lenJoints) : [];
+    const betweenSpan = grainParallel ? [] : between(alongHole1, alongHole2, spanJoints);
     const strip = spanRanges[p1.si] || {a:0,b:0};
     const piece = lengthRanges[p1.li] || {a:0,b:0};
     return {
@@ -925,6 +927,7 @@ function buildModel(inp){
       grainTxt: (ceilAxis==='x' ? '가로' : '세로') + ' 결',
       faceTxt: sideName[lineFace] + ' (' + (faceAxis==='x'?'가로':'세로') + ' 면)',
       wantCeilDir, curDirVal, canFix: (wantCeilDir !== curDirVal) && !square,
+      betweenLen, betweenSpan,
       stripA: Math.round(strip.a), stripB: Math.round(strip.b),
       pieceA: Math.round(piece.a), pieceB: Math.round(piece.b),
       perpFromWall, alongHole1, alongHole2, perpCoord
@@ -3290,8 +3293,14 @@ function syncFieldUI(m){
         <div style="font-weight:600;margin-top:3px;line-height:1.55">${c.grainTxt} — 판 폭 ${c.stripA}~${c.stripB} ㎜ · 길이 ${c.pieceA}~${c.pieceB} ㎜ 한 판 안<br>타공 줄은 부스 맨 끝에서 ${fmt(c.perpFromWall)} ㎜ → 2구를 한 번에 타공</div></div>`;
     } else {
       const why = c.parallel
-        ? `결은 나란하지만 <b>판 이음매</b>가 타공 자리에 걸립니다 — 길이 이음매${c.hitLen.length? ' '+c.hitLen.join(' / '):''}${c.hitSpan.length? ' · 폭 이음매 '+c.hitSpan.join(' / '):''} ㎜ (타공 반경 + 여유 ${Math.round(holeRSafe(m))} ㎜ 기준)`
-        : `<b>천장 결이 라인타공 면과 수직</b>입니다 — 2구가 서로 다른 600판에 걸려 이음매(15T 띠) 위를 타공하게 됩니다`;
+        ? (c.betweenLen.length || c.betweenSpan.length
+            ? `2구 사이에 <b>천장판 이음매</b>가 있습니다 — ${c.betweenLen.length? '길이 '+c.betweenLen.join(' / ')+' ㎜':''}${c.betweenLen.length&&c.betweenSpan.length?' · ':''}${c.betweenSpan.length? '폭 '+c.betweenSpan.join(' / ')+' ㎜':''} 에서 판이 갈라져 2구가 각각 다른 판에 들어갑니다`
+            : ((c.hitLen.length || c.hitSpan.length)
+                ? `결은 나란하지만 <b>판 이음매</b>가 타공 자리에 걸립니다 — ${c.hitLen.length? '길이 '+c.hitLen.join(' / ')+' ㎜ ':''}${c.hitSpan.length? '폭 '+c.hitSpan.join(' / ')+' ㎜':''} (타공 반경 + 여유 ${Math.round(holeRSafe(m))} ㎜ 기준)`
+                : `타공 자리가 천장판 경계에 걸립니다 — 판 하나 안으로 위치를 조정하세요`))
+        : (c.square
+            ? `<b>정사각 천장(가로=세로)</b>이라 결 방향이 가로로 고정됩니다 — 라인타공 면이 좌·우면일 때는 2구가 서로 다른 600판에 걸립니다. 타공 시 판 이음매를 피해 잡으세요`
+            : `<b>천장 결이 라인타공 면과 수직</b>입니다 — 2구가 서로 다른 600판에 걸려 이음매(15T 띠) 위를 타공하게 됩니다`);
       fitEl.innerHTML = `<div class="fit no">⚠ ${why}
         ${c.canFix? `<button type="button" id="cobFitFix">천장 결 방향 바꾸기 (라인타공 면과 나란히)</button>`:''}
         </div>`;
