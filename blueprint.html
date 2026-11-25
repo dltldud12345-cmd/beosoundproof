@@ -2282,8 +2282,9 @@ function sheetPlan(m){
   notes.push((m.winCount>0? '8. ':'7. ')+'라인타공 1면 = '+m.sideName[m.lineFace]
     + ' (내부 '+m.lineLen+') — '+(m.lightMode==='rail'
         ? '레일등 '+m.railLen+' ㎜ 를 벽 안쪽면 '+m.railInset+' ㎜ 이격, 가운데 정렬. 전선 시작 여백 ('+m.lineLen+' − '+m.railLen+') ÷ 2 = '+m.railGap+' ㎜ (양쪽).'
-        : 'COB 매립등 2구 천장 타공 중심 '+m.cobPos[0]+' / '+m.cobPos[1]
-          + ' ㎜. 벽 안쪽면에서 '+m.cobInset+' ㎜, 면 1/3·2/3 지점 · 타공 Ø'+m.cobDia+'.'));
+        : 'COB 매립등 2구(등 2개) — 천장 타공 중심을 한쪽 끝에서 '+m.cobPos[0]+' / '+m.cobPos[1]
+          + ' ㎜ (면 1/3·2/3). 벽 안쪽면에서 '+m.cobInset+' ㎜, 타공 Ø'+m.cobDia
+          + ' · 좌우 대칭이라 양쪽 끝에서 각 '+m.cobPos[0]+' ㎜씩 재도 같은 자리.'));
   notes.push((m.winCount>0? '9. ':'8. ')+'천장 정중앙 중앙등 1구 — 중심 '+Math.round(clearW/2)+' / '+Math.round(clearD/2)
     + ' ㎜ (내부 '+clearW+'·'+clearD+' ÷ 2'+(hasInner? ' · 2중 벽 안쪽면 기준':'')+'). COB 2구와 별도 1구.');
   /* 내벽 판 분할 · 코너 기둥 요약 */
@@ -2660,8 +2661,8 @@ function cobCeilPanel(m, x, y, w, h){
   ] : [
     ['라인타공 면', m.sideName[f]],
     ['내부 유효', m.lineLen + ' ㎜'],
-    ['타공 중심', m.cobPos[0] + ' / ' + m.cobPos[1] + ' ㎜'],
-    ['간격', m.cobGap + ' ㎜ (' + m.lineLen + ' ÷ 3)'],
+    ['등 위치 (한쪽 끝에서)', m.cobPos[0] + ' / ' + m.cobPos[1] + ' ㎜'],
+    ['등 간격', m.cobGap + ' ㎜ (' + m.lineLen + ' ÷ 3 · 등 2개)'],
     ['타공', 'Ø' + m.cobDia + ' · 벽 안쪽면 ' + m.cobInset + ' ㎜'],
     ['중앙등', '내부 ' + ctw + ' / ' + ctd + ' ㎜ (정중앙)'],
     ['관통', '9T 아트보드 + 45T 마블폼 ×2']
@@ -3281,8 +3282,8 @@ function sheetField(m){
     ['중앙등 (맨 끝에서)', fmt(f.centerAlong)+' / '+fmt(f.centerPerp), '가로 ÷ 2 · 세로 ÷ 2', '내부 '+m.innerW+' · '+m.innerD]
   ] : [
     ['타공면 벽 끝 → 타공 줄', fmt(f.depth), wallTxt+' + '+m.cobInset+' 이격', '타공면 '+m.sideName[m.lineFace]],
-    ['1구 (양 끝에서)', fmt(f.pos1), '반대쪽 끝에서 '+fmt(f.far1), '110 + '+m.cobPos[0]],
-    ['2구 (양 끝에서)', fmt(f.pos2), '반대쪽 끝에서 '+fmt(f.far2), '110 + '+m.cobPos[1]],
+    ['첫 번째 등 (한쪽 끝에서)', fmt(f.pos1), '양쪽 끝에서 각 '+fmt(f.pos1)+'씩 재도 동일', '110 + '+m.cobPos[0]],
+    ['두 번째 등 (같은 끝에서)', fmt(f.pos2), '반대쪽 끝에서는 '+fmt(f.far2), '110 + '+m.cobPos[1]],
     ['중앙등 (맨 끝에서)', fmt(f.centerAlong)+' / '+fmt(f.centerPerp), '가로 ÷ 2 · 세로 ÷ 2', '내부 '+m.innerW+' · '+m.innerD]
   ];
   const tileY = M+80, tileH = 84, tileGap = 10;
@@ -3455,7 +3456,7 @@ function sheetField(m){
     } else {
       s += T(cx0+9, cy0+30, cf2 && cf2.ok ? '✓ 2구 한 600판 안' : '⚠ 판 이음매 확인', {size:6.8, weight:800, fill: cf2 && cf2.ok ? '#1B7A5F' : '#A8551F'});
       s += T(cx0+9, cy0+43, '타공 줄 = 맨 끝에서 '+fmt(f.depth), {size:6.1, fill:'#3B4248'});
-      s += T(cx0+9, cy0+54, '1구 '+fmt(f.pos1)+' · 2구 '+fmt(f.pos2)+' (같은 쪽 끝)', {size:6.1, fill:'#3B4248'});
+      s += T(cx0+9, cy0+54, '등 위치 '+fmt(f.pos1)+' · '+fmt(f.pos2)+' (같은 쪽 끝에서)', {size:6.1, fill:'#3B4248'});
       s += T(cx0+9, cy0+65, '간격 '+fmt(f.seg2)+' = 내부 '+m.lineLen+' ÷ 3', {size:6.1, fill:'#3B4248'});
     }
     s += L(cx0+9, cy0+78, cx0+cw0-9, cy0+78, {stroke:'#E1DACB', sw:0.7});
@@ -3479,7 +3480,7 @@ function sheetField(m){
     '5. 레일 중심 (벽 안쪽 면 '+m.railInset+') 에 맞춰 레일을 걸고 수평 확인.'
   ] : [
     '1. 줄자를 라인타공 면 벽 바깥 맨 끝에 걸고, 그 벽에서 '+fmt(f.depth)+' 들어온 선을 천장에 수평으로 긋는다.',
-    '2. 같은 선 위에서 같은 쪽 벽 끝에서 '+fmt(f.pos1)+' · '+fmt(f.pos2)+' 지점을 표시한다.',
+    '2. 같은 선 위에서 한쪽 벽 끝에서 '+fmt(f.pos1)+' · '+fmt(f.pos2) + ' 지점을 표시한다 (대칭 — 반대쪽 끝에서 각 '+fmt(f.pos1)+'씩 재도 같은 자리).',
     '3. 두 점이 한 600판 안에 있는지 확인 — 이음매(15T) 위면 판 하나를 잡고 다시 점을 찍는다.',
     '4. Ø'+m.cobDia+' 두 곳을 한 번에 타공하고, 중앙등은 '+fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' 지점.',
     '5. 타공 깊이는 9T 아트보드 + 45T 마블폼 2장 관통 — 배선 후 커버 설치.'
@@ -3506,9 +3507,9 @@ function sheetField(m){
   ] : [
     ['타공면', m.sideName[m.lineFace]+' · 외경 '+fmt(f.faceOuterLen)],
     ['타공면 벽 끝 → 타공 줄', fmt(f.depth)+' ㎜ ('+wallTxt+' + '+m.cobInset+')'],
-    ['1구', fmt(f.pos1)+' ㎜ (110 + '+m.cobPos[0]+')'],
-    ['2구', fmt(f.pos2)+' ㎜ (110 + '+m.cobPos[1]+')'],
-    ['1구 · 2구 간격', fmt(f.seg2)+' ㎜ (내부 '+m.lineLen+' ÷ 3)'],
+    ['첫 번째 등', fmt(f.pos1)+' ㎜ (한쪽 끝에서 · 110 + '+m.cobPos[0]+')'],
+    ['두 번째 등', fmt(f.pos2)+' ㎜ (같은 끝에서 · 110 + '+m.cobPos[1]+')'],
+    ['등 간격', fmt(f.seg2)+' ㎜ (내부 '+m.lineLen+' ÷ 3 · 대칭이면 양 끝에서 '+fmt(f.pos1)+'씩)'],
     ['중앙등', fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' ㎜'],
     ['타공 / 내부 유효', 'Ø'+m.cobDia+' / '+m.innerW+' × '+m.innerD]
   ];
@@ -3897,8 +3898,9 @@ function syncCobUI(m){
       + (m.railTight? ' <span style="color:#B4622A">· 여백 부족 — 짧은 레일 권장</span>' : '');
     return;
   }
-  el.innerHTML = '<b>'+m.sideName[m.lineFace]+'</b> 내부 <b>'+m.lineLen+'</b> ÷ 3 = <b>'+m.cobGap+'</b> ㎜'
-    + ' — 타공 중심 <b>'+m.cobPos[0]+'</b> / <b>'+m.cobPos[1]+'</b> ㎜ (면 시작 기준)';
+  el.innerHTML = '<b>'+m.sideName[m.lineFace]+'</b> 내부 <b>'+m.lineLen+'</b> ÷ 3 = <b>'+m.cobGap+'</b> ㎜ — 등은 <b>한쪽 끝에서 '
+    + m.cobPos[0]+' / '+m.cobPos[1]+'</b> ㎜ (면 시작 기준, 등 2개)'
+    + '<br>대칭이라 <b>양쪽 끝에서 각 '+m.cobPos[0]+' ㎜</b>씩 재도 같은 자리입니다.';
 }
 
 /* --- 현장 타공 가이드 · COB 한 판 수용 · 방 배치 안내 (좌측 패널) --------- */
@@ -3915,8 +3917,8 @@ function syncFieldUI(m){
       ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
     ] : [
       ['타공면 벽 끝 → 타공 줄', f.depth, wallTxt + ' + ' + m.cobInset + ' 이격'],
-      ['1구 (양 끝에서)', f.pos1 + ' / ' + f.far1, '110 + ' + m.cobPos[0]],
-      ['2구 (양 끝에서)', f.pos2 + ' / ' + f.far2, '110 + ' + m.cobPos[1]],
+      ['첫 번째 등 (한쪽 끝에서)', f.pos1 + ' ㎜', '양쪽 끝에서 각 ' + f.pos1 + '씩 · 110 + ' + m.cobPos[0]],
+      ['두 번째 등 (같은 끝에서)', f.pos2 + ' ㎜', '반대쪽 끝에서는 ' + f.far2 + ' ㎜'],
       ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
     ];
     host.innerHTML = cells.map(c=>`<div class="fg"><span>${c[0]}</span><b>${num(c[1])} ㎜</b><i>${c[2]}</i></div>`).join('');
