@@ -3016,8 +3016,7 @@ function sheetRoomLayout(m){
   /* 치수 — 방 전체 · 부스 · 이격 */
   s += dimH(ox-WALLT, ox+pw+0, oy+ph+WALLT+18, String(r.W), {size:8.6, ext1:oy+ph+WALLT, ext2:oy+ph+WALLT});
   s += dimV(oy-WALLT, oy+ph+WALLT, ox-WALLT-26, String(r.D), {size:8.6, ext1:ox-WALLT, ext2:ox-WALLT, labelX:ox-WALLT-30});
-  s += dimH(bx+wt, bx+bw-wt, by+wt+15, String(r.bw), {size:7.4, color:DIMC});
-  s += dimV(by+wt, by+bh-wt, bx+bw-wt-15, String(r.bh), {size:7.4, color:DIMC, labelX:bx+bw-wt-12});
+  /* 부스 크기는 가운데 라벨·아래 표에 적는다 — 방 안 여백(이격) 치수만 건다 */
   /* 이격 — 좁은 틈은 따로, 넓은 쪽은 한 곳만 */
   if(r.gap.top > 0)    s += dimV(oy, by, bx+bw/2, String(r.gap.top), {size:6.6, color:WARN, labelX:bx+bw/2-4});
   if(r.gap.bottom > 0) s += dimV(by+bh, oy+ph, bx+bw/2, String(r.gap.bottom), {size:6.6, color:WARN, labelX:bx+bw/2-4});
