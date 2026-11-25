@@ -144,6 +144,11 @@
 
   /* Cards */
   .grid{display:grid;gap:12px}
+  .qmore-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 2px}
+  .qmore{min-width:190px;height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;
+    font-size:13px;font-weight:800;color:var(--accent-d);cursor:pointer}
+  .qmore:active{transform:translateY(1px)}
+  .qmore-end{font-size:11.5px;font-weight:700;color:var(--muted);text-align:center;padding:6px 0 2px}
   .qsheet{
     background:#fff;border:1px solid var(--line);border-radius:18px;
     padding:15px;box-shadow:var(--shadow);
@@ -606,22 +611,25 @@
   .ps-custom label{display:grid;gap:4px;font-size:10.5px;font-weight:800;color:var(--muted)}
   .ps-custom input{border:1px solid var(--line);border-radius:9px;padding:8px 9px;font:inherit;font-size:13px;font-weight:700;text-align:right;background:#fff}
 
-  .ps-opts{display:grid;gap:7px}
+  /* 옵션 10종 — 2열 콤팩트 타일 (한 카드 2줄: 이름 / 금액·매입) */
+  .ps-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .ps-opt{
-    display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:11px;
-    padding:10px 11px;cursor:pointer;transition:.14s;
+    position:relative;min-width:0;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:7px 19px 8px 9px;cursor:pointer;transition:.14s;
   }
-  .ps-opt .ic{font-size:15px;line-height:1}
-  .ps-opt .tx{flex:1;min-width:0;text-align:left}
-  .ps-opt .tx b{display:block;font-size:12px;font-weight:800;color:var(--ink)}
-  .ps-opt .tx span{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin-top:1px}
-  .ps-opt .pr{font-size:11.5px;font-weight:800;color:var(--accent-d);white-space:nowrap;text-align:right;line-height:1.25}
-  .ps-opt .pr small{display:block;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:0}
-  .ps-opt .sw{width:34px;height:20px;border-radius:99px;background:#D8D2C6;position:relative;flex:none;transition:.18s}
-  .ps-opt .sw::after{content:"";position:absolute;top:2.5px;left:2.5px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .ps-opt b{display:block;font-size:11.2px;font-weight:800;color:var(--ink);line-height:1.25;
+    letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ps-opt b .ic{font-style:normal;margin-right:3px;font-size:11px;opacity:.85}
+  .ps-opt .mt{display:block;margin-top:2px;font-size:9.3px;font-weight:700;color:var(--muted);line-height:1.3;
+    letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ps-opt .mt em{font-style:normal;font-size:10.5px;font-weight:800;color:var(--accent-d)}
+  .ps-opt::after{content:"";position:absolute;top:8px;right:8px;width:11px;height:11px;border:1.4px solid #CFC9BD;
+    border-radius:50%;background:#fff;transition:.14s}
   .ps-opt[aria-pressed=true]{border-color:var(--accent);background:#F5FBF9}
-  .ps-opt[aria-pressed=true] .sw{background:var(--accent)}
-  .ps-opt[aria-pressed=true] .sw::after{transform:translateX(14px)}
+  .ps-opt[aria-pressed=true] b{color:var(--accent-d)}
+  .ps-opt[aria-pressed=true]::after{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 2.4px #fff}
+  .ps-opt-sep{display:flex;gap:6px;align-items:flex-start;margin-top:7px;padding:7px 9px;border-radius:9px;
+    border:1px dashed #E4CFA2;background:#FDF7E8;font-size:10px;font-weight:700;color:#8A6A2F;line-height:1.45}
   .ps-opt-sum{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:9px 11px;
     border:1px dashed #9FC6BC;border-radius:10px;background:#F5FBF9;font-size:11.5px;font-weight:800;color:#1F7A69}
   .ps-opt-sum b{font-size:14px;color:var(--ink)}
@@ -1218,6 +1226,7 @@
     market: { listings: [], inquiries: [] },
     qStatus: "all",
     query: "",
+    qLimit: 20,   /* 목록에 한 번에 그리는 카드 수 — 나머지는 '더 보기'로 (전체 보기에서 화면이 무너지지 않게) */
     mkTab: "pending",
     lbPhotos: [],
     lbIdx: 0
@@ -3118,8 +3127,18 @@ function openContractModal(q){
           + '<div class="kl">' + k[1] + '</div><div class="kv">' + k[2] + '</div></button>';
       }).join("");
 
+    /* 전체 보기는 건수가 많아(백 건대) 카드를 한꺼번에 그리면 세로로 끝없이 길어집니다.
+       20건씩 그리고 '더 보기'로 이어 붙인다 (relocation.html 관리자 목록과 같은 방식). */
+    var PAGE = 20;
+    var limit = Math.max(PAGE, state.qLimit || PAGE);
+    var shown = filtered.slice(0, limit);
     var cardsHtml = filtered.length
-      ? filtered.map(function(q){ return renderQuoteCard(q, isNewTab); }).join("")
+      ? shown.map(function(q){ return renderQuoteCard(q, isNewTab); }).join("")
+        + (filtered.length > shown.length
+            ? '<div class="qmore-wrap"><button type="button" class="qmore" data-qmore="1">더 보기 ('
+              + shown.length + ' / ' + filtered.length + ')</button><span class="qmore-end">한 번에 ' + PAGE + '건씩 더 불러옵니다</span></div>'
+            : (filtered.length > PAGE
+                ? '<div class="qmore-end">' + filtered.length + '건 모두 표시했습니다</div>' : ''))
       : '<div class="empty">' + (base.length ? "조건에 맞는 요청이 없습니다." : (isNewTab ? "신규 부스 견적 요청이 없습니다." : "이전설치 견적 요청이 없습니다.")) + '</div>';
 
     app.innerHTML = ''
@@ -3426,20 +3445,31 @@ function openContractModal(q){
 
   function bindQuoteEvents(){
     Array.prototype.forEach.call(app.querySelectorAll("[data-qtab]"), function(b){
-      b.addEventListener("click", function(){ state.qStatus = b.getAttribute("data-qtab"); render(); });
+      b.addEventListener("click", function(){ state.qStatus = b.getAttribute("data-qtab"); state.qLimit = 20; render(); });
     });
     var search = document.getElementById("q-search");
     var clearBtn = document.getElementById("q-clear");
     if (search) {
       search.addEventListener("input", function(){
         state.query = search.value;
+        state.qLimit = 20;
         var pos = search.selectionStart;
         render();
         var s2 = document.getElementById("q-search");
         if (s2) { s2.focus(); try { s2.setSelectionRange(pos, pos); } catch (e) {} }
       });
     }
-    if (clearBtn) clearBtn.addEventListener("click", function(){ state.query = ""; render(); });
+    if (clearBtn) clearBtn.addEventListener("click", function(){ state.query = ""; state.qLimit = 20; render(); });
+
+    /* 더 보기 — 그리기만 늘리고 스크롤 위치는 그대로 둔다 */
+    Array.prototype.forEach.call(app.querySelectorAll("[data-qmore]"), function(b){
+      b.addEventListener("click", function(){
+        var y = window.scrollY;
+        state.qLimit = (state.qLimit || 20) + 20;
+        render();
+        window.scrollTo(0, y);
+      });
+    });
 
     Array.prototype.forEach.call(app.querySelectorAll("[data-qstage]"), function(b){
       b.addEventListener("click", function(){
@@ -3951,8 +3981,8 @@ function openContractModal(q){
     { k: "project",  ic: "🪟", t: "프로젝트창 (천장)",   s: "천장 개폐형 프로젝트창",          buy: 0, price: 390000, est: true },
     { k: "flame",    ic: "🔥", t: "방염 아트보드",        s: "비방염 → 방염 업그레이드",        buy: 0,  price: 190000, est: false, diff: true },
     { k: "door",     ic: "🚪", t: "방음도어 추가 1짝",   s: "5+5 방음도어 (실매입)",    buy: 0, price: 630000, est: false },
-    { k: "aircon",   ic: "❄", t: "에어컨 타공·매설",     s: "배관 매설 + 벽체 타공 1대",        buy: 0, price: 440000, est: true },
-    { k: "slat",     ic: "▤", t: "라인타공 추가 1면",    s: "라인타공판 + 재단·시공 (기본 1면 외)", buy: 0, price: 385000, est: true }
+    { k: "aircon",   ic: "❄", t: "에어컨 타공·매설",     s: "협력업체 단독 진행 · 200후반~ 별도 협의", buy: 0, price: 0, sep: true },
+    { k: "slat",     ic: "▤", t: "라인타공 추가 1면",    s: "라인타공판 3장 교체 (기본 1면 외)",   buy: 0,  price: 120000, est: true }
   ];
   function psOptCost(o){ return Math.round(o.buy / 1.1); }   // 공급가 환산 (원가 합계용)
   var PS_SHIP = [
@@ -4034,7 +4064,10 @@ function openContractModal(q){
   }
   function psOptionLines(){
     var out = [];
-    PS_OPTS.forEach(function(o){ if (PS[o.k]) out.push(o.t + " +" + krwPS(o.price)); });
+    PS_OPTS.forEach(function(o){
+      if (!PS[o.k]) return;
+      out.push(o.price > 0 ? (o.t + " +" + krwPS(o.price)) : (o.t + " (협력업체 별도 협의)"));
+    });
     return out;
   }
   function psQuoteText(full){
@@ -4080,10 +4113,13 @@ function openContractModal(q){
         + x.t + (sub ? '<small>' + sub + '</small>' : '') + '</button>';
     }).join("");
     var optRows = PS_OPTS.map(function(o){
-      return '<button type="button" class="ps-opt" data-ps-opt="' + o.k + '" aria-pressed="' + (PS[o.k] ? "true" : "false") + '">'
-        + '<span class="ic">' + o.ic + '</span><span class="tx"><b>' + o.t + '</b><span>' + o.s
-        + ' · ' + (o.diff ? '매입 차액 ' : '매입 ') + psMan(o.buy) + ' (VAT 포함' + (o.est ? ' · 추정' : '') + ')</span></span>'
-        + '<span class="pr">+' + psMan(o.price) + '<small>VAT 포함</small></span><span class="sw"></span></button>';
+      var meta = o.sep
+        ? '<em>협력업체 별도</em> 200후반~ 협의'
+        : '<em>+' + psMan(o.price) + '</em> VAT 포함 · ' + (o.diff ? '차액 ' : '매입 ') + (o.est ? '≈' : '') + psMan(o.buy);
+      return '<button type="button" class="ps-opt" data-ps-opt="' + o.k + '" aria-pressed="' + (PS[o.k] ? "true" : "false") + '"'
+        + ' title="' + o.t + ' — ' + o.s + '">'
+        + '<b>' + (o.ic ? '<span class="ic">' + o.ic + '</span>' : '') + o.t + '</b>'
+        + '<span class="mt">' + meta + '</span></button>';
     }).join("");
     var shipChips = PS_SHIP.map(function(s){
       return '<button type="button" class="ps-chip" data-ps-ship="' + s.k + '" aria-pressed="' + (PS.ship === s.k ? "true" : "false") + '">'
@@ -4139,10 +4175,13 @@ function openContractModal(q){
       + '</div>'
 
       /* 3 옵션 */
-      + '  <div class="ps-card"><div class="ps-step"><span class="n">3</span><span class="t">옵션</span><span class="s">금액은 모두 부가세 포함 · 라인타공 1면은 기본</span></div>'
+      + '  <div class="ps-card"><div class="ps-step"><span class="n">3</span><span class="t">옵션</span><span class="s">모두 부가세 포함 · 매입 ≈는 추정 · 라인타공 1면은 기본</span></div>'
       + '    <div class="ps-opts">' + optRows + '</div>'
       + (opts.length
-          ? '    <div class="ps-opt-sum"><span>옵션 합계 (' + opts.length + '개 · 부가세 포함)</span><b>+' + krwPS(m.p.optP) + '</b></div>'
+          ? '    <div class="ps-opt-sum"><span>옵션 합계 (' + opts.length + '개 · 부가세 포함)</span><b>' + (m.p.optP > 0 ? '+' + krwPS(m.p.optP) : '별도 협의') + '</b></div>'
+          : '')
+      + (PS.aircon
+          ? '    <div class="ps-opt-sep"><span>❄</span><span>에어컨 타공·매설은 협력업체 단독 진행(200만원 후반~)으로 견적 합계에 넣지 않습니다. 견적 문구에는 <b>“에어컨: 협력업체 별도 협의”</b>로만 안내됩니다.</span></div>'
           : '')
       + '    <div class="ps-step" style="margin-top:12px"><span class="t">운송</span><span class="s">거리별 차등</span></div>'
       + '    <div class="ps-chips">' + shipChips + '</div>'
