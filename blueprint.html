@@ -2702,7 +2702,7 @@ function sheetField(m){
   /* ---------- 큰 천장 평면도 (맨 끝 기준 치수) ---------- */
   const px0 = M+8, py0 = tileY+tileH+12, pwAll = SW-2*M-16, phAll = 556;
   const outW = m.W, outD = m.D;
-  const padL = 74, padR = 74, padT = 58, padB = 58;
+  const padL = 74, padR = 300, padT = 78, padB = 54;
   const sc = Math.min((pwAll-padL-padR)/outW, (phAll-padT-padB)/outD);
   const pw = outW*sc, ph = outD*sc;
   const ox = px0 + padL + Math.max(0,(pwAll-padL-padR-pw)/2);
@@ -2712,7 +2712,7 @@ function sheetField(m){
 
   s += R(px0, py0, pwAll, phAll, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8, rx:3});
   s += T(px0+10, py0+15, '천장 마감 평면 (아래에서 본 모습) — 부스 바깥 맨 끝에서 잰 치수', {size:7.4, weight:800, fill:'#2E353B'});
-  s += T(px0+10, py0+25, (rail? '레일등' : 'COB 2구')+'과 중앙등이 천장 어디에 오는지 · 점선은 천장판(600 모듈·2000 대칭) 이음매', {size:6.2, fill:'#7B8389'});
+  s += T(px0+10, py0+25, (rail? '레일등과' : 'COB 2구와')+' 중앙등이 천장 어디에 오는지 · 점선은 천장판(600 모듈·2000 대칭) 이음매', {size:6.2, fill:'#7B8389'});
 
   /* 벽체 110 띠 */
   s += R(ox, oy, pw, ph, {fill:'#F1ECE2', stroke:INK, sw:1.7});
@@ -2824,7 +2824,7 @@ function sheetField(m){
   }
   /* ---------- 판정 · 이음매 범례 (평면도 오른쪽) ---------- */
   {
-    const cx0 = px0+pwAll-232, cy0 = py0+44, cw0 = 220;
+    const cx0 = px0+pwAll-232, cy0 = py0+40, cw0 = 220;
     s += R(cx0, cy0, cw0, 132, {fill:'#fff', stroke:'#DDD6C8', sw:0.8, rx:3});
     s += T(cx0+9, cy0+14, '타공 판정 · 판 이음매', {size:6.2, weight:800, fill:SOFT, ls:'0.06em'});
     const cf2 = m.cobFit;
