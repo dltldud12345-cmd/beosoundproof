@@ -2240,8 +2240,8 @@ function sheetPlan(m){
   const wmY = ctrY + ph*((m.lineFace==='front') ? -0.22 : 0.22);
   s += T(wmX, wmY-13, '실사용 내경 (내부 아트보드 9T 포함)', {size:6.4, anchor:'middle', fill:'#BDB6A7', ls:'0.10em'});
   s += T(wmX, wmY+3, artW+' × '+artD, {size:14.5, weight:800, anchor:'middle', fill:'#D3CCBD', ls:'0.02em'});
-  s += T(wmX, wmY+17, '액자틀 기준 '+clearW+' × '+clearD+' ㎜' + (hasInner? ' · 벽체 '+(m.grade==='double'?'220×4면':'220 정면') : ''), {size:6.6, weight:700, anchor:'middle', fill:'#C6BFB0', ls:'0.01em'});
-  s += T(wmX, wmY+27, '㎜ · 9T×2 = 18 차감' + (m.notch.on? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄':''), {size:6.2, anchor:'middle', fill:'#C6BFB0'});
+  s += T(wmX, wmY+17, '액자틀 기준 '+clearW+' × '+clearD+' ㎜', {size:6.6, weight:700, anchor:'middle', fill:'#C6BFB0', ls:'0.01em'});
+  s += T(wmX, wmY+27, (hasInner? '벽체 '+(m.grade==='double'?'220×4면':'220 정면')+' · ' : '') + '9T×2 = 18 차감' + (m.notch.on? ' · 코너 '+m.notch.cw+'×'+m.notch.cd+' 따냄':''), {size:6.2, anchor:'middle', fill:'#C6BFB0'});
 
   /* ── 코너 기둥(따내기) — 그 코너를 ㄱ자로 비우고 기둥 자리를 표시 ── */
   if(m.notch.on){
