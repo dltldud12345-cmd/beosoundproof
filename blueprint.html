@@ -1185,7 +1185,7 @@ function buildModel(inp){
       far1: faceOuterLen - pos2, far2: faceOuterLen - pos1,
       seg1: pos1, seg2: pos2 - pos1, seg3: faceOuterLen - pos2,
       railDepth, railStart, railEnd, railLen,
-      centerAlong: Math.round(faceOuterLen/2),
+      centerAlong: Math.round(((faceAxis === 'x') ? W : D)/2),
       centerPerp: Math.round(((faceAxis === 'x') ? D : W)/2),
       wallBand: CFG.FIN, wallLayers, wallFin: finLine
     };
@@ -2882,7 +2882,7 @@ function sheetFloorCeil(m){
   const gbY = Math.min(sy2 + stockH + 10, 998 - 46);
   const gbH = 46;
   const gbX = M+8, gbW = SW-2*M-16;
-  const faceLen = (m.lineFace==='front' || m.lineFace==='back') ? m.W : m.D;   // 타공면 방향 천장 외경
+  const faceLen = (m.field && m.field.faceOuterLen) ? m.field.faceOuterLen : ((m.lineFace==='front' || m.lineFace==='back') ? m.W : m.D);   // 타공면 방향 천장 외경
   const gx1 = CFG.FIN + Math.round(m.cobPos[0]);
   const gx2 = CFG.FIN + Math.round(m.cobPos[1]);
   const gx1r = faceLen - gx2;                                                 // 반대쪽 끝에서 첫 점
