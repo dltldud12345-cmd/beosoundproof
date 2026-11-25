@@ -858,7 +858,7 @@ async function submitLead(e){
   btn.textContent = '접수 중…';
   leadMsg('접수 내용을 저장하는 중…', 'ok');
   const spec = simSpec();
-  const boothType = spec.model === 'db' ? '더블' : (spec.model === 'custom' ? '기타' : '싱글');
+  const boothType = spec.model === 'db' ? '더블' : (spec.model === 'custom' ? '기타' : (spec.model === 'ssp' ? '슈퍼싱글 플러스' : '슈퍼싱글'));
   try {
     const res = await sbRpc('relocation_submit', { p: {
       customer_name: name,

@@ -31,9 +31,11 @@
     --blue:#2563EB;
     --blue-bg:#EFF6FF;
     --shadow:0 1px 2px rgba(20,23,26,.04), 0 8px 24px -16px rgba(20,23,26,.14);
+    /* 좌우 여백 한 값 — 상단 바 · 본문 · 하단 내비가 같은 선에 서도록 공유한다 */
+    --pad-x:16px;
   }
   *,*::before,*::after{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;overflow-x:clip}
   body{
     margin:0;background:var(--bg);color:var(--ink);
     font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
@@ -56,7 +58,7 @@
     border-bottom:1px solid var(--line);
   }
   .topbar-in{
-    max-width:960px;margin:0 auto;padding:11px 16px;
+    max-width:960px;margin:0 auto;padding:11px var(--pad-x);
     display:flex;align-items:center;justify-content:space-between;gap:10px;
     flex-wrap:wrap;
   }
@@ -76,7 +78,8 @@
   .tbtn:hover{border-color:var(--ink2);background:var(--soft)}
   .tbtn.danger{color:var(--warn)}
   @media (max-width:480px){
-    .topbar-in{padding:8px 12px;gap:8px}
+    :root{--pad-x:14px}
+    .topbar-in{padding:8px var(--pad-x);gap:8px}
     .brand{gap:6px}
     .brand-logo{height:19px;max-width:108px}
     .brand-sub{font-size:10.5px;padding:2px 7px}
@@ -89,7 +92,7 @@
   }
 
   /* Main */
-  .wrap{max-width:960px;margin:0 auto;padding:14px 14px 24px}
+  .wrap{max-width:960px;margin:0 auto;padding:14px var(--pad-x) 24px}
 
   /* Login */
   .login-box{
@@ -111,15 +114,15 @@
   .login-msg{margin-top:10px;font-size:12.5px;color:var(--warn);min-height:18px}
 
   /* KPI & Toolbar */
-  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .kpi-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
   .kpi{
     background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 12px 10px;
-    text-align:left;
+    text-align:left;min-width:0;
   }
   .kpi[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-t);box-shadow:inset 0 0 0 1px var(--accent)}
-  .kpi .kl{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .kpi .kl{font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .kpi[aria-pressed="true"] .kl{color:var(--accent-d)}
-  .kpi .kv{margin-top:2px;font-size:21px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+  .kpi .kv{margin-top:2px;font-size:21px;font-weight:800;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
 
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
   .search-wrap{flex:1 1 220px;position:relative}
@@ -143,7 +146,7 @@
   .stab[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 
   /* Cards */
-  .grid{display:grid;gap:12px}
+  .grid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
   .qmore-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 2px}
   .qmore{min-width:190px;height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;
     font-size:13px;font-weight:800;color:var(--accent-d);cursor:pointer}
@@ -151,14 +154,16 @@
   .qmore-end{font-size:11.5px;font-weight:700;color:var(--muted);text-align:center;padding:6px 0 2px}
   .qsheet{
     background:#fff;border:1px solid var(--line);border-radius:18px;
-    padding:15px;box-shadow:var(--shadow);
+    padding:15px;box-shadow:var(--shadow);min-width:0;max-width:100%;
   }
   .qsheet.is-new{border-left:4px solid var(--accent)}
   .qs-head{
     display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;
     padding-bottom:11px;border-bottom:1px solid var(--line2);
   }
-  .qs-who{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .qs-head-main{display:flex;align-items:flex-start;gap:8px;width:100%;min-width:0}
+  .qs-edit{flex:0 0 auto;margin-left:auto}
+  .qs-who{display:flex;flex-wrap:wrap;align-items:center;gap:8px;flex:1 1 auto;min-width:0}
   .qs-name{font-size:17.5px;font-weight:800;letter-spacing:-.03em}
   .qs-phone{
     font-size:13px;font-weight:700;color:var(--accent-d);background:var(--accent-t);
@@ -400,10 +405,11 @@
   .spec-grid{
     display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
     margin-top:11px;background:var(--soft);border:1px solid var(--line2);
-    border-radius:12px;padding:10px 12px;
+    border-radius:12px;padding:10px 12px;min-width:0;
   }
+  .spec-item{min-width:0}
   .spec-item .sl{font-size:11px;font-weight:700;color:var(--muted)}
-  .spec-item .sv{font-size:13.5px;font-weight:800;color:var(--ink);margin-top:2px}
+  .spec-item .sv{font-size:13.5px;font-weight:800;color:var(--ink);margin-top:2px;overflow-wrap:anywhere}
 
   .route{display:grid;grid-template-columns:1fr 24px 1fr;gap:8px;align-items:stretch;margin-top:10px}
   .rbox{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:#fff}
@@ -512,20 +518,38 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   @media (max-width:680px){
-    .kpi-row{grid-template-columns:repeat(2,1fr)}
-    .spec-grid{grid-template-columns:repeat(2,1fr)}
-    /* 크기(1,600 × 1,800 × 2,800 mm) 값이 'mm'만 다음 줄로 떨어지지 않게 전체 폭 사용 */
-    .spec-item.spec-wide{grid-column:1 / -1}
-    .spec-item.spec-wide .sv{white-space:nowrap}
+    /* 상태 6타일 — 3열 × 2줄 콤팩트(예전 2열 × 3줄은 화면 절반을 차지했다) */
+    .kpi-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}
+    .kpi{padding:8px 10px 7px;border-radius:12px}
+    .kpi .kl{font-size:10.5px;letter-spacing:-.03em}
+    .kpi .kv{margin-top:1px;font-size:18.5px}
+    /* 고객 카드 정보 — 2열 × 2줄로 빈칸 없이 (부스 유형 | 제조사 / 크기 | 설치 예정) */
+    .spec-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;padding:9px 11px;margin-top:10px}
+    .spec-item.spec-wide{grid-column:auto}
+    .spec-item.spec-wide .sv{white-space:normal}
+    .spec-item .sl{font-size:10.5px}
+    .spec-item .sv{font-size:12.2px;letter-spacing:-.02em;line-height:1.35}
     .route{grid-template-columns:1fr;gap:6px}
     .rarrow{display:none}
     /* 진행 단계 5버튼(신규·상담중·계약금 입금·예약중·설치 완료)을 한 줄에 유지 */
     .stage-bar{gap:3px}
     .stage-bar .sp{padding:5px 7px;font-size:11.5px;letter-spacing:-.03em}
   }
+  /* 폰 폭(390 이하) — 단계 버튼이 카드 밖으로 밀려나지 않게 조금 더 조인다 */
+  @media (max-width:430px){
+    .stage-bar .sp{padding:5px 6px;font-size:11px}
+    .qs-head{gap:8px}
+    .qs-name{font-size:16.5px}
+    .qs-who{min-width:0}
+    /* 하단 내비 6칸 — '도면·사이트'까지 한 줄에 들어가게 */
+    .bnav-btn{font-size:10.5px;padding:8px 2px 7px}
+    .bnav-ico{font-size:18px}
+  }
   /* 아주 좁은 화면(320~360px)에서도 5단계 버튼 한 줄 유지 */
   @media (max-width:360px){
-    .stage-bar .sp{padding:5px 4px;font-size:11px}
+    .stage-bar .sp{padding:4px 4px;font-size:10.5px}
+    .kpi .kl{font-size:10px}
+    .kpi .kv{font-size:17.5px}
   }
 
   /* ---------- 🏷️ 진행 구분 배지 (내 부스 이사 · 중고 구매 후 설치 · 판매·철거) ---------- */
@@ -777,7 +801,7 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;font-weight:700;color:var(--muted)">
       <label style="display:grid;gap:4px">고객명<input id="ed-name" class="inst-in" style="text-align:left;padding:0 10px"></label>
       <label style="display:grid;gap:4px">연락처<input id="ed-phone" class="inst-in" style="text-align:left;padding:0 10px"></label>
-      <label style="display:grid;gap:4px">부스 유형<input id="ed-type" class="inst-in" style="text-align:left;padding:0 10px" placeholder="싱글 / 세미더블 / 더블"></label>
+      <label style="display:grid;gap:4px">부스 유형<input id="ed-type" class="inst-in" style="text-align:left;padding:0 10px" placeholder="슈퍼싱글 / 슈퍼싱글 플러스 / 더블"></label>
       <label style="display:grid;gap:4px">제조사 · 구분<input id="ed-brand" class="inst-in" style="text-align:left;padding:0 10px"></label>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:12px;font-weight:700;color:var(--muted)">
@@ -833,7 +857,7 @@
       <label>진행 단계<select id="sd-stage" class="sedit-in"></select></label>
       <label>고객명<input id="sd-name" class="sedit-in" autocomplete="off"></label>
       <label>연락처<input id="sd-phone" type="tel" inputmode="tel" class="sedit-in" autocomplete="off"></label>
-      <label>부스 유형<input id="sd-type" class="sedit-in" autocomplete="off" placeholder="싱글 / 세미더블 / 더블"></label>
+      <label>부스 유형<input id="sd-type" class="sedit-in" autocomplete="off" placeholder="슈퍼싱글 / 슈퍼싱글 플러스 / 더블"></label>
       <label class="wide">제조사 · 구분<input id="sd-brand" class="sedit-in" autocomplete="off"></label>
     </div>
     <div class="sedit-note">⏰ 일정 시간은 <b>해체 시작(작업 시작)</b> 시각입니다 · 메모 태그는 기존 ‘[설치일]’을 그대로 씁니다.</div>
@@ -904,11 +928,7 @@
     <div class="calc-grade" id="calc-grade" role="group" aria-label="등급"></div>
     <label class="calc-f">표준 규격
       <select id="calc-spec" class="sedit-in">
-        <option value="1420x1200">1420 × 1200</option>
-        <option value="1500x1500">1500 × 1500</option>
-        <option value="1500x1700">1500 × 1700</option>
-        <option value="1500x1800">1500 × 1800</option>
-        <option value="1700x2500">1700 × 2500</option>
+        <option value="1500x1800">1500 × 1800 (최소 제작)</option>
         <option value="1800x1800">1800 × 1800</option>
         <option value="2000x2000" selected>2000 × 2000 (대표 표준)</option>
         <option value="2000x2500">2000 × 2500</option>
@@ -939,7 +959,6 @@
     </div>
     <div class="calc-acts">
       <button type="button" class="abtn solid" id="calc-copy-customer">💬 고객전용 견적 복사</button>
-      <button type="button" class="abtn" id="calc-copy-supply">공급가액 복사</button>
       <button type="button" class="abtn" id="calc-copy-link">3D 시뮬레이터 링크 복사</button>
       <button type="button" class="abtn solid" id="calc-apply" hidden>이 견적 공급가액에 반영</button>
     </div>
@@ -1360,6 +1379,14 @@
   function catOf(q){
     return q ? catLabel(parseMemo(q.memo).category) : "";
   }
+  /* 부스 유형 — 예전 접수 데이터의 '싱글'도 지금 등급명 '슈퍼싱글'로 보여준다(DB 값은 그대로) */
+  function boothLabel(v){
+    var s = String(v == null ? "" : v).trim();
+    if (!s) return "";
+    if (s === "싱글") return "슈퍼싱글";
+    if (s === "싱글플러스" || s === "슈퍼싱글플러스") return "슈퍼싱글 플러스";
+    return s;
+  }
 
   /* ---------- 시뮬레이터 사양(SIM_SPEC) → 표시용 · 링크용 ---------- */
   /* 지금 쓰는 아트보드 5색 — 예전 12색 key는 과거 저장 건 표시용 fallback으로 남긴다 */
@@ -1458,7 +1485,7 @@
       "[베오방음 " + (isNewB ? "신규설치" : "이전설치") + " 상담요청서 #" + String(q.id || "").slice(0, 8).toUpperCase() + "]",
       "• 고객: " + (q.customer_name || "-") + " (" + (q.customer_phone || "-") + ")",
       "• 상태: " + stageLabel(stageOf(q)) + " · 접수: " + fmtDate(q.created_at),
-      "• 부스: " + (isNewB ? "신규 부스" : (q.booth_type || "유형 미상")) + " / " + (q.brand || "-") + " / " + sizeLine(q)
+      "• 부스: " + (isNewB ? "신규 부스" : (boothLabel(q.booth_type) || "유형 미상")) + " / " + (q.brand || "-") + " / " + sizeLine(q)
     ];
     if (catLabel(pm.category)) out.push("• 구분: " + catLabel(pm.category));
     if (!isNewB) {
@@ -1796,7 +1823,7 @@ function contractData(q){
   var pay = payOf(q);
   var work = isNewB
     ? "신규 부스 맞춤 제작 · 설치"
-    : ("이전 제품: " + (q.booth_type || "유형 미상") + (q.brand ? " (" + q.brand + ")" : "") + " · " + sizeLine(q));
+    : ("이전 제품: " + (boothLabel(q.booth_type) || "유형 미상") + (q.brand ? " (" + q.brand + ")" : "") + " · " + sizeLine(q));
   var route = isNewB
     ? (q.to_region || "설치 주소 미기재")
     : (catOf(q) === "판매·철거"
@@ -1914,8 +1941,9 @@ function customerData(q, o){
     isNew: isNewB,
     cat: cat,
     name: q.customer_name || "",
-    booth: isNewB ? "" : (q.booth_type || ""),
+    booth: isNewB ? "" : boothLabel(q.booth_type),
     size: sizeLine(q),
+    grade: isNewB ? String(q.brand || "").replace(/^\[신규부스\]\s*/, "").trim() : "",
     from: isNewB ? "" : place(q.from_region, q.from_floor, fe),
     to: (isNewB || cat === "판매·철거") ? (isNewB ? place(toRegion, q.to_floor, te) : "") : place(toRegion, q.to_floor, te),
     date: inst.date || "",
@@ -1944,6 +1972,7 @@ function kindLine(d){
 function moneyText(d){
   var supply = Number(d.supply) || 0, vat = Number(d.vat) || 0, total = Number(d.total) || 0;
   if (!supply && !total) return "· 금액: 확인 후 안내드리겠습니다.";
+  if (d.isNew) return "· 금액: " + krw(total || (supply + vat)) + (d.pay === "현금결제" ? " (현금결제)" : " (부가세 포함)");
   if (d.pay === "현금결제") return "· 금액: " + krw(total || supply) + " (현금결제 · 부가세 없음)";
   if (supply && vat) return "· 금액: 공급가액 " + krw(supply) + " + 부가세 " + krw(vat) + " = 총 " + krw(total || (supply + vat));
   return "· 금액: " + krw(total || supply);
@@ -1951,10 +1980,17 @@ function moneyText(d){
 function simpleQuoteMessage(d){
   var nm = String(d.name || "").trim();
   var out = ["안녕하세요" + (nm ? " " + nm + "님" : "") + ", 베오방음입니다."];
-  var spec = d.isNew ? "" : (d.booth ? " · " + d.booth : "");
-  var size = (d.size && String(d.size).indexOf("미기재") === -1) ? " · " + d.size : "";
-  out.push("· 구분: " + kindLine(d) + spec + size);
-  if (!d.isNew){
+  /* 높이는 집마다 층고가 달라 고객 문구에는 적지 않는다 — 신규는 가로 × 세로만 */
+  var sizeRaw = String(d.size || "");
+  if (d.isNew) sizeRaw = sizeRaw.replace(/\s*×\s*[?\d,.]+\s*mm\s*$/, " mm");
+  var sizeOk = sizeRaw && sizeRaw.indexOf("미기재") === -1;
+  var size = sizeOk ? (d.isNew ? sizeRaw.replace(/\s*mm\s*$/, "") : sizeRaw) : "";
+  if (d.isNew){
+    var grade = String(d.grade || "").trim();
+    out.push("· 규격: " + (size || "상담 후 확인") + (grade ? " · " + grade : ""));
+  } else {
+    var spec = d.booth ? " · " + d.booth : "";
+    out.push("· 구분: " + kindLine(d) + spec + (size ? " · " + size : ""));
     if (d.cat === "판매·철거"){
       if (d.from) out.push("· 철거: " + d.from);
     } else if (d.from || d.to){
@@ -1981,6 +2017,7 @@ function bookingConfirmMessage(d){
   var supply = Number(d.supply) || 0, vat = Number(d.vat) || 0, total = Number(d.total) || 0;
   if (supply || total){
     if (d.pay === "현금결제") out.push("· 총액: " + krw(total || supply) + " (현금결제 · 부가세 없음)");
+    else if (d.isNew) out.push("· 총액: " + krw(total || (supply + vat)) + " (부가세 포함)");
     else if (supply && vat) out.push("· 총액: " + krw(total || (supply + vat)) + " (공급가액 " + krw(supply) + " + 부가세 " + krw(vat) + ")");
     else out.push("· 총액: " + krw(total || supply));
     var dep = Number(d.deposit) || 0;
@@ -3290,24 +3327,24 @@ function openContractModal(q){
 
     return '<article class="qsheet' + (st === "new" ? " is-new" : "") + '" data-stage="' + st + '">'
       + '<div class="qs-head">'
-      + '  <div style="width:100%">'
+      + '  <div class="qs-head-main">'
       + '    <div class="qs-who">'
       + '      <span class="qs-name">' + esc(q.customer_name || "성함 미기재") + '</span>'
       + '      <a class="qs-phone" href="tel:' + esc(phoneDigits) + '">' + esc(q.customer_phone || "연락처 없음") + '</a>'
       + '      <span class="stage-tag" data-st="' + st + '">' + stageLabel(st) + '</span>'
-      + (catNow ? '      <span class="cat-tag" data-cat="' + esc(catNow) + '">' + esc(catNow) + '</span>' : '')
+      + (catNow && catNow !== "신규" ? '      <span class="cat-tag" data-cat="' + esc(catNow) + '">' + esc(catNow) + '</span>' : '')
       + (promoOn ? '      <span class="promo-tag">📣 홍보 소재</span>' : '')
-      + '      <button type="button" class="pay-chip" style="margin-left:auto" data-qedit="' + esc(q.id) + '">✏️ 수정</button>'
       + '    </div>'
-      + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
+      + '    <button type="button" class="pay-chip qs-edit" data-qedit="' + esc(q.id) + '">✏️ 수정</button>'
       + '  </div>'
+      + '    <div class="qs-meta"><span class="qs-id">#' + esc(shortId) + '</span><span>접수 ' + esc(fmtDate(q.created_at)) + '</span><span>사진 ' + photos.length + '장</span></div>'
       + '</div>'
       + '<div class="stage-bar">' + statusBtns + '</div>'
       + (st === "done" ? '<div class="stage-hint">완료된 건입니다 — 단계 버튼이나 ↩️ 완료 취소로 언제든 되돌릴 수 있고, 금액·설치일·결제 증빙은 그대로 수정할 수 있습니다.</div>' + '<label class="promo-row' + (promoOn ? " on" : "") + '"><input type="checkbox" data-promo-id="' + esc(q.id) + '"' + (promoOn ? " checked" : "") + '><span>📣 홍보 소재 (블로그·쇼츠)</span><small>체크하면 메모에 [홍보]로 저장됩니다</small></label>' : '')
       + (alerts.length ? '<div class="alerts-box"><div class="alerts-hd">📋 고객 조건 · 요청사항</div><div class="alerts">' + alerts.join("") + '</div></div>' : '')
       + '<div class="spec-grid">'
-      + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (q.booth_type || "미상")) + '</div></div>'
-      + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(q.brand || "미기재") + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">부스 유형</div><div class="sv">' + esc(isNewTab ? "신규 부스" : (boothLabel(q.booth_type) || "미상")) + '</div></div>'
+      + '  <div class="spec-item"><div class="sl">' + (isNewTab ? "구분" : "제조사") + '</div><div class="sv">' + esc(isNewTab ? (String(q.brand || "").replace(/^\[신규부스\]\s*/, "") || "미기재") : (q.brand || "미기재")) + '</div></div>'
       + '  <div class="spec-item spec-wide"><div class="sl">크기</div><div class="sv">' + esc(sizeLine(q)) + '</div></div>'
       + '  <div class="spec-item"><div class="sl">설치 예정</div><div class="sv" data-inst-sv="' + esc(q.id) + '">' + (inst.date ? esc(fmtDay(validDay(inst.date) || inst.date)) + (inst.time ? ' ' + esc(inst.time) : ' <small style="color:#8A6A1F">(시간 미정)</small>') : (validDay(q.desired_date) && !pipeOf(q.id).noDate ? esc(fmtDay(validDay(q.desired_date))) + ' <small style="color:var(--accent-d)">(희망)</small>' : '<span style="color:var(--muted);font-weight:700">미정</span>')) + '</div></div>'
       + '</div>'
@@ -3952,14 +3989,14 @@ function openContractModal(q){
   /* ============================================================
      💵 단가 · 견적 · 마진 스튜디오
      - 관리자 키 인증 뒤(render())에서만 그려진다 → 내부 원가·마진은 외부 노출 없음
-     - 3단 라인업(가성비 싱글 / 스탠다드 싱글플러스 / 프리미엄 더블) · VAT 포함 기준
+     - 3단 라인업(슈퍼싱글 / 슈퍼싱글 플러스 / 더블) · VAT 포함 기준
      - 원가 기준: 2026-11-25 실매입 단가(박사장님·한경희마루·비앤비)
      ============================================================ */
   var PS_KEY = "beo_ps";
   var PS_GRADES = [
-    { k: "value",    t: "가성비 싱글",        s: "외벽 1중 · 방음도어 1짝",      badge: "주력",   wallMul: 1,    doors: 1, days: 1 },
-    { k: "standard", t: "스탠다드 싱글플러스",  s: "정면만 2중 · 방음도어 1짝",   badge: "",      wallMul: 1.25, doors: 1, days: 1.5 },
-    { k: "premium",  t: "프리미엄 더블",      s: "4면 2중 벽체 · 방음도어 2짝",   badge: "프리미엄", wallMul: 2,    doors: 2, days: 2 }
+    { k: "value",    t: "슈퍼싱글",        s: "외벽 1중 · 방음도어 1짝",      badge: "주력",   wallMul: 1,    doors: 1, days: 1 },
+    { k: "standard", t: "슈퍼싱글 플러스",  s: "정면만 2중 · 방음도어 1짝",   badge: "",      wallMul: 1.25, doors: 1, days: 1.5 },
+    { k: "premium",  t: "더블",      s: "4면 2중 벽체 · 방음도어 2짝",   badge: "",      wallMul: 2,    doors: 2, days: 2 }
   ];
   /* 벽 자재 배수 — 4면 중 정면(문 면) 1면만 2중이면 그 면 몫만큼만 늘어난다
      (2000×2000 이면 정면 1면 = 벽 면적의 1/4 → 1 + 0.25 = 1.25배) */
@@ -4023,7 +4060,7 @@ function openContractModal(q){
     for (var i=0;i<PS_SIZES.length;i++) if (PS_SIZES[i].k === PS.size) return { w: PS_SIZES[i].w, d: PS_SIZES[i].d, h: PS_SIZES[i].h };
     return { w: 2000, d: 2000, h: 2280 };
   }
-  /* 원가 — 2000×2000 싱글(공급가 0)을 기준점으로 면적 비례로 확장.
+  /* 원가 — 2000×2000 슈퍼싱글(공급가 0)을 기준점으로 면적 비례로 확장.
      등급·치수·운송·시공일을 인자로 받는다 — 🧮 표준 단가 계산기도 이 함수를 그대로 써서
      스튜디오와 1원도 어긋나지 않게 한다. */
   function psBaseCost(g, dim, shipKey, day){
@@ -4087,7 +4124,8 @@ function openContractModal(q){
   function psMan(v){ var x = Math.round(v / 1000) / 10; return (x % 1 === 0 ? x.toFixed(0) : x.toFixed(1)) + "만"; }
   function psSpecLine(){
     var g = psGradeOf(PS.grade), dim = psDims();
-    return g.t + " · " + Number(dim.w).toLocaleString("ko-KR") + "×" + Number(dim.d).toLocaleString("ko-KR") + " · 높이 " + Number(dim.h).toLocaleString("ko-KR");
+    /* 높이는 집마다 층고가 달라 고객 문구에는 적지 않는다 — 가로 × 세로만 */
+    return g.t + " · " + Number(dim.w).toLocaleString("ko-KR") + " × " + Number(dim.d).toLocaleString("ko-KR");
   }
   function psOptionLines(){
     var out = [];
@@ -4100,22 +4138,23 @@ function openContractModal(q){
   function psQuoteText(full){
     var m = psMarginInfo(), g = psGradeOf(PS.grade), opts = psOptionList();
     var out = [];
+    var optLine = opts.length ? psOptionLines().join(" · ") : "";
     if (full){
       out.push("[베오방음] 예약 확정 안내");
       out.push("· 사양: " + psSpecLine());
       out.push("· 마감: 아트보드 3면 · 라인타공 1면 · 강화마루");
-      if (opts.length) out.push("· 옵션: " + psOptionLines().join(" · "));
+      if (opts.length) out.push("· 옵션: " + optLine);
       out.push("· 일정: (희망일) 작업 시작 — 오전 9시 도착 기준");
-      out.push("· 총액: " + krwPS(m.p.total) + " (공급가 " + krwPS(m.supply) + " + 부가세 " + krwPS(m.vat) + ")");
+      out.push("· 총액: " + krwPS(m.p.total) + " (부가세 포함)");
       out.push("· 계약금: " + krwPS(Math.round(m.p.total * 0.5)) + " / 잔금: " + krwPS(m.p.total - Math.round(m.p.total * 0.5)));
       out.push("· 입금: 기업은행 301-115608-04-019 (예금주 이시영/베오방음)");
       out.push("· 제작·설치 약 2주 소요, 일정은 협의 후 확정됩니다.");
     } else {
       out.push("[베오방음] 방음부스 견적 안내");
       out.push("· 사양: " + psSpecLine());
-      out.push("· 마감: 아트보드 3면 · 라인타공 1면 · 강화마루 · COB 매립등 2구 + 중앙등");
-      if (opts.length) out.push("· 옵션 (부가세 포함): " + psOptionLines().join(" · "));
-      out.push("· 금액: 부가세 포함 " + krwPS(m.p.total) + " (공급가 " + krwPS(m.supply) + " · 부가세 " + krwPS(m.vat) + ")");
+      out.push("· 기본 포함: 아트보드 3면 · 라인타공 1면 · 강화마루 · COB 매립등 2구 + 중앙등");
+      if (opts.length) out.push("· 옵션 (부가세 포함): " + optLine);
+      out.push("· 총액: 부가세 포함 " + krwPS(m.p.total));
       out.push("· 계약금 50%: " + krwPS(Math.round(m.p.total * 0.5)));
       out.push("· 진행 원하시면 편한 날짜 알려주세요 :)");
     }
@@ -4233,8 +4272,8 @@ function openContractModal(q){
       + '      <div class="ps-line sum"><span>세후 순수익</span><b>' + krwPS(m.margin) + '</b></div>'
 
       + '      <p class="ps-note">· 옵션 금액은 모두 <b>부가세 포함</b>입니다(매입·판매 동일 기준). 순수익만 부가세를 뺴고 계산합니다 — 부가세 포함 금액끼리 바로 빼면 실제 남는 돈보다 크게 보입니다.<br>'
-      + '      · 원가는 2000×2000 싱글 실매입(공급가 0원)을 기준점으로 면적·겹수에 따라 비례 계산한 추정치입니다. 운송·일당은 실제 청구서 기준.<br>'
-      + '      · 2중은 늘어나는 면만 반영합니다 — 싱글플러스는 정면 1면만 2중(벽 자재 1.25배), 더블은 4면 2중(2배).<br>'
+      + '      · 원가는 2000×2000 슈퍼싱글 실매입(공급가 0원)을 기준점으로 면적·겹수에 따라 비례 계산한 추정치입니다. 운송·일당은 실제 청구서 기준.<br>'
+      + '      · 2중은 늘어나는 면만 반영합니다 — 슈퍼싱글 플러스는 정면 1면만 2중(벽 자재 1.25배), 더블은 4면 2중(2배).<br>'
       + '      · 실제 발주 전 재단표(도면 A-104)로 장수를 확인하세요.</p>'
       + '    </details>'
       + '  </div>'
@@ -4312,7 +4351,7 @@ function openContractModal(q){
 
   /* ============================================================
      🧮 표준 단가 계산기 (신규설치 · 숨고 응대용)
-     - 등급 3단(가성비 싱글 / 스탠다드 싱글플러스 / 프리미엄 더블)
+     - 등급 3단(슈퍼싱글 / 슈퍼싱글 플러스 / 더블)
      - 금액은 단가·견적 스튜디오와 같은 함수(psBaseCost · psTablePrice)로 계산
      - 고객전용 견적 복사 : 사이즈·등급만 물어본 고객에게 바로 붙여넣는 기본부스 견적
      ============================================================ */
@@ -4356,38 +4395,23 @@ function openContractModal(q){
     });
   }
   function calcWon(v){ return Number(v).toLocaleString("ko-KR"); }
-  /* 고객에게 그대로 붙여넣는 기본부스 견적 — 추가 옵션 없이 규격·등급·기본 포함·금액만 */
+  /* 고객에게 그대로 붙여넣는 기본부스 견적 — 규격 · 등급 · 총액(부가세 포함)만.
+     · 높이는 집마다 층고가 달라 적지 않는다 (가로 × 세로만)
+     · 라인업 설명·공급가/부가세 내역은 넣지 않는다 (신규 견적은 부가세 포함 총액 기준) */
   function calcCustomerText(w, d){
     var c = calcPrice(w, d);
     if (!c) return "";
     var g = c.grade, st = calcRegionStep(c.region);
     var out = [];
     out.push("안녕하세요, 베오방음입니다 :)");
-    out.push("문의 주신 방음부스 기본 견적 안내드립니다.");
+    out.push("방음부스 견적 안내드립니다.");
     out.push("");
-    out.push("■ 규격 · 등급");
-    out.push("· " + calcWon(w) + " × " + calcWon(d) + " (높이 " + calcWon(CALC_H) + ") · " + g.t);
-    out.push("· 라인업 — 가성비 싱글 / 스탠다드 싱글플러스(정면만 2중) / 프리미엄 더블(4면 2중 · 방음도어 2짝)");
+    out.push("· 규격: " + calcWon(w) + " × " + calcWon(d) + " · " + g.t);
+    out.push("· 기본 포함: 방음도어 " + g.doors + "짝 · 아트보드 3면 · 라인타공 1면 · 강화마루 · LED 조명");
+    out.push("· 총액: " + krw(c.total) + " (부가세 포함" + (c.add ? " · " + st.t + " 운송 포함)" : ")"));
+    out.push("· 계약금 50%: " + krw(c.deposit));
     out.push("");
-    out.push("■ 기본 포함 (추가 비용 없이 들어갑니다)");
-    out.push("· 방음도어 " + g.doors + "짝");
-    out.push("· 내부 마감 — 1면 라인타공 · 3면 아트보드");
-    out.push("· 바닥 — 강화마루");
-    out.push("· 조명 — COB 매립등 + 중앙 LED등 · 스위치");
-    out.push("· 전원 — 세로 2구 콘센트");
-    out.push("· 설계 · 재단 · 시공까지 직영 (방음부스 10년+)");
-    out.push("");
-    out.push("■ 금액 (부가세 포함)");
-    out.push("· " + krw(c.total));
-    out.push("· 공급가액 " + krw(c.supply) + " + 부가세 " + krw(c.vat));
-    if (c.add) out.push("· 운송 (" + st.t + ") " + krw(c.add) + " 포함");
-    out.push("· 계약금 50% — " + krw(c.deposit));
-    out.push("");
-    out.push("■ 안내");
-    out.push("· 3D로 미리 보기 — https://beosoundproof.com/configurator.html?sim=1&w=" + w + "&d=" + d);
-    out.push("· 시창 · 방염 · 타지역 운송비 등은 필요하실 때 별도로 안내드립니다.");
-    out.push("· 제작 · 설치까지 약 2주 걸립니다. 일정은 협의해서 확정합니다.");
-    out.push("");
+    out.push("3D로 미리 보기 — https://beosoundproof.com/configurator.html?sim=1&w=" + w + "&d=" + d);
     out.push("진행 원하시면 편한 날짜 알려주세요 :)");
     return out.join("\n");
   }
@@ -4539,12 +4563,6 @@ function openContractModal(q){
     var txt = calcCustomerText(dim.w, dim.d);
     if (!txt){ toast("가로 · 세로를 먼저 입력해 주세요"); return; }
     copyCustomer(txt, "고객전용 견적 복사 완료");
-  });
-  document.getElementById("calc-copy-supply").addEventListener("click", function(){
-    var dim = calcRead();
-    var c = calcPrice(dim.w, dim.d);
-    if (!c){ toast("가로 · 세로를 먼저 입력해 주세요"); return; }
-    copyText(String(c.supply), "공급가액 " + krw(c.supply) + " 복사 완료");
   });
   document.getElementById("calc-copy-link").addEventListener("click", function(){
     var dim = calcRead();

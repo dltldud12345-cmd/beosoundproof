@@ -297,12 +297,12 @@
       <h2>부스 등급</h2>
       <div class="field"><label>제작 등급</label>
         <div class="seg" id="grade">
-          <button data-v="single" aria-pressed="true">싱글</button>
-          <button data-v="plus" aria-pressed="false">싱글플러스</button>
+          <button data-v="single" aria-pressed="true">슈퍼싱글</button>
+          <button data-v="plus" aria-pressed="false">슈퍼싱글 플러스</button>
           <button data-v="double" aria-pressed="false">더블</button>
         </div>
       </div>
-      <p class="note-small" id="gradeNote">· <b>싱글</b> — 외벽 1중 · 방음도어 1짝<br>· <b>싱글플러스</b> — 정면 2중(더블) · 방음도어 1짝<br>· <b>더블</b> — 4면 2중 벽체(부스 안에 부스) · 방음도어 2짝<br>등급을 바꾸면 재단표·자재 산출표와 <b>A-101 평면도</b>에 <b>내벽 층</b>과 <b>도어 수량</b>이 함께 반영됩니다.</p>
+      <p class="note-small" id="gradeNote">· <b>슈퍼싱글</b> — 외벽 1중 · 방음도어 1짝<br>· <b>슈퍼싱글 플러스</b> — 정면만 2중 · 방음도어 1짝<br>· <b>더블</b> — 4면 2중 벽체(부스 안에 부스) · 방음도어 2짝<br>등급을 바꾸면 재단표·자재 산출표와 <b>A-101 평면도</b>에 <b>내벽 층</b>과 <b>도어 수량</b>이 함께 반영됩니다.</p>
     </section>
 
     <section class="card">
@@ -704,11 +704,11 @@ function buildModel(inp){
        {h:winH,kind:'win'}, {h:winAbove,kind:'above',note:'시창 위'}];
   const winBottomY = (()=>{ let yb=0; for(const st of winStack){ if(st.kind==='win') break; yb += st.h; } return yb; })();   // 바닥에서 시창 하단까지
   const fillH = Math.max(60, CFG.HEAD - dh - 2);   // 문 상단 채움판 높이(198)
-  /* --- 부스 등급 : 싱글 / 싱글플러스(정면 2중) / 더블(4면 2중 + 도어 2짝) ----
+  /* --- 부스 등급 : 슈퍼싱글 / 슈퍼싱글 플러스(정면만 2중) / 더블(4면 2중 + 도어 2짝) ----
      등급은 벽체 겹수와 도어 수량만 바꾼다. 바닥·천장·마감 규칙은 그대로.   */
   const GRADE_DEF = {
-    single: {name:'싱글',      sub:'외벽 1중 · 방음도어 1짝', faces:[]},
-    plus:   {name:'싱글플러스', sub:'정면 2중 · 방음도어 1짝', faces:['front']},
+    single: {name:'슈퍼싱글',      sub:'외벽 1중 · 방음도어 1짝', faces:[]},
+    plus:   {name:'슈퍼싱글 플러스', sub:'정면만 2중 · 방음도어 1짝', faces:['front']},
     double: {name:'더블',      sub:'4면 2중 벽체 · 방음도어 2짝', faces:['front','back','left','right']}
   };
   const grade = GRADE_DEF[inp.grade] ? inp.grade : 'single';
@@ -828,7 +828,7 @@ function buildModel(inp){
   const cobDia   = Math.max(40, Math.min(150, Math.round(+inp.cobDia || 55)));
   const cobInset = Math.max(0,  Math.min(400, Math.round(+inp.cobInset===0 ? 0 : (+inp.cobInset || 200))));
   const lineSide = sides.find(x=>x.k===lineFace);
-  /* 타공면 양 끝 벽도 안쪽 면까지 차감한다 — 더블/싱글플러스 2000 이면 110+110 = 220 씩
+  /* 타공면 양 끝 벽도 안쪽 면까지 차감한다 — 더블/슈퍼싱글 플러스 2000 이면 110+110 = 220 씩
      (코너 기둥 따내기 면은 그 끝이 단차 벽이라 같은 규칙: 더블 220 · 나머지 110)        */
   const lineEnds  = (lineFace==='front' || lineFace==='back') ? ['left','right'] : ['back','front'];
   const lineFin0  = finOf(lineEnds[0]);          // 면 시작(좌·상) 끝 벽 두께
@@ -863,7 +863,7 @@ function buildModel(inp){
   const startOf = sd => sd.off + sd.ins0;
   /* 더블 — 문 면 안쪽에 좌·우(또는 앞·뒤) 내벽 110 이 한 겹 더 서므로,
      문이 벽 끝에 바짝 붙으면 안쪽 문이 그 110 을 먹는다.
-     그때만 문을 110 띄워 안·밖 문이 일직선으로 맞게 한다(싱글플러스는 0). */
+     그때만 문을 110 띄워 안·밖 문이 일직선으로 맞게 한다(슈퍼싱글 플러스는 0). */
   const dPad = (()=>{
     const horiz = (doorSide==='front' || doorSide==='back');
     const k0 = horiz ? 'left' : 'back', k1 = horiz ? 'right' : 'front';
@@ -1448,7 +1448,7 @@ function buildModel(inp){
   const bom = [
     {mat:'15T 합판 — 바닥 (2겹)', spec:'1220×2440', amount: n(floorArea*2), unit:'㎡', boards: stockCount(cutCells('바닥 15T (2겹 교차)')), note:'1층·2층 교차 재단 · 강화마루 위'},
     {mat:'PB 95T — 벽판 (액자틀 날개)', spec:'95T 적층', amount: n(wallArea), unit:'㎡', boards: stockCount(cutCells('벽판 95T PB')), note:'15T 원판 + 95T 날개 · 18T×5 기준'},
-    {mat:'PB 95T — 내벽 (2중)', spec: gradeDef.name+' · '+dblFaces.map(k=>sideName[k]).join('·'), amount: n(dblArea), unit:'㎡', boards: stockCount(cutCells('내벽 95T PB (2중)')), note: dblFaces.length? '외벽 안쪽 내벽 층 · 액자틀 동일' : '해당 없음 (싱글)'},
+    {mat:'PB 95T — 내벽 (2중)', spec: gradeDef.name+' · '+dblFaces.map(k=>sideName[k]).join('·'), amount: n(dblArea), unit:'㎡', boards: stockCount(cutCells('내벽 95T PB (2중)')), note: dblFaces.length? '외벽 안쪽 내벽 층 · 액자틀 동일' : '해당 없음 (슈퍼싱글)'},
     {mat:'마블폼 — 천장 (45T 2겹)', spec:'45T · 575×970', amount: String(mableCeilSheets), unit:'장', boards: null, note:'천장 2겹 · 여유 10% 포함'},
     {mat:'천장 아트보드', spec:'1220×2420 · 반씩 대칭', amount: String(Math.ceil(((artShort*artLong)/1e6)*1.1/(1.22*2.42))), unit:'장', boards: null, note:'천장 먼저 시공 — 내부에서 가로·세로 각 '+BNB.GAP+'㎜ 작게 · 이음 한가운데'},
     {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H, amount: n(extArea), unit:'㎡', boards: stockCount(cutCells('외벽 알판')), note:'외부 마감 9T'},
@@ -1716,12 +1716,12 @@ function layoutPieces(sd){
 }
 
 function sheetPlan(m){
-  /* 부제 — 등급별 벽체 구조(1중 / 정면 2중 / 4면 2중)를 그대로 적는다 */
+  /* 부제 — 등급별 벽체 구조(1중 / 정면만 2중 / 4면 2중)를 그대로 적는다 */
   const subPlan = 'PLAN · 외경 '+m.W+' × '+m.D+' · '
     + (m.grade==='single'
-        ? '벽체 110㎜ 액자틀(15T 원판 + 95T 날개) · 등급 싱글(외벽 1중)'
+        ? '벽체 110㎜ 액자틀(15T 원판 + 95T 날개) · 등급 슈퍼싱글(외벽 1중)'
         : '벽체 110㎜ 액자틀 · 등급 '+m.gradeName
-          + (m.grade==='plus' ? '(정면 2중 · 110+110 = 220)' : '(4면 2중 부스 안 부스 · 110+110 = 220)'))
+          + (m.grade==='plus' ? '(정면만 2중 · 110+110 = 220)' : '(4면 2중 부스 안 부스 · 110+110 = 220)'))
     + ' · 도어 '+m.doorCount+'짝 · 문 외부 열림('+hingeName(m.doorHinge)+')'
     + (m.grade==='double' ? ' · 안쪽 문은 안으로 열림('+(m.doorHinge==='left'?'우경첩':'좌경첩')+')' : ' · 좌·우 벽 전길이')
     + (m.notch.on ? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄' : '');
@@ -1859,10 +1859,10 @@ function sheetPlan(m){
     s += R(bx, by, bw, bh, {fill:'none', stroke:EDGE, sw:2.1});
   });
 
-  /* ── 등급별 내벽 층 — 싱글플러스(정면 2중) · 더블(4면 2중 · 부스 안에 부스) ──
+  /* ── 등급별 내벽 층 — 슈퍼싱글 플러스(정면만 2중) · 더블(4면 2중 · 부스 안에 부스) ──
      내벽 판은 내벽 실제 구간(문·시창 개구부 제외)을 **600 모듈 + 마지막 자투리 1개**로
      새로 나눈다 → 1780 이면 600 | 600 | 580 (양끝 자투리 2개가 생기지 않는다).
-     싱글플러스는 좌·우 내벽이 없어 구간이 외벽 스팬과 같으므로 외벽 판과 100% 일치한다.
+     슈퍼싱글 플러스는 좌·우 내벽이 없어 구간이 외벽 스팬과 같으므로 외벽 판과 100% 일치한다.
      (모델 innerInfo : 면별 절대좌표 a0~a1 · 판 조각 pcs · 개구부 holes)                        */
   const isDbl = k => (m.dblFaces||[]).indexOf(k) >= 0;
   const innerList = m.innerInfo || [];
@@ -2360,7 +2360,7 @@ function sheetPlan(m){
     m.grade==='single'
       ? '1. ㎜ 단위, 외경 기준. 좌·우 벽은 외경 끝~끝 전길이, 문 면·반대 면은 좌·우 벽 110 안쪽에 끼움.'
       : m.grade==='plus'
-        ? '1. ㎜ 단위, 외경 기준. 등급 싱글플러스 — 정면은 외벽 110 안쪽에 내벽 110을 한 겹 더 밀착(합 220).'
+        ? '1. ㎜ 단위, 외경 기준. 등급 슈퍼싱글 플러스 — 정면은 외벽 110 안쪽에 내벽 110을 한 겹 더 밀착(합 220).'
         : '1. ㎜ 단위, 외경 기준. 등급 더블 — 4면 모두 내벽 110을 한 겹 더 밀착(합 220), 부스 안에 부스.',
     '2. '+m.sideName[longSide.k]+' '+sumOf(longSide)+' = '+longSide.len+' (전길이).',
     '3. '+m.sideName[m.doorSide]+' '+sumOf(S(m.doorSide))+' = '+S(m.doorSide).len+' (좌·우 벽 안쪽 '+S(m.doorSide).span+').',
@@ -3238,7 +3238,7 @@ function sheetElevation(m){
     memo.push('· 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄 — 그쪽 외벽이 '+m.notch.cw+' / '+m.notch.cd+' 짧아지고 단차 벽 2면(전길이 1 + 물림 1)이 붙습니다.');
   }
   if(m.grade === 'plus'){
-    memo.push('· 등급 싱글플러스 — 정면(문 면)에 내벽 110을 외벽 110 안쪽에 한 겹 더 세움(합 220). 문은 2중 벽을 관통하는 1짝.');
+    memo.push('· 등급 슈퍼싱글 플러스 — 정면(문 면)에 내벽 110을 외벽 110 안쪽에 한 겹 더 세움(합 220). 문은 2중 벽을 관통하는 1짝.');
   } else if(m.grade === 'double'){
     memo.push('· 등급 더블 — 4면에 내벽 110을 한 겹 더 세움(부스 안에 부스, 합 220). 문은 외벽·내벽 각 1짝, 안쪽 문은 부스 안쪽으로 열림.');
   }
@@ -4352,7 +4352,7 @@ function bnbOrder(m, inp){
   };
 
   /* 1) 천장 — 천장을 먼저 올리는 기준: 내부 유효(벽 안쪽면)에서 가로·세로 각 5㎜ 작게.
-     예) 외경 2000×2000 싱글 → 내부 1780×1780 → 발주 1775×1775 (끼워 넣을 수 있게)
+     예) 외경 2000×2000 슈퍼싱글 → 내부 1780×1780 → 발주 1775×1775 (끼워 넣을 수 있게)
      코너 기둥을 따낸 현장은 전체 치수에서 5㎜만 빼고, 단차 벽 쪽 모서리는 현장 재단으로 남긴다. */
   const cLong  = Math.round(Math.max(m.clearW, m.clearD) - BNB.GAP);
   const cShort = Math.round(Math.min(m.clearW, m.clearD) - BNB.GAP);
