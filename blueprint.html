@@ -3790,7 +3790,7 @@ function sheetRoomLayout(m){
    7-B. 비앤비(B&B) 아트보드 발주표
    실물 카톡 발주서 3건(2026-11-21 IMG_1408 · 1409 · 1410)의 표기를 따른다.
    · 라인타공 1면을 먼저 빼고 나머지 3면 + 천장만 산출
-   · 벽 1990쪽 면치기 = 600 모듈 + 자투리, 모서리 후접은 9T 차감(490 → 481)
+   · 벽 1990쪽 면치기 = 600 모듈 + 자투리, 좌·우 끝벽은 후접 9T 차감(490 → 481) · 앞·뒤는 선접
    · 문 위 189면치기 = 693 × 189 (702 − 9)
    · 천장 = 내부 −5 면치기, 2000 초과 시 반씩 대칭(양쪽 면치기)
    · 시창 위·아래는 800 면치기(400×800 2개) · 391 면치기(800×391 1개)로 따로
@@ -3799,8 +3799,7 @@ const BNB = {
   WALL_H: 1990,   // 벽 아트보드 높이 — '1990쪽 면치기'
   T: 9,           // 모서리 후접 9T 차감
   GAP: 5,         // 천장 면치기 여유 (내부 1780 → 1775)
-  MAXL: 2400,     // 천장 판 길이 상한
-  SEGL: 2000      // 넘을 때 첫 장 길이
+  MAXL: 2000      // 천장 판 길이 상한 — 넘으면 반씩 대칭 분할
 };
 
 function bnbSplit(len, MOD){         // 600 모듈 + 자투리 (100㎜ 미만 자투리는 앞 판에 합쳐 재단)
@@ -3840,9 +3839,9 @@ function bnbOrder(m, inp){
   const cWidths = bnbSplit(cShort, MOD);
   let ceilNote;
   if(cLong > BNB.MAXL){
-    const segL = [BNB.SEGL, Math.round(cLong - BNB.SEGL)];
-    segL.forEach(L0=>{ if(L0 >= 60) add('양쪽 면치기', cWidths.map(w=>({s:L0+'*'+w, q:1}))); });
-    ceilNote = cLong+' → '+segL.join(' + ')+' (양쪽 면치기)';
+    const h1 = Math.ceil(cLong / 2), h2 = cLong - h1;   // 반씩 대칭 분할
+    [h1, h2].forEach(L0=>{ if(L0 >= 60) add('양쪽 면치기', cWidths.map(w=>({s:L0+'*'+w, q:1}))); });
+    ceilNote = cLong+' → '+h1+' + '+h2+' (반씩 대칭 · 양쪽 면치기)';
   } else {
     add(cLong + ' 면치기', cWidths.map(w=>({s:cLong+'*'+w, q:1})));
     ceilNote = cLong + ' × ' + cShort + ' — 폭 ' + cWidths.join(' + ');
@@ -3852,7 +3851,7 @@ function bnbOrder(m, inp){
   const ring = ['front','right','back','left'];
   const i0 = Math.max(0, ring.indexOf(m.lineFace));
   const faces = [1,2,3].map(k=> ring[(i0+k)%4]);
-  const wallItems = [], aboveItems = [], belowItems = [];
+  const wallItems = [], aboveItems = [], belowItems = [], faceItems = [];
   let doorItem = null, winInfo = null;
   faces.forEach(k=>{
     const isDoor = (k === m.doorSide);
@@ -3864,7 +3863,9 @@ function bnbOrder(m, inp){
       const fL = Math.round(run/2), fR = run - fL;
       widths = bnbSplit(fL, MOD).concat(bnbSplit(fR, MOD));
     } else widths = bnbSplit(run, MOD);
-    widths.forEach(w=> wallItems.push({s: WALL_H+'*'+w, q:1}));
+    const items = widths.map(w=>({s: WALL_H+'*'+w, q:1}));
+    items.forEach(it=> wallItems.push(it));
+    faceItems.push({face:k, items});
     if(isDoor) doorItem = {s: Math.round(m.dw - T) + '*' + Math.round(m.fillH - T), q:1};
     if(isWin){
       const belowH = Math.max(0, Math.round(m.winBottomY - T));
@@ -3876,16 +3877,18 @@ function bnbOrder(m, inp){
       winInfo = {belowH, aboveH, n, pw};
     }
   });
-  /* 모서리 후접 — 마지막 면 끝 판만 9T 차감 (선접은 그대로) */
-  let jointFrom = null;
-  if(wallItems.length){
-    const last = wallItems[wallItems.length-1];
+  /* 모서리 후접 — 선접(앞·뒤)은 그대로, 후접(좌·우 끝벽) 각각 마지막 판 9T 차감 */
+  const joints = [];
+  faceItems.forEach(fi=>{
+    if((fi.face !== 'left' && fi.face !== 'right') || !fi.items.length) return;
+    const last = fi.items[fi.items.length-1];
     const w = +last.s.split('*')[1];
     if(w > T + 20){
       last.s = WALL_H + '*' + (w - T);
-      jointFrom = {side: m.sideName[faces[faces.length-1]], from: w, to: w - T};
+      joints.push({side: m.sideName[fi.face], from: w, to: w - T});
     }
-  }
+  });
+  const jointFrom = joints.length ? joints : null;
   add(WALL_H + '쪽 면치기', wallItems);
   if(aboveItems.length) add(winInfo.aboveH + ' 면치기', aboveItems);
   if(belowItems.length) add(winInfo.belowH + ' 면치기', belowItems);
@@ -3934,7 +3937,7 @@ function bnbCardHTML(m){
     ['원단', o.color + ' 아트보드 ' + o.flame],
     ['총 수량', o.count + ' 장 · ' + o.area.toFixed(2) + ' ㎡'],
     ['천장', o.ceilNote],
-    ['후접 −9T', o.jointFrom ? (o.jointFrom.side + ' ' + o.jointFrom.from + ' → ' + o.jointFrom.to) : '—']
+    ['후접 −9T', o.jointFrom ? o.jointFrom.map(j=> j.side + ' ' + j.from + ' → ' + j.to).join(' · ') : '—']
   ];
   const winRule = o.winInfo
     ? ('시창 위·아래 — 아래 '+o.winInfo.belowH+'면치기 '+m.winW+'×'+o.winInfo.belowH+', 위 '+o.winInfo.aboveH+' 면치기 '+o.winInfo.pw+'×'+o.winInfo.aboveH+' '+o.winInfo.n+'개')
@@ -3956,9 +3959,9 @@ function bnbCardHTML(m){
           <ol>
             <li>라인타공 <b>1면을 빼고 나머지 3면 + 천장</b>만 발주합니다.</li>
             <li>벽 <b>${BNB.WALL_H}쪽 면치기</b> — 600 모듈 + 자투리 (100㎜ 미만 자투리는 앞 판에 합침).</li>
-            <li>모서리 <b>선접은 그대로 · 후접은 9T 차감</b> (490 → 481).</li>
+            <li>모서리 <b>선접(앞·뒤)은 그대로 · 후접(좌·우 끝벽)은 9T 차감</b> (490 → 481).</li>
             <li>문 위 <b>${Math.round(m.fillH - BNB.T)}면치기</b> — ${Math.round(m.dw-BNB.T)} × ${Math.round(m.fillH-BNB.T)} (${m.dw} − 9).</li>
-            <li>천장 — 내부 −${BNB.GAP} <b>${BNB.MAXL} 이하 한 장</b>, 넘으면 ${BNB.SEGL} + 나머지로 나눠 <b>양쪽 면치기</b>.</li>
+            <li>천장 — 내부 −${BNB.GAP} <b>${BNB.MAXL} 이하 한 장</b>, 넘으면 <b>반씩 대칭</b>으로 나눠 <b>양쪽 면치기</b>.</li>
             <li>${winRule}.</li>
           </ol>
         </details>
