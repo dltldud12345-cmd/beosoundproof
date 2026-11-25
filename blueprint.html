@@ -500,9 +500,16 @@
     </section>
 
     <section class="card">
-      <h2>현장 타공 가이드 <span style="font-size:10px;font-weight:700;color:#1F7A69">부스 맨 끝 기준</span></h2>
+      <h2>현장 타공 가이드 <span style="font-size:10px;font-weight:700;color:#1F7A69">바깥 / 내부 기준</span></h2>
+      <div class="field"><label>재는 기준</label>
+        <div class="seg" id="fieldBasis">
+          <button data-v="out" aria-pressed="true">바깥 기준 (천장 올리기 전)</button>
+          <button data-v="in" aria-pressed="false">내부 기준 (천장 올린 뒤)</button>
+        </div>
+      </div>
       <div class="fg-grid" id="fieldGuide"></div>
-      <p class="note-small" style="margin-top:9px">줄자를 부스 <b>바깥 맨 끝</b>에 걸고 재는 값입니다 — 외벽 <b>110</b>이 이미 들어가 있습니다. 같은 값이 <b>A-105 도면</b>에 크게 실립니다.</p>
+      <p class="note-small" style="margin-top:9px">· <b>바깥 기준</b> — 줄자를 부스 <b>바깥 맨 끝</b>에 걸고 재는 값(외벽 110 포함). <b>천장 올리기 전</b>에 씁니다.
+        <br>· <b>내부 기준</b> — 천장을 올린 뒤 <b>안쪽 벽면</b>에서 재는 값(벽 두께 뺀 내부 유효). 두 값 모두 <b>A-105 도면</b>에 함께 실립니다.</p>
     </section>
 
     <section class="card">
@@ -3269,7 +3276,7 @@ function sheetField(m){
   const wallTxt = m.field.wallLayers > 1 ? '220' : '110';
   const wallTxtLong = m.field.wallLayers > 1 ? '외벽·내벽 220 포함' : '외벽 110 포함';
   let s = sheetHead('A-105','현장 타공 가이드 · 부스 바깥 맨 끝 기준',
-    'FIELD DRILL GUIDE · 줄자를 부스 바깥 맨 끝('+wallTxtLong+')에 걸고 바로 점찍기'+(m.notch.on? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄':'')+' · '
+    'FIELD DRILL GUIDE · 바깥 맨 끝('+wallTxtLong+') 기준 + 내부 벽면 기준 함께'+(m.notch.on? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄':'')+' · '
     + (rail ? '레일등' : 'COB 매립등 2구 Ø'+m.cobDia) + ' · 타공면 '+m.sideName[m.lineFace]
     + ' · 중앙등 1구');
   s += pageNo('A-105',5,PAGE_TOTAL);
@@ -3298,10 +3305,33 @@ function sheetField(m){
     s += T(tileW+tx-9, tileY+71, t[3], {size:5.9, fill:'#8A939A', anchor:'end'});
   });
 
+  /* ---------- 내부 벽면 기준 (천장 올린 뒤 · 안에서 잴 때) ---------- */
+  const inY = tileY + tileH + 9, inH = 48;
+  s += R(M+8, inY, SW-2*M-16, inH, {fill:'#FDF7EC', stroke:'#E3CFAE', sw:1.0, rx:3});
+  s += T(M+16, inY+13, '내부 벽면 기준 (천장 올린 뒤 · 부스 안에서 잴 때)', {size:6.6, weight:800, fill:'#8A5A20', ls:'0.02em'});
+  s += T(SW-M-16, inY+13, '벽 두께('+wallTxt+') 뺀 안쪽 면에서', {size:5.9, fill:'#8A5A20', anchor:'end'});
+  const inCells = rail ? [
+      ['벽 안쪽면 → 레일', fmt(m.railInset)],
+      ['레일 시작 (양쪽 안쪽 벽에서)', fmt(m.railGap)],
+      ['레일 길이', fmt(m.railLen)],
+      ['중앙등 (안쪽 벽에서)', fmt(Math.round(m.innerW/2))+' / '+fmt(Math.round(m.innerD/2))]
+    ] : [
+      ['타공 줄 (벽 안쪽면에서)', fmt(m.cobInset)],
+      ['첫 번째 등 (한쪽 안쪽 벽에서)', fmt(m.cobPos[0])],
+      ['두 번째 등 (같은 쪽에서)', fmt(m.cobPos[1])],
+      ['중앙등 (안쪽 벽에서)', fmt(Math.round(m.innerW/2))+' / '+fmt(Math.round(m.innerD/2))]
+    ];
+  const inCW = (SW-2*M-40)/inCells.length;
+  inCells.forEach((c,i)=>{
+    const cx = M+16 + i*inCW;
+    s += T(cx, inY+27, c[0], {size:5.7, fill:'#7A5A33', weight:700});
+    s += T(cx, inY+40, c[1]+' ㎜', {size:9.4, fill:INK, weight:800, mono:true});
+  });
+
   /* ---------- 큰 천장 평면도 (맨 끝 기준 치수) ---------- */
-  const px0 = M+8, py0 = tileY+tileH+12, pwAll = SW-2*M-16, phAll = 556;
+  const px0 = M+8, py0 = inY+inH+10, pwAll = SW-2*M-16, phAll = 488;
   const outW = m.W, outD = m.D;
-  const padL = 74, padR = 300, padT = 78, padB = 54;
+  const padL = 74, padR = 300, padT = 98, padB = 54;
   const sc = Math.min((pwAll-padL-padR)/outW, (phAll-padT-padB)/outD);
   const pw = outW*sc, ph = outD*sc;
   const ox = px0 + padL + Math.max(0,(pwAll-padL-padR-pw)/2);
@@ -3468,7 +3498,7 @@ function sheetField(m){
   }
 
   /* ---------- 아래 두 박스: 타공 순서 / 값 정리 ---------- */
-  const bx0 = M+8, by0 = py0+phAll+12, bh2 = 176;
+  const bx0 = M+8, by0 = py0+phAll+10, bh2 = 190;
   const bwL = 372, bwR = SW-2*M-16-bwL-12;
   s += R(bx0, by0, bwL, bh2, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(bx0+10, by0+15, '현장 타공 순서 (줄자 · 연필)', {size:6.6, weight:800, fill:SOFT, ls:'0.1em'});
@@ -3513,8 +3543,18 @@ function sheetField(m){
     ['중앙등', fmt(f.centerAlong)+' / '+fmt(f.centerPerp)+' ㎜'],
     ['타공 / 내부 유효', 'Ø'+m.cobDia+' / '+m.innerW+' × '+m.innerD]
   ];
+  /* 내부 벽면 기준 (천장 올린 뒤) — 인쇄물만 보고 안에서 잴 수 있게 함께 싣는다 */
+  rows.push(['— 내부 벽면 기준 —', '천장 올린 뒤']);
+  if(rail){
+    rows.push(['벽 안쪽면 → 레일', fmt(m.railInset)+' ㎜']);
+    rows.push(['레일 시작 / 끝', fmt(m.railGap)+' / '+fmt(m.railGap+m.railLen)+' ㎜']);
+  } else {
+    rows.push(['타공 줄 (안쪽 면에서)', fmt(m.cobInset)+' ㎜']);
+    rows.push(['첫 번째 등 · 두 번째 등', fmt(m.cobPos[0])+' · '+fmt(m.cobPos[1])+' ㎜']);
+  }
+  rows.push(['중앙등 (안쪽 면에서)', fmt(Math.round(m.innerW/2))+' / '+fmt(Math.round(m.innerD/2))+' ㎜']);
   rows.forEach((r,i)=>{
-    const yy = by0+34+i*15;
+    const yy = by0+34+i*(rows.length>8? 12.6 : 15);
     s += T(bx0+bwL+22, yy, r[0], {size:6.2, fill:'#5C666D', weight:700});
     s += T(bx0+bwL+22+128, yy, r[1], {size:6.6, weight:800, fill:INK, mono:true});
   });
@@ -3910,17 +3950,31 @@ function syncFieldUI(m){
   const num = v => (typeof v === 'number' ? fmt(v) : v);
   if(host){
     const wallTxt = f.wallLayers > 1 ? '220' : '110';
-    const cells = (m.lightMode === 'rail') ? [
-      ['타공면 벽 끝 → 레일', f.railDepth, wallTxt + ' + 400 이격'],
-      ['레일 시작 (양 끝에서)', f.railStart, '110 + 여백 ' + m.railGap],
-      ['레일 끝', f.railEnd, '레일 ' + f.railLen + ' ㎜'],
-      ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
-    ] : [
-      ['타공면 벽 끝 → 타공 줄', f.depth, wallTxt + ' + ' + m.cobInset + ' 이격'],
-      ['첫 번째 등 (한쪽 끝에서)', f.pos1 + ' ㎜', '양쪽 끝에서 각 ' + f.pos1 + '씩 · 110 + ' + m.cobPos[0]],
-      ['두 번째 등 (같은 끝에서)', f.pos2 + ' ㎜', '반대쪽 끝에서는 ' + f.far2 + ' ㎜'],
-      ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
-    ];
+    const basis = (state.fieldBasis === 'in') ? 'in' : 'out';
+    const ctrW = Math.round(m.innerW/2), ctrD = Math.round(m.innerD/2);
+    const cells = basis === 'in'
+      ? ((m.lightMode === 'rail') ? [
+          ['벽 안쪽면 → 레일 중심', m.railInset, '내부 기준 (천장 올린 뒤)'],
+          ['레일 시작 (양쪽 안쪽 벽에서)', m.railGap, '레일 ' + m.railLen + ' ㎜'],
+          ['레일 끝', m.railGap + m.railLen, '안쪽 벽에서 ' + m.railGapB + ' 남음'],
+          ['중앙등 (안쪽 벽에서)', ctrW + ' / ' + ctrD, '내부 ' + m.innerW + '·' + m.innerD + ' ÷ 2']
+        ] : [
+          ['벽 안쪽면 → 타공 줄', m.cobInset, '내부 기준 (천장 올린 뒤)'],
+          ['첫 번째 등 (한쪽 안쪽 벽에서)', m.cobPos[0] + ' ㎜', '양쪽 안쪽 벽에서 각 ' + m.cobPos[0] + ' ㎜'],
+          ['두 번째 등 (같은 쪽에서)', m.cobPos[1] + ' ㎜', '반대쪽 안쪽 벽에서는 ' + (m.lineLen - m.cobPos[1]) + ' ㎜'],
+          ['중앙등 (안쪽 벽에서)', ctrW + ' / ' + ctrD, '내부 ' + m.innerW + '·' + m.innerD + ' ÷ 2']
+        ])
+      : ((m.lightMode === 'rail') ? [
+          ['타공면 벽 끝 → 레일', f.railDepth, wallTxt + ' + 400 이격'],
+          ['레일 시작 (양 끝에서)', f.railStart, wallTxt + ' + 여백 ' + m.railGap],
+          ['레일 끝', f.railEnd, '레일 ' + f.railLen + ' ㎜'],
+          ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
+        ] : [
+          ['타공면 벽 끝 → 타공 줄', f.depth, wallTxt + ' + ' + m.cobInset + ' 이격'],
+          ['첫 번째 등 (한쪽 끝에서)', f.pos1 + ' ㎜', '양쪽 끝에서 각 ' + f.pos1 + '씩 · ' + wallTxt + ' + ' + m.cobPos[0]],
+          ['두 번째 등 (같은 끝에서)', f.pos2 + ' ㎜', '반대쪽 끝에서는 ' + f.far2 + ' ㎜'],
+          ['중앙등 (맨 끝에서)', f.centerAlong + ' / ' + f.centerPerp, '가로 ÷ 2 · 세로 ÷ 2']
+        ]);
     host.innerHTML = cells.map(c=>`<div class="fg"><span>${c[0]}</span><b>${num(c[1])} ㎜</b><i>${c[2]}</i></div>`).join('');
   }
 
@@ -4493,6 +4547,7 @@ function init(){
   });
   segInit('#doorHinge','doorHinge','right');
   segInit('#cornerPos','cornerPos','none');
+  segInit('#fieldBasis','fieldBasis','out');
   segInit('#lineFace','lineFace','back');
   segInit('#lightMode','lightMode','cob');
   segInit('#ledTemp','ledTemp','4000');
