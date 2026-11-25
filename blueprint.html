@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>베오방음 | 제작 도면 생성기 (CAD · 재단표)</title>
-<meta name="description" content="외경 가로·세로·층고를 입력하면 베오방음 자체 제작 벽체 기준 CAD 스타일 제작 도면과 재단 치수표·자재 산출표를 자동으로 생성합니다. A4 인쇄 및 PNG 저장 지원.">
+<meta name="description" content="외경 가로·세로·층고를 입력하면 베오방음 자체 제작 벽체 기준 CAD 스타일 제작 도면과 재단 치수표·자재 산출표를 자동으로 생성합니다. A4 PDF·이미지 저장 지원.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314171A'/%3E%3Cg fill='%232E9C86'%3E%3Crect x='15' y='26' width='6' height='12' rx='3'/%3E%3Crect x='29' y='17' width='6' height='30' rx='3'/%3E%3Crect x='43' y='23' width='6' height='18' rx='3'/%3E%3C/g%3E%3C/svg%3E">
 <style>
@@ -76,6 +76,7 @@
   input[type=date]::-webkit-calendar-picker-indicator{margin:0;padding:0;opacity:.55}
   input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-t)}
   .seg{display:grid;grid-auto-flow:column;gap:5px;background:var(--cream);padding:4px;border-radius:10px}
+  .seg.s5 button{font-size:11.5px;padding:7px 2px;letter-spacing:-.03em}
   .seg button{appearance:none;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--body);padding:7px 4px;border-radius:7px;cursor:pointer;transition:.14s}
   .seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,23,26,.13)}
   .note-small{margin:9px 0 0;font-size:11.5px;color:#6C757C;line-height:1.62}
@@ -244,8 +245,8 @@
     <div><b>BEO SOUNDPROOF</b> <span>제작 도면 생성기</span></div>
   </div>
   <div class="spacer"></div>
-  <button class="btn" id="btnPrint" title="A4 인쇄 / PDF 저장">🖨️ PDF · 인쇄</button>
-  <button class="btn accent" id="btnPngAll" title="전체 도면(A-101~)을 고해상도 PNG로 한 번에 저장">📥 PNG 저장</button>
+  <button class="btn" id="btnPrint" title="도면 전체를 A4 PDF 한 파일로 저장">📄 PDF 저장</button>
+  <button class="btn accent" id="btnPngAll" title="전체 도면(A-101~)을 고해상도 이미지로 한 번에 저장">📥 이미지 저장</button>
 </header>
 
 <div class="layout">
@@ -326,7 +327,28 @@
           <button data-v="right" aria-pressed="true">우경첩</button>
         </div>
       </div>
-      <p class="note-small">문은 부스 <b>바깥으로 열리는 외여닫이</b>입니다. 경첩은 <b>문 밖에서 문을 마주보았을 때</b> 기준으로 고르세요.</p>
+      <p class="note-small">문은 부스 <b>바깥으로 열리는 외여닫이</b>입니다. 경첩은 <b>문 밖에서 문을 마주보았을 때</b> 기준으로 고르세요. <b>문 위치를 좌측·우측으로 고르면 경첩도 그쪽으로 자동</b>으로 맞춰지며, 아래 버튼으로 직접 바꿀 수 있습니다. 더블은 안쪽 문이 <b>반대 경첩으로 안쪽으로</b> 열려 옆 내벽에 붙습니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>코너 기둥 (따내기) <span style="font-size:10px;font-weight:700;color:#9AA4AC">선택</span></h2>
+      <div class="field"><label>기둥 위치 <span class="hint">건물 모서리 기둥</span></label>
+        <div class="seg s5" id="cornerPos">
+          <button data-v="none" aria-pressed="true">없음</button>
+          <button data-v="back-left" aria-pressed="false">뒤-좌</button>
+          <button data-v="back-right" aria-pressed="false">뒤-우</button>
+          <button data-v="front-left" aria-pressed="false">앞-좌</button>
+          <button data-v="front-right" aria-pressed="false">앞-우</button>
+        </div>
+      </div>
+      <div id="cornerFields" style="display:none;margin-top:12px">
+        <div class="row2">
+          <div class="field"><label for="cornerW">기둥 가로 <span class="hint">mm</span></label><input type="number" id="cornerW" value="450" min="100" max="2000" step="10"></div>
+          <div class="field"><label for="cornerD">기둥 세로 <span class="hint">mm</span></label><input type="number" id="cornerD" value="680" min="100" max="2000" step="10"></div>
+        </div>
+        <p class="note-small" id="cornerNote">—</p>
+      </div>
+      <p class="note-small">부스 한 코너를 <b>가로 cornerW × 세로 cornerD</b> 만큼 직사각형으로 따내(ㄱ자) 그 자리에 건물 기둥이 들어갑니다. <b>A-101 평면도</b>에 단차 벽 판 분할·기둥 치수·남은 외벽 길이가, <b>A-102·A-104</b>에는 그 영역을 뺀 바닥·천장 분할과 재단 치수가 들어갑니다. <b>문과 겹치는 코너</b>는 피하세요.</p>
     </section>
 
     <section class="card">
@@ -614,6 +636,34 @@ const ceilSplitName = '반씩 대칭';
 /* =====================================================================
    1. 계산 엔진  — 손도면에서 확인한 규칙
    ===================================================================== */
+/* 코너 기둥(따내기) — 외경 W×D 에서 한 코너를 cw(x) × cd(y) 만큼 따낸 ㄱ자 외곽선.
+   좌표는 외경 기준, y는 뒤(0) → 앞(D).  a = 안쪽으로 들이는 두께(0 외곽 · 110 액자틀 · 220 2중)
+   반환점은 시계 방향 — 평면도·면적 계산에 그대로 쓴다.                                */
+function lShape(pos, W, D, cw, cd, a){
+  if(pos==='back-right') return [[a,a],[W-cw-a,a],[W-cw-a,cd+a],[W-a,cd+a],[W-a,D-a],[a,D-a]];
+  if(pos==='back-left')  return [[cw+a,a],[W-a,a],[W-a,D-a],[a,D-a],[a,cd-a],[cw+a,cd-a]];
+  if(pos==='front-left') return [[a,a],[W-a,a],[W-a,D-a],[cw+a,D-a],[cw+a,D-cd+a],[a,D-cd+a]];
+  return [[a,a],[W-a,a],[W-a,D-cd-a],[W-cw-a,D-cd-a],[W-cw-a,D-a],[a,D-a]];
+}
+function polyArea(pts){
+  if(!pts || pts.length < 3) return 0;
+  let s = 0;
+  for(let i=0;i<pts.length;i++){
+    const p = pts[i], q = pts[(i+1)%pts.length];
+    s += p[0]*q[1] - q[0]*p[1];
+  }
+  return Math.abs(s)/2;
+}
+function polyPerim(pts){
+  if(!pts || pts.length < 3) return 0;
+  let s = 0;
+  for(let i=0;i<pts.length;i++){
+    const p = pts[i], q = pts[(i+1)%pts.length];
+    s += Math.hypot(q[0]-p[0], q[1]-p[1]);
+  }
+  return s;
+}
+
 function buildModel(inp){
   const W = +inp.W, D = +inp.D, H = +inp.H;
   const MOD = +inp.mod, JOINT = +inp.joint;
@@ -664,6 +714,33 @@ function buildModel(inp){
   const dblFaces = gradeDef.faces;              // 내벽 층을 더 세우는 면
   const doorCount = grade === 'double' ? 2 : 1;
 
+  /* --- 코너 기둥(따내기) ------------------------------------------------
+     건물 모서리 기둥 때문에 부스 한 코너를 직사각형으로 따내는 현장(IMG_0188).
+     위치·크기를 받아 벽 길이·단차 벽·바닥·천장·재단표에 함께 반영한다.        */
+  const notch = (()=>{
+    const posRaw = String(inp.cornerPos || 'none');
+    const POS = ['back-left','back-right','front-left','front-right'];
+    const pos = POS.indexOf(posRaw) >= 0 ? posRaw : 'none';
+    const cwWant = Math.max(100, Math.min(2000, Math.round(+inp.cornerW || 450)));
+    const cdWant = Math.max(100, Math.min(2000, Math.round(+inp.cornerD || 680)));
+    if(pos === 'none'){
+      return {on:false, pos:'none', cw:0, cd:0, x0:0, x1:0, y0:0, y1:0, cwWant, cdWant, clipped:false,
+              area:W*D, innerArea:(W-CFG.FIN*2)*(D-CFG.FIN*2), perimeter:2*(W+D),
+              poly:[], inPoly:[], in2Poly:[]};
+    }
+    const cw = Math.max(100, Math.min(cwWant, Math.max(200, W - 700)));
+    const cd = Math.max(100, Math.min(cdWant, Math.max(200, D - 700)));
+    const left = pos.endsWith('left'), back = pos.startsWith('back');
+    const poly = lShape(pos, W, D, cw, cd, 0);
+    const inPoly = lShape(pos, W, D, cw, cd, CFG.FIN);
+    const in2Poly = lShape(pos, W, D, cw, cd, CFG.FIN*2);
+    return {on:true, pos, cw, cd, cwWant, cdWant, clipped:(cw!==cwWant || cd!==cdWant),
+            x0: left ? 0 : W-cw, x1: left ? cw : W,
+            y0: back ? 0 : D-cd, y1: back ? cd : D,
+            area: polyArea(poly), innerArea: polyArea(inPoly), perimeter: polyPerim(poly),
+            poly, inPoly, in2Poly};
+  })();
+
   /* --- 4면 정의 ------------------------------------------------------ */
   const sides = [
     {k:'front', name:'앞면', len:W, axis:'x'},
@@ -676,10 +753,56 @@ function buildModel(inp){
 
   sides.forEach(s=>{
     /* 좌·우 벽(전길이 면)은 외경 끝에서 끝까지(D) 그대로 쓰고, 문 면·반대 면만
-       좌·우 벽 두께(110×2 = 220) 안쪽 스팬에 끼운다. → 모든 치수의 합이 외경과 일치 */
-    if(s.k===doorSide || s.k===opp) s.span = s.len - CFG.FIN*2;
-    else                            s.span = s.len;
-    s.span = Math.max(300, s.span);
+       좌·우 벽 두께(110×2 = 220) 안쪽 스팬에 끼운다. → 모든 치수의 합이 외경과 일치
+       코너 기둥을 따낸 면은 그 코너 쪽이 단차 벽에 물리므로 off·len 이 달라진다. */
+    s.off = 0;
+    s.ins0 = (s.k===doorSide || s.k===opp) ? CFG.FIN : 0;
+    s.ins1 = s.ins0;
+    if(notch.on){
+      const p = notch.pos;
+      if(p==='back-right'){ if(s.k==='back'){ s.off=0; s.len=W-notch.cw; } if(s.k==='right'){ s.off=notch.cd; s.len=D-notch.cd; } }
+      if(p==='back-left'){  if(s.k==='back'){ s.off=notch.cw; s.len=W-notch.cw; } if(s.k==='left'){ s.off=notch.cd; s.len=D-notch.cd; } }
+      if(p==='front-right'){ if(s.k==='front'){ s.off=0; s.len=W-notch.cw; } if(s.k==='right'){ s.off=0; s.len=D-notch.cd; } }
+      if(p==='front-left'){ if(s.k==='front'){ s.off=notch.cw; s.len=W-notch.cw; } if(s.k==='left'){ s.off=0; s.len=D-notch.cd; } }
+    }
+    s.span = Math.max(300, s.len - s.ins0 - s.ins1);
+  });
+
+  /* --- 단차 벽 (코너 기둥을 따낸 두 면) ----------------------------------
+     세로 벽은 모서리를 그대로 쓰고(전길이), 가로 벽은 세로 벽 안쪽에 끼운다 —
+     외곽 4면과 같은 규칙이라 치수의 합이 외경과 맞는다.                      */
+  const steps = [];
+  if(notch.on){
+    const FH = CFG.FIN;
+    const doorButts = k => (k===doorSide || k===opp);   // 문 면·반대 면은 모서리를 안 가지고(butt)
+    if(notch.pos === 'back-right'){
+      steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'right', at:W-notch.cw, off:0, len:notch.cd+FH, ins0:0, ins1:0, adj:['back','right']});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'top', at:notch.cd, off:W-notch.cw, len:notch.cw, ins0:0, ins1:FH, adj:['right','stepV']});
+    } else if(notch.pos === 'back-left'){
+      steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'left', at:notch.cw, off:0, len:notch.cd+FH, ins0:0, ins1:0, adj:['back','left']});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'top', at:notch.cd, off:0, len:notch.cw, ins0:FH, ins1:0, adj:['left','stepV']});
+    } else if(notch.pos === 'front-right'){
+      steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'right', at:W-notch.cw, off:D-notch.cd-FH, len:notch.cd+FH, ins0:0, ins1:0, adj:['front','right']});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'bottom', at:D-notch.cd, off:W-notch.cw, len:notch.cw, ins0:0, ins1:FH, adj:['right','stepV']});
+    } else {
+      steps.push({k:'stepV', name:'단차 벽 A', axis:'y', bandSide:'left', at:notch.cw, off:D-notch.cd-FH, len:notch.cd+FH, ins0:0, ins1:0, adj:['front','left']});
+      steps.push({k:'stepH', name:'단차 벽 B', axis:'x', bandSide:'bottom', at:D-notch.cd, off:0, len:notch.cw, ins0:FH, ins1:0, adj:['left','stepV']});
+    }
+    steps.forEach(st=>{ st.span = Math.max(120, st.len - st.ins0 - st.ins1); });
+  }
+  const allSegs = sides.concat(steps);
+  /* 면별 2중 여부 · 내벽 끝판이 먹는 110 — 내벽 판 재단과 평면도에 함께 쓰인다 */
+  const segDbl = k => dblFaces.indexOf(k) >= 0;
+  allSegs.forEach(s=>{
+    if(s.k==='stepV' || s.k==='stepH'){
+      s.dbl = (grade === 'double');
+      s.pad0 = s.dbl ? CFG.FIN : 0; s.pad1 = s.pad0;
+    } else {
+      s.dbl = segDbl(s.k);
+      const horiz = (s.k==='front' || s.k==='back');
+      s.pad0 = segDbl(horiz ? 'left' : 'back')  ? CFG.FIN : 0;
+      s.pad1 = segDbl(horiz ? 'right' : 'front') ? CFG.FIN : 0;
+    }
   });
 
   /* --- 라인타공 1면 · COB 매립등 2구 ----------------------------------
@@ -689,7 +812,8 @@ function buildModel(inp){
   const lineFace = ['back','left','right','front'].indexOf(inp.lineFace)>=0 ? inp.lineFace : 'back';
   const cobDia   = Math.max(40, Math.min(150, Math.round(+inp.cobDia || 55)));
   const cobInset = Math.max(0,  Math.min(400, Math.round(+inp.cobInset===0 ? 0 : (+inp.cobInset || 200))));
-  const lineLen  = Math.max(300, (lineFace==='front'||lineFace==='back') ? innerW : innerD);
+  const lineSide = sides.find(x=>x.k===lineFace);
+  const lineLen  = Math.max(300, lineSide.span - ((lineSide.ins0 + lineSide.ins1) > 0.5 ? 0 : CFG.FIN*2));
   const cobThird = lineLen/3;
   const cobPos   = [Math.round(cobThird), Math.round(cobThird*2)];                  // 면 시작(좌·상)에서 ㎜
   const cobSegs  = [cobPos[0], cobPos[1]-cobPos[0], Math.round(lineLen)-cobPos[1]];  // 593 · 594 · 593
@@ -715,17 +839,36 @@ function buildModel(inp){
      문 폭·벽두께를 뺀 '연속된 남은 공간'의 정중앙에 시창을 놓고, 좌우 채움판을
      같은 폭((남은공간 − 시창폭) / 2)으로 재단한다. 예) 2000×2000 앞면,
      문 702 를 빼고 1078 → 800 시창 + 좌우 139씩.                          */
-  const startOf = sd => (sd.len - sd.span)/2;
+  const startOf = sd => sd.off + sd.ins0;
+  /* 더블 — 문 면 안쪽에 좌·우(또는 앞·뒤) 내벽 110 이 한 겹 더 서므로,
+     문이 벽 끝에 바짝 붙으면 안쪽 문이 그 110 을 먹는다.
+     그때만 문을 110 띄워 안·밖 문이 일직선으로 맞게 한다(싱글플러스는 0). */
+  const dPad = (()=>{
+    const horiz = (doorSide==='front' || doorSide==='back');
+    const k0 = horiz ? 'left' : 'back', k1 = horiz ? 'right' : 'front';
+    return [dblFaces.indexOf(k0)>=0 ? CFG.FIN : 0, dblFaces.indexOf(k1)>=0 ? CFG.FIN : 0];
+  })();
+  const doorRaw = (sd, al) => {
+    const a = al || doorAlign;
+    return a==='right' ? sd.span-dw : (a==='center' ? (sd.span-dw)/2 : 0);
+  };
+  const doorClamp = (sd, al) => {
+    const raw = doorRaw(sd, al);
+    const lo = dPad[0], hi = Math.max(lo, sd.span - dw - dPad[1]);
+    return Math.min(Math.max(raw, lo), hi);
+  };
+  const doorShifted = sd => Math.abs(doorClamp(sd) - doorRaw(sd)) > 0.5;
   const regionsOf = (sd, al) => {             // 문을 피한 연속 빈 공간 (스팬 좌표)
     const isDoor = sd.k === doorSide;
     const align = al || doorAlign;
     if(!isDoor) return [{a:0, b:sd.span}];
-    if(align === 'left')  return [{a:dw, b:sd.span}];
-    if(align === 'right') return [{a:0, b:sd.span-dw}];
-    const h = (sd.span - dw)/2;
-    return [{a:0, b:h}, {a:h+dw, b:sd.span}];
+    const d0 = doorClamp(sd, al), d1 = d0 + dw;
+    const out = [];
+    if(d0 > 0.5) out.push({a:0, b:d0});
+    if(d1 < sd.span-0.5) out.push({a:d1, b:sd.span});
+    return out.length ? out : [{a:0, b:sd.span}];
   };
-  const doorAt = (sd, al) => (al||doorAlign)==='right' ? sd.span-dw : ((al||doorAlign)==='center' ? (sd.span-dw)/2 : 0);
+  const doorAt = (sd, al) => doorClamp(sd, al);
   const modSplit = w => {                     // 폭 → 600 모듈 + 자투리 (합 = w)
     let cnt = Math.max(0, Math.floor(w/MOD));
     let rest = w - cnt*MOD;
@@ -838,11 +981,38 @@ function buildModel(inp){
         arr.slice(before).forEach(put);
       } else arr.forEach(put);
     }
+    /* 더블 — 문이 안쪽 내벽 110 을 먹는 자리면(벽 끝에 붙은 문) 110 만큼 띄워
+       바깥 문·안쪽 문이 같은 자리에 일직선으로 서게 다시 나눈다. */
+    if(isDoor && (s.pad0 + s.pad1) > 0){
+      const dP = fixed.find(p=>p.kind==='door');
+      if(dP){
+        const b0 = s.pad0, b1 = s.span - dw - s.pad1;
+        if(dP.at < b0 - 0.5 || dP.at + dP.w > b1 + dw + 0.5){
+          const dAt = Math.round(Math.min(Math.max(dP.at, b0), Math.max(b0, b1)));
+          const nf = [];
+          const regs = [];
+          if(dAt > 0.5) regs.push({a:0, b:dAt});
+          if(dAt + dw < s.span - 0.5) regs.push({a:dAt+dw, b:s.span});
+          regs.forEach(r=>{ let aa = r.a; modSplit(r.b-r.a).forEach(b=>{ nf.push({w:b.w, kind:b.kind, at:aa}); aa += b.w; }); });
+          nf.push({w:dw, kind:'door', at:dAt, note:'문 개구부'});
+          nf.sort((x,y)=> x.at-y.at);
+          fixed.length = 0; nf.forEach(p=>fixed.push(p));
+          s.doorMoved = dAt;
+        }
+      }
+    }
     s.fixed = fixed;
-    s.pieces = fixed.map(p=>({w:p.w, kind:p.kind, note:p.note}));
+    s.pieces = fixed.map(p=>({w:p.w, kind:p.kind, note:p.note, at:p.at}));
     s.mods = fixed.filter(p=>p.kind==='mod').length;
     s.resid = fixed.filter(p=>p.kind==='resid').length;
     s.winSlots = winHere ? winCount : 0;
+  });
+  /* --- 단차 벽 판 분할 — 외벽과 같은 600 모듈 + 끝 자투리 ------------------ */
+  steps.forEach(st=>{
+    let aa = 0;
+    const arr = modSplit(st.span);
+    st.fixed = arr.map(b=>{ const o = {w:b.w, kind:b.kind, at:aa}; aa += b.w; return o; });
+    st.pieces = st.fixed.map(p=>({w:p.w, kind:p.kind, at:p.at}));
   });
   const winSideObj = sides.find(s=>s.k===winSideKey);
 
@@ -856,9 +1026,53 @@ function buildModel(inp){
     }
     return a;
   }
-  const cellsOf = list => list.flatMap(st => st.lens.map(L => ({w:st.w, l:L})));
-  const f1 = strips(W, D);   // 1층: 세로 결 · 폭 W 분할 × 길이 D
-  const f2 = strips(D, W);   // 2층: 가로 결 · 폭 D 분할 × 길이 W (교차)
+  const cellsOf = list => list.flatMap(st => {
+    if(st.runs) return st.runs.flatMap(r => r.lens.map(L => ({w:st.w, l:L})));
+    return st.lens.map(L => ({w:st.w, l:L}));
+  });
+  /* --- 코너 기둥을 따낸 ㄱ자 — 600 열마다 실제로 덮이는 구간(run)만 재단 --- */
+  const gridCuts = L => {
+    const cuts = [0, Math.round(L)];
+    for(let x=MOD; x<L-0.5; x+=MOD) cuts.push(Math.round(x));
+    return cuts;
+  };
+  const gridCols = axis => {
+    const L = (axis==='x') ? W : D;
+    const n0 = (axis==='x') ? notch.x0 : notch.y0;
+    const n1 = (axis==='x') ? notch.x1 : notch.y1;
+    let u = gridCuts(L);
+    if(notch.on){ if(n0>0.5) u.push(Math.round(n0)); if(n1<L-0.5) u.push(Math.round(n1)); }
+    u = [...new Set(u)].sort((a,b)=>a-b);
+    const cols = [];
+    for(let i=0;i<u.length-1;i++){
+      if(u[i+1]-u[i] < 1) continue;
+      cols.push({a:u[i], b:u[i+1], w:u[i+1]-u[i]});
+    }
+    if(cols.length>1 && cols[cols.length-1].w < 40){
+      const last = cols.pop();
+      cols[cols.length-1].b = last.b; cols[cols.length-1].w += last.w;
+    }
+    return cols;
+  };
+  const runsOf = (axis, a, b) => {
+    const full = (axis==='x') ? D : W;
+    if(!notch.on) return [{a:0, b:full}];
+    const n0 = (axis==='x') ? notch.y0 : notch.x0;
+    const n1 = (axis==='x') ? notch.y1 : notch.x1;
+    const m0 = (axis==='x') ? notch.x0 : notch.y0;
+    const m1 = (axis==='x') ? notch.x1 : notch.y1;
+    if(b <= m0+0.5 || a >= m1-0.5) return [{a:0, b:full}];
+    const out = [];
+    if(n0 > 0.5) out.push({a:0, b:n0});
+    if(n1 < full-0.5) out.push({a:n1, b:full});
+    return out;
+  };
+  const gridOf = (axis, splitFn) => gridCols(axis).map(c=>({
+    a:c.a, b:c.b, w:c.w,
+    runs: runsOf(axis, c.a, c.b).map(r=>{ const len = r.b - r.a; return {a:r.a, b:r.b, len, lens: splitFn(len)}; })
+  }));
+  const f1 = notch.on ? gridOf('x', L=>splitLen(L, LSPLIT)) : strips(W, D);   // 1층: 세로 결
+  const f2 = notch.on ? gridOf('y', L=>splitLen(L, LSPLIT)) : strips(D, W);   // 2층: 가로 결 (교차)
 
   /* --- 천장 마블폼 45T ------------------------------------------------------- */
   const ceilAlongLong = inp.ceilDir !== 'short';
@@ -870,7 +1084,12 @@ function buildModel(inp){
   else { for(let i=0;i<Math.max(1,cN-1);i++) cWidths.push(MOD); cWidths.push(MOD - JOINT*Math.max(1,cN-1)); }
   const ceilLens = splitCeilLen(cLen);
   /* 600 열마다 [2000 | 나머지] ↔ [나머지 | 2000] 로 순서를 바꿔 이음선이 일자로 겹치지 않게 한다 */
-  const ceilPieces = cWidths.map((w)=>({w, l:cLen, lens:[...ceilLens]}));
+  /* 코너 기둥을 따낸 천장 — 600 열마다 실제로 덮이는 구간만 45T 2겹으로 재단 */
+  const ceilSpanAxis = (cSpan === W) ? 'x' : 'y';
+  const ceilGrid = notch.on ? gridOf(ceilSpanAxis, L=>splitCeilLen(L)) : null;
+  const ceilPieces = ceilGrid
+    ? ceilGrid.flatMap(c=> c.runs.map(r=>({w:c.w, l:r.len, lens:r.lens, a:c.a, ra:r.a})))
+    : cWidths.map((w)=>({w, l:cLen, lens:[...ceilLens]}));
 
   /* --- 천장 결 방향 · COB 2구 한 판 수용 판정 ----------------------------
      현장 노하우: 매립등 두 개는 한 천장판에 들어가는 게 낫다 — 판 하나 잡고
@@ -1024,17 +1243,11 @@ function buildModel(inp){
 
   /* --- 외벽 알판 ---------------------------------------------- */
   const extRows = [];
-  sides.forEach(s=>{
-    const label = sideName[s.k];
-    if(s.k===doorSide){
-      s.pieces.forEach(p=>{
-        if(p.kind==='mod' || p.kind==='resid') extRows.push({w:p.w, l:H, qty:1, note:label+' 알판'});
-      });
-    } else {
-      s.pieces.forEach(p=>{
-        if(p.kind==='mod' || p.kind==='resid') extRows.push({w:p.w, l:H, qty:1, note:label+' 알판'});
-      });
-    }
+  allSegs.forEach(s=>{
+    const label = s.name || sideName[s.k];
+    s.pieces.forEach(p=>{
+      if(p.kind==='mod' || p.kind==='resid') extRows.push({w:p.w, l:H, qty:1, note:label+' 알판'});
+    });
   });
 
   /* --- 재단표 --------------------------------------------------------- */
@@ -1055,22 +1268,35 @@ function buildModel(inp){
   });
   /* 벽판 */
   const wallRows = [];
-  sides.forEach(s=>{
+  const innerRows = [];
+  const innerInfo = [];        // 면별 내벽 판 절대좌표 — A-101 에 같은 분할선·치수로 그린다
+  allSegs.forEach(s=>{
+    const label = s.name || sideName[s.k];
     s.pieces.forEach(p=>{
       if(p.kind==='door' || p.kind==='win') return;      // 시창 400 반쪽은 아래 전개 규칙으로 따로 산출
-      const note = p.note ? sideName[s.k]+' '+p.note
-        : sideName[s.k] + (p.kind==='mod'?' 모듈':(p.kind==='resid'?' 자투리':' 문 개구부'));
+      const note = p.note ? label+' '+p.note
+        : label + (p.kind==='mod'?' 모듈':(p.kind==='resid'?' 자투리':' 문 개구부'));
       wallRows.push({w:p.w, l:1000, qty:2, note, group:'벽판 95T PB'});
     });
+    /* 2중 벽체 — 내벽 판은 외벽 판과 같은 분할선을 쓰고, 좌·우(앞·뒤) 내벽 두께 110 이
+       닿는 끝판만 110 짧게 재단한다(싱글플러스는 끝판 그대로 = 외벽와 일치). */
+    if(s.dbl){
+      const b0 = s.off + s.ins0 + s.pad0, b1 = s.off + s.len - s.ins1 - s.pad1;
+      const pcs = [];
+      s.pieces.forEach(p=>{
+        if(p.kind==='door' || p.kind==='win') return;
+        const A0 = s.off + s.ins0 + p.at, A1 = A0 + p.w;
+        const c0 = Math.max(A0, b0), c1 = Math.min(A1, b1);
+        if(c1 - c0 > 0.5) pcs.push({a:c0, b:c1, w:Math.round(c1-c0), kind:p.kind});
+      });
+      innerInfo.push({k:s.k, label, a0:b0, a1:b1, pcs});
+      pcs.forEach(p=> innerRows.push({w:p.w, l:1000, qty:2, note:'내벽 '+label}));
+    }
   });
   merge2(wallRows).forEach(p=>add('벽판 95T PB', p.w, p.l, p.qty, p.note));
-  /* 2중 벽체 — 등급에 따라 정면(싱글플러스) 또는 4면(더블)에 내벽 층을 한 겹 더 세운다 */
-  if(dblFaces.length){
-    const extraRows = wallRows.filter(r=>{
-      const k = Object.keys(sideName).find(key=>r.note.indexOf(sideName[key])===0);
-      return !!k && dblFaces.indexOf(k) >= 0;
-    });
-    merge2(extraRows).forEach(p=>add('내벽 95T PB (2중)', p.w, p.l, p.qty, '내벽 ' + p.note));
+  /* 2중 벽체 — 내벽 판(외벽 판 분할을 그대로 따르되 끝판 110 짧게) */
+  if(dblFaces.length && innerRows.length){
+    merge2(innerRows).forEach(p=>add('내벽 95T PB (2중)', p.w, p.l, p.qty, p.note));
   }
   if(fillH > 40) add('문·개구부', dw, fillH, doorCount, '문 상단 채움판 '+dw+'×'+fillH+' · 문 700+2mm 여유'+(doorCount>1? ' · 외벽·내벽 2짝':''));
   if(winCount>0){
@@ -1149,11 +1375,12 @@ function buildModel(inp){
   const boardF = a => Math.ceil(a*1.12/boardArea);
 
   /* --- 자재 산출 ------------------------------------------------------ */
-  const perimSpan = sum(sides.map(s=>s.span));
-  const floorArea = (W*D)/1e6;
+  /* 코너 기둥을 따내면 면적·둘레도 ㄱ자 실면적으로 잡는다 (단차 벽 판 포함) */
+  const perimSpan = notch.on ? sum(allSegs.map(s=>s.span)) : sum(sides.map(s=>s.span));
+  const floorArea = notch.on ? notch.area/1e6 : (W*D)/1e6;
   const wallArea = (perimSpan*CFG.HEAD)/1e6;
   const extArea  = (sum(sides.map(s=>s.len))*H)/1e6;
-  const innerArea = (innerW*innerD)/1e6;
+  const innerArea = (notch.on ? notch.innerArea : innerW*innerD)/1e6;
   /* 아트보드 — 라인타공 면은 발주에서 빼고 나머지 3면만.
      라인타공 면과 맞닿는 두 면은 후접(겹쳐 들어가는 쪽) 9㎜씩 차감한다. */
   const artFaces = ['front','back','left','right'].filter(k=>k!==lineFace);
@@ -1200,13 +1427,16 @@ function buildModel(inp){
 
   return {
     inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, usedAlign, doorHinge, sideName,
+    notch, steps, allSegs, innerInfo, doorShifted: (sides.find(x=>x.k===doorSide)||{}).k ? doorShifted(sides.find(x=>x.k===doorSide)) : false, dPad, segs: allSegs,
     grade, gradeName: gradeDef.name, gradeSub: gradeDef.sub, doorCount, dblFaces, dblArea,
     winSpec, winDef, winCount, winSide, winSideKey, winMoved, winDoorMoved, winTight, winDouble, projWin,
     winW, winH, winCols, winPositions, winSideObj, winRegion, winJoints,
     winFillL, winFillR, winCenterEff, winCenterMin, winCenterMax, needW,
     winBig, winBelow, winAbove, winTopBand, winLowBand, winStack, winStackTxt, winBottomY,
     lenSplit: LSPLIT, lenSplits, ceilLens,
-    floor:{l1:f1, l2:f2}, ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan, len:cLen},
+    floor:{l1:f1, l2:f2}, floorGrid: notch.on ? {x:f1, y:f2} : null,
+    ceilGrid,
+    ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan, len:cLen, spanAxis:ceilSpanAxis},
     cut: cutList, bom, boardTotal, stockCount,
     perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
     lineFace, lineLen, cobDia, cobInset, cobGap, cobPos, cobSegs,
@@ -1329,6 +1559,10 @@ function defs(){
     <pattern id="hInner" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
       <line x1="0" y1="0" x2="0" y2="3.4" stroke="#1F7A69" stroke-width="0.85" opacity="0.85"/>
     </pattern>
+    <pattern id="hCol" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#9AA3A9" stroke-width="0.9" opacity="0.85"/>
+      <line x1="0" y1="0" x2="6" y2="0" stroke="#9AA3A9" stroke-width="0.5" opacity="0.45"/>
+    </pattern>
   </defs>`;
 }
 
@@ -1408,7 +1642,7 @@ function winLabel(m){
 }
 
 function layoutPieces(sd){
-  const off0 = (sd.len - sd.span)/2;
+  const off0 = (sd.off || 0) + (sd.ins0 !== undefined ? sd.ins0 : (sd.len - sd.span)/2);
   if(sd.fixed && sd.fixed.length) return sd.fixed.map(p=>({kind:p.kind, w:p.w, at:p.at+off0}));
   /* fixed 가 없을 때(예외) — 문을 가운데 두고 앞뒤로 나눔 */
   const nonDoor = sd.pieces.filter(p=>p.kind!=='door');
@@ -1435,7 +1669,8 @@ function sheetPlan(m){
         : '벽체 110㎜ 액자틀 · 등급 '+m.gradeName
           + (m.grade==='plus' ? '(정면 2중 · 110+110 = 220)' : '(4면 2중 부스 안 부스 · 110+110 = 220)'))
     + ' · 도어 '+m.doorCount+'짝 · 문 외부 열림('+hingeName(m.doorHinge)+')'
-    + (m.grade==='double' ? ' · 안쪽 문은 안으로 열림' : ' · 좌·우 벽 전길이');
+    + (m.grade==='double' ? ' · 안쪽 문은 안으로 열림('+(m.doorHinge==='left'?'우경첩':'좌경첩')+')' : ' · 좌·우 벽 전길이')
+    + (m.notch.on ? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄' : '');
   let s = sheetHead('A-101','벽체 평면도', subPlan);
   s += pageNo('A-101',1,PAGE_TOTAL);
 
@@ -1461,6 +1696,7 @@ function sheetPlan(m){
   /* 벽체 밴드 — 좌·우 벽은 외경 끝~끝 전길이, 문 면·반대 면은 좌·우 벽(110) 안쪽에 끼움 */
   const EDGE = '#14171A';
   const S = k => m.sides.find(x=>x.k===k);
+  const pendingWallLabels = [];      // 벽체 칸 숫자 — 해치 위에 마지막에 올린다
 
   /* 내부 바탕 + 내부 마감 9T 기준선 */
   s += R(ox,oy,pw,ph,{fill:'#fff',stroke:'none'});
@@ -1471,18 +1707,18 @@ function sheetPlan(m){
 
   /* 면 세그먼트 — 전길이 벽은 외경 끝부터, 문 면·반대 면은 양쪽 110(좌·우 벽 두께) 뒤부터 */
   const segsOf = (sd) => {
-    const off0 = (sd.len - sd.span)/2;
+    const o0 = sd.off || 0;
+    const i0 = (sd.ins0 !== undefined) ? sd.ins0 : (sd.len - sd.span)/2;
+    const i1 = (sd.ins1 !== undefined) ? sd.ins1 : i0;
     const segs = sideGeom(sd).map(it=>({w:it.w, at:it.at, kind:it.kind}));
-    if(off0 > 0.5){
-      segs.unshift({w:off0, at:0, kind:'wall'});
-      segs.push({w:off0, at:sd.len-off0, kind:'wall'});
-    }
+    if(i0 > 0.5) segs.unshift({w:i0, at:o0, kind:'wall'});
+    if(i1 > 0.5) segs.push({w:i1, at:o0+sd.len-i1, kind:'wall'});
     return segs;
   };
 
   /* 면 밴드 위치 — 스팬만큼만 그린다 (전길이 벽은 외곽선까지) */
   const bandOf = (kind, sd) => {
-    const off0 = (sd.len - sd.span)/2;
+    const off0 = (sd.off || 0) + (sd.ins0 !== undefined ? sd.ins0 : (sd.len - sd.span)/2);
     if(kind==='top')    return {x:ox+off0*sc, y:oy,         w:sd.span*sc, h:t};
     if(kind==='bottom') return {x:ox+off0*sc, y:oy+ph-t,    w:sd.span*sc, h:t};
     if(kind==='left')   return {x:ox,         y:oy+off0*sc, w:t, h:sd.span*sc};
@@ -1514,8 +1750,7 @@ function sheetPlan(m){
         out += L(rx+rw,ry,rx+rw,ry+rh,{stroke:EDGE,sw:2.5});
         const lbl = '문 '+Math.round(it.w);
         const size = Math.min(t*0.34, (isH?rw:rh)*0.30, 12.5);
-        out += isH ? tag(rx+rw/2, ry+rh/2, lbl, {size, fill:'#8A4210', weight:800, mono:false})
-                   : tag(rx+rw/2, ry+rh/2, lbl, {size, fill:'#8A4210', weight:800, mono:false, rot:-90});
+        pendingWallLabels.push({x:rx+rw/2, y:ry+rh/2, lbl, size, rot: isH?0:-90, door:true});
         return;
       }
 
@@ -1531,8 +1766,9 @@ function sheetPlan(m){
       const okLbl = tw <= it.w*sc*0.92;
       if(okLbl){
         const cc = isH ? ox + cMid*sc : oy + cMid*sc;
-        out += isH ? tag(cc, ry+rh/2, lbl, {size, fill:'#101619'})
-                   : tag(rx+rw/2, cc, lbl, {size, fill:'#101619', rot:-90});
+        /* 숫자는 해치(라인타공 슬랫 포함) 위에 맨 마지막에 올린다 */
+        pendingWallLabels.push(isH ? {x:cc, y:ry+rh/2, lbl, size, rot:0}
+                                   : {x:rx+rw/2, y:cc, lbl, size, rot:-90});
       }
     });
 
@@ -1542,108 +1778,141 @@ function sheetPlan(m){
 
   s += drawBand('top', S('back')) + drawBand('bottom', S('front')) + drawBand('left', S('left')) + drawBand('right', S('right'));
 
+  /* ── 코너 기둥을 따낸 단차 벽 2면 — 외벽과 같은 600 모듈 + 끝 자투리 ── */
+  (m.steps||[]).forEach(st=>{
+    const isH = (st.k==='stepH');
+    const a0 = st.off + st.ins0, a1 = st.off + st.len - st.ins1;
+    let bx, by, bw, bh;
+    if(isH){
+      by = (st.bandSide==='top') ? oy + st.at*sc : oy + st.at*sc - t;
+      bx = ox + a0*sc; bw = (a1-a0)*sc; bh = t;
+    } else {
+      bx = (st.bandSide==='right') ? ox + st.at*sc - t : ox + st.at*sc;
+      by = oy + a0*sc; bw = t; bh = (a1-a0)*sc;
+    }
+    s += R(bx, by, bw, bh, {fill:'url(#hWall)', stroke:'none'});
+    (st.fixed||[]).forEach((p,i)=>{
+      const s0 = (isH ? bx : by) + p.at*sc;
+      const ln = p.w*sc;
+      if(i>0){
+        if(isH) s += L(s0, by, s0, by+bh, {stroke:EDGE, sw:2.0});
+        else    s += L(bx, s0, bx+bw, s0, {stroke:EDGE, sw:2.0});
+      }
+      const lsize = Math.min(t*0.36, ln*0.34, 11);
+      if(isH) pendingWallLabels.push({x:bx + p.at*sc + ln/2, y:by + bh/2, lbl:String(Math.round(p.w)), size:lsize, rot:0});
+      else    pendingWallLabels.push({x:bx + bw/2, y:by + p.at*sc + ln/2, lbl:String(Math.round(p.w)), size:lsize, rot:-90});
+    });
+    s += R(bx, by, bw, bh, {fill:'none', stroke:EDGE, sw:2.1});
+  });
+
   /* ── 등급별 내벽 층 — 싱글플러스(정면 2중) · 더블(4면 2중 · 부스 안에 부스) ──
-     외벽 액자틀(110) 안쪽에 같은 액자틀(110)을 한 겹 더 밀착해 세운다(합 220).
-     재단표·자재표의 내벽 조각과 같은 규격이라 두 층의 폭·자리는 항상 같다.
-     문이 있는 면은 안쪽 층도 같은 폭으로 열고, 더블은 안쪽 문(2번째 방음도어)까지
-     부스 안쪽으로 열리는 여닫이로 그린다.                                        */
+     내벽 판은 외벽 판과 **같은 600 모듈 분할선**을 그대로 쓰고, 좌·우(앞·뒤) 내벽
+     두께 110 이 닿는 끝판만 110 짧게 세운다 → 바깥 판과 안쪽 판·문이 일직선으로 맞는다.
+     싱글플러스는 좌·우 내벽이 없으므로 정면 내벽 판이 외벽 정면판과 100% 일치한다.
+     (모델 innerInfo : 면별 절대좌표 a0~a1 · 판 조각 pcs)                        */
   const isDbl = k => (m.dblFaces||[]).indexOf(k) >= 0;
-  const hasInner = ['front','back','left','right'].some(isDbl);
+  const innerList = m.innerInfo || [];
+  const hasInner = innerList.length > 0;
   const ti = hasInner ? t : 0;                        // 내벽 층 두께 = 외벽과 같은 110
   const innerInset = k => t + (isDbl(k) ? ti : 0);    // 면 바깥면 → 안쪽면 거리
-  /* 안쪽면까지 반영한 내부 유효 (등급 2중이면 내벽 층만큼 줄어든다) */
+  /* 액자틀 기준 내경 / 내부 아트보드 9T(양쪽 18) 반영 실사용 내경 */
   const clearW = m.W - CFG.FIN*2 - (isDbl('left')  ? CFG.FIN : 0) - (isDbl('right') ? CFG.FIN : 0);
   const clearD = m.D - CFG.FIN*2 - (isDbl('back')  ? CFG.FIN : 0) - (isDbl('front') ? CFG.FIN : 0);
+  const artW = clearW - 18, artD = clearD - 18;
   const INNER = '#1F7A69';
-  const innerBands = {};                              // 면별 내벽 밴드 조각(문 개구부 제외)
-  const pendingInnerLabels = [];                      // 내벽 두께 라벨 (해치 위에 나중에 올린다)
+  const innerBands = {};                              // 면별 내벽 띠(px) — 라인타공 해치용
+  const pendingInnerLabels = [];                      // 내벽 판 폭 라벨 (해치 위에 올린다)
+  const innerRect = (k, mm0, mm1) => {
+    const d0 = mm0*sc, d1 = mm1*sc, len = d1-d0;
+    if(k==='back')   return {horiz:true,  x:ox+d0, y:oy+t,        w:len, h:ti};
+    if(k==='front')  return {horiz:true,  x:ox+d0, y:oy+ph-t-ti,  w:len, h:ti};
+    if(k==='left')   return {horiz:false, x:ox+t,  y:oy+d0,       w:ti, h:len};
+    if(k==='right')  return {horiz:false, x:ox+pw-t-ti, y:oy+d0,  w:ti, h:len};
+    const st = (m.steps||[]).find(v=>v.k===k);
+    if(!st) return null;
+    if(k==='stepV'){
+      const x0 = (st.bandSide==='right') ? ox+st.at*sc-t-ti : ox+st.at*sc+t;
+      return {horiz:false, x:x0, y:oy+d0, w:ti, h:len};
+    }
+    const y0 = (st.bandSide==='bottom') ? oy+st.at*sc-t-ti : oy+st.at*sc+t;
+    return {horiz:true, x:ox+d0, y:y0, w:len, h:ti};
+  };
   let innerDoorGeo = null;
-  if(hasInner){
-    const dSd = S(m.doorSide);
-    const dIt = sideGeom(dSd).find(i=>i.kind==='door');
-    const dHoriz = (m.doorSide==='front' || m.doorSide==='back');
-    /* 바깥 문 개구부(외벽 기준) */
-    const dA = (dHoriz ? ox : oy) + (dIt ? dIt.at : 0)*sc;
-    const dB = dA + (dIt ? dIt.w : 0)*sc;
-    /* 안쪽 문 개구부 — 더블은 안쪽 부스(외곽 220 안쪽)의 벽 길이를 기준으로 같은 위치(좌/중앙/우)에
-       두 번째 방음도어를 따로 둔다. 싱글플러스는 문 1짝이 2중 벽을 그대로 관통한다. */
-    const innerDoorCut = (()=>{
-      if(!dIt) return null;
-      if(m.grade !== 'double') return [Math.max(0, dA), Math.max(0, dB)];
-      const innerLen = (dHoriz ? m.W : m.D) - CFG.FIN*4;      // 안쪽 부스 벽 길이
-      const al = m.usedAlign || m.doorAlign || 'center';
-      const pos = al==='right' ? Math.max(0, innerLen - m.dw)
-                : al==='center' ? Math.max(0, (innerLen - m.dw)/2) : 0;
-      const start = (dHoriz ? ox : oy) + (CFG.FIN*2 + pos)*sc;
-      return [start, start + m.dw*sc];
-    })();
-    ['back','front','left','right'].forEach(k=>{
-      if(!isDbl(k)) return;
-      const horiz = (k==='front' || k==='back');
-      /* 좌·우 벽은 전길이(모서리까지), 앞·뒷면 층은 좌·우 내벽 안쪽에 끼움 — 외벽과 같은 규칙 */
-      const a0 = horiz ? ox + t + (isDbl('left')  ? ti : 0) : oy + t;
-      const a1 = horiz ? ox + pw - t - (isDbl('right') ? ti : 0) : oy + ph - t;
-      if(a1 - a0 < 1) return;
-      const xx = horiz ? 0 : (k==='left' ? ox + t : ox + pw - t - ti);
-      const yy = horiz ? (k==='back' ? oy + t : oy + ph - t - ti) : 0;
-      /* 문이 있는 면 — 안쪽 층도 같은 개구부 폭으로 비운다 */
-      const cuts = (k===m.doorSide && innerDoorCut) ? [[Math.max(a0, innerDoorCut[0]), Math.min(a1, innerDoorCut[1])]] : [];
-      const segs = [];
-      let cur = a0;
-      cuts.forEach(c=>{ if(c[1]-c[0] > 0.4){ segs.push([cur, c[0]]); cur = c[1]; } });
-      segs.push([cur, a1]);
-      const parts = segs.filter(sg=> sg[1]-sg[0] > 0.4);
-      innerBands[k] = {horiz, a0, a1, xx, yy, parts};
-      parts.forEach(sg=>{
-        const rx = horiz ? sg[0] : xx, ry = horiz ? yy : sg[0];
-        const rw = horiz ? sg[1]-sg[0] : ti, rh = horiz ? ti : sg[1]-sg[0];
-        s += R(rx, ry, rw, rh, {fill:'#EFF7F5', stroke:'none'});
-        s += R(rx, ry, rw, rh, {fill:'url(#hInner)', stroke:'none'});
-        s += R(rx, ry, rw, rh, {fill:'none', stroke:INNER, sw:1.1});
-      });
-      /* 개구부 — 외벽과 같은 자리에서 두 층을 관통한다 */
-      if(cuts.length){
-        const c = cuts[0];
-        const gx = horiz ? c[0] : xx, gy = horiz ? yy : c[0];
-        const gw = horiz ? c[1]-c[0] : ti, gh = horiz ? ti : c[1]-c[0];
-        s += R(gx, gy, gw, gh, {fill:'#FFFDF7', stroke:'none'});
-        if(horiz){
-          s += L(c[0], yy, c[0], yy+ti, {stroke:EDGE, sw:2.5}) + L(c[1], yy, c[1], yy+ti, {stroke:EDGE, sw:2.5});
+  innerList.forEach(inf=>{
+    const rects = [];
+    (inf.pcs||[]).forEach(p=>{
+      const rr = innerRect(inf.k, p.a, p.b);
+      if(!rr || rr.w < 0.6 || rr.h < 0.6) return;
+      rects.push(rr);
+      s += R(rr.x, rr.y, rr.w, rr.h, {fill:'#EFF7F5', stroke:'none'});
+      s += R(rr.x, rr.y, rr.w, rr.h, {fill:'url(#hInner)', stroke:'none'});
+    });
+    innerBands[inf.k] = rects;
+    /* 문이 있는 면 — 내벽 띠에서 문 자리만큼 비우고 문틀선을 세운다 (바깥 문과 같은 자리) */
+    const g0 = inf.a0, g1 = inf.a1;
+    const gaps = [];
+    let cur = g0;
+    (inf.pcs||[]).forEach(p=>{ if(p.a - cur > 1) gaps.push([cur, p.a]); cur = Math.max(cur, p.b); });
+    if(g1 - cur > 1) gaps.push([cur, g1]);
+    const gp = gaps.sort((a,b)=> (b[1]-b[0])-(a[1]-a[0]))[0];
+    if(inf.k === m.doorSide && gp && (gp[1]-gp[0]) > 60){
+      const rr = innerRect(inf.k, gp[0], gp[1]);
+      if(rr){
+        s += R(rr.x, rr.y, rr.w, rr.h, {fill:'#FFFDF7', stroke:'none'});
+        if(rr.horiz){
+          s += L(rr.x, rr.y, rr.x, rr.y+rr.h, {stroke:EDGE, sw:2.3}) + L(rr.x+rr.w, rr.y, rr.x+rr.w, rr.y+rr.h, {stroke:EDGE, sw:2.3});
         } else {
-          s += L(xx, c[0], xx+ti, c[0], {stroke:EDGE, sw:2.5}) + L(xx, c[1], xx+ti, c[1], {stroke:EDGE, sw:2.5});
+          s += L(rr.x, rr.y, rr.x+rr.w, rr.y, {stroke:EDGE, sw:2.3}) + L(rr.x, rr.y+rr.h, rr.x+rr.w, rr.y+rr.h, {stroke:EDGE, sw:2.3});
         }
-        innerDoorGeo = {k, horiz, a0:c[0], a1:c[1], xx, yy};
+        innerDoorGeo = {k:inf.k, horiz:rr.horiz, a0:rr.x, a1:rr.x+rr.w, b0:rr.y, b1:rr.y+rr.h};
       }
-      /* 두께 라벨 — 내벽 110 */
-      const widest = parts.slice().sort((p,q)=> (q[1]-q[0]) - (p[1]-p[0]))[0];
-      const lab = '내벽 110';
-      if(widest && ti >= 9 && (widest[1]-widest[0]) >= tagWidth(lab, 5.6)){
-        /* 라인타공 면은 슬랫 해치를 나중에 덮으므로 라벨을 맨 위에 다시 올린다 */
-        pendingInnerLabels.push({horiz, xx, yy, mid:(widest[0] + widest[1])/2});
+    }
+    /* 판 폭 라벨 · 분할선 — 외벽과 같은 자리의 600 모듈 + 끝 자투리 */
+    (inf.pcs||[]).forEach((p, i)=>{
+      const rr = innerRect(inf.k, p.a, p.b);
+      if(!rr) return;
+      if(i>0){
+        if(rr.horiz) s += L(rr.x, rr.y, rr.x, rr.y+rr.h, {stroke:INNER, sw:1.15});
+        else         s += L(rr.x, rr.y, rr.x+rr.w, rr.y, {stroke:INNER, sw:1.15});
       }
+      const span = rr.horiz ? rr.w : rr.h;
+      const size = Math.min(ti*0.42, span*0.36, 8.4);
+      const lbl = String(Math.round(p.w));
+      if(ti >= 7 && span >= tagWidth(lbl, size)*1.04) pendingInnerLabels.push({rr, lbl, size});
+    });
+  });
+  if(hasInner){
+    innerList.forEach(inf=>{
+      (innerBands[inf.k]||[]).forEach(rr=>{ s += R(rr.x, rr.y, rr.w, rr.h, {fill:'none', stroke:INNER, sw:1.05}); });
     });
   }
 
-  /* 더블 — 안쪽 문(2번째 방음도어). 바깥 문과 같은 자리에서 부스 안쪽으로 열린다 */
-  if(m.grade === 'double' && innerDoorGeo){
+  /* 더블 — 안쪽 문(2번째 방음도어). 바깥 문과 **같은 개구부**에서, 반대 경첩 표기로
+     부스 안쪽으로 밀어 열려 가까운 옆 내벽에 딱 붙는다.                              */
+  if(m.doorCount > 1 && innerDoorGeo){
     const g = innerDoorGeo;
-    const atEnd = hingeAtEnd(m.doorSide, m.doorHinge);
+    const atEnd = hingeAtEnd(m.doorSide, m.doorHinge);   /* 바깥 문과 같은 물리적 쪽 */
     let u, v, p0;
-    if(g.k==='front'){      u=[1,0]; v=[0,-1]; p0=[g.a0, oy+ph-t-ti]; }
-    else if(g.k==='back'){  u=[1,0]; v=[0,1];  p0=[g.a0, oy+t+ti]; }
-    else if(g.k==='left'){  u=[0,1]; v=[1,0];  p0=[ox+t+ti, g.a0]; }
-    else {                  u=[0,1]; v=[-1,0]; p0=[ox+pw-t-ti, g.a0]; }
+    if(g.k==='front'){      u=[1,0]; v=[0,-1]; p0=[g.a0, g.b0]; }
+    else if(g.k==='back'){  u=[1,0]; v=[0,1];  p0=[g.a0, g.b1]; }
+    else if(g.k==='left'){  u=[0,1]; v=[1,0];  p0=[g.b1, g.a0]; }
+    else {                  u=[0,1]; v=[-1,0]; p0=[g.b0, g.a0]; }
     const H   = atEnd ? [p0[0]+u[0]*R0, p0[1]+u[1]*R0] : p0;
     const F   = atEnd ? p0 : [p0[0]+u[0]*R0, p0[1]+u[1]*R0];
     const tip = [H[0]+v[0]*R0, H[1]+v[1]*R0];
-    s += L(H[0],H[1],tip[0],tip[1],{stroke:INK,sw:2.1,cap:'round',opacity:.9});
+    s += L(H[0],H[1],tip[0],tip[1],{stroke:INNER,sw:2.4,cap:'round'});
     const cross = (F[0]-H[0])*(tip[1]-H[1]) - (F[1]-H[1])*(tip[0]-H[0]);
     s += P(`M ${n(F[0])} ${n(F[1])} A ${n(R0)} ${n(R0)} 0 0 ${cross>0?1:0} ${n(tip[0])} ${n(tip[1])}`,
-           {stroke:'#8A939A',sw:0.7,dash:'3 2'});
-    s += C(H[0],H[1],2.1,{fill:'#fff',stroke:INK,sw:0.9});
-    if(R0 > 60){
+           {stroke:'#7FA79E',sw:0.75,dash:'3 2'});
+    s += C(H[0],H[1],2.1,{fill:'#fff',stroke:INNER,sw:1.0});
+    const innerHinge = hingeName(m.doorHinge==='left' ? 'right' : 'left');   /* 안에서 본 경첩 */
+    const leafLbl = innerHinge + ' · 안으로 열림';
+    if(R0 > 58){
       const mx = (H[0]+tip[0])/2, my = (H[1]+tip[1])/2;
-      s += tag(mx + v[0]*9, my + v[1]*9, '안쪽 문 '+m.dw, {size:6.4, fill:INNER, weight:800, bg:'#fff', bgop:.95, stroke:'#9BD6C7', sw:0.5});
+      const px2 = mx + v[0]*14, py2 = my + v[1]*14;
+      s += tag(px2, py2, '안쪽 문 '+m.dw, {size:6.2, fill:INNER, weight:800, bg:'#fff', bgop:.96, stroke:'#9BD6C7', sw:0.5});
+      if(g.horiz) s += tag(px2, py2 + (v[1]>0? 11 : -11), leafLbl, {size:6.0, fill:'#8A4210', weight:800, bg:'#fff', bgop:.96, stroke:'#E6C3A4', sw:0.5});
+      else        s += tag(px2 + (v[0]>0? 11 : -11), py2, leafLbl, {size:6.0, fill:'#8A4210', weight:800, bg:'#fff', bgop:.96, stroke:'#E6C3A4', sw:0.5, rot:-90});
     }
   }
 
@@ -1651,13 +1920,10 @@ function sheetPlan(m){
   {
     const kindOf = {front:'bottom', back:'top', left:'left', right:'right'};
     /* 라인타공 면이 2중이면 마감면은 안쪽 내벽층 — 슬랫 해치도 그 층 위에 올린다 */
-    if(isDbl(m.lineFace) && innerBands[m.lineFace]){
-      const ib = innerBands[m.lineFace];
-      ib.parts.forEach(sg=>{
-        const rx = ib.horiz ? sg[0] : ib.xx, ry = ib.horiz ? ib.yy : sg[0];
-        const rw = ib.horiz ? sg[1]-sg[0] : ti, rh = ib.horiz ? ti : sg[1]-sg[0];
-        s += R(rx, ry, rw, rh, {fill:'url(#hSlat)', stroke:'none'});
-        s += R(rx, ry, rw, rh, {fill:'none', stroke:ACC, sw:1.8});
+    if(isDbl(m.lineFace) && innerBands[m.lineFace] && innerBands[m.lineFace].length){
+      innerBands[m.lineFace].forEach(rr=>{
+        s += R(rr.x, rr.y, rr.w, rr.h, {fill:'url(#hSlat)', stroke:'none'});
+        s += R(rr.x, rr.y, rr.w, rr.h, {fill:'none', stroke:ACC, sw:1.8});
       });
     } else {
       const lb = bandOf(kindOf[m.lineFace], S(m.lineFace));
@@ -1759,10 +2025,15 @@ function sheetPlan(m){
   }
 
   /* 내벽 두께 라벨 — 해치(A-101 라인타공 슬랫 포함) 위에 올린다 */
+  /* 벽체 칸 숫자 · 문 폭 — 라인타공 슬랫 해치까지 다 깔린 뒤 흰 배지로 올린다 */
+  pendingWallLabels.forEach(o=>{
+    s += tag(o.x, o.y, o.lbl, {size:o.size, fill:o.door? '#8A4210':'#101619', weight:800,
+      bg:'#fff', bgop:1, stroke: o.door? '#E6C3A4':'#DDE3E7', sw:0.45, rot:o.rot});
+  });
   pendingInnerLabels.forEach(o=>{
-    const cs = Math.min(5.6, ti*0.42);
-    if(o.horiz) s += tag(o.mid, o.yy + ti/2, '내벽 110', {size:cs, fill:INNER, weight:800, bg:'#F4FBF9', bgop:.92});
-    else        s += tag(o.xx + ti/2, o.mid, '내벽 110', {size:cs, fill:INNER, weight:800, bg:'#F4FBF9', bgop:.92, rot:-90});
+    const rr = o.rr;
+    if(rr.horiz) s += tag(rr.x + rr.w/2, rr.y + rr.h/2, o.lbl, {size:o.size, fill:INNER, weight:800, bg:'#F4FBF9', bgop:.95});
+    else         s += tag(rr.x + rr.w/2, rr.y + rr.h/2, o.lbl, {size:o.size, fill:INNER, weight:800, bg:'#F4FBF9', bgop:.95, rot:-90});
   });
 
   /* 천장 정중앙 중앙등 — 내부 가로 ÷ 2 · 내부 세로 ÷ 2 지점에 원형 LED 1구 ----- */
@@ -1871,13 +2142,42 @@ function sheetPlan(m){
     }
   }
 
-  /* 내부 유효 표기 — 정중앙은 중앙등 기호 자리라 비우고, COB 2구가 있는 면 반대쪽으로 내린다 */
+  /* 내부 실사용 내경 — 정중앙은 중앙등 기호 자리라 비우고, COB 2구가 있는 면 반대쪽으로 내린다.
+     주 수치는 내부 아트보드 9T(양쪽 18)까지 뺀 실제 마감 내경, 아래에 액자틀 기준을 병기한다. */
   const ctrX = ox+pw/2, ctrY = oy+ph/2;
   const wmY = ctrY + ph*(m.lineFace==='front' ? -0.22 : 0.22);
-  s += T(ctrX, wmY, m.innerW+' × '+m.innerD, {size:13, weight:800, anchor:'middle', fill:'#DAD4C6', ls:'0.02em'});
-  s += T(ctrX, wmY+14, '내부 유효 (㎜)' + (hasInner? ' · 외벽 안쪽면 기준':''), {size:6.2, anchor:'middle', fill:'#DAD4C6', ls:'0.12em'});
-  if(hasInner){
-    s += T(ctrX, wmY+25, '2중 벽 안쪽 '+clearW+' × '+clearD, {size:7.2, weight:700, anchor:'middle', fill:'#CBC4B5', ls:'0.01em'});
+  s += T(ctrX, wmY-13, '실사용 내경 (내부 아트보드 9T 포함)', {size:6.4, anchor:'middle', fill:'#BDB6A7', ls:'0.10em'});
+  s += T(ctrX, wmY+3, artW+' × '+artD, {size:14.5, weight:800, anchor:'middle', fill:'#D3CCBD', ls:'0.02em'});
+  s += T(ctrX, wmY+17, '액자틀 기준 '+clearW+' × '+clearD+' ㎜' + (hasInner? ' · 벽체 '+(m.grade==='double'?'220×4면':'220 정면') : ''), {size:6.6, weight:700, anchor:'middle', fill:'#C6BFB0', ls:'0.01em'});
+  s += T(ctrX, wmY+27, '㎜ · 9T×2 = 18 차감' + (m.notch.on? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄':''), {size:6.2, anchor:'middle', fill:'#C6BFB0'});
+
+  /* ── 코너 기둥(따내기) — 그 코너를 ㄱ자로 비우고 기둥 자리를 표시 ── */
+  if(m.notch.on){
+    const nx = ox + m.notch.x0*sc, ny = oy + m.notch.y0*sc;
+    const nw = (m.notch.x1-m.notch.x0)*sc, nh = (m.notch.y1-m.notch.y0)*sc;
+    s += R(nx, ny, nw, nh, {fill:'#fff', stroke:'none'});
+    s += R(nx, ny, nw, nh, {fill:'url(#hCol)', stroke:'#7E878E', sw:1.1, dash:'5 3'});
+    const midx = nx + nw/2, midy = ny + nh/2;
+    s += tag(midx, midy - 7, '건물 기둥', {size:6.6, fill:'#4F585F', weight:800, bg:'#fff', bgop:.97, stroke:'#C9C2B4', sw:0.5});
+    s += tag(midx, midy + 5, m.notch.cw + '×' + m.notch.cd, {size:6.4, fill:'#2E6FA3', weight:800, bg:'#fff', bgop:.97, stroke:'#C9C2B4', sw:0.5});
+    /* 따낸 기둥 치수 (안쪽) + 남은 외벽 길이 */
+    const backN = m.notch.y0 < 1, frontN = m.notch.y1 > m.D - 1;
+    const yl = backN ? ny + nh - 9 : ny + 9;
+    s += dimH(nx, nx+nw, yl, String(m.notch.cw), {size:6.8, color:'#2E6FA3', labelY: backN? yl+8 : yl-3});
+    s += dimV(ny, ny+nh, nx + (m.notch.x1 > m.W-1 ? -9 : nw - 9), String(m.notch.cd),
+      {size:6.8, color:'#2E6FA3', labelX: nx + (m.notch.x1 > m.W-1 ? -12 : nw - 12)});
+    /* 남은 외벽 길이 — 따낸 쪽 바깥에 */
+    if(backN || frontN){
+      const yb = backN ? oy - 33 : oy + ph + 40;
+      s += dimH(ox, ox + (m.W - m.notch.cw)*sc, yb, String(m.W - m.notch.cw),
+        {size:7.6, color:WARN, ext1: backN? oy : oy+ph, ext2: backN? oy : oy+ph, labelY: backN? yb-3 : yb-3});
+    }
+    const rightN = m.notch.x1 > m.W - 1, leftN = m.notch.x0 < 1;
+    if(rightN || leftN){
+      const xb = rightN ? ox + pw + 40 : ox - 46;
+      s += dimV(oy, oy + (m.D - m.notch.cd)*sc, xb, String(m.D - m.notch.cd),
+        {size:7.6, color:WARN, ext1: rightN? ox+pw : ox, ext2: rightN? ox+pw : ox, labelX: xb + (rightN? 3 : -3)});
+    }
   }
 
   /* 치수 — 외경 전체 + 면별 합 체인. 문이 있는 면은 호 바깥으로 치수선을 밀어 겹치지 않게 */
@@ -1921,8 +2221,6 @@ function sheetPlan(m){
 
   /* 범례 */
   const ly = 872, lw = SW-2*M-24;
-  s += R(M+12, ly, lw, 120, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
-  s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
     ['hSlat','라인타공 1면 ('+m.sideName[m.lineFace]+') · 라인타공 마감 · 발주표에서 제외'],
@@ -1932,8 +2230,13 @@ function sheetPlan(m){
       : ['cob','COB 매립등 2구 Ø'+m.cobDia+' 타공 — 내부 '+m.lineLen+' ÷ 3 = '+m.cobGap+' (1/3·2/3 지점)'],
     ['ctr','중앙등 1구 — 천장 정중앙 (내부 가로·세로 ÷ 2), COB 2구와 별도']
   ];
+  if(hasInner) items.splice(1, 0, ['hInner','내벽 110 (2중) — 외벽 판과 같은 600 모듈 분할 · 끝판만 110 짧게']);
+  if(m.notch.on) items.push(['hCol','건물 기둥 — 코너 '+m.notch.cw+'×'+m.notch.cd+' 따냄 (바닥·천장 제외)']);
+  const legH = 26 + items.length*13.4 + 5;
+  s += R(M+12, ly, lw, legH, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  s += T(M+20, ly+14, '범례 · LEGEND', {size:6, weight:800, fill:SOFT, ls:'0.12em'});
   items.forEach((it,i)=>{
-    const yy = ly+26+i*16;
+    const yy = ly+24+i*13.4;
     if(it[0]==='cob'){
       s += C(M+29, yy+5.4, 4.4, {fill:'#fff', stroke:ACC, sw:1.0, dash:'2.2 1.2'});
       s += C(M+29, yy+5.4, 0.8, {fill:ACC, stroke:'none'});
@@ -1946,7 +2249,7 @@ function sheetPlan(m){
       s += C(M+29, yy+5.4, 4.6, {fill:'none', stroke:ACC, sw:0.5, dash:'1.4 0.9'});
       s += C(M+29, yy+5.4, 1.0, {fill:ACC, stroke:'none'});
     } else {
-      s += R(M+20, yy, 18, 10, {fill:'url(#'+it[0]+')', stroke: it[0]==='hGlass'?DIMC:(it[0]==='hSlat'?ACC:LINE), sw:0.7});
+      s += R(M+20, yy, 18, 10, {fill:'url(#'+it[0]+')', stroke: it[0]==='hGlass'?DIMC:(it[0]==='hSlat'?ACC:(it[0]==='hInner'?'#1F7A69':LINE)), sw:0.7});
     }
     s += T(M+44, yy+7.6, it[1], {size:6.6});
   });
@@ -1963,7 +2266,7 @@ function sheetPlan(m){
     '3. '+m.sideName[m.doorSide]+' '+sumOf(S(m.doorSide))+' = '+S(m.doorSide).len+' (좌·우 벽 안쪽 '+S(m.doorSide).span+').',
     '4. 벽판 95T PB는 600 모듈 + 자투리, 1000 2단(총 2000) 시공. 좌·우 벽은 모서리까지 전길이 한 줄로 세움.',
     '5. 문 개구부 '+m.dw+' × '+m.dh+' + 상단 채움판 '+m.dw+' × '+m.fillH+' (문 상단 2000) — '
-      + (m.grade==='double' ? '외벽·내벽 각 1짝, 바깥 문은 바깥으로 · 안쪽 문은 부스 안으로.'
+      + (m.grade==='double' ? '외벽·내벽 각 1짝 — 바깥 문은 바깥으로, 안쪽 문은 '+hingeName(m.doorHinge==='left'?'right':'left')+'으로 부스 안쪽으로 열려 옆 내벽에 붙습니다.'
          : m.grade==='plus' ? '바깥으로 열림 (2중 벽 관통 1짝).' : '부스 바깥으로 열림.'),
     '6. 경첩 '+hingeName(m.doorHinge)+' — 문 밖에서 마주보았을 때 경첩이 '+ (m.doorHinge==='left'?'왼쪽':'오른쪽') +'. 여닫이 호 반지름 = 문 폭.'
   ];
@@ -1981,7 +2284,19 @@ function sheetPlan(m){
           + ' ㎜. 벽 안쪽면에서 '+m.cobInset+' ㎜, 면 1/3·2/3 지점 · 타공 Ø'+m.cobDia+'.'));
   notes.push((m.winCount>0? '9. ':'8. ')+'천장 정중앙 중앙등 1구 — 중심 '+Math.round(clearW/2)+' / '+Math.round(clearD/2)
     + ' ㎜ (내부 '+clearW+'·'+clearD+' ÷ 2'+(hasInner? ' · 2중 벽 안쪽면 기준':'')+'). COB 2구와 별도 1구.');
-  notes.forEach((tx,i)=> s += T(M+300, ly+24+i*11.0, tx, {size:6.05, fill:'#4F585F'}));
+  /* 내벽 판 분할 · 코너 기둥 요약 */
+  if(hasInner){
+    const dInf = innerList.find(v=>v.k===m.doorSide) || innerList[0];
+    const ex = (dInf.pcs||[]).map(p=>Math.round(p.w)).join(' | ');
+    notes.push('· 내벽 95T PB — 외벽 판과 같은 600 모듈 + 끝 자투리, 좌·우 내벽이 닿는 끝판만 110 짧게'
+      + (ex? ' ('+dInf.label+' '+ex+')' : '') + '.');
+  }
+  if(m.notch.on){
+    const pn = {'back-left':'뒤-좌','back-right':'뒤-우','front-left':'앞-좌','front-right':'앞-우'}[m.notch.pos];
+    notes.push('· 코너 기둥 '+m.notch.cw+' × '+m.notch.cd+' 따냄 ('+pn+') — 그쪽 외벽 '+m.notch.cw
+      + ' / '+m.notch.cd+' 만큼 줄고 단차 벽 2면이 붙습니다. 바닥·천장·재단표에서도 이 면적을 뺐습니다.');
+  }
+  notes.forEach((tx,i)=> s += T(M+300, ly+22+i*10.4, tx, {size:5.95, fill:'#4F585F'}));
 
   s += titleBlock(m,{no:'A-101',title:'평면도',scale:'1 : '+Math.round(3.7795/sc)});
   s += scaleBar(M+24, 1002, sc);
@@ -2359,17 +2674,91 @@ function cobCeilPanel(m, x, y, w, h){
   return s;
 }
 
+/* 코너 기둥을 따낸 ㄱ자 판 분할 — 600 열마다 실제로 덮이는 구간만 그린다 */
+function panelNotch(m, grid, axis, box, opts){
+  const {x,y,w,h} = box;
+  const o = opts||{};
+  const padL = 40, padR = 54, padT = 56, padB = 52;
+  const sc = Math.min((w-padL-padR)/m.W, (h-padT-padB)/m.D);
+  const ox = x + padL + Math.max(0,((w-padL-padR)-m.W*sc)/2);
+  const oy = y + padT + Math.max(0,((h-padT-padB)-m.D*sc)/2);
+  const X = mm => ox + mm*sc, Y = mm => oy + mm*sc;
+  let s = T(x+2, y+8, o.title||'판 분할', {size:8.6, weight:800});
+  s += T(x+2, y+17, o.sub||'', {size:6, fill:'#7B8389'});
+  s += T(x+2, y+26, o.note||'', {size:5.9, fill: o.warn? '#B4622A':'#7B8389', weight: o.warn?700:400});
+
+  /* 바탕 + 코너 기둥 자리 */
+  s += R(X(0),Y(0), m.W*sc, m.D*sc, {fill:'#fff', stroke:'#C9C2B4', sw:0.8, dash:'4 3'});
+  const nx0 = m.notch.x0, nx1 = m.notch.x1, ny0 = m.notch.y0, ny1 = m.notch.y1;
+  s += R(X(nx0),Y(ny0), (nx1-nx0)*sc, (ny1-ny0)*sc, {fill:'url(#hCol)', stroke:'#8A939A', sw:1.0, dash:'3 2.4'});
+  s += tag(X((nx0+nx1)/2), Y((ny0+ny1)/2), '기둥 '+m.notch.cw+'×'+m.notch.cd, {size:6.2, fill:'#4F585F', weight:800, bg:'#fff', bgop:.97, stroke:'#C9C2B4', sw:0.5});
+
+  /* 판 — 열마다 덮이는 구간(run)만 */
+  grid.forEach(c=>{
+    c.runs.forEach(r=>{
+      let acc = r.a;
+      r.lens.forEach(len=>{
+        let rx, ry, rw, rh;
+        if(axis==='x'){ rx = X(c.a); ry = Y(acc); rw = c.w*sc; rh = len*sc; }
+        else          { rx = X(acc); ry = Y(c.a); rw = len*sc; rh = c.w*sc; }
+        s += R(rx, ry, rw, rh, {fill: o.fill||'#FFFDF8', stroke:INK, sw:0.6});
+        const lbl = Math.round(c.w)+'×'+Math.round(len);
+        const tsz = 5.2, tw = tagWidth(lbl, tsz);
+        if(rw >= tw+2 && rh >= 8) s += T(rx+rw/2, ry+rh/2+1.8, lbl, {size:tsz, anchor:'middle', mono:true, fill:'#3B4248'});
+        else if(rh >= tw+2 && rw >= 5.5) s += `<g transform="rotate(-90 ${n(rx+rw/2)} ${n(ry+rh/2)})">${T(rx+rw/2, ry+rh/2+1.8, lbl, {size:tsz, anchor:'middle', mono:true, fill:'#3B4248'})}</g>`;
+        acc += len;
+      });
+      if(axis==='x') s += L(X(c.b), Y(r.a), X(c.b), Y(r.b), {stroke:INK, sw:1.1});
+      else           s += L(X(r.a), Y(c.b), X(r.b), Y(c.b), {stroke:INK, sw:1.1});
+    });
+  });
+
+  /* 치수 — 전체 · 열 폭 체인 · 코너 기둥 */
+  s += dimH(X(0), X(m.W), Y(m.D)+13, String(m.W), {size:6.4, ext1:Y(m.D)});
+  s += dimV(Y(0), Y(m.D), X(0)-14, String(m.D), {size:6.4, ext1:X(0)});
+  grid.forEach(c=>{
+    const a1 = (axis==='x') ? X(c.a) : Y(c.a), a2 = (axis==='x') ? X(c.b) : Y(c.b);
+    if(a2-a1 < 11) return;
+    const lb = String(Math.round(c.w));
+    if(axis==='x') s += dimH(a1, a2, Y(0)-7, lb, {size:5.8, color:DIMC, labelY:Y(0)-10});
+    else           s += dimV(a1, a2, X(0)-30, lb, {size:5.8, color:DIMC, labelX:X(0)-33});
+  });
+  const backN = ny0 < 1, frontN = ny1 > m.D-1, rightN = nx1 > m.W-1, leftN = nx0 < 1;
+  s += dimH(X(nx0), X(nx1), (backN? Y(ny1)-6 : Y(ny0)+6), String(m.notch.cw),
+    {size:6.2, color:WARN, labelY:(backN? Y(ny1)-9 : Y(ny0)+9)});
+  s += dimV(Y(ny0), Y(ny1), (rightN? X(nx1)+8 : X(nx0)-8), String(m.notch.cd),
+    {size:6.2, color:WARN, labelX:(rightN? X(nx1)+11 : X(nx0)-11)});
+
+  /* 면적 한 줄 */
+  const area = (m.W*m.D - m.notch.cw*m.notch.cd)/1e6;
+  s += T(x+w-6, y+8, '면적 '+(m.W*m.D/1e6).toFixed(2)+' − '+(m.notch.cw*m.notch.cd/1e6).toFixed(2)
+    + ' = '+area.toFixed(2)+' ㎡', {size:6.2, anchor:'end', weight:700, fill:'#2E353B'});
+  return s;
+}
+
 function sheetFloorCeil(m){
   let s = sheetHead('A-102','바닥 2겹 · 천장 마블폼 45T 2겹 분할도','FLOOR 60T+15T×2 & CEILING 45T×2 · 천장 2000 초과 '+ceilSplitName+' 분할 · 바닥 '+splitModeName(m.lenSplit)+' · '+(m.lightMode==='rail'? '레일등':'COB 매립등 2구')+' + 중앙등 위치');
   s += pageNo('A-102',2,PAGE_TOTAL);
   const boxW = (SW-2*M-30)/2;
   const xL = M+8, xR = M+8+boxW+14;
 
+  if(m.notch.on){
+    /* 코너 기둥을 따낸 ㄱ자 — 실제로 덮이는 구간만 재단한다 */
+    s += panelNotch(m, m.floorGrid.x, 'x', {x:xL, y:M+78, w:boxW, h:262},
+      {title:'바닥 1층 (하판) · 코너 따냄', sub:'세로 결 · 폭 '+m.MOD+' 모듈 · 길이 '+m.D+' − 코너 '+m.notch.cd, fill:'#fff'});
+    s += panelNotch(m, m.floorGrid.y, 'y', {x:xR, y:M+78, w:boxW, h:262},
+      {title:'바닥 2층 (상판) · 코너 따냄', sub:'가로 결 · 1층과 교차 · 길이 '+m.W+' − 코너 '+m.notch.cw, fill:'#FBF8F2'});
+    s += panelNotch(m, m.ceilGrid, m.ceil.spanAxis, {x:xL, y:356, w:boxW, h:300},
+      {title:'천장 마블폼 45T 분할 · 코너 따냄',
+       sub:'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 2겹 · 판 사이 15T 띠 · 2000 초과 반씩 대칭',
+       note:'※ 코너 기둥 자리는 판을 깔지 않습니다 — 이음선 한가운데, 매립등 일자 배치', fill:'#FBFAF7'});
+  } else {
   s += breakdown(m.W, m.D, m.floor.l1, 'v', {x:xL, y:M+78, w:boxW, h:262, title:'바닥 1층 (하판)', sub:'세로 결 · 폭 '+m.MOD+' 모듈 · 길이 '+m.D, hatch:'#fff'});
   s += breakdown(m.W, m.D, m.floor.l2, 'h', {x:xR, y:M+78, w:boxW, h:262, title:'바닥 2층 (상판)', sub:'가로 결 · 1층과 교차 · 길이 '+m.W, hatch:'#FBF8F2'});
 
   /* 천장 — 600 폭 열 · 2000 초과 시 반씩 대칭 이음 */
   s += ceilSplitPanel(m, xL, 368, boxW, 296);
+  }
 
   /* 요약 표 (분할 수량) */
   const shortNote = p => {
@@ -2473,9 +2862,10 @@ function sheetElevation(m){
   /* ---------- 벽면 1개 그리기 ---------- */
   const drawWall = (side, x, y, sc, opts={}) => {
     const hh = m.H*sc;
-    const inset = (side.len - side.span)/2;      /* 전길이 벽 = 0, 문 면·반대 면 = 110 */
+    const i0 = (side.ins0 !== undefined) ? side.ins0 : (side.len - side.span)/2;
+    const i1 = (side.ins1 !== undefined) ? side.ins1 : i0;   /* 전길이 벽 = 0, 문 면·반대 면 = 110 */
     const fullW = side.len*sc, spanW = side.span*sc;
-    const x0 = x + inset*sc;
+    const x0 = x + i0*sc;
     let o = '';
     o += R(x,y,fullW,hh,{fill:'#fff',stroke:INK,sw:2.3});
     /* 천장 65 */
@@ -2483,16 +2873,15 @@ function sheetElevation(m){
     o += L(x, y+CFG.CEIL*sc, x+fullW, y+CFG.CEIL*sc, {stroke:'#8A9390', sw:0.9});
 
     /* 좌·우 벽 두께 존 — 문 면·반대 면 양 끝 110 (외경 안쪽에 끼워지는 부분) */
-    if(inset > 0.5){
-      [0, fullW-inset*sc].forEach(bx=>{
-        o += R(x+bx, y, inset*sc, hh, {fill:'#E9E7E1', stroke:'none'});
-        o += R(x+bx, y, inset*sc, hh, {fill:'url(#hWall)', stroke:'#8A939A', sw:0.9});
-        const cz = Math.min(inset*sc*0.34, 7.2);
-        if(inset*sc >= tagWidth('110', cz)*0.95){
-          o += `<g transform="rotate(-90 ${n(x+bx+inset*sc/2)} ${n(y+hh*0.52)})">${tag(x+bx+inset*sc/2, y+hh*0.52, '110', {size:cz, fill:'#5C666D'})}</g>`;
-        }
-      });
-    }
+    [[0, i0], [fullW - i1*sc, i1]].forEach(([bx, iw])=>{
+      if(!(iw > 0.5)) return;
+      o += R(x+bx, y, iw*sc, hh, {fill:'#E9E7E1', stroke:'none'});
+      o += R(x+bx, y, iw*sc, hh, {fill:'url(#hWall)', stroke:'#8A939A', sw:0.9});
+      const cz = Math.min(iw*sc*0.34, 7.2);
+      if(iw*sc >= tagWidth('110', cz)*0.95){
+        o += `<g transform="rotate(-90 ${n(x+bx+iw*sc/2)} ${n(y+hh*0.52)})">${tag(x+bx+iw*sc/2, y+hh*0.52, '110', {size:cz, fill:'#5C666D'})}</g>`;
+      }
+    });
 
     /* 문 상단· 1000 2단 기준선 */
     o += L(x0, y + hh - CFG.HEAD*sc, x0+spanW, y + hh - CFG.HEAD*sc, {stroke:'#6E7A82', sw:1.2, dash:'6 2.6'});
@@ -2577,7 +2966,7 @@ function sheetElevation(m){
     if(opts.labels!==false){
       /* 하단 요약 — 전개 순서(좌→우) 그대로 */
       const parts = [];
-      if(inset > 0.5) parts.push('110');
+      if(i0 > 0.5) parts.push('110');
       let run = 0;
       const flush = () => { if(run===1) parts.push('600'); else if(run>1) parts.push(run+'×600'); run = 0; };
       layout.forEach(it=>{
@@ -2586,29 +2975,28 @@ function sheetElevation(m){
         parts.push(String(Math.round(it.w)) + (it.kind==='door' ? ' 문' : ''));
       });
       flush();
-      if(inset > 0.5) parts.push('110');
+      if(i1 > 0.5) parts.push('110');
       o += dimH(x, x+fullW, y+hh+19, side.len, {size:9.4, labelY:y+hh+15});
-      o += T(x+fullW/2, y+hh+30, m.sideName[side.k], {size:9.6, anchor:'middle', weight:800});
+      o += T(x+fullW/2, y+hh+30, (side.name || m.sideName[side.k]), {size:9.6, anchor:'middle', weight:800});
       o += T(x+fullW/2, y+hh+41, parts.join(' + '), {size:8.4, anchor:'middle', fill:'#4F585F', mono:true, weight:600});
     }
     return o;
   };
 
   /* ---------- 4면 전개 (외경 전길이 기준으로 나란히) ---------- */
-  const totalSpan = sum(m.sides.map(x=>x.len));
-  const gap = 12;
+  const unfold = m.sides.concat(m.steps || []);
+  const totalSpan = sum(unfold.map(v=>v.len));
+  const gap = 10;
   const xStart = M+20, xEnd = SW-M-8;
-  const availW = xEnd - xStart - gap*3, availH = 286;
+  const availW = xEnd - xStart - gap*(unfold.length-1), availH = 286;
   const sc = Math.min(availW/totalSpan, availH/(m.H+70));
   let x = xStart, y = M+96;
-  const order = ['front','right','back','left'];
-  order.forEach(k=>{
-    const side = m.sides.find(v=>v.k==k);
+  unfold.forEach(side=>{
     s += drawWall(side, x, y, sc);
     x += side.len*sc + gap;
   });
   s += dimV(y, y+m.H*sc, M+10, m.H, {size:9.2});
-  s += T(M+20, y-8, '전개도 — 외부에서 본 4면 (좌→우 : 앞 · 우 · 뒤 · 좌)', {size:6.4, fill:'#7B8389'});
+  s += T(M+20, y-8, '전개도 — 외부에서 본 '+(m.steps && m.steps.length ? (m.sides.length+m.steps.length)+'면 (앞 · 우 · 뒤 · 좌 · 단차 벽 A · B)' : '4면 (좌→우 : 앞 · 우 · 뒤 · 좌)'), {size:6.4, fill:'#7B8389'});
   s += T(M+20, y-16, '축척 약 1 : '+Math.round(3.7795/sc), {size:5.8, fill:SOFT});
 
   /* ---------- 벽체 단면 (수평) ---------- */
@@ -2659,9 +3047,16 @@ function sheetElevation(m){
   s += drawWall(dside, ddx, ddy, dsc, {big:true, labels:false});
   s += dimH(ddx, ddx+dside.len*dsc, ddy+m.H*dsc+15, dside.len, {size:8.8});
   s += dimV(ddy, ddy+m.H*dsc, ddx-13, m.H, {size:8.8, labelX:ddx-16});
-  // 주요 레벨
-  s += dimV(ddy+m.H*dsc-m.dh*dsc, ddy+m.H*dsc, ddx+dside.span*dsc+18, m.dh, {size:7.8});
-  s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, ddx+dside.span*dsc+36, m.fillH, {size:7.4});
+  // 주요 레벨 — 문이 오른쪽에 붙으면 치수선을 왼쪽으로 옮겨 문 라벨과 겹치지 않게
+  {
+    const dIt3 = layoutPieces(dside).find(v=>v.kind==='door');
+    const dCx3 = ddx + ((dIt3? dIt3.at : 0) + m.dw/2)*dsc;
+    const rightHalf = dCx3 > ddx + dside.len*dsc*0.58;
+    const xR1 = rightHalf ? ddx + dside.ins0*dsc - 16 : ddx + dside.span*dsc + 18;
+    const xR2 = rightHalf ? ddx + dside.ins0*dsc - 30 : ddx + dside.span*dsc + 36;
+    s += dimV(ddy+m.H*dsc-m.dh*dsc, ddy+m.H*dsc, xR1, m.dh, {size:7.8, labelX: rightHalf? xR1-3 : xR1-3});
+    s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, xR2, m.fillH, {size:7.4, labelX: rightHalf? xR2-3 : xR2-3});
+  }
 
   /* ---------- 시공 메모 ---------- */
   const memo = [
@@ -2675,6 +3070,9 @@ function sheetElevation(m){
   }
   memo.push('· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ', 시창 위판 '+m.winAbove : ', 시창은 상부 코스 100+800+100')+'.');
   memo.push('· 천장은 마블폼 45T 2겹 위에 아트보드를 깔고, 2000 초과 시 반씩 대칭으로 잘라 이음선을 한가운데로 모읍니다.');
+  if(m.notch.on){
+    memo.push('· 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄 — 그쪽 외벽이 '+m.notch.cw+' / '+m.notch.cd+' 짧아지고 단차 벽 2면(전길이 1 + 물림 1)이 붙습니다.');
+  }
   if(m.grade === 'plus'){
     memo.push('· 등급 싱글플러스 — 정면(문 면)에 내벽 110을 외벽 110 안쪽에 한 겹 더 세움(합 220). 문은 2중 벽을 관통하는 1짝.');
   } else if(m.grade === 'double'){
@@ -2749,12 +3147,15 @@ function sheetTables(m){
     });
   });
 
+  const dense = rows.length > 22;
+  const veryDense = rows.length > 27;
+  const rowH1 = veryDense ? 9.8 : (dense ? 11.0 : 12.4);
   const t1 = svgTable(M+10, M+84, SW-2*M-20, [
     {label:'재단 규격 (가로 × 세로, ㎜)', w:1.85},
     {label:'수량', w:.5, align:'center'},
     {label:'면적', w:.95, align:'right'},
     {label:'부위 · 근거', w:2.5}
-  ], rows, {rowH:12.4, fs:6.6});
+  ], rows, {rowH: rowH1, fs: dense? 6.3 : 6.6});
 
   s += t1.svg;
   if(m.lenSplits.some(o=>o.lens.length>1)){
@@ -2780,12 +3181,13 @@ function sheetTables(m){
     {label:'소요량', w:.9, align:'right'},
     {label:'원판 (600×2400)', w:1.05, align:'right'},
     {label:'비고', w:1.9}
-  ], bomRows, {rowH:13, fs:6.6});
+  ], bomRows, {rowH: veryDense? 11.4 : (dense? 12.2 : 13), fs:6.6});
   s += t2.svg;
 
   /* 총괄 */
-  const ty = by0 + 8 + t2.height + 22;
-  s += R(M+10, ty, SW-2*M-20, 66, {fill:INK, stroke:INK, sw:1});
+  const ty = by0 + 8 + t2.height + (dense? 16 : 22);
+  const sumH = dense? 56 : 66;
+  s += R(M+10, ty, SW-2*M-20, sumH, {fill:INK, stroke:INK, sw:1});
   const cells = [
     ['외경', m.W+' × '+m.D+' × '+m.H],
     ['바닥 면적', m.floorArea.toFixed(2)+' ㎡'],
@@ -2794,24 +3196,33 @@ function sheetTables(m){
   ];
   cells.forEach((c,i)=>{
     const cxx = M+22 + i*(SW-2*M-40)/4;
-    s += T(cxx, ty+22, c[0], {size:6, fill:'#9AA3A9', ls:'0.08em'});
-    s += T(cxx, ty+40, c[1], {size:11, fill:'#fff', weight:700, mono:true});
+    s += T(cxx, ty+(dense?19:22), c[0], {size:6, fill:'#9AA3A9', ls:'0.08em'});
+    s += T(cxx, ty+(dense?37:40), c[1], {size:11, fill:'#fff', weight:700, mono:true});
   });
 
   /* 주의 */
-  const wy = ty+80;
-  s += T(M+10, wy+6, '※ 확인 사항', {size:6.6, weight:800, fill:WARN});
-  s += T(M+10, wy+18, '· 재단 치수는 제작팀 손도면(1500×1800 · 2000×2000 등)에서 확인한 600 모듈·자투리·조인트 여유 규칙으로 산출했습니다.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+29, '· 원판은 600×2400 — 길이 2400 이하 1장 = 1원판. 초과 시 천장은 반씩 대칭, 바닥·알판은 '+splitModeName(m.lenSplit)+' 후 각 장 1원판으로 환산했습니다.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+40, '· 문 면 자투리·현장 여유는 실측에 따라 ±10㎜ 보정하세요. 시공 전 바닥 수평·문 개폐 방향을 확인합니다.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+51, '· 천장 마지막 판과 벽판 자투리는 손도면 값을 우선하며, 조인트 여유·분할 방식은 고급 설정에서 조정할 수 있습니다.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+62, '· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ' · 시창 아래·위판 400 (아래 800×400 2장 · 위 800×400 1장)' : ' · 시창은 상부 코스 100+800+100')+' — 재단표 반영.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+73, '· 천장은 마블폼 45T 2겹 + 아트보드 — 이음선 한가운데 기준으로 매립등을 양쪽 절반 중앙에 일자 배치합니다.', {size:6.2, fill:'#4F585F'});
-  s += T(M+10, wy+84, '· 천장 아트보드 길이는 반씩 대칭 — 2475 → 1238 + 1237 · 4000 → 2000 + 2000 · 6000 → 2000+2000+2000.', {size:6.2, fill:'#4F585F'});
-
-  /* 발주 체크리스트 */
-  const cy0 = wy + 96;
-  s += R(M+10, cy0, SW-2*M-20, 96, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
+  const wy = ty + (dense? 68 : 80);
+  const tnotes = [
+    '· 재단 치수는 제작팀 손도면(1500×1800 · 2000×2000 등)에서 확인한 600 모듈·자투리·조인트 여유 규칙으로 산출했습니다.',
+    '· 원판은 600×2400 — 길이 2400 이하 1장 = 1원판. 초과 시 천장은 반씩 대칭, 바닥·알판은 '+splitModeName(m.lenSplit)+' 후 각 장 1원판으로 환산했습니다.',
+    '· 문 면 자투리·현장 여유는 실측에 따라 ±10㎜ 보정하세요. 시공 전 바닥 수평·문 개폐 방향을 확인합니다.',
+    '· 천장 마지막 판과 벽판 자투리는 손도면 값을 우선하며, 조인트 여유·분할 방식은 고급 설정에서 조정할 수 있습니다.',
+    '· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ' · 시창 아래·위판 400 (아래 800×400 2장 · 위 800×400 1장)' : ' · 시창은 상부 코스 100+800+100')+' — 재단표 반영.',
+    '· 천장은 마블폼 45T 2겹 + 아트보드 — 이음선 한가운데 기준으로 매립등을 양쪽 절반 중앙에 일자 배치합니다.',
+    '· 천장 아트보드 길이는 반씩 대칭 — 2475 → 1238 + 1237 · 4000 → 2000 + 2000 · 6000 → 2000+2000+2000.'
+  ];
+  if(m.notch.on){
+    tnotes.unshift('· 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄 — 바닥·천장 판재에서 그 면적('+m.notch.cw+'×'+m.notch.cd+')을 뺀 치수입니다. 단차 벽 판은 별도 행으로 산출했습니다.');
+  }
+  /* 주의 문구 + 발주 체크리스트 — 제목 블록에 닿지 않게 아래에서 위로 채운다 */
+  const chkH = dense? 80 : 96, chkRowH = dense? 14 : 16;
+  const cy0 = 1000 - chkH;
+  const noteRoom = Math.floor((cy0 - 10 - (wy + 18)) / 11) + 1;
+  if(noteRoom > 0){
+    s += T(M+10, wy+6, '※ 확인 사항', {size:6.6, weight:800, fill:WARN});
+    tnotes.slice(0, noteRoom).forEach((tx,i)=> s += T(M+10, wy+18+i*11, tx, {size:6.2, fill:'#4F585F'}));
+  }
+  s += R(M+10, cy0, SW-2*M-20, chkH, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
   s += T(M+18, cy0+14, '발주 · 준비 체크리스트', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
   const B = k => m.bom.find(b=>b.mat.indexOf(k)>=0) || {};
   const chk = [
@@ -2831,9 +3242,10 @@ function sheetTables(m){
     ['시창 아크릴', m.winCount? m.winCount+'개':'—'],
     ['실리콘·피스·압착', '현장 준비']
   ];
+  const chkCols = dense? 4 : 3;
   chk.forEach((c,i)=>{
-    const col = i%3, row = Math.floor(i/3);
-    const cx = M+22 + col*((SW-2*M-60)/3), cyy = cy0+30+row*16;
+    const col = i%chkCols, row = Math.floor(i/chkCols);
+    const cx = M+22 + col*((SW-2*M-60)/chkCols), cyy = cy0+30+row*chkRowH;
     s += R(cx, cyy-7, 7, 7, {fill:'#fff', stroke:'#8A939A', sw:0.7});
     s += T(cx+12, cyy, c[0], {size:6.2, fill:'#4F585F'});
     s += T(cx+12+96, cyy, c[1], {size:6.2, weight:700, mono:true});
@@ -2854,7 +3266,7 @@ function sheetField(m){
   const wallTxt = m.field.wallLayers > 1 ? '220' : '110';
   const wallTxtLong = m.field.wallLayers > 1 ? '외벽·내벽 220 포함' : '외벽 110 포함';
   let s = sheetHead('A-105','현장 타공 가이드 · 부스 바깥 맨 끝 기준',
-    'FIELD DRILL GUIDE · 줄자를 부스 바깥 맨 끝('+wallTxtLong+')에 걸고 바로 점찍기 · '
+    'FIELD DRILL GUIDE · 줄자를 부스 바깥 맨 끝('+wallTxtLong+')에 걸고 바로 점찍기'+(m.notch.on? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄':'')+' · '
     + (rail ? '레일등' : 'COB 매립등 2구 Ø'+m.cobDia) + ' · 타공면 '+m.sideName[m.lineFace]
     + ' · 중앙등 1구');
   s += pageNo('A-105',5,PAGE_TOTAL);
@@ -2922,6 +3334,16 @@ function sheetField(m){
     : faceBottom ? T(ox+pw/2, oy+ph-WALLB*0.28, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})
     : faceLeft ? `<g transform="rotate(-90 ${n(ox+WALLB*0.62)} ${n(oy+ph/2)})">${T(ox+WALLB*0.62, oy+ph/2, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})}</g>`
     : `<g transform="rotate(-90 ${n(ox+pw-WALLB*0.32)} ${n(oy+ph/2)})">${T(ox+pw-WALLB*0.32, oy+ph/2, '라인타공', {size:6.6, weight:800, fill:'#1F7A69', anchor:'middle'})}</g>`;
+
+  /* 코너 기둥을 따낸 부스 — 그 자리는 천장판·타공 없음 */
+  if(m.notch.on){
+    const nx = X(m.notch.x0), ny = Y(m.notch.y0), nw = (m.notch.x1-m.notch.x0)*sc, nh = (m.notch.y1-m.notch.y0)*sc;
+    s += R(nx, ny, nw, nh, {fill:'#fff', stroke:'none'});
+    s += R(nx, ny, nw, nh, {fill:'url(#hCol)', stroke:'#7E878E', sw:1.2, dash:'5 3'});
+    s += tag(nx+nw/2, ny+nh/2-6, '건물 기둥', {size:6.4, fill:'#4F585F', weight:800, bg:'#fff', bgop:.97, stroke:'#C9C2B4', sw:0.5});
+    s += tag(nx+nw/2, ny+nh/2+6, m.notch.cw+'×'+m.notch.cd, {size:6.2, fill:'#2E6FA3', weight:800, bg:'#fff', bgop:.97, stroke:'#C9C2B4', sw:0.5});
+    s += T(nx+nw/2, ny+nh/2+20, '이 안쪽은 천장판 없음', {size:5.6, anchor:'middle', fill:'#8A4517', weight:700});
+  }
 
   /* 천장판 이음매 (점선) — 실제 분할선. 타공 자리와 겹치면 빨간색 */
   const jointNear = (mmPos, holeMMs) => holeMMs.some(h => Math.abs(h-mmPos) <= (m.cobDia/2 + 12));
@@ -3607,7 +4029,11 @@ function readInputs(){
     roomDoorW: +$('#roomDoorW').value || 900,
     boothDir: state.boothDir || 'down',
     boothClear: ($('#boothClear').value === '' ? 100 : (+$('#boothClear').value || 0)),
-    boothAnchor: ($('#boothAnchor') && $('#boothAnchor').value) || 'center'
+    boothAnchor: ($('#boothAnchor') && $('#boothAnchor').value) || 'center',
+    /* 코너 기둥(따내기) */
+    cornerPos: state.cornerPos || 'none',
+    cornerW: +$('#cornerW').value || 450,
+    cornerD: +$('#cornerD').value || 680
   };
 }
 
@@ -3672,6 +4098,32 @@ function onWinDragEnd(){
   window.removeEventListener('pointercancel', onWinDragEnd);
 }
 
+/* --- 코너 기둥(따내기) 패널 안내 --------------------------------------- */
+function syncCornerUI(m){
+  const box = $('#cornerFields'), note = $('#cornerNote');
+  const on = m.notch && m.notch.on;
+  if(box) box.style.display = on ? '' : 'none';
+  if(!note) return;
+  if(!on){ note.textContent = '—'; return; }
+  const nm = {'back-left':'뒤-좌','back-right':'뒤-우','front-left':'앞-좌','front-right':'앞-우'}[m.notch.pos] || '';
+  const dw = (m.notch.pos.startsWith('back') ? '뒷면' : '앞면') + ' ' + (m.W - m.notch.cw);
+  const dd = (m.notch.pos.endsWith('left') ? '좌측면' : '우측면') + ' ' + (m.D - m.notch.cd);
+  let html = '<b>'+nm+'</b> 코너를 <b>'+m.notch.cw+' × '+m.notch.cd+'</b> 만큼 따냅니다 — '
+    + dw + ' · ' + dd + ' 로 줄고 <b>단차 벽 2면</b>이 붙습니다.';
+  if(m.notch.clipped) html += '<br><span style="color:#B4622A">입력값이 커서 '+(m.notch.cw)+' × '+(m.notch.cd)+' 로 줄였습니다 (반대쪽 최소 700 확보).</span>';
+  const doorFace = m.doorSide;
+  const hit = (m.notch.pos === 'back-left' && doorFace==='back' && m.doorAlign==='left')
+    || (m.notch.pos === 'back-right' && doorFace==='back' && m.doorAlign==='right')
+    || (m.notch.pos === 'front-left' && doorFace==='front' && m.doorAlign==='left')
+    || (m.notch.pos === 'front-right' && doorFace==='front' && m.doorAlign==='right')
+    || (m.notch.pos === 'back-left' && doorFace==='left' && m.doorAlign==='left')
+    || (m.notch.pos === 'front-left' && doorFace==='left' && m.doorAlign==='right')
+    || (m.notch.pos === 'back-right' && doorFace==='right' && m.doorAlign==='right')
+    || (m.notch.pos === 'front-right' && doorFace==='right' && m.doorAlign==='left');
+  if(hit) html += '<br><span style="color:#B4622A">⚠ 문 위치가 코너 기둥과 겹칩니다 — 문을 반대쪽으로 옮기세요.</span>';
+  note.innerHTML = html;
+}
+
 function render(){
   const inp = readInputs();
   const m = buildModel(inp);
@@ -3685,6 +4137,7 @@ function render(){
   syncWinUI(m);
   syncCobUI(m);
   syncFieldUI(m);
+  syncCornerUI(m);
 
   // sheets
   SHEETS = sheetsFor(m);
@@ -3696,7 +4149,7 @@ function render(){
         <span class="tagno">${sh.label}</span>
         <span class="lbl">· A4 1장 · 8㎜ 여백</span><span class="hint">· 좌우로 밀어 확대</span>
         <span class="spacer"></span>
-        <button class="btn sm ghost" data-png="${sh.id}">PNG</button>
+        <button class="btn sm ghost" data-png="${sh.id}">이미지</button>
       </div>
       <div class="sheet">${sh.fn(m)}</div>
     </div>`).join('') + bnbCardHTML(m);
@@ -3780,6 +4233,10 @@ function syncURL(inp){
   if(inp.floorColor) q.set('fl', inp.floorColor);
   if(inp.ledTemp && inp.ledTemp !== '4000') q.set('lt', inp.ledTemp);
   if(inp.projectWin === 'in') q.set('pj', 'in');
+  /* 코너 기둥(따내기) */
+  if(inp.cornerPos && inp.cornerPos !== 'none'){
+    q.set('cp', inp.cornerPos); q.set('cw', inp.cornerW); q.set('cd', inp.cornerD);
+  }
   /* 방 배치 참고도 (선택) */
   if(inp.roomOn){
     q.set('ro','1'); q.set('rw',inp.roomW); q.set('rd',inp.roomD);
@@ -3790,7 +4247,7 @@ function syncURL(inp){
 }
 
 /* ---------- export ---------- */
-/* SVG → PNG 가 막히는 브라우저(사파리 구버전·캔버스 차단)에서는 SVG 파일로 저장한다 */
+/* SVG → 이미지(PNG) 변환이 막히는 브라우저(사파리 구버전·캔버스 차단)에서는 SVG 파일로 저장한다 */
 async function saveSvgFallback(id){
   const wrap = document.querySelector('[data-sheet="'+id+'"]');
   const svg = wrap && wrap.querySelector('svg');
@@ -3839,7 +4296,7 @@ async function exportSheet(id){
     const blob = await sheetPngBlob(id, 3);
     if(blob){ download(blob, `${fileBase()}_${id.toUpperCase()}.png`); return; }
   }catch(e){ /* 아래 SVG 저장으로 넘어간다 */ }
-  if(await saveSvgFallback(id)) toast('PNG 저장이 막혀 SVG로 저장했습니다');
+  if(await saveSvgFallback(id)) toast('이미지 저장이 막혀 SVG로 저장했습니다');
   else toast('저장할 도면을 찾지 못했습니다');
 }
 /* --- ZIP (무압축) : 4장 한 번에 저장 --- */
@@ -3894,6 +4351,92 @@ async function exportAll(){
   btn.textContent = old;
   btn.disabled = false;
 }
+/* =====================================================================
+   PDF — 각 도면 SVG 를 고해상도 JPEG 로 굽고, 라이브러리 없이 직접 쓴다
+   (iPhone 앱 안 브라우저는 window.print() 를 조용히 무시해서 버튼이 먹통이 된다)
+   ===================================================================== */
+async function sheetJpeg(id, scale, quality){
+  const wrap = document.querySelector('[data-sheet="'+id+'"]');
+  if(!wrap) return null;
+  const svg = wrap.querySelector('svg');
+  if(!svg) return null;
+  const S = scale || 2;
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('width', SW*S);
+  clone.setAttribute('height', SH*S);
+  if(!clone.getAttribute('xmlns')) clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const str = new XMLSerializer().serializeToString(clone);
+  const url = URL.createObjectURL(new Blob([str], {type:'image/svg+xml;charset=utf-8'}));
+  const img = new Image();
+  await new Promise((res, rej)=>{ img.onload=res; img.onerror=rej; img.src=url; });
+  const cv = document.createElement('canvas');
+  cv.width = SW*S; cv.height = SH*S;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.drawImage(img,0,0,cv.width,cv.height);
+  URL.revokeObjectURL(url);
+  const blob = await new Promise(res=>cv.toBlob(res,'image/jpeg', quality||0.92));
+  if(!blob) return null;
+  return {data:new Uint8Array(await blob.arrayBuffer()), w:cv.width, h:cv.height};
+}
+/* 최소 PDF 작성기 — 페이지마다 JPEG 한 장(A4 꽉 채움) */
+function buildPdf(pages){
+  const enc = new TextEncoder();
+  const parts = []; let len = 0;
+  const put = u8 => { parts.push(u8); len += u8.length; };
+  const str = t => put(enc.encode(t));
+  const offs = [0];
+  const startObj = () => { offs.push(len); };
+  str('%PDF-1.4\n%\u00E2\u00E3\u00CF\u00D3\n');
+  startObj(); str('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+  const kids = pages.map((_,i)=> (3 + i*3) + ' 0 R').join(' ');
+  startObj(); str('2 0 obj\n<< /Type /Pages /Kids ['+kids+'] /Count '+pages.length+' >>\nendobj\n');
+  pages.forEach((pg,i)=>{
+    const pId = 3 + i*3, iId = pId + 1, cId = pId + 2;
+    startObj();
+    str(pId+' 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89]'
+      + ' /Resources << /XObject << /Im0 '+iId+' 0 R >> >> /Contents '+cId+' 0 R >>\nendobj\n');
+    startObj();
+    str(iId+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+pg.w+' /Height '+pg.h
+      + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+pg.data.length+' >>\nstream\n');
+    put(pg.data);
+    str('\nendstream\nendobj\n');
+    const cs = 'q 595.28 0 0 841.89 0 0 cm /Im0 Do Q\n';
+    startObj();
+    str(cId+' 0 obj\n<< /Length '+cs.length+' >>\nstream\n'+cs+'endstream\nendobj\n');
+  });
+  const xref = len;
+  let xs = 'xref\n0 '+offs.length+'\n0000000000 65535 f \n';
+  for(let i=1;i<offs.length;i++) xs += String(offs[i]).padStart(10,'0')+' 00000 n \n';
+  str(xs);
+  str('trailer\n<< /Size '+offs.length+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
+  return new Blob(parts, {type:'application/pdf'});
+}
+async function exportPdf(){
+  const btn = $('#btnPrint');
+  const old = btn.textContent;
+  if(btn.disabled) return;
+  btn.disabled = true;
+  try{
+    const pages = [];
+    for(let i=0;i<SHEETS.length;i++){
+      const msg = 'PDF 생성 중… '+(i+1)+'/'+SHEETS.length;
+      btn.textContent = msg;
+      toast(msg);
+      const pg = await sheetJpeg(SHEETS[i].id, 2, 0.92);
+      if(!pg) throw new Error('render fail');
+      pages.push(pg);
+    }
+    download(buildPdf(pages), fileBase()+'_도면.pdf');
+    toast(pages.length+'장 PDF를 저장했습니다');
+  }catch(e){
+    try{ window.print(); toast('PDF 저장이 막혀 인쇄 창으로 넘겼습니다'); }
+    catch(e2){ toast('PDF를 만들지 못했습니다 — 도면별 [이미지] 버튼을 써 주세요'); }
+  }finally{
+    btn.textContent = old;
+    btn.disabled = false;
+  }
+}
 function m0(){ return state.model; }
 
 /* =====================================================================
@@ -3937,8 +4480,15 @@ function init(){
   })();
   segInit('#grade','grade','single');
   segInit('#doorSide','doorSide','front');
-  segInit('#doorAlign','doorAlign','center');
+  /* 문 위치를 좌측·우측으로 고르면 경첩도 그쪽으로 자동 (직접 바꿀 수 있음) */
+  segInit('#doorAlign','doorAlign','center', v=>{
+    if(v!=='left' && v!=='right') return;
+    state.doorHinge = v;
+    const hg = $('#doorHinge');
+    if(hg) hg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===v)));
+  });
   segInit('#doorHinge','doorHinge','right');
+  segInit('#cornerPos','cornerPos','none');
   segInit('#lineFace','lineFace','back');
   segInit('#lightMode','lightMode','cob');
   segInit('#ledTemp','ledTemp','4000');
@@ -3967,16 +4517,14 @@ function init(){
 
   ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
    '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor',
-   '#roomW','#roomD','#roomDoorW','#boothClear','#boothAnchor']
+   '#roomW','#roomD','#roomDoorW','#boothClear','#boothAnchor','#cornerW','#cornerD']
     .forEach(s=>{ const el=$(s); if(!el) return; el.addEventListener('input', render); el.addEventListener('change', render); });
 
   /* 시창 위치 슬라이더 · 중앙 정렬 */
   $('#winPos').addEventListener('input', e=>{ state.winCenter = +e.target.value; render(); });
   $('#winCenter').addEventListener('click', ()=>{ state.winCenter = null; render(); });
 
-  $('#btnPrint').addEventListener('click', ()=>{
-    try{ window.print(); }catch(e){ toast('이 브라우저에서는 인쇄 창이 막혀 있습니다 — 각 도면의 PNG 버튼을 써 주세요'); }
-  });
+  $('#btnPrint').addEventListener('click', exportPdf);
   $('#btnPngAll').addEventListener('click', exportAll);
 
   // URL / 저장값 복원
@@ -4058,6 +4606,14 @@ function init(){
   if(q.get('sim') === '1' || q.get('from') === 'admin'){
     if($('#simNote')) $('#simNote').hidden = false;
   }
+
+  /* 코너 기둥(따내기) — 링크·저장값 복원 */
+  const qCp = q.get('cp') || src.cornerPos;
+  if(['back-left','back-right','front-left','front-right'].indexOf(qCp) >= 0) setSeg('#cornerPos','cornerPos', qCp);
+  else setSeg('#cornerPos','cornerPos', 'none');
+  const qCw = q.get('cw') || src.cornerW, qCd = q.get('cd') || src.cornerD;
+  if(qCw && $('#cornerW')) $('#cornerW').value = qCw;
+  if(qCd && $('#cornerD')) $('#cornerD').value = qCd;
 
   /* 방 배치 참고도 (선택) — 저장값·링크 파라미터 복원. 기본 OFF */
   const roomOnSaved = (q.get('ro') !== null) ? (q.get('ro') === '1') : !!src.roomOn;
