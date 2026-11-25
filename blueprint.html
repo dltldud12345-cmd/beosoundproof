@@ -3550,8 +3550,12 @@ function sheetField(m){
       s += R(cell.x, cell.y, cell.w, cell.h, {fill:'#FFFDF7', stroke:EDC, sw:1.5});
       const dsz = Math.min(6.2, Math.max(4.6, Math.min(cell.w, cell.h)*0.42));
       const dlbl = '문 '+Math.round(dPe.w)+(m.doorCount>1? ' · 2짝':'');
-      if(isH) s += T(cell.x+cell.w/2, cell.y+cell.h/2+dsz*0.36, dlbl, {size:dsz, anchor:'middle', fill:'#8A4210', weight:800});
-      else    s += `<g transform="rotate(-90 ${n(cell.x+cell.w/2)} ${n(cell.y+cell.h/2)})">${T(cell.x+cell.w/2, cell.y+cell.h/2+dsz*0.36, dlbl, {size:dsz, anchor:'middle', fill:'#8A4210', weight:800})}</g>`;
+      /* 더블이면 안쪽 문 점선이 칸 가운데를 지나므로 라벨을 바깥(외벽) 쪽 절반에 둔다 */
+      const dOff = (m.doorCount > 1) ? 0.30 : 0.5;
+      const dcx = isH ? cell.x+cell.w/2 : cell.x+cell.w*dOff;
+      const dcy = isH ? cell.y+cell.h*dOff : cell.y+cell.h/2;
+      if(isH) s += T(dcx, dcy+dsz*0.36, dlbl, {size:dsz, anchor:'middle', fill:'#8A4210', weight:800});
+      else    s += `<g transform="rotate(-90 ${n(dcx)} ${n(dcy)})">${T(dcx, dcy+dsz*0.36, dlbl, {size:dsz, anchor:'middle', fill:'#8A4210', weight:800})}</g>`;
       if(m.doorCount > 1){          /* 더블 — 안쪽 문은 안쪽 층 경계에 점선 */
         if(isH){
           const yy = (m.doorSide==='back') ? oy+finT-WALLB : oy+ph-finB+WALLB;
