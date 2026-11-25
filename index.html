@@ -595,6 +595,23 @@
   .opt span{display:block;margin-top:8px;font-size:13.8px;line-height:1.75;color:var(--body)}
   .opt em{display:block;margin-top:auto;padding-top:14px;font-style:normal;font-size:12px;font-weight:700;color:var(--accent-dark);letter-spacing:.02em}
   .fine{margin-top:22px;font-size:13px;line-height:1.8;color:var(--muted)}
+  /* 라인업 아래 이전·해체 한 줄 */
+  .lineup-move{
+    display:flex;align-items:center;gap:clamp(12px,2vw,22px);flex-wrap:wrap;
+    margin-top:clamp(14px,1.8vw,18px);padding:19px clamp(18px,2.4vw,26px);
+    background:var(--ink);color:#fff;border-radius:16px;
+    transition:transform .25s var(--ease),box-shadow .25s var(--ease);
+  }
+  .lineup-move:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(20,23,26,.16)}
+  .lineup-move .lm-k{font-size:11px;font-weight:800;letter-spacing:.2em;color:#8CDFCB}
+  .lineup-move .lm-t{flex:1 1 260px;min-width:0;font-size:13.6px;line-height:1.6;color:#BFC7CC}
+  .lineup-move .lm-t b{margin-right:9px;font-size:15px;font-weight:800;letter-spacing:-.02em;color:#fff}
+  .lineup-move .lm-a{font-size:13px;font-weight:800;color:#8CDFCB;white-space:nowrap}
+  /* 규격 · 조건 표 */
+  .spectab{margin-top:20px;border-top:1px solid var(--line-soft)}
+  .spectab div{display:grid;grid-template-columns:96px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line-soft);font-size:13.6px;line-height:1.65;word-break:keep-all}
+  .spectab dt{color:var(--muted);font-weight:700}
+  .spectab dd{margin:0;color:var(--ink-2);font-weight:600}
 
   /* ============ used / consignment ============ */
   .used-status{display:flex;gap:16px;align-items:flex-start;padding:22px clamp(20px,2.6vw,26px);background:var(--accent-tint);border:1px solid rgba(46,156,134,.22);border-radius:16px}
@@ -831,6 +848,10 @@
     .spec-card{padding:18px 20px}
     .spec-card b{font-size:15px}
     .spec-card .sd{font-size:13.5px}
+    .lineup-move{padding:17px 18px;gap:8px}
+    .lineup-move .lm-t{flex:1 1 100%;order:3;font-size:13px}
+    .lineup-move .lm-a{margin-left:auto}
+    .spectab div{grid-template-columns:74px 1fr;gap:10px;font-size:13px;padding:11px 0}
     .opt-grid{grid-template-columns:1fr}
     .opt-grid.three{grid-template-columns:1fr}
     .used-cta .btn{flex:1 1 100%}
@@ -1307,14 +1328,14 @@
           <div class="sec-head">
             <span class="eyebrow">Products</span>
             <h2>용도에 맞는 네 가지</h2>
-            <p>제작 가능한 최소 규격은 1,500×1,500(1.5×1.5m) 이상입니다. 실제로는 방 치수에 맞춰 조정하고, 금액은 사진과 정보를 받은 뒤 견적서로 먼저 보여드립니다.</p>
+            <p>최소 규격은 1,500×1,500. 방 치수에 맞춰 조정하고, 금액은 사진과 정보를 받은 뒤 견적서로 먼저 보여드립니다.</p>
           </div>
           <a class="more" href="#products">제품 상세 보기 <span>→</span></a>
         </div>
 
         <div class="grid-4" style="margin-top:clamp(30px,4vw,44px)">
           <a class="p-card rv" href="quote.html?spec=ss">
-            <span class="kicker">MAIN</span>
+            <span class="kicker">SINGLE</span>
             <h3>슈퍼싱글</h3>
             <p class="desc">피아노 · 1인 방송 · 녹음. 가장 많이 선택하는 기본 단일 벽체 모델입니다.</p>
             <dl>
@@ -1327,7 +1348,7 @@
           <a class="p-card rv" href="quote.html?spec=ssp">
             <span class="kicker">PLUS</span>
             <h3>슈퍼싱글 플러스</h3>
-            <p class="desc">보컬 · 악기 · 방송. 정면 더블 벽체 구조로 차음 성능을 높인 상위 모델입니다.</p>
+            <p class="desc">보컬 · 악기 · 방송. 정면만 2중 벽체로 차음 성능을 높인 상위 모델입니다.</p>
             <dl>
               <div><dt>크기(예시)</dt><dd>슈퍼싱글과 같은 치수</dd></div>
               <div><dt>시공 기간</dt><dd>1~2일</dd></div>
@@ -1780,125 +1801,72 @@
   <div class="page" id="page-products" data-page="products">
     <section class="band">
       <div class="wrap">
+
         <div class="sec-head rv">
-          <span class="eyebrow">Products</span>
-          <h2>용도와 크기로 고르세요</h2>
-          <p>제작 가능한 최소 규격은 1,500×1,500(1.5×1.5m) 이상입니다. 아래 치수는 표준 예시이고, 실제로는 방 치수에 맞춰 조정됩니다. 금액은 사진과 현장 정보를 받은 뒤 견적서로 먼저 보여드립니다.</p>
+          <span class="eyebrow">Lineup</span>
+          <h2>세 가지 벽체 구조</h2>
+          <p>최소 규격은 1,500×1,500. 연주하는 악기와 공간 환경에 맞춰 벽체 구조부터 다르게 짓고, 방을 실측해 맞춤 재단합니다.</p>
         </div>
 
-        <div class="grid-4 lineup">
-          <div class="p-card rv">
-            <span class="kicker">MAIN</span>
+        <div class="grade-grid">
+          <article class="grade-card rv">
+            <span class="gk">SINGLE</span>
             <h3>슈퍼싱글</h3>
-            <p class="desc">피아노 · 1인 방송 · 녹음. 가장 많이 선택하는 기본 단일 벽체 모델입니다.</p>
+            <div class="gwall">
+              <span class="gtag">벽체 구조</span>
+              <span class="gname">단일 벽체</span>
+              <span class="gdesc">피아노 · 1인 방송 · 녹음. 가장 많이 선택하는 기본형입니다.</span>
+            </div>
             <dl>
-              <div><dt>크기(예시)</dt><dd>1,500×1,800</dd></div>
-              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+              <div><dt>규격</dt><dd>1,500×1,800 · 2.7㎡</dd></div>
+              <div><dt>시공</dt><dd>1~2일</dd></div>
             </dl>
-            <span class="foot">견적 안내</span>
-          </div>
+            <a class="gcta" href="quote.html?spec=ss">이 규격으로 견적 보기 →</a>
+          </article>
 
-          <div class="p-card rv">
-            <span class="kicker">PLUS</span>
+          <article class="grade-card rv">
+            <span class="gk">PLUS</span>
             <h3>슈퍼싱글 플러스</h3>
-            <p class="desc">보컬 · 악기 · 방송. 정면 더블 벽체 구조로 차음 성능을 높인 상위 모델입니다.</p>
+            <div class="gwall">
+              <span class="gtag">벽체 구조 · 정면만 2중</span>
+              <span class="gname">정면 2중 · 후면 단일</span>
+              <span class="gdesc">보컬 · 악기 · 방송. 문이 있는 앞면만 벽체를 한 겹 더 세워 소리를 한 단계 더 막습니다.</span>
+            </div>
             <dl>
-              <div><dt>크기(예시)</dt><dd>슈퍼싱글과 같은 치수</dd></div>
-              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
+              <div><dt>규격</dt><dd>1,800×2,000 · 3.6㎡</dd></div>
+              <div><dt>시공</dt><dd>1~2일</dd></div>
             </dl>
-            <span class="foot">견적 안내</span>
-          </div>
+            <a class="gcta" href="quote.html?spec=ssp">이 규격으로 견적 보기 →</a>
+          </article>
 
-          <div class="p-card rv">
-            <span class="kicker">DOUBLE</span>
+          <article class="grade-card rv">
+            <span class="gk">DOUBLE</span>
             <h3>더블</h3>
-            <p class="desc">2인 합주 · 레슨. 부스 안에 부스를 한 번 더 세운 4면 이중 벽체 구조입니다.</p>
+            <div class="gwall">
+              <span class="gtag">벽체 구조 · 부스 안에 부스</span>
+              <span class="gname">4면 2중 · 도어 2짝</span>
+              <span class="gdesc">2인 합주 · 레슨. 부스 안에 부스를 한 번 더 세워 네 면 모두 이중으로 막습니다.</span>
+            </div>
             <dl>
-              <div><dt>크기(예시)</dt><dd>2,000×2,000 이상</dd></div>
-              <div><dt>시공 기간</dt><dd>2~4일</dd></div>
+              <div><dt>규격</dt><dd>2,000×2,400 · 4.8㎡</dd></div>
+              <div><dt>시공</dt><dd>2~4일</dd></div>
             </dl>
-            <span class="foot">견적 안내</span>
-          </div>
-
-          <div class="p-card dark rv">
-            <span class="kicker">MOVE</span>
-            <h3>이전 · 해체</h3>
-            <p class="desc">보유한 부스를 새 집으로. 타사 제품도 해체·운반·재설치까지 맡습니다.</p>
-            <dl>
-              <div><dt>크기</dt><dd>부스 정보 확인 후</dd></div>
-              <div><dt>시공 기간</dt><dd>1~2일</dd></div>
-            </dl>
-            <span class="foot">상담 후 견적</span>
-          </div>
+            <a class="gcta" href="quote.html?spec=double">이 규격으로 견적 보기 →</a>
+          </article>
         </div>
 
-        <!-- 규격별 구성 · 벽체 단면 -->
-        <div class="grade-band">
-          <div class="sec-head rv">
-            <span class="eyebrow">Grades</span>
-            <h2>용도에 맞춘 세 가지 벽체 구조</h2>
-            <p>슈퍼싱글(기본 단일), 플러스(정면 더블), 더블(부스 안에 부스) — 연주하는 악기와 공간 환경에 맞춰 벽체 구조부터 다르게 시공합니다.</p>
-          </div>
+        <a class="lineup-move rv" href="relocation.html">
+          <span class="lm-k">MOVE</span>
+          <span class="lm-t"><b>이전 · 해체</b>보유한 부스를 새 집으로. 타사 제품도 해체·운반·재설치까지 1~2일.</span>
+          <span class="lm-a">이전 안내 <span aria-hidden="true">→</span></span>
+        </a>
 
-          <div class="grade-grid">
-            <article class="grade-card rv">
-              <span class="gk">MAIN</span>
-              <h3>슈퍼싱글</h3>
-              <div class="gwall">
-                <span class="gtag">벽체 구조 · 기본</span>
-                <span class="gname">단일 벽체</span>
-                <span class="gdesc">외부 마감부터 내부 마감까지 한 겹씩 쌓은 기본 구조입니다. 피아노 · 1인 방송 · 녹음처럼 한 사람이 쓰는 공간에 맞춥니다.</span>
-              </div>
-              <dl>
-                <div><dt>규격(예시)</dt><dd>1,500×1,800 · 2.7㎡</dd></div>
-                <div><dt>권장 용도</dt><dd>피아노 · 1인 방송 · 녹음</dd></div>
-                <div><dt>시공 기간</dt><dd>1~2일</dd></div>
-                <div><dt>조명</dt><dd>COB 매립등 2구 + 중앙 LED등</dd></div>
-              </dl>
-              <a class="gcta" href="quote.html?spec=ss">이 규격으로 견적 보기 →</a>
-            </article>
+        <p class="grade-note rv">모든 등급은 PB 액자틀에 흡음 2겹, 이음새는 실링으로 막습니다. 외부·내부 치수는 견적서에 적어 드립니다.</p>
 
-            <article class="grade-card rv">
-              <span class="gk">PLUS</span>
-              <h3>슈퍼싱글 플러스</h3>
-              <div class="gwall">
-                <span class="gtag">벽체 구조 · 정면 더블</span>
-                <span class="gname">정면 더블 벽체</span>
-                <span class="gdesc">문이 있는 앞면 안쪽에 벽체를 한 겹 더 세운 구조입니다. 뒷면은 기본 단일 벽체로 두고, 보컬 · 악기 · 방송처럼 소리가 큰 작업에서 한 단계 더 막아 줍니다.</span>
-              </div>
-              <dl>
-                <div><dt>규격(예시)</dt><dd>1,800×2,000 · 3.6㎡</dd></div>
-                <div><dt>권장 용도</dt><dd>보컬 · 악기 · 방송</dd></div>
-                <div><dt>시공 기간</dt><dd>1~2일</dd></div>
-                <div><dt>차이</dt><dd>정면 더블 벽체 구조로 차음 성능을 높인 구성 (후면 제외)</dd></div>
-              </dl>
-              <a class="gcta" href="quote.html?spec=ssp">이 규격으로 견적 보기 →</a>
-            </article>
-
-            <article class="grade-card rv">
-              <span class="gk">DOUBLE</span>
-              <h3>더블</h3>
-              <div class="gwall">
-                <span class="gtag">벽체 구조 · 부스 안에 부스</span>
-                <span class="gname">4면 이중 벽체 · 도어 2짝</span>
-                <span class="gdesc">부스 안에 부스를 한 번 더 세운 구조입니다. 네 면이 모두 이중 벽체이고 문도 두 짝이라, 2인 합주 · 레슨처럼 소리가 겹치는 공간에 맞춥니다.</span>
-              </div>
-              <dl>
-                <div><dt>규격(예시)</dt><dd>2,000×2,400 · 4.8㎡</dd></div>
-                <div><dt>권장 용도</dt><dd>2인 합주 · 레슨 · 고차음</dd></div>
-                <div><dt>시공 기간</dt><dd>2~4일</dd></div>
-                <div><dt>조명</dt><dd>가로·세로 2,400 이상은 레일등 기본</dd></div>
-              </dl>
-              <a class="gcta" href="quote.html?spec=double">이 규격으로 견적 보기 →</a>
-            </article>
-          </div>
-
-          <p class="grade-note rv">모든 등급은 방을 실측해 맞춤 재단하며, 외부·내부 치수는 견적서에 적어 드립니다.</p>
-
-          <figure class="wf2-fig" id="wallfig">
+<figure class="wf2-fig" id="wallfig">
   <div class="wf2-head">
     <span class="wf2-eyebrow">Wall Section · 기본 벽체</span>
-    <p>기본 벽체는 세 겹입니다. 바깥 <b>외장 알판</b>, 그 안을 채우는 <b>방음 코어</b>, 실내 쪽 <b>아트보드 마감</b> — 소리가 이 세 겹을 지나며 작아집니다. 플러스(정면 더블)와 더블(부스 안에 부스)은 여기에 벽체가 한 겹 더해집니다.</p>
+    <p>바깥 <b>외장 알판</b> · 그 안을 채우는 <b>방음 코어</b> · 실내 쪽 <b>아트보드 마감</b> — 소리가 세 겹을 지나며 작아집니다. 플러스는 정면만 2중, 더블은 부스 안에 부스로 벽체가 한 겹 더해집니다.</p>
   </div>
   <div class="wf2-canvas">
     <svg class="wf2-iso" viewBox="0 0 780 560" role="img" aria-label="바닥 위에 세워진 방음 벽체 단면. 세 겹이 하나로 맞물렸다가 펼쳐지며 1 외장 알판, 2 내부 방음 코어, 3 실내 아트보드 마감으로 나뉘고, 바깥 소리가 이 세 겹을 지나며 작아집니다.">
@@ -1951,10 +1919,12 @@
 <line x1="235" y1="223.4" x2="390" y2="187.4" stroke="#F3E3C9" stroke-width="1.1" opacity=".75"/>
 <polygon points="232,506 316,506 316,224 232,224" fill="url(#wf2dFrame)" stroke="#A0855D" stroke-width="1.3"/>
 <polygon points="239,499 309,499 309,231 239,231" fill="#9E825B" stroke="#8C7350" stroke-width="0.9"/>
-<polygon points="241.5,363.75 272.75,363.75 272.75,233.5 241.5,233.5" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="277.75,363.75 309,363.75 309,233.5 277.75,233.5" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="241.5,500.25 272.75,500.25 272.75,370 241.5,370" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="277.75,500.25 309,500.25 309,370 277.75,370" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="240.4,297 307.6,297 307.6,232.4 240.4,232.4" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="240.4,362.7 307.6,362.7 307.6,298.1 240.4,298.1" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="240.4,431.9 307.6,431.9 307.6,367.3 240.4,367.3" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="240.4,497.6 307.6,497.6 307.6,433 240.4,433" fill="url(#wf2dSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="239,367.3 309,367.3 309,362.7 239,362.7" fill="url(#wf2dFrame)" stroke="#9C8058" stroke-width="0.7"/>
+<line x1="240.2" y1="363.6" x2="307.8" y2="363.6" stroke="#F3E3C9" stroke-width="0.85" opacity=".6"/>
 <line x1="314.8" y1="503" x2="314.8" y2="227" stroke="#2E9C86" stroke-width="2.2" class="wf2-in" stroke-dasharray="7 5.6" stroke-linecap="round" opacity=".95"/>
 </g>
 <g class="wf2-ly wf2-ly-3">
@@ -2083,10 +2053,12 @@
 <line x1="109" y1="113.4" x2="188" y2="97.4" stroke="#F3E3C9" stroke-width="1.1" opacity=".75"/>
 <polygon points="106,282 156,282 156,114 106,114" fill="url(#wf2mFrame)" stroke="#A0855D" stroke-width="1.3"/>
 <polygon points="110,278 152,278 152,118 110,118" fill="#9E825B" stroke="#8C7350" stroke-width="0.9"/>
-<polygon points="111.75,197.12 130.12,197.12 130.12,119.75 111.75,119.75" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="133.62,197.12 152,197.12 152,119.75 133.62,119.75" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="111.75,278.88 130.12,278.88 130.12,201.5 111.75,201.5" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
-<polygon points="133.62,278.88 152,278.88 152,201.5 133.62,201.5" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="111.2,157.15 150.8,157.15 150.8,119.2 111.2,119.2" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="111.2,196 150.8,196 150.8,158.05 111.2,158.05" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="111.2,237.95 150.8,237.95 150.8,200 111.2,200" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="111.2,276.8 150.8,276.8 150.8,238.85 111.2,238.85" fill="url(#wf2mSpeck)" stroke="#8C7350" stroke-width="0.6"/>
+<polygon points="110,200 152,200 152,196 110,196" fill="url(#wf2mFrame)" stroke="#9C8058" stroke-width="0.55"/>
+<line x1="111" y1="197.2" x2="151" y2="197.2" stroke="#F3E3C9" stroke-width="0.65" opacity=".6"/>
 <line x1="154.8" y1="279" x2="154.8" y2="117" stroke="#2E9C86" stroke-width="2.2" class="wf2-in" stroke-dasharray="5 4" stroke-linecap="round" opacity=".95"/>
 </g>
 <g class="wf2-ly wf2-ly-3">
@@ -2157,54 +2129,8 @@
   </div>
   <figcaption class="wf2-cap">기본 벽체 — <b>외장 · 코어 · 마감</b> 세 겹이 한 장으로 맞물립니다.</figcaption>
 </figure>
-        </div>
 
         <div class="blocks">
-          <div class="block rv">
-            <div class="spec-head">
-              <div>
-                <h4>Spec</h4>
-                <h3 style="margin-top:12px">규격과 사양</h3>
-                <p class="spec-lead">싱글(기본) · 플러스(정면 더블) · 더블(부스 안에 부스), 세 가지 구조로 제작합니다. 어느 구조든 현장 치수에 맞춰 재단하고, 마감 색과 옵션은 현장에서 정합니다.</p>
-              </div>
-              <figure class="spec-photo">
-                <img src="assets/interior-academy-clean.jpg" alt="시그니처 내부. 메이플 톤 라인타공 한 면과 아트보드 세 면, COB 매립등과 중앙 LED등." loading="lazy">
-              </figure>
-            </div>
-            <div class="spec-grid">
-              <article class="spec-card">
-                <span class="sk">Structure · 구조</span>
-                <b>PB 액자틀 · 흡음 2중</b>
-                <span class="sd">틀 안을 고밀도 흡음으로 두 겹 채우고, 벽체가 맞닿는 이음새는 실링으로 막습니다.</span>
-              </article>
-              <article class="spec-card">
-                <span class="sk">Finish · 마감</span>
-                <b>안쪽 라인타공 1면 · 아트보드 3면</b>
-                <span class="sd">아트보드는 지정색·패턴으로 맞추고, 바깥면은 백색 알판으로 마감합니다.</span>
-              </article>
-              <article class="spec-card">
-                <span class="sk">Door · 문</span>
-                <b>시스템도어 1짝</b>
-                <span class="sd">문 상단 마감판과 문틈 현장 마감까지 처음부터 함께 시공합니다.</span>
-              </article>
-              <article class="spec-card">
-                <span class="sk">Floor · 바닥</span>
-                <b>강화마루</b>
-                <span class="sd">밝은 오크 · 메이플 톤이 기본입니다. 바닥재에 따라 내부 전체 톤이 달라집니다.</span>
-              </article>
-              <article class="spec-card">
-                <span class="sk">Light · Power · 조명·전기</span>
-                <b>COB 매립등 + 중앙 LED등</b>
-                <span class="sd">2구 스위치와 세로 2구 콘센트를 벽체 배선으로 넣습니다. 가로·세로 2,400 이상은 레일등으로 시공합니다.</span>
-              </article>
-              <article class="spec-card">
-                <span class="sk">Size · 규격</span>
-                <b>1,500×1,500부터 맞춤 재단</b>
-                <span class="sd">정형 규격을 그대로 쓰지 않고 방을 실측해 재단하며, 외부·내부 치수는 견적서에 표기합니다.</span>
-              </article>
-            </div>
-            <p class="spec-note">위 사진은 1면 라인타공 · 3면 아트보드 · COB 매립등으로 마감한 실제 시공 내부입니다.</p>
-          </div>
 
           <div class="block block-2 rv">
             <div class="included-img">
@@ -2213,7 +2139,7 @@
             <div>
               <h4>All included</h4>
               <h3 style="margin-top:12px">기본 포함 6가지</h3>
-              <p>다른 업체에서 추가금을 받는 구성까지 처음부터 들어갑니다. “이거 넣으면 얼마 더예요?”라는 질문을 안 받으려고 정한 기준입니다.</p>
+              <p>다른 업체에서 추가금을 받는 구성까지 처음부터 넣습니다. 기본 항목에는 나중에 옵션값을 붙이지 않습니다.</p>
               <ul class="chips6">
                 <li>세로 2구 콘센트</li>
                 <li>강화마루</li>
@@ -2222,21 +2148,21 @@
                 <li>COB 매립등 · 중앙 LED등</li>
                 <li>시스템도어</li>
               </ul>
-              <p class="fine">기본 항목에는 나중에 옵션값을 붙이지 않습니다. 대형 사이즈는 조명을 레일등으로 시공합니다.</p>
+              <p class="fine">대형 사이즈는 조명을 레일등으로 시공합니다.</p>
             </div>
           </div>
 
           <div class="block rv">
             <h4>Signature</h4>
             <h3 style="margin-top:12px">내부는 한 면만 살립니다</h3>
-            <p style="max-width:52em">메인 공간 한 면을 라인타공으로 잡고 그 위에 COB 매립등을 넣습니다. 나머지 세 면은 아트보드로 마감합니다. 부스가 크면 조명을 레일등으로 길게 깝니다. 이 대비가 베오방음 내부를 알아보는 표식입니다.</p>
+            <p style="max-width:52em">메인 공간 한 면만 라인타공으로 잡고 그 위에 COB 매립등을 얹습니다. 나머지 세 면은 아트보드. 이 대비가 베오방음 내부를 알아보는 표식입니다.</p>
             <div class="mat-grid">
               <div class="mat-card">
                 <span class="sw" aria-hidden="true">
                   <i style="background:#DCC9A9"></i><i style="background:#F2EEE5"></i><i style="background:#C2C1BE"></i><i style="background:#4A4F55"></i><i style="background:#26292C"></i>
                 </span>
                 <b>3면 아트보드</b>
-                <span class="ms">멜란지 흡음 펠트 5색. 연베이지가 기본이고, 고른 색에 맞춰 몰딩(화이트·메이플·블랙)이 자동으로 맞춰집니다.</span>
+                <span class="ms">멜란지 흡음 펠트 5색. 고른 색에 맞춰 몰딩(화이트·메이플·블랙)이 자동으로 맞춰집니다.</span>
                 <em>연베이지 · 화이트 · 라이트그레이 · 차콜 · 블랙</em>
               </div>
 
@@ -2245,31 +2171,35 @@
                   <i style="background:#C9B393"></i><i style="background:#A08063"></i><i style="background:#E0CBA6"></i><i style="background:#BC8A64"></i><i style="background:#B5A896"></i><i style="background:#5B483A"></i><i style="background:#F0EFEA"></i><i style="background:#DFDBD0"></i>
                 </span>
                 <b>1면 라인타공</b>
-                <span class="ms">RG-LT3203 8종. 선 사이로는 검정 흡음 펠트가 보여, 어떤 색을 골라도 선이 살아 있습니다.</span>
+                <span class="ms">RG-LT3203 8종. 선 사이로 검정 흡음 펠트가 보여 어떤 색을 골라도 선이 살아 있습니다.</span>
                 <em>내추럴 오크 · 월넛 · 메이플 · 티크 · 애쉬 · 다크</em>
               </div>
 
               <div class="mat-card">
-                <span class="sw" aria-hidden="true"><i style="background:#C6A47E"></i><i style="background:#E4DDD0"></i></span>
-                <b>강화마루</b>
-                <span class="ms">밝은 오크 톤이 기본입니다. 바닥재에 따라 부스 전체 톤이 달라집니다.</span>
-                <em>멜로우 오크 · 화이트 파인</em>
-              </div>
-
-              <div class="mat-card">
-                <span class="sw" aria-hidden="true"><i style="background:#FFEFD0"></i><i style="background:#E3F0FF"></i></span>
-                <b>COB 매립등 · 중앙 LED등</b>
-                <span class="ms">라인타공 면 위에 매립해 빛이 벽을 따라 내려오게 합니다. 대형은 레일등으로 시공합니다.</span>
-                <em>주백색 4000K · 주광색 6500K</em>
-              </div>
-
-              <div class="mat-card">
-                <span class="sw" aria-hidden="true"><i style="background:#F3EFE6"></i><i style="background:#E7E1D5"></i></span>
-                <b>시스템도어 · 문틈 마감</b>
-                <span class="ms">문 상단 마감판을 넣어 외관을 정리하고, 문틈은 현장에서 마감합니다. 문은 바깥으로 열립니다.</span>
-                <em>백색 알판 · 기본 포함</em>
+                <span class="sw" aria-hidden="true"><i style="background:#C6A47E"></i><i style="background:#E4DDD0"></i><i style="background:#FFEFD0"></i><i style="background:#E3F0FF"></i></span>
+                <b>강화마루 · 조명</b>
+                <span class="ms">밝은 오크 톤이 기본이고, 라인타공 면에 매립한 빛이 벽을 따라 내려옵니다.</span>
+                <em>멜로우 오크 · 화이트 파인 · 주백색 4000K</em>
               </div>
             </div>
+          </div>
+
+          <div class="block block-2 rv">
+            <div>
+              <h4>Spec</h4>
+              <h3 style="margin-top:12px">규격과 조건</h3>
+              <dl class="spectab">
+                <div><dt>벽체</dt><dd>PB 액자틀 · 흡음 2겹 · 이음새 실링</dd></div>
+                <div><dt>마감</dt><dd>외부 백색 알판 · 내부 아트보드 3면 + 라인타공 1면</dd></div>
+                <div><dt>문</dt><dd>시스템도어 1짝(더블 2짝) · 문틈 현장 마감</dd></div>
+                <div><dt>조명·전기</dt><dd>COB 매립등 2구 + 중앙 LED등 · 세로 2구 콘센트</dd></div>
+                <div><dt>규격</dt><dd>1,500×1,500부터 맞춤 재단 · 외부·내부 치수 견적서 표기</dd></div>
+                <div><dt>일정·조건</dt><dd>계약금 50% · 제작 14일 · 잔금 설치 후</dd></div>
+              </dl>
+            </div>
+            <figure class="spec-photo">
+              <img src="assets/interior-academy-clean.jpg" alt="시그니처 내부. 메이플 톤 라인타공 한 면과 아트보드 세 면, COB 매립등과 중앙 LED등." loading="lazy">
+            </figure>
           </div>
 
           <div class="block rv">
@@ -2288,19 +2218,18 @@
               <div>
                 <span class="opt-label">OPTION · 천장 개폐형</span>
                 <h3 style="margin-top:10px;font-size:clamp(20px,2.3vw,26px)">프로젝트창 (개폐창)</h3>
-                <p>천장에 시스템에어컨이 있는 집은 <strong>천장 개폐형 프로젝트창</strong>으로 시공합니다. 부스 천장에 창을 달아 두고, <strong>창을 열면 방 천장의 시스템에어컨 바람을 부스 안에서 그대로 쐬는</strong> 구조입니다. 부스 안에 별도 냉방기를 두지 않아도 됩니다.</p>
+                <p>천장에 시스템에어컨이 있는 집은 <strong>천장 개폐형 프로젝트창</strong>으로 시공합니다. 창을 열면 방 천장의 냉기를 부스 안에서 그대로 쐬고, 닫으면 원래의 방음 상태로 돌아갑니다.</p>
                 <ul class="opt-points">
-                  <li>창을 닫으면 원래의 방음 상태로 돌아갑니다 — 연주·녹음할 때는 닫고, 더울 때만 열어 씁니다</li>
+                  <li>연주·녹음할 때는 닫고, 더울 때만 열어 씁니다</li>
                   <li>천장 취출구 위치와 방 구조를 사진으로 확인해 창 자리를 정합니다</li>
-                  <li>값은 견적서에 미리 적어 드립니다</li>
                 </ul>
               </div>
             </div>
 
             <div class="opt-grid three">
               <div class="opt">
-                <b>에어컨 라인 벽체 매설 시공</b>
-                <span>복도식 아파트의 복도 쪽 방이나 실외기 자리가 없는 신축 아파트도 냉매관·배수 라인을 벽체 안으로 넣어 시공합니다. 배관이 밖으로 드러나지 않습니다. 필요하시면 에어컨 설치 전문 협력업체 연계도 가능합니다.</span>
+                <b>에어컨 라인 벽체 매설</b>
+                <span>실외기 자리가 없는 방도 냉매관·배수 라인을 벽체 안으로 넣어 시공합니다. 배관이 밖으로 드러나지 않습니다.</span>
                 <em>실외기 위치 · 배관 경로 확인 후 견적</em>
               </div>
               <div class="opt">
@@ -2309,18 +2238,18 @@
                 <em>값은 견적서에 미리</em>
               </div>
               <div class="opt">
-                <b>타공판 추가 면적 · 라인타공 마감</b>
+                <b>타공판 추가 · 라인타공 마감</b>
                 <span>기본 마감 외 면적에 타공판을 더하거나, 한 면을 라인타공으로 바꿔 톤을 맞춥니다.</span>
                 <em>값은 견적서에 미리</em>
               </div>
             </div>
-            <p class="fine">최종 구성과 사양은 현장 사진과 용도 상담으로 정합니다. 표준 조건은 계약금 50% · 제작 14일 · 잔금 설치 후이며, 일정과 조건은 계약 전에 서면으로 먼저 확정합니다.</p>
+            <p class="fine">최종 구성과 사양은 현장 사진과 용도 상담으로 정하고, 일정과 조건은 계약 전에 서면으로 먼저 확정합니다.</p>
           </div>
 
           <div class="block rv">
             <h4>Quote</h4>
             <h3 style="margin-top:12px">금액은 사진을 보고 안내드립니다</h3>
-            <p style="max-width:54em">신규·이전설치 모두 제조사·규격·층수·현장 여건마다 달라, 사진·부스 정보·위치를 접수한 뒤 정확한 견적을 안내드립니다. 화면에 금액을 미리 정해 두지 않습니다.</p>
+            <p style="max-width:54em">신규·이전설치 모두 제조사·규격·층수·현장 여건마다 달라, 사진과 부스 정보·위치를 접수한 뒤 정확한 견적을 안내드립니다.</p>
             <p style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px"><a class="btn btn-primary btn-lg" href="quote.html">신규 설치 간편 견적 <span aria-hidden="true">→</span></a><a class="btn btn-line btn-lg" href="relocation.html">이전설치 간편 견적 <span aria-hidden="true">→</span></a></p>
           </div>
         </div>
