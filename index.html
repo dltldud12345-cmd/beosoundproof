@@ -1073,6 +1073,11 @@
 .wf2-canvas .wf2-stack{display:none}
 .wf2-cap{margin:12px 0 0;font-size:12px;font-weight:600;color:var(--wf2-muted);line-height:1.55}
 .wf2-cap b{color:var(--wf2-accent-dark)}
+.wf2-legend{display:none}
+.wf2-lg{display:flex;gap:8px;align-items:flex-start;background:#FAF7F1;border:1px solid var(--wf2-line-soft);border-radius:11px;padding:9px 10px}
+.wf2-lg .n{flex:0 0 18px;height:18px;border-radius:50%;background:var(--wf2-emerald);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
+.wf2-lg b{display:block;font-size:11.8px;font-weight:800;letter-spacing:-.01em;color:var(--wf2-ink);line-height:1.35}
+.wf2-lg em{display:block;margin-top:3px;font-style:normal;font-size:10.6px;line-height:1.5;color:var(--wf2-muted)}
 
 @keyframes wf2Wave{
   0%{opacity:0;transform:translate(0,0)}
@@ -1081,15 +1086,8 @@
   68%{opacity:0;transform:translate(11px,0)}
   100%{opacity:0;transform:translate(11px,0)}
 }
-@keyframes wf2WaveM{
-  0%{opacity:0;transform:translate(0,0)}
-  9%{opacity:1;transform:translate(0,0)}
-  42%{opacity:.85;transform:translate(0,4px)}
-  68%{opacity:0;transform:translate(0,9px)}
-  100%{opacity:0;transform:translate(0,9px)}
-}
 .wf2-iso .wf2-an{animation:wf2Wave 3.6s cubic-bezier(.4,0,.5,1) infinite}
-.wf2-stack .wf2-anm{animation:wf2WaveM 3.6s cubic-bezier(.4,0,.5,1) infinite}
+.wf2-stack .wf2-an{animation:wf2Wave 3.6s cubic-bezier(.4,0,.5,1) infinite}
 .wf2d-sealglow{animation:wf2Seal 3.6s ease-in-out infinite}
 @keyframes wf2Seal{0%,84%{opacity:0}90%{opacity:.5}100%{opacity:0}}
 @media (max-width:720px){
@@ -1098,9 +1096,10 @@
   .wf2-head p{font-size:12.5px}
   .wf2-canvas{padding:6px 2px 2px}
   .wf2-fig{padding:16px 14px;border-radius:16px}
+  .wf2-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 }
 @media (prefers-reduced-motion:reduce){
-  .wf2-iso .wf2-an,.wf2-stack .wf2-anm,.wf2d-sealglow{animation:none!important;opacity:.55}
+  .wf2-iso .wf2-an,.wf2-stack .wf2-an,.wf2d-sealglow{animation:none!important;opacity:.55}
 }
 </style>
 </head>
@@ -1866,16 +1865,19 @@
         <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EDE7DA"/>
       </linearGradient>
       <linearGradient id="wf2dWhiteSide" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#EEE8DB"/><stop offset="1" stop-color="#E3DBCB"/>
+        <stop offset="0" stop-color="#E6DFCE"/><stop offset="1" stop-color="#D5CBB6"/>
       </linearGradient>
       <linearGradient id="wf2dBoard" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0" stop-color="#F0E6D2"/><stop offset="1" stop-color="#E2D3B4"/>
+      </linearGradient>
+      <linearGradient id="wf2dFrame" x1="0" y1="0" x2="1" y2=".15">
+        <stop offset="0" stop-color="#CBAE8C"/><stop offset=".55" stop-color="#C6A783"/><stop offset="1" stop-color="#BE9E78"/>
       </linearGradient>
       <linearGradient id="wf2dBoardTop" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#F5EDDD"/><stop offset="1" stop-color="#E6D9BE"/>
       </linearGradient>
       <linearGradient id="wf2dBoardSide" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#ECDFC4"/><stop offset="1" stop-color="#DFD0B1"/>
+        <stop offset="0" stop-color="#E6D8BC"/><stop offset="1" stop-color="#D3C4A2"/>
       </linearGradient>
       <pattern id="wf2dSpeck" width="14" height="14" patternUnits="userSpaceOnUse">
         <rect width="14" height="14" fill="#F4F0E4"/>
@@ -1893,9 +1895,19 @@
         <circle cx="0.6" cy="6.0" r="0.8" fill="#4A6FA5" opacity=".6"/>
         <circle cx="13.4" cy="12.4" r="0.85" fill="#B6CE68" opacity=".6"/>
       </pattern>
+      <linearGradient id="wf2dFloor" x1="0" y1="0" x2=".3" y2="1">
+        <stop offset="0" stop-color="#FCF8F1"/><stop offset="1" stop-color="#EFE6D5"/>
+      </linearGradient>
+      <filter id="wf2dSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="wf2dSoftL" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="9"/></filter>
     </defs>
-<ellipse cx="310" cy="532" rx="236" ry="12" fill="#1A1D1E" opacity=".035"/>
-<line x1="34" y1="520" x2="531" y2="520" stroke="#DCD4C6" stroke-width="2" />
+<polygon points="30,528 470,528 620,441 180,441" fill="url(#wf2dFloor)" stroke="#E2D9C8" stroke-width="1"/>
+<polygon points="46,524 442,524 512,470 116,470" fill="#1A1D1E" opacity=".07" filter="url(#wf2dSoftL)"/>
+<polygon points="60,522 84,522 188,463 164,463" fill="#1A1D1E" opacity=".09" filter="url(#wf2dSoft)"/>
+<polygon points="144,522 260,522 364,463 248,463" fill="#1A1D1E" opacity=".09" filter="url(#wf2dSoft)"/>
+<polygon points="320,522 333,522 437,463 424,463" fill="#1A1D1E" opacity=".09" filter="url(#wf2dSoft)"/>
+<polygon points="393,522 427,522 531,463 497,463" fill="#1A1D1E" opacity=".09" filter="url(#wf2dSoft)"/>
+<line x1="58" y1="520" x2="430" y2="520" stroke="#1A1D1E" stroke-width="1.6" opacity=".12"/>
 <polygon points="60,520 84,520 186.19,461 162.19,461" fill="#E7E0D2" stroke="#D5CCBC" stroke-width="1"/>
 <polygon points="84,520 186.19,461 186.19,225 84,284" fill="url(#wf2dWhiteSide)" stroke="#C9BFAD" stroke-width="1.2"/>
 <polygon points="60,284 84,284 186.19,225 162.19,225" fill="url(#wf2dWhiteTop)" stroke="#C7BDAB" stroke-width="1.3"/>
@@ -1906,7 +1918,7 @@
 <polygon points="144,520 260,520 362.19,461 246.19,461" fill="#9C8058" stroke="#8C7350" stroke-width="1"/>
 <polygon points="260,520 362.19,461 362.19,225 260,284" fill="#B79A73" stroke="#A0855D" stroke-width="1.2"/>
 <polygon points="144,284 260,284 362.19,225 246.19,225" fill="#D3B893" stroke="#B79A73" stroke-width="1.2"/>
-<polygon points="144,520 260,520 260,284 144,284" fill="#C6A783" stroke="#A0855D" stroke-width="1.2"/>
+<polygon points="144,520 260,520 260,284 144,284" fill="url(#wf2dFrame)" stroke="#A0855D" stroke-width="1.2"/>
 <polygon points="153,511 251,511 251,293 153,293" fill="#9E825B" stroke="#8C7350" stroke-width="0.8"/>
 <polygon points="153,511 199,511 199,405 153,405" fill="#F4F0E4" stroke="#8C7350" stroke-width="0.6"/>
 <polygon points="153,511 199,511 199,405 153,405" fill="url(#wf2dSpeck)"/>
@@ -2001,13 +2013,28 @@
 <text x="543.19" y="314" font-size="12" font-weight="800" fill="#1F7A69">조용한 실내</text>
 <text x="543.19" y="329" font-size="10" font-weight="600" fill="#7B8389">들어오는 소리 거의 없음</text>
 </svg>
-    <svg class="wf2-stack" viewBox="0 0 320 370" role="img" aria-label="벽체 단면을 3D로 펼친 그림. 위에서 들어온 소리가 1 외부 백색 알판, 2 PB 프레임과 2중 흡음, 3 벽체 간 실링, 4 내부 라인타공과 아트보드를 지나며 작아집니다.">
+    <svg class="wf2-stack" viewBox="0 0 340 292" role="img" aria-label="바닥 위에 세워진 벽체 단면. 왼쪽 바깥 소리가 1 외부 백색 알판, 2 PB 프레임과 2중 흡음, 3 벽체 간 실링, 4 내부 라인타공과 아트보드를 차례로 지나 오른쪽 조용한 실내로 들어오며 작아집니다.">
     <defs>
       <linearGradient id="wf2mWhite" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F1EBDF"/>
+        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".72" stop-color="#FBF8F1"/><stop offset="1" stop-color="#EFE8DA"/>
+      </linearGradient>
+      <linearGradient id="wf2mWhiteTop" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EDE6D8"/>
+      </linearGradient>
+      <linearGradient id="wf2mWhiteSide" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E6DECD"/><stop offset="1" stop-color="#D5CBB7"/>
       </linearGradient>
       <linearGradient id="wf2mBoard" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#F0E6D2"/><stop offset="1" stop-color="#E4D6B9"/>
+        <stop offset="0" stop-color="#F2E9D7"/><stop offset="1" stop-color="#DFD0B0"/>
+      </linearGradient>
+      <linearGradient id="wf2mBoardTop" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F7F0E1"/><stop offset="1" stop-color="#E4D7BB"/>
+      </linearGradient>
+      <linearGradient id="wf2mBoardSide" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E7D9BE"/><stop offset="1" stop-color="#D3C4A3"/>
+      </linearGradient>
+      <linearGradient id="wf2mFloor" x1="0" y1="0" x2=".35" y2="1">
+        <stop offset="0" stop-color="#FBF7F0"/><stop offset="1" stop-color="#F1EADC"/>
       </linearGradient>
       <pattern id="wf2mSpeck" width="11" height="11" patternUnits="userSpaceOnUse">
         <rect width="11" height="11" fill="#F4F0E4"/>
@@ -2022,59 +2049,101 @@
         <circle cx="8.5" cy="9.7" r="1.1" fill="#6FA8DC" opacity=".62"/>
         <circle cx="2.5" cy="10.5" r="0.85" fill="#E59AB0" opacity=".62"/>
       </pattern>
+      <filter id="wf2mSoft" x="-30%" y="-60%" width="160%" height="220%">
+        <feGaussianBlur stdDeviation="3.4"/>
+      </filter>
+      <filter id="wf2mSoftL" x="-30%" y="-60%" width="160%" height="220%">
+        <feGaussianBlur stdDeviation="6"/>
+      </filter>
     </defs>
-<text x="26" y="20" font-size="11" font-weight="800" fill="#7B8389">외부 소리</text>
-<g class="wf2-anm" style="animation-delay:0s"><g opacity="1"><polyline points="1,26 13,38.6 25,26" fill="none" stroke="#1F7A69" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></g></g>
-<polygon points="270,48 308,28 308,62 270,82" fill="#EDE7DB" stroke="#CDC4B3" stroke-width="1.1"/>
-<polygon points="26,48 270,48 308,28 64,28" fill="#FFFFFF" stroke="#CDC4B3" stroke-width="1.1"/>
-<rect x="26" y="48" width="244" height="34" fill="url(#wf2mWhite)" stroke="#CDC4B3" stroke-width="1.1"/>
-<line x1="26" y1="82" x2="270" y2="82" stroke="#1A1D1E" stroke-width="1" opacity=".07"/>
-<circle cx="46" cy="65" r="9.6" fill="#1E3F35"/>
-<text x="46" y="69" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
-<text x="63" y="69.5" font-size="12.5" font-weight="800" fill="#1A1D1E">외부 백색 알판</text>
-<polygon points="270,112 308,92 308,170 270,190" fill="#B99E73" stroke="#9C8058" stroke-width="1.1"/>
-<polygon points="26,112 270,112 308,92 64,92" fill="#D6BB96" stroke="#9C8058" stroke-width="1.1"/>
-<rect x="26" y="112" width="244" height="78" fill="#C6A783" stroke="#9C8058" stroke-width="1.1"/>
-<line x1="26" y1="190" x2="270" y2="190" stroke="#1A1D1E" stroke-width="1" opacity=".07"/>
-<rect x="216" y="117" width="50" height="68" rx="3" fill="#B59573" stroke="#9C8058" stroke-width="1"/>
-<rect x="220" y="120" width="42" height="31.5" fill="#F4F0E4"/>
-<rect x="220" y="120" width="42" height="31.5" fill="url(#wf2mSpeck)"/>
-<rect x="220" y="155.5" width="42" height="31.5" fill="#F4F0E4"/>
-<rect x="220" y="155.5" width="42" height="31.5" fill="url(#wf2mSpeck)"/>
-<circle cx="46" cy="151" r="9.6" fill="#1E3F35"/>
-<text x="46" y="155" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
-<text x="63" y="149" font-size="12.5" font-weight="800" fill="#1A1D1E">PB 프레임 · 2중 흡음</text>
-<text x="63" y="164" font-size="10.5" font-weight="600" fill="#333B41">틀 안을 고밀도 흡음으로 두 겹</text>
-<polygon points="270,220 308,200 308,230 270,250" fill="#278E7B" stroke="#1F7A69" stroke-width="1.1"/>
-<polygon points="26,220 270,220 308,200 64,200" fill="#57B9A3" stroke="#1F7A69" stroke-width="1.1"/>
-<rect x="26" y="220" width="244" height="30" fill="#2E9C86" stroke="#1F7A69" stroke-width="1.1"/>
-<line x1="26" y1="250" x2="270" y2="250" stroke="#1A1D1E" stroke-width="1" opacity=".07"/>
-<line x1="222" y1="235" x2="258" y2="235" stroke="#FFFFFF" stroke-width="1.8" stroke-dasharray="6 5" opacity=".82"/>
-<circle cx="46" cy="235" r="9.6" fill="#1E3F35"/>
-<text x="46" y="239" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
-<text x="63" y="239.5" font-size="12.5" font-weight="800" fill="#FFFFFF">벽체 간 실링</text>
-<polygon points="270,280 308,260 308,314 270,334" fill="#DFD2B7" stroke="#C9B996" stroke-width="1.1"/>
-<polygon points="26,280 270,280 308,260 64,260" fill="#F5EDDD" stroke="#C9B996" stroke-width="1.1"/>
-<rect x="26" y="280" width="244" height="54" fill="url(#wf2mBoard)" stroke="#C9B996" stroke-width="1.1"/>
-<line x1="26" y1="334" x2="270" y2="334" stroke="#1A1D1E" stroke-width="1" opacity=".07"/>
-<rect x="218" y="287" width="42" height="40" rx="3" fill="#E9DEC6" stroke="#C9B996" stroke-width="1"/>
-<line x1="222" y1="289" x2="222" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<line x1="227.2" y1="289" x2="227.2" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<line x1="232.4" y1="289" x2="232.4" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<line x1="237.6" y1="289" x2="237.6" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<line x1="242.8" y1="289" x2="242.8" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<line x1="248" y1="289" x2="248" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<line x1="253.2" y1="289" x2="253.2" y2="325" stroke="#BFA87F" stroke-width="1.8" />
-<circle cx="46" cy="307" r="9.6" fill="#1E3F35"/>
-<text x="46" y="311" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
-<text x="63" y="305" font-size="12.5" font-weight="800" fill="#1A1D1E">내부 라인타공 · 아트보드</text>
-<text x="63" y="320" font-size="10.5" font-weight="600" fill="#7B8389">1면 타공 · 3면 아트보드</text>
-<g class="wf2-anm" style="animation-delay:0.9s"><g opacity="0.72"><polyline points="4.5,94.75 13,103.67 21.5,94.75" fill="none" stroke="#1F7A69" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></g></g>
-<g class="wf2-anm" style="animation-delay:1.8s"><g opacity="0.52"><polyline points="6.3,203.65 13,210.69 19.7,203.65" fill="none" stroke="#1F7A69" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></g></g>
-<g class="wf2-anm" style="animation-delay:2.7s"><g opacity="0.31999999999999995"><polyline points="8.1,264.55 13,269.69 17.9,264.55" fill="none" stroke="#1F7A69" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></g></g>
-<text x="26" y="358" font-size="11" font-weight="800" fill="#1F7A69">조용한 실내</text>
-<text x="104" y="358" font-size="10" font-weight="600" fill="#7B8389">들어오는 소리 거의 없음</text>
-</svg>
+<polygon points="8.00,280.00 262.00,280.00 336.00,232.00 82.00,232.00" fill="url(#wf2mFloor)" stroke="#E7DFD0" stroke-width="1"/>
+<polygon points="24.00,276.00 266.00,276.00 326.00,234.00 84.00,234.00" fill="#1A1D1E" opacity=".07" filter="url(#wf2mSoftL)"/>
+<polygon points="33.00,270.00 45.00,270.00 69.00,256.00 57.00,256.00" fill="#1A1D1E" opacity=".10" filter="url(#wf2mSoft)"/>
+<polygon points="87.00,270.00 127.00,270.00 151.00,256.00 111.00,256.00" fill="#1A1D1E" opacity=".10" filter="url(#wf2mSoft)"/>
+<polygon points="169.00,270.00 179.00,270.00 203.00,256.00 193.00,256.00" fill="#1A1D1E" opacity=".10" filter="url(#wf2mSoft)"/>
+<polygon points="221.00,270.00 239.00,270.00 263.00,256.00 245.00,256.00" fill="#1A1D1E" opacity=".10" filter="url(#wf2mSoft)"/>
+<polygon points="44.00,268.00 68.00,254.00 68.00,96.00 44.00,110.00" fill="url(#wf2mWhiteSide)" stroke="#C6BCA9" stroke-width="1.1"/>
+<polygon points="32.00,110.00 44.00,110.00 68.00,96.00 56.00,96.00" fill="url(#wf2mWhiteTop)" stroke="#C7BDAB" stroke-width="1.1"/>
+<polygon points="32.00,268.00 44.00,268.00 44.00,110.00 32.00,110.00" fill="url(#wf2mWhite)" stroke="#C3B9A6" stroke-width="1.2"/>
+<line x1="38.00" y1="262.00" x2="38.00" y2="118.00" stroke="#E1D9C8" stroke-width="1"/>
+<line x1="68.00" y1="98.00" x2="68.00" y2="251.00" stroke="#F6F1E6" stroke-width="1.2" opacity=".8"/>
+<polygon points="126.00,268.00 150.00,254.00 150.00,96.00 126.00,110.00" fill="#AF9269" stroke="#9C8058" stroke-width="1.1"/>
+<polygon points="86.00,110.00 126.00,110.00 150.00,96.00 110.00,96.00" fill="#D3B893" stroke="#B4976C" stroke-width="1.1"/>
+<polygon points="86.00,268.00 126.00,268.00 126.00,110.00 86.00,110.00" fill="#C6A783" stroke="#A0855D" stroke-width="1.2"/>
+<polygon points="89.50,261.00 122.50,261.00 122.50,119.00 89.50,119.00" fill="#9E825B" stroke="#8C7350" stroke-width=".8"/>
+<polygon points="89.50,187.50 104.50,187.50 104.50,119.00 89.50,119.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="89.50,187.50 104.50,187.50 104.50,119.00 89.50,119.00" fill="url(#wf2mSpeck)"/>
+<polygon points="89.50,261.00 104.50,261.00 104.50,192.50 89.50,192.50" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="89.50,261.00 104.50,261.00 104.50,192.50 89.50,192.50" fill="url(#wf2mSpeck)"/>
+<polygon points="107.50,187.50 122.50,187.50 122.50,119.00 107.50,119.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="107.50,187.50 122.50,187.50 122.50,119.00 107.50,119.00" fill="url(#wf2mSpeck)"/>
+<polygon points="107.50,261.00 122.50,261.00 122.50,192.50 107.50,192.50" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="107.50,261.00 122.50,261.00 122.50,192.50 107.50,192.50" fill="url(#wf2mSpeck)"/>
+<polygon points="92.40,108.80 104.40,108.80 124.08,97.32 112.08,97.32" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="92.40,108.80 104.40,108.80 124.08,97.32 112.08,97.32" fill="url(#wf2mSpeck)"/>
+<polygon points="107.60,108.80 119.60,108.80 139.28,97.32 127.28,97.32" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="107.60,108.80 119.60,108.80 139.28,97.32 127.28,97.32" fill="url(#wf2mSpeck)"/>
+<polygon points="128.50,182.00 147.50,168.00 147.50,110.00 128.50,124.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="128.50,182.00 147.50,168.00 147.50,110.00 128.50,124.00" fill="url(#wf2mSpeck)"/>
+<polygon points="128.50,258.00 147.50,244.00 147.50,176.00 128.50,190.00" fill="#F4F0E4" stroke="#8C7350" stroke-width=".5"/>
+<polygon points="128.50,258.00 147.50,244.00 147.50,176.00 128.50,190.00" fill="url(#wf2mSpeck)"/>
+<polygon points="178.00,268.00 202.00,254.00 202.00,96.00 178.00,110.00" fill="#24836F" stroke="#1B6B5C" stroke-width="1"/>
+<polygon points="168.00,110.00 178.00,110.00 202.00,96.00 192.00,96.00" fill="#57B9A3" stroke="#2E9C86" stroke-width="1"/>
+<polygon points="168.00,268.00 178.00,268.00 178.00,110.00 168.00,110.00" fill="#2E9C86" stroke="#1F7A69" stroke-width="1.1"/>
+<line x1="173.00" y1="260.00" x2="173.00" y2="120.00" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="6 5" opacity=".85"/>
+<line class="wf2d-sealglow" x1="173.00" y1="260.00" x2="173.00" y2="120.00" stroke="#EAFFF8" stroke-width="7" opacity="0" stroke-linecap="round"/>
+<polygon points="238.00,268.00 262.00,254.00 262.00,96.00 238.00,110.00" fill="url(#wf2mBoardSide)" stroke="#C9B996" stroke-width="1.1"/>
+<polygon points="220.00,110.00 238.00,110.00 262.00,96.00 244.00,96.00" fill="url(#wf2mBoardTop)" stroke="#C9B996" stroke-width="1.1"/>
+<polygon points="220.00,268.00 238.00,268.00 238.00,110.00 220.00,110.00" fill="url(#wf2mBoard)" stroke="#C9B996" stroke-width="1.2"/>
+<line x1="223.00" y1="263.00" x2="223.00" y2="115.00" stroke="#B79C72" stroke-width="1.5"/>
+<line x1="228.50" y1="263.00" x2="228.50" y2="115.00" stroke="#B79C72" stroke-width="1.5"/>
+<line x1="234.00" y1="263.00" x2="234.00" y2="115.00" stroke="#B79C72" stroke-width="1.5"/>
+<line x1="223.00" y1="110.60" x2="243.64" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
+<line x1="225.97" y1="110.60" x2="246.61" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
+<line x1="228.94" y1="110.60" x2="249.58" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
+<line x1="231.91" y1="110.60" x2="252.55" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
+<line x1="234.88" y1="110.60" x2="255.52" y2="98.56" stroke="#B79C72" stroke-width="1.4"/>
+<line x1="32.50" y1="268.00" x2="44.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
+<line x1="44.50" y1="268.00" x2="68.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
+<line x1="86.50" y1="268.00" x2="126.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
+<line x1="126.50" y1="268.00" x2="150.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
+<line x1="168.50" y1="268.00" x2="178.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
+<line x1="178.50" y1="268.00" x2="202.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
+<line x1="220.50" y1="268.00" x2="238.50" y2="268.00" stroke="#1A1D1E" stroke-width="1.6" opacity=".14"/>
+<line x1="238.50" y1="268.00" x2="262.50" y2="254.00" stroke="#1A1D1E" stroke-width="1.4" opacity=".10"/>
+<line x1="50.00" y1="84" x2="50.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
+<circle cx="50.00" cy="95" r="2.1" fill="#1E3F35"/>
+<circle cx="50.00" cy="72.00" r="9.5" fill="#1E3F35"/>
+<text x="50.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<line x1="118.00" y1="84" x2="118.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
+<circle cx="118.00" cy="95" r="2.1" fill="#1E3F35"/>
+<circle cx="118.00" cy="72.00" r="9.5" fill="#1E3F35"/>
+<text x="118.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<line x1="185.00" y1="84" x2="185.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
+<circle cx="185.00" cy="95" r="2.1" fill="#1E3F35"/>
+<circle cx="185.00" cy="72.00" r="9.5" fill="#1E3F35"/>
+<text x="185.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<line x1="241.00" y1="84" x2="241.00" y2="94" stroke="#B4ABA0" stroke-width="1"/>
+<circle cx="241.00" cy="95" r="2.1" fill="#1E3F35"/>
+<circle cx="241.00" cy="72.00" r="9.5" fill="#1E3F35"/>
+<text x="241.00" y="75.90" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
+
+<g class="wf2-an" style="animation-delay:0.0s"><g opacity="0.95"><path d="M 8 203 a 7 7 0 0 1 0 14 M 8 197 a 13 13 0 0 1 0 26 M 8 191 a 19 19 0 0 1 0 38" fill="none" stroke="#1F7A69" stroke-width="2.4" stroke-linecap="round"/></g></g>
+<g class="wf2-an" style="animation-delay:0.9s"><g opacity="0.68"><path d="M 70 204.5 a 5.5 5.5 0 0 1 0 11.0 M 70 199 a 11 11 0 0 1 0 22" fill="none" stroke="#6DC4B0" stroke-width="2.1" stroke-linecap="round"/></g></g>
+<g class="wf2-an" style="animation-delay:1.5s"><g opacity="0.55"><path d="M 152 206 a 4 4 0 0 1 0 8 M 152 202 a 8 8 0 0 1 0 16" fill="none" stroke="#3EA98F" stroke-width="1.7" stroke-linecap="round"/></g></g>
+<g class="wf2-an" style="animation-delay:2.1s"><g opacity="0.45"><path d="M 204 206.8 a 3.2 3.2 0 0 1 0 6.4 M 204 203.6 a 6.4 6.4 0 0 1 0 12.8" fill="none" stroke="#3EA98F" stroke-width="1.5" stroke-linecap="round"/></g></g>
+<g class="wf2-an" style="animation-delay:2.7s"><g opacity="0.38"><path d="M 266 207.4 a 2.6 2.6 0 0 1 0 5.2 M 266 204.8 a 5.2 5.2 0 0 1 0 10.4" fill="none" stroke="#6DC4B0" stroke-width="1.3" stroke-linecap="round"/></g></g>
+<text x="6.00" y="34.00" font-size="11.5" font-weight="800" fill="#7B8389">외부 소리</text>
+<text x="6.00" y="48.00" font-size="9.5" font-weight="600" fill="#A7AEB3">벽을 통과</text>
+<text x="334.00" y="34.00" font-size="11.5" font-weight="800" fill="#1F7A69" text-anchor="end">조용한 실내</text>
+<text x="334.00" y="48.00" font-size="9.5" font-weight="600" fill="#7B8389" text-anchor="end">거의 들리지 않음</text>
+    </svg>
+  </div>
+  <div class="wf2-legend">
+    <div class="wf2-lg"><span class="n">1</span><div><b>외부 백색 알판</b><em>밖을 마감하는 화이트 패널</em></div></div>
+    <div class="wf2-lg"><span class="n">2</span><div><b>PB 프레임 · 2중 흡음</b><em>틀 안을 고밀도 흡음으로 두 겹</em></div></div>
+    <div class="wf2-lg"><span class="n">3</span><div><b>벽체 간 실링</b><em>맞닿는 이음새를 기밀 처리</em></div></div>
+    <div class="wf2-lg"><span class="n">4</span><div><b>내부 라인타공 · 아트보드</b><em>1면 타공 · 3면 아트보드</em></div></div>
   </div>
   <figcaption class="wf2-cap">기본 벽체 단면 — <b>마감 · 흡음 · 실링</b>이 한 겹씩 소리를 줄입니다.</figcaption>
 </figure>
