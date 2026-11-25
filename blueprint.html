@@ -1466,7 +1466,12 @@ function buildModel(inp){
   };
 }
 
-function flatCells(list){ return list.flatMap(st => st.lens.map(L => ({w:st.w, l:L}))); }
+function flatCells(list){
+  /* 코너 기둥(따내기) 바닥은 600 열을 runs(실제 덮이는 구간)로 나뉘므로 둘 다 받는다 */
+  return list.flatMap(st => st.runs
+    ? st.runs.flatMap(r => r.lens.map(L => ({w:st.w, l:L})))
+    : st.lens.map(L => ({w:st.w, l:L})));
+}
 function merge(list){
   const map = new Map();
   list.forEach(p=>{
