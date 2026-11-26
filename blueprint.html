@@ -4601,7 +4601,10 @@ function bnbOrder(m, inp){
     count += r.q; area += (p[0]*p[1]*r.q)/1e6;
   }));
   const BOARD_M2 = 1.22*2.42;
-  const boards = Math.max(1, Math.ceil(area*1.08/BOARD_M2));
+  /* 원판(1220×2420) 1장에서 나오는 재단 조각은 대략 2.24개 — 긴 판(1980·1555)은 폭으로 2~3장,
+     자투리는 남는 자리에 끼워 쓴다. 조각 수 기준과 면적 기준 중 큰 쪽을 써서 모자라지 않게 잡는다. */
+  const PER_BOARD = 2.24;
+  const boards = Math.max(1, Math.ceil(count/PER_BOARD), Math.ceil(area*1.05/BOARD_M2));
   const site = (i.site || '').trim(), addr = (i.bbAddr || '').trim();
   const lines = [];
   lines.push(site || '현장명');
