@@ -4455,7 +4455,6 @@ function bnbOrder(m, inp){
     } else widths = bnbSplit(run, MOD);
     widths = widths.map(fixMin);
     const items = widths.map(w=>({s: WALL_H+'*'+w, q:1}));
-    items.forEach(it=> wallItems.push(it));
     faceItems.push({face:k, items});
     if(isDoor) doorItem = {s: fixMin(Math.round(m.dw - T)) + '*' + fixMin(Math.round(m.fillH - T)), q: (m.doorCount || 1)};
     if(isWin){
@@ -4492,6 +4491,9 @@ function bnbOrder(m, inp){
     }
   });
   const jointFrom = joints.length ? joints : null;
+  /* 벽 판 목록은 후접(-9T)과 100㎜ 미만 병합을 끝낸 뒤에 모은다.
+     병합으로 빠진 조각이 옛 수량으로 남아 한 장 더 발주되는 일을 막는다. */
+  faceItems.forEach(fi=> fi.items.forEach(it=> wallItems.push(it)));
   add(WALL_H + '쪽 면치기', wallItems);
   if(aboveItems.length) add(winInfo.aboveH + ' 면치기', aboveItems);
   if(belowItems.length) add(winInfo.belowH + ' 면치기', belowItems);
