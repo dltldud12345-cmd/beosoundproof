@@ -3770,7 +3770,7 @@ function sheetField(m){
      면 방향 치수(22·38·56)와 값 글자가 설 자리를 더 둔다. 이 값이 모자라면
      오른쪽 세로 치수가 카드 밑으로 들어가 잘린 것처럼 보인다. */
   const padL = faceLeft ? 78 : (horizFace ? 64 : 22);
-  const padR = 330;
+  const padR = horizFace ? 274 : 330;
   const padT = faceTop ? 108 : (horizFace ? 46 : 80);
   const padB = faceBottom ? 84 : (horizFace ? 46 : 34);
   const sc = Math.min((pwAll-padL-padR)/outW, (phAll-padT-padB)/outD);
@@ -4000,7 +4000,8 @@ function sheetField(m){
     const sameRail = (m.doorSide === m.lineFace);
     const pR = sameRail ? ((m.usedAlign||'center')==='right' ? 0.25 : 0.75) : 0.5;
     const rlx = a[0] + (b[0]-a[0])*pR, rly = a[1] + (b[1]-a[1])*pR;
-    s += T(rlx + (horizFace?0:13), horizFace ? rly-14 : rly, '레일등 '+fmt(f.railLen)+' · 스팟→라인타공 면',
+    /* 레일 이름표는 레일 선·타공점 태그 위로 띄워 겹치지 않게 */
+    s += T(rlx + (horizFace?0:19), horizFace ? rly-19 : rly, '레일등 '+fmt(f.railLen)+' · 스팟→라인타공 면',
       {size:6.6, weight:800, fill:ACC, anchor:'middle', rotate: horizFace? undefined : -90});
   } else {
     /* 타공 줄 보조선 — 벽 안쪽면에서 cobInset 들어온 선 */
@@ -4143,7 +4144,7 @@ function sheetField(m){
       s += L(hx, hy-12, hx, hy+12, {stroke:C_IN, sw:0.5, dash:'2.4 1.6'});
       if(marks[i][0]) s += tag(hx, hy + ((faceTop||faceLeft)? 18 : -18), marks[i][0], {size:6.8, fill:'#2E6FA3', weight:800, bg:'#fff', bgop:.96, stroke:'#9FC6BC', sw:0.45});
     });
-    /* 중앙등 — 바깥 끝 / 안쪽 면 두 값 */
+    /* 중앙등 — 가로(X) 치수는 왼쪽 끝·왼쪽 안쪽면에서, 세로(Y) 치수는 타공면 반대쪽에서 */
     {
       const cx = X(m.ctrX), cy = Y(m.ctrY);
       s += L(X(0), cy, cx, cy, {stroke:C_OUT, sw:0.9});
@@ -4151,12 +4152,25 @@ function sheetField(m){
       s += tag((X(0)+cx)/2, cy-5.6, '바깥 ' + fmt(Math.round(m.ctrX)), {size:7.6, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true});
       s += L(X(fLmm), cy+12, cx, cy+12, {stroke:C_IN, sw:1.1, dash:'6 3'});
       s += cross(X(fLmm), cy+12, C_IN, '6 3') + cross(cx, cy+12, C_IN, '6 3');
+    /* 세로(깊이) 치수는 «타공면 반대쪽» 끝에서 잰다 — 라인타공 면 쪽에서 재면
+       레일·타공 줄과 겹친다. 중앙등은 정중앙이라 양쪽 값이 같다. */
+    if(m.lineFace === 'back'){
+      const y0 = Y(outD), yIn0 = Y(outD - fBmm);
+      s += L(cx - 29, y0, cx - 29, cy, {stroke:C_OUT, sw:0.85});
+      s += cross(cx - 29, y0, C_OUT, null);
+      s += tag(cx - 36, (y0+cy)/2, '바깥 ' + fmt(Math.round(outD - m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
+      s += L(cx + 26, yIn0, cx + 26, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
+      s += cross(cx + 26, yIn0, C_IN, '6 3');
+      s += tag(cx + 33, (yIn0+cy)/2, '안쪽 ' + fmt(Math.round((outD - fBmm) - m.ctrY)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
+    } else {
       s += L(cx + 26, Y(fTmm), cx + 26, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
+      s += cross(cx + 26, Y(fTmm), C_IN, '6 3');
       s += tag(cx + 33, (Y(fTmm)+cy)/2, '안쪽 ' + fmt(Math.round(m.ctrY - fTmm)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
       s += L(cx - 29, Y(0), cx - 29, cy, {stroke:C_OUT, sw:0.85});
+      s += cross(cx - 29, Y(0), C_OUT, null);
       s += tag(cx - 36, (Y(0)+cy)/2, '바깥 ' + fmt(Math.round(m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
-      s += tag((X(fLmm)+cx)/2, cy+21, '안쪽 ' + fmt(Math.round(m.ctrX - fLmm)), {size:7.6, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true});
-
+    }
+    s += tag((X(fLmm)+cx)/2, cy+21, '안쪽 ' + fmt(Math.round(m.ctrX - fLmm)), {size:7.6, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true});
     }
     s += T(px0+10, py0+phAll-9, '검정 실선 = 부스 바깥 맨 끝(0)에서 / 주황 점선 = 벽 안쪽 마감면('+wallTxt+')에서 잰 값 ㎜ — 회색 안내선이 타공점에서 만납니다', {size:7.4, fill:'#8A5A20', weight:700});
   }
