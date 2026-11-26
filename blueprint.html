@@ -500,6 +500,11 @@
           <option>멜로우 오크</option><option>화이트 파인</option>
         </select>
       </div>
+      <div class="field"><label for="moldColor">내부 몰딩 색 <span class="hint">자동 · 직접 수정</span></label>
+        <input type="text" id="moldColor" list="moldColorList" placeholder="자동" autocomplete="off">
+        <datalist id="moldColorList"><option>메이플</option><option>백색</option><option>블랙</option><option>연베이지</option><option>월넛</option></datalist>
+      </div>
+      <p class="note-small" id="moldColorNote">—</p>
       <div class="field"><label>중앙등 색온도</label>
         <div class="seg" id="ledTemp">
           <button data-v="4000" aria-pressed="true">주백색 4000K</button>
@@ -4580,18 +4585,36 @@ function bnbCardHTML(m){
 const MOLD_LEN = 2440;      // 몰딩 기준 길이
 const MOLD_CUT = 15;        // 문·시창 가로 몰딩 공제 (세로 몰딩이 양옆을 덮음)
 
+/* 내부 몰딩 색 — 라인타공 색에 맞춰 주문한다 (2026-11-26 대표님 기준)
+   · 라인타공 화이트·화이트워시 → 백색 몰딩
+   · 아트보드 차콜·블랙(어두운 톤) → 블랙 몰딩
+   · 그 외 우드 라인타공(메이플·오크·티크·월넛) → 메이플 몰딩
+   사이드바 '마감 사양'에서 직접 고칠 수 있고, 비워 두면 이 규칙으로 자동 지정된다. */
+function innerMoldAuto(inp){
+  const bb = String((inp && inp.bbColor) || '연베이지').trim();
+  const sl = String((inp && inp.slatColor) || '내추럴 오크').trim();
+  if(/화이트/.test(sl)) return '백색';
+  if(bb === '차콜' || bb === '블랙') return '블랙';
+  return '메이플';
+}
+
 function moldingCalc(m, inp){
   const outer = String((inp && inp.outerFaces) || '2');
   const exposed = outer === '1' ? 1 : (outer === '3' ? 3 : 2);
   const winOn = m.winCount > 0;
   const perim = 2*(m.W + m.D);
-  /* 내부 (아트보드 색) — 4전 : 상·하단 가로 + 내부 모서리 4곳 세로 + 여유 1 / 8전 : 문 양옆 세로 2 */
+  const innerColor = String((inp && inp.moldColor) || '').trim() || innerMoldAuto(inp);
+  /* 내부 몰딩 — 4전과 8전을 따로 산출한다
+     4전 : 4면 상·하단 가로 + 내부 모서리 4곳 세로 + 현장 보정 여유 1
+     8전 : 문 양옆 세로 2 + 문 위 가로 1 */
   const innerHoriz = perim * 2;
   const innerHorizN = Math.ceil(innerHoriz / MOLD_LEN);
   const innerCornerN = 4;
   const innerDoorSideN = 2;
   const innerDoorTopN = 1;                          // 문 위 가로는 8전 1개 절단 또는 4전 자투리 활용
-  const innerTotal = innerHorizN + innerCornerN + innerDoorSideN + innerDoorTopN;
+  const inner4 = innerHorizN + innerCornerN + 1;
+  const inner8 = innerDoorSideN + innerDoorTopN;
+  const innerTotal = inner4 + inner8;
   /* 외부 (백색 4전) — 외부 높이 2280 기준 */
   const cornerN = exposed === 1 ? 0 : (exposed === 3 ? 2 : 1);   // ㄱ자 노출 모서리
   const endN = exposed === 3 ? 0 : 2;                // 2면: 정면 반대편 끝 + 측면 끝 / 1면: 정면 양쪽 끝
@@ -4601,7 +4624,16 @@ function moldingCalc(m, inp){
   const doorTopW = Math.max(0, m.dw - MOLD_CUT);
   const winMoldW = winOn ? Math.max(0, m.needW - MOLD_CUT) : 0;
   return {
-    outer, exposed, innerTotal, outerTotal, doorTopW, winMoldW, winOn,
+    outer, exposed, innerTotal, innerColor, inner4, inner8, outerTotal, doorTopW, winMoldW, winOn,
+    inner4Lines: [
+      '4면 상·하단 가로 ' + innerHoriz.toLocaleString('ko-KR') + ' ÷ ' + MOLD_LEN + ' → ' + innerHorizN + '개',
+      '내부 모서리 세로 4개',
+      '현장 보정 여유 1개'
+    ],
+    inner8Lines: [
+      '문 양옆 세로 2개',
+      '문 위 가로 1개 (' + doorTopW + ')'
+    ],
     innerLines: [
       '상·하단 가로 ' + innerHoriz.toLocaleString('ko-KR') + ' ÷ ' + MOLD_LEN + ' → ' + innerHorizN + '개',
       '내부 모서리 세로 4개 (4전)',
@@ -4625,33 +4657,45 @@ function orderItems(m, inp, bnb, mld){
   const bomOf = re => m.bom.find(x=> re.test(x.mat)) || {};
   const boardsOf = re => { const b = bomOf(re); return b.boards != null ? b.boards : num(b.amount); };
   const boxes = (()=>{ const b = bomOf(/^강화마루/); const mt = /(\d+)\s*BOX/.exec(b.note||''); return mt ? +mt[1] : Math.ceil(m.innerArea/2); })();
+  const mc = mld.innerColor;
   return [
-    {id:'pb_wall', owner:'park', name:'PB 95T 벽판 (1차 재단)', unit:'장', full: boardsOf(/PB 95T — 벽판/)},
-    {id:'pb_inner', owner:'park', name:'PB 95T 내벽 (2중)', unit:'장', full: boardsOf(/PB 95T — 내벽/)},
-    {id:'ply', owner:'park', name:'15T 합판 (바닥 2겹)', unit:'장', full: boardsOf(/15T 합판 — 바닥/)},
-    {id:'ext', owner:'park', name:'외부 알판 9T (백판)', unit:'장', full: boardsOf(/백색 알판/)},
-    {id:'maru', owner:'hkm', name:'강화마루', unit:'BOX', full: boxes},
-    {id:'mold_in', owner:'hkm', name:'내부 몰딩 (아트보드 색)', unit:'개', full: mld.innerTotal},
-    {id:'mold_out', owner:'hkm', name:'외부 몰딩 (백색 4전)', unit:'개', full: mld.outerTotal},
-    {id:'mable_ceil', owner:'hkm', name:'마블폼 45T 천장', unit:'장', full: num(bomOf(/마블폼 — 천장/).amount)},
-    {id:'mable_wall', owner:'hkm', name:'마블폼 45T 벽체', unit:'장', full: num(bomOf(/마블폼 — 벽체/).amount)},
-    {id:'mable_floor', owner:'hkm', name:'마블폼 60T 바닥', unit:'장', full: num(bomOf(/마블폼 — 바닥/).amount)},
-    {id:'door', owner:'hkm', name:'시스템도어', unit:'세트', full: m.doorCount},
-    {id:'win', owner:'hkm', name:'시창', unit:'개', full: m.winCount > 0 ? m.winCount : 0},
-    {id:'art', owner:'bnb', name:'아트보드 9T (비앤비)', unit:'장', full: bnb.count}
+    /* 박사장님 공장 재단 — 입력칸 없이 참고 수량만 (2026-11-26 대표님 지시) */
+    {id:'pb_wall',  owner:'park', mode:'ref', name:'PB 95T 벽판', unit:'장', full: boardsOf(/PB 95T — 벽판/)},
+    {id:'pb_inner', owner:'park', mode:'ref', name:'PB 95T 내벽 (2중)', unit:'장', full: boardsOf(/PB 95T — 내벽/)},
+    {id:'ply',      owner:'park', mode:'ref', name:'15T 합판 (바닥 2겹)', unit:'장', full: boardsOf(/15T 합판 — 바닥/)},
+    /* 한경희마루 발주 — 1차 출고 입력 → 나머지 */
+    {id:'ext', owner:'hkm', mode:'ship', name:'외부 백판 9T', unit:'장', full: boardsOf(/백색 알판/)},
+    {id:'maru', owner:'hkm', mode:'ship', name:'강화마루', unit:'BOX', full: boxes},
+    {id:'mold_in4', owner:'hkm', mode:'ship', name:'내부 몰딩 4전 (' + mc + ')', unit:'개', full: mld.inner4},
+    {id:'mold_in8', owner:'hkm', mode:'ship', name:'내부 몰딩 8전 (' + mc + ')', unit:'개', full: mld.inner8},
+    {id:'mold_out', owner:'hkm', mode:'ship', name:'외부 몰딩 (백색 4전)', unit:'개', full: mld.outerTotal},
+    {id:'mable_ceil', owner:'hkm', mode:'ship', name:'마블폼 45T 천장', unit:'장', full: num(bomOf(/마블폼 — 천장/).amount)},
+    {id:'mable_wall', owner:'hkm', mode:'ship', name:'마블폼 45T 벽체', unit:'장', full: num(bomOf(/마블폼 — 벽체/).amount)},
+    {id:'mable_floor', owner:'hkm', mode:'ship', name:'마블폼 60T 바닥', unit:'장', full: num(bomOf(/마블폼 — 바닥/).amount)},
+    {id:'door', owner:'hkm', mode:'ship', name:'시스템도어', unit:'세트', full: m.doorCount},
+    {id:'win', owner:'hkm', mode:'ship', name:'시창', unit:'개', full: m.winCount > 0 ? m.winCount : 0},
+    /* 비앤비 — 별도 발주표에서 복사 (1차 출고 입력 없음) */
+    {id:'art', owner:'bnb', mode:'ref', name:'아트보드 9T (비앤비)', unit:'장', full: bnb.count}
   ];
 }
 
 /* 한경희마루 발주 문자 — 1차 출고를 빼고 남은(2차) 수량만 */
 function hkmText(m, items, s1, mld){
-  const rem = id => { const it = items.find(x=>x.id===id); if(!it) return 0; return Math.max(0, it.full - Math.min(it.full, Number(s1[id]) || 0)); };
+  const rem = id => {
+    const it = items.find(x=>x.id===id); if(!it) return 0;
+    if(it.mode !== 'ship') return it.full;            // 박사장님 공장 재단 품목은 전체 수량 그대로
+    return Math.max(0, it.full - Math.min(it.full, Number(s1[id]) || 0));
+  };
   const hinge = m.doorHinge === 'left' ? '좌경첩' : '우경첩';
+  const mcol = mld.innerColor;
   const L = [];
   L.push('[베오방음 자재 발주 · 한경희마루]');
   L.push('현장: ' + (((m.inp && m.inp.site) || '').trim() || '현장명'));
   L.push('문: ' + m.dw + ' ' + hinge + (m.doorCount > 1 ? ' (' + m.doorCount + '짝)' : ''));
   const maru = rem('maru'); if(maru) L.push('강화마루: ' + ((m.inp && m.inp.floorColor) || '멜로우 오크') + ' ' + maru + 'BOX');
-  const mi = rem('mold_in'); if(mi) L.push('내부 몰딩(' + ((m.inp && m.inp.bbColor) || '연베이지') + ') 4전·8전: ' + mi + '개');
+  const mi4 = rem('mold_in4'), mi8 = rem('mold_in8');
+  if(mi4) L.push('내부 몰딩 ' + mcol + ' 4전: ' + mi4 + '개');
+  if(mi8) L.push('내부 몰딩 ' + mcol + ' 8전: ' + mi8 + '개');
   const mo = rem('mold_out'); if(mo) L.push('외부 몰딩(백색 4전): ' + mo + '개');
   const mc = rem('mable_ceil'), mw = rem('mable_wall'), mf = rem('mable_floor');
   if(mc || mw){
@@ -4675,7 +4719,9 @@ function orderCardHTML(m){
   const s1 = state.ship1 || {};
   const remOf = it => Math.max(0, it.full - Math.min(it.full, Number(s1[it.id]) || 0));
   const own = {park:['ord-own-park','박'], hkm:['ord-own-hkm','한'], bnb:['ord-own-bnb','비']};
-  const rows = items.map(it=>{
+  const refItems = items.filter(it=> it.mode === 'ref');
+  const shipItems = items.filter(it=> it.mode === 'ship');
+  const rows = shipItems.map(it=>{
     const rem = remOf(it);
     return `<tr>
       <td class="nm"><i class="${own[it.owner][0]}">${own[it.owner][1]}</i>${esc(it.name)}</td>
@@ -4684,49 +4730,51 @@ function orderCardHTML(m){
       <td class="n rem${rem ? '' : ' zero'}" data-rem="${it.id}">${rem}</td>
     </tr>`;
   }).join('');
-  const badge = (label, val) => `<div class="ord-badge"><b>${val}</b><span>${label}</span></div>`;
+  const badge = it => `<div class="ord-badge"><b>${it.full}<span style="display:inline;margin-left:2px;font-size:11px;color:#9A948C">${esc(it.unit)}</span></b><span>${esc(it.name)}</span></div>`;
+  const parkItems = refItems.filter(it=> it.owner === 'park');
+  const bnbItem = refItems.find(it=> it.owner === 'bnb');
   return `<section class="ord-card" data-ord>
     <div class="ord-head">
-      <b>자재 발주 · 출고 연동</b>
-      <span class="hint">전체 − 박사장님 1차 출고 = 나머지 발주</span>
+      <b>자재 발주 · 1차 출고</b>
+      <span class="hint">한경희마루 발주 자재만 1차 출고 → 나머지</span>
       <span class="spacer"></span>
     </div>
     <div class="ord-body">
       <div class="ord-block">
-        <h4>박사장님 1차 출고 <em>재단 · PB · 합판 · 외부 알판</em></h4>
-        <div class="ord-badges">
-          ${badge('벽판 PB 95T', items[0].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
-          ${badge('내벽 PB 95T', items[1].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
-          ${badge('15T 합판', items[2].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
-          ${badge('외부 알판 9T', items[3].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
-        </div>
+        <h4>박사장님 공장 재단 <em>공장에서 알아서 재단·출고 — 입력칸 없이 참고 수량만</em></h4>
+        <div class="ord-badges">${parkItems.map(badge).join('')}</div>
+        <p class="ord-note">PB 95T 벽판·내벽과 바닥 15T 합판은 박사장님이 공장에서 재단해 보내므로 여기에 적지 않습니다.${bnbItem ? ' · 비앤비 아트보드 9T ' + bnbItem.full + '장은 아래 아트보드 발주표에서 복사합니다.' : ''}</p>
       </div>
 
       <div class="ord-block">
-        <h4>전체 수량 · 1차 출고 · 나머지 <em>1차 출고칸에 박사장님이 보낸 수량을 적으면 나머지가 바로 나옵니다</em></h4>
+        <h4>한경희마루 발주 · 1차 출고 → 나머지 <em>1차 출고칸에 먼저 온 수량을 적으면 나머지가 바로 나옵니다</em></h4>
         <table class="ord-tbl">
           <thead><tr><th>자재</th><th>전체</th><th>1차 출고</th><th>나머지</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
         <div class="ord-acts">
-          <button type="button" class="ord-mini" data-ship1-fill="park">박사장님 1차 = 전체로 채우기</button>
           <button type="button" class="ord-mini" data-ship1-clear="1">1차 출고 지우기</button>
         </div>
-        <p class="ord-note">나머지 = max(0, 전체 − 1차 출고) · 박(박사장님) · 한(한경희마루) · 비(비앤비) 중 한·비 품목은 아래 발주 문자에 그대로 실립니다.</p>
+        <p class="ord-note">나머지 = max(0, 전체 − 1차 출고) · 이 표의 품목만 아래 한경희마루 발주 문자에 나머지 수량으로 실립니다 (0인 품목은 빠집니다).</p>
       </div>
 
       <div class="ord-block">
         <h4>몰딩 산출 <em>기준 ${MOLD_LEN}mm · 개구부 가로 −${MOLD_CUT} · 외부 ${mld.exposed}면 노출</em></h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
           <div>
-            <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">내부 몰딩 · ${esc((m.inp&&m.inp.bbColor)||'연베이지')} · 4전·8전 ${mld.innerTotal}개</p>
-            <p class="ord-note" style="margin:0">${mld.innerLines.map(x=>esc(x)).join('<br>')}</p>
+            <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">내부 몰딩 4전 · ${esc(mld.innerColor)} · ${mld.inner4}개</p>
+            <p class="ord-note" style="margin:0">${mld.inner4Lines.map(x=>esc(x)).join('<br>')}</p>
+          </div>
+          <div>
+            <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">내부 몰딩 8전 · ${esc(mld.innerColor)} · ${mld.inner8}개</p>
+            <p class="ord-note" style="margin:0">${mld.inner8Lines.map(x=>esc(x)).join('<br>')}</p>
           </div>
           <div>
             <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">외부 몰딩 · 백색 4전 ${mld.outerTotal}개</p>
             <p class="ord-note" style="margin:0">${mld.outerLines.map(x=>esc(x)).join('<br>')}</p>
           </div>
         </div>
+        <p class="ord-note">내부 몰딩 색은 아트보드·라인타공 조합으로 자동 지정됩니다 — 메이플 라인타공 → 메이플 · 화이트/화이트워시 라인타공 → 백색 · 차콜·블랙 아트보드 → 블랙. 다른 색은 왼쪽 <b>마감 사양 → 내부 몰딩 색</b>에서 직접 바꿉니다.</p>
       </div>
 
       <div class="ord-block">
@@ -4765,7 +4813,7 @@ function wireOrder(host, m){
   });
   const fill = host.querySelector('[data-ship1-fill]');
   if(fill) fill.addEventListener('click', ()=>{
-    items.filter(x=>x.owner === fill.dataset.ship1Fill).forEach(it=>{
+    items.filter(x=>x.mode === 'ship').forEach(it=>{
       state.ship1[it.id] = it.full;
       const inp = host.querySelector('[data-ship1="' + it.id + '"]');
       if(inp) inp.value = it.full;
@@ -4774,7 +4822,7 @@ function wireOrder(host, m){
   });
   const clr = host.querySelector('[data-ship1-clear]');
   if(clr) clr.addEventListener('click', ()=>{
-    items.forEach(it=>{
+    items.filter(x=>x.mode === 'ship').forEach(it=>{
       state.ship1[it.id] = 0;
       const inp = host.querySelector('[data-ship1="' + it.id + '"]');
       if(inp) inp.value = 0;
@@ -4969,6 +5017,7 @@ function readInputs(){
     bbAddr: ($('#bbAddr').value || '').trim(),
     slatColor: ($('#slatColor').value || '내추럴 오크').trim(),
     floorColor: ($('#floorColor').value || '멜로우 오크').trim(),
+    moldColor: ($('#moldColor') ? ($('#moldColor').value || '').trim() : ''),
     ledTemp: state.ledTemp || '4000',
     projectWin: state.projectWin || 'none',
     /* 방 배치 참고도 (선택) */
@@ -5514,9 +5563,25 @@ function init(){
   });
 
   ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
-   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor',
+   '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor','#moldColor',
    '#roomW','#roomD','#roomDoorW','#boothClear','#boothAnchor','#cornerW','#cornerD']
     .forEach(s=>{ const el=$(s); if(!el) return; el.addEventListener('input', render); el.addEventListener('change', render); });
+
+  /* 내부 몰딩 색 — 아트보드·라인타공 조합에 맞춰 자동 지정, 직접 고치면 그 색으로 쓴다 */
+  const moldEl = $('#moldColor');
+  const moldNote = $('#moldColorNote');
+  const syncMold = () => {
+    if(!moldEl) return;
+    const auto = innerMoldAuto(readInputs());
+    moldEl.placeholder = '자동 · ' + auto;
+    if(!state.moldManual) moldEl.value = auto;
+    if(moldNote) moldNote.innerHTML = '자동 <b>' + esc(auto) + '</b> — 메이플 라인타공 → 메이플 · 화이트/화이트워시 라인타공 → 백색 · 차콜·블랙 아트보드 → 블랙. 직접 고치면 그 색으로 발주합니다.';
+  };
+  ['#bbColor','#slatColor'].forEach(s=>{
+    const el = $(s); if(!el) return;
+    el.addEventListener('change', ()=>{ state.moldManual = false; syncMold(); render(); });
+  });
+  if(moldEl) moldEl.addEventListener('input', ()=>{ state.moldManual = !!moldEl.value.trim(); syncMold(); });
 
   /* 시창 위치 슬라이더 · 중앙 정렬 */
   $('#winPos').addEventListener('input', e=>{ state.winCenter = +e.target.value; render(); });
@@ -5597,6 +5662,12 @@ function init(){
   setSel('#bbColor',    q.get('bb') || src.bbColor);
   setSel('#slatColor',  q.get('sl') || src.slatColor);
   setSel('#floorColor', q.get('fl') || src.floorColor);
+  if(moldEl){
+    const mv = String(q.get('mc') || src.moldColor || '').trim();
+    moldEl.value = mv;
+    state.moldManual = !!mv;
+    syncMold();
+  }
   const qLt = q.get('lt') || src.ledTemp;
   if(qLt==='4000' || qLt==='6500') setSeg('#ledTemp','ledTemp', qLt);
   const qPj = q.get('pj') || src.projectWin;
