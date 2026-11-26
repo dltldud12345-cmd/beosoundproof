@@ -341,7 +341,7 @@ function buildPanel(){
           <span class="vl"><b id="vlD">${fmt(state.d)}</b><span> mm</span></span>
         </div>
       </div>
-      <p class="note">표준 예시입니다. 실제로는 방 치수에 맞춰 재단하고, 한 변도 1,500mm 미만으로 만들지 않습니다.</p>
+      <p class="note">표준 예시입니다. 실제로는 방 치수에 맞춰 재단하고, 최소 제작 규격(1,500×1,800)보다 작게는 만들지 않습니다.</p>
     </section>
 
     <section class="sec">
