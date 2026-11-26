@@ -4465,7 +4465,9 @@ function sheetRoomLayout(m){
    7-B. 비앤비(B&B) 아트보드 발주표
    실물 카톡 발주서 3건(2026-11-21 IMG_1408 · 1409 · 1410)의 표기를 따른다.
    · 라인타공 1면을 먼저 빼고 나머지 3면 + 천장만 산출
-   · 벽 1990쪽 면치기 = 600 모듈 + 자투리, 라인타공 면에 인접한 2면은 후접 9T 차감(490 → 481) · 반대 1면은 선접
+   · 벽 1990쪽 면치기 = 외벽 PB 모듈(600 + 끝 자투리)을 따라 자르고, 전길이 면은 양 끝 교차 벽 두께(110/220)를 빼고 시작
+     (예: PB 600+600+600+200 → 490·600·600·90 → 90을 앞 판에 합침 → 490·600·690 → 후접 9T → 481·600·681)
+   · 라인타공 면에 인접한 2면은 라인타공 면 쪽 끝 판 9T 차감 · 문 면 쪽은 경첩 쪽 옆 벽 1면만 9T 차감
    · 문 위 189면치기 = 693 × 189 (702 − 9)
    · 천장 = 내부 −5 면치기, 2000 초과 시 반씩 대칭(양쪽 면치기)
    · 시창 위·아래는 800 면치기(400×800 2개) · 391 면치기(800×391 1개)로 따로
@@ -4488,6 +4490,43 @@ function bnbSplit(len, MOD){         // 600 모듈 + 자투리 (100㎜ 미만 �
   }
   for(let i=0;i<cnt;i++) out.push(Math.round(MOD));
   if(rest > 0.5) out.push(Math.round(rest));
+  return out;
+}
+
+/* 벽 아트보드 폭 — 외벽 PB 모듈(600 + 끝 자투리)을 그대로 따라간다.
+   · 끼움 면(문 면·반대 면)은 PB도 안쪽 모서리에서 시작하므로 600 모듈 + 자투리 그대로.
+   · 전길이 면(좌·우 벽 등)은 PB가 교차 벽 뒤까지 이어지므로, 아트보드는 양 끝에서 교차 벽
+     두께(110 · 2중 220)를 빼고 시작하고 100㎜ 미만 조각은 앞 판에 합쳐 발주한다.
+   예) 2000×2000 슈퍼싱글 외벽 PB 600+600+600+200 = 2000 · 교차 벽 110
+       → 490 · 600 · 600 · 90 → 90을 앞 판에 합쳐 490 · 600 · 690 (후접 -9T 뒤 481 · 681)
+   lineAtStart: 라인타공 면이 이 면의 시작 쪽에 있으면 배열을 뒤집지 않고
+   교차 벽 두께를 서로 바꿔, 라인타공 면 쪽 끝 판(자투리 합침 판)이 항상 마지막에 오게 한다.
+   → 배열은 항상 [문 면 쪽 … 라인타공 면 쪽] 순서다. */
+function bnbWallWidths(m, k, lineAtStart){
+  const MOD = m.MOD || 600;
+  const L = (k==='front' || k==='back') ? m.clearW : m.clearD;
+  const sd = (m.sides || []).find(s=>s.k===k);
+  if(!sd || (sd.ins0 || 0) + (sd.ins1 || 0) > 0.5) return bnbSplit(L, MOD);
+  const finOf = kk => { const s2 = (m.sides || []).find(s=>s.k===kk); return (s2 && s2.dbl) ? 220 : 110; };
+  const ends = (k==='front' || k==='back') ? ['left','right'] : ['back','front'];
+  const a0 = finOf(lineAtStart ? ends[1] : ends[0]), a1 = finOf(lineAtStart ? ends[0] : ends[1]);
+  const full = L + a0 + a1;                     // 외벽 PB 전길이 (예: 1780 + 110 + 110 = 2000)
+  const mods = bnbSplit(full, MOD);
+  let x = 0; const cuts = [];
+  mods.forEach(w=>{ x += Math.round(w); cuts.push(x); });
+  const aEnd = full - a1;
+  const segs = []; let prev = a0;
+  cuts.forEach(c=>{ if(c > prev + 0.5 && c < aEnd - 0.5){ segs.push(c - prev); prev = c; } });
+  if(aEnd - prev > 0.5) segs.push(aEnd - prev);
+  const out = [];
+  segs.forEach(s=>{
+    const w = Math.round(s);
+    if(w <= 0) return;
+    if(w < 100 && out.length) out[out.length-1] += w;      // 100 미만은 앞 판에 합침
+    else out.push(w);
+  });
+  if(out.length > 1 && out[0] < 100){ out[1] += out[0]; out.shift(); }
+  if(!out.length) return bnbSplit(L, MOD);
   return out;
 }
 
@@ -4541,11 +4580,13 @@ function bnbOrder(m, inp){
     const isWin  = (m.winCount > 0 && k === m.winSideKey);
     const L = (k==='front' || k==='back') ? m.clearW : m.clearD;
     const run = Math.max(0, L - (isDoor? m.dw:0) - (isWin? m.needW:0));
+    const faceEnds = (k==='front' || k==='back') ? ['left','right'] : ['back','front'];
     let widths;
     if(isWin){
       const fL = Math.round(run/2), fR = run - fL;
       widths = bnbSplit(fL, MOD).concat(bnbSplit(fR, MOD));
-    } else widths = bnbSplit(run, MOD);
+    } else if(isDoor) widths = bnbSplit(run, MOD);
+    else widths = bnbWallWidths(m, k, faceEnds[0] === m.lineFace);   // 문·시창 없는 면 — 외벽 PB 모듈 기준
     widths = widths.map(fixMin);
     const items = widths.map(w=>({s: WALL_H+'*'+w, q:1}));
     faceItems.push({face:k, items});
@@ -4562,7 +4603,8 @@ function bnbOrder(m, inp){
       winInfo = {belowH, aboveH, n, pw};
     }
   });
-  /* 모서리 후접 — 라인타공 면에 인접한 2면이 각각 마지막 판 9T 차감 (반대 1면은 선접 그대로)
+  /* 모서리 후접 — 라인타공 면에 인접한 2면은 라인타공 면 쪽 끝 판 9T 차감 (반대 1면은 선접 그대로)
+     (배열은 라인타공 면 쪽 끝 판이 마지막에 오게 잡혀 있다)
      차감한 끝 판이 100 미만이 되면 단독 발주할 수 없으므로 직전 판에 합쳐 한 장으로 발주한다.
      예) 600 + 90 → 681 (앞 판에 합침) */
   const adjFaces = (m.lineFace === 'front' || m.lineFace === 'back') ? ['left', 'right'] : ['front', 'back'];
@@ -4583,6 +4625,22 @@ function bnbOrder(m, inp){
       joints.push({side: m.sideName[fi.face], from: lastW, to: cut, merged: false});
     }
   });
+  /* 문 면 모서리 후접 — 문 면 아트보드가 경첩 쪽에서 옆 벽 위로 9T 덮여 들어간다.
+     라인타공 면이 아닌 문 면 쪽은 경첩 쪽 옆 벽 1면만 첫 판을 9T 짧게 발주하고
+     반대쪽 벽은 선접 그대로 둔다. 예) 2000×2000 앞면 문(우경첩) → 우측면 490 → 481 */
+  const hingeNeighbor = (m.doorSide==='front' || m.doorSide==='back')
+    ? (hingeAtEnd(m.doorSide, m.doorHinge) ? 'right' : 'left')
+    : (hingeAtEnd(m.doorSide, m.doorHinge) ? 'front' : 'back');
+  const hingeFi = faceItems.find(fi=> fi.face === hingeNeighbor);
+  if(hingeFi && adjFaces.indexOf(hingeNeighbor) >= 0 && hingeFi.items.length > 1){
+    const it0 = hingeFi.items[0];
+    const firstW = +it0.s.split('*')[1];
+    if(firstW > T + 20){
+      const cut0 = firstW - T;
+      it0.s = WALL_H + '*' + cut0;
+      joints.push({side: m.sideName[hingeNeighbor] + ' 문 면 쪽', from: firstW, to: cut0, merged:false});
+    }
+  }
   const jointFrom = joints.length ? joints : null;
   /* 벽 판 목록은 후접(-9T)과 100㎜ 미만 병합을 끝낸 뒤에 모은다.
      병합으로 빠진 조각이 옛 수량으로 남아 한 장 더 발주되는 일을 막는다. */
@@ -4668,8 +4726,8 @@ function bnbCardHTML(m){
           <summary>산출 규칙</summary>
           <ol>
             <li>라인타공 <b>1면을 빼고 나머지 3면 + 천장</b>만 발주합니다.</li>
-            <li>벽 <b>${BNB.WALL_H}쪽 면치기</b> — 면 길이 = <b>내부 유효(앞·뒤 ${m.clearW} · 좌·우 ${m.clearD})</b> + 600 모듈·자투리 (100㎜ 미만 자투리는 앞 판에 합침).</li>
-            <li>라인타공이 우선 — <b>라인타공 면에 인접한 2면이 각각 후접 9T 차감</b> (490 → 481). 차감 뒤 <b>100㎜ 미만</b>이 되면 직전 판에 합쳐 한 장으로 발주 (600 + 90 → 681).</li>
+            <li>벽 <b>${BNB.WALL_H}쪽 면치기</b> — 외벽 PB 모듈(<b>600 + 끝 자투리</b>)을 그대로 따라 자릅니다. 좌·우 벽처럼 <b>전길이로 서는 면</b>은 양 끝에서 교차 벽 두께(<b>110 · 2중 220</b>)를 빼고 시작하고, <b>100㎜ 미만</b> 조각은 앞 판에 합칩니다 (2000×2000 → 600+600+600+200 → 490·600·600·90 → 490·600·690).</li>
+            <li>라인타공이 우선 — <b>라인타공 면에 인접한 2면</b>은 라인타공 면 쪽 끝 판을 <b>후접 9T 차감</b>(690 → 681), <b>문 면 쪽은 경첩 쪽 옆 벽 1면</b>만 9T 차감(490 → 481)합니다. 차감 뒤 <b>100㎜ 미만</b>이 되면 직전 판에 합쳐 한 장으로 발주합니다.</li>
             <li>문 위 <b>${Math.round(m.fillH - BNB.T)}면치기</b> — ${Math.round(m.dw-BNB.T)} × ${Math.round(m.fillH-BNB.T)} (${m.dw} − 9) × ${m.doorCount || 1}${(m.doorCount||1)>1? ' (외벽·내벽 각 1짝)' : ''}.</li>
             <li>천장 — 내부 −${BNB.GAP} <b>${BNB.MAXL} 이하 한 장</b>, 넘으면 <b>반씩 대칭</b>으로 나눠 <b>양쪽 면치기</b>.</li>
             <li>${winRule}.</li>
