@@ -12,8 +12,17 @@
 <script>
 (function(){
   var f = document.getElementById('f');
+  var z = +(new URLSearchParams(location.search).get('z') || 0);
   f.addEventListener('load', function(){
-    try { var g = f.contentDocument.getElementById('gate'); if(g) g.remove(); } catch(e){}
+    var d;
+    try { d = f.contentDocument; } catch(e){ return; }
+    var g = d.getElementById('gate'); if(g) g.remove();
+    d.querySelectorAll('.panel,.topbar').forEach(function(el){ el.style.display = 'none'; });
+    var s = d.getElementById('sheets'); if(s) f.contentWindow.scrollTo(0, s.getBoundingClientRect().top + f.contentWindow.scrollY - 4);
+    for(var i=0;i<z;i++){
+      var b = d.querySelector('.sheet-wrap [data-zoom="in"]');
+      if(b) b.click();
+    }
   });
 })();
 </script>
