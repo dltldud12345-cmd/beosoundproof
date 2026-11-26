@@ -3766,7 +3766,13 @@ function sheetField(m){
      타공 줄과 COB 2구 · 중앙등을 실제 축척(sc)으로 한 장에 얹는다.                    */
   const px0 = M+8, py0 = inY+inH+10, pwAll = SW-2*M-16, phAll = 550;
   const outW = m.W, outD = m.D;
-  const padL = 78, padR = 274, padT = 108, padB = 56;
+  /* 여백은 «치수가 실제로 놓이는 쪽»만 확보한다 — 오른쪽은 판정 카드(236+12) 뒤로
+     면 방향 치수(22·38·56)와 값 글자가 설 자리를 더 둔다. 이 값이 모자라면
+     오른쪽 세로 치수가 카드 밑으로 들어가 잘린 것처럼 보인다. */
+  const padL = faceLeft ? 78 : (horizFace ? 64 : 22);
+  const padR = 330;
+  const padT = faceTop ? 108 : (horizFace ? 46 : 80);
+  const padB = faceBottom ? 84 : (horizFace ? 46 : 34);
   const sc = Math.min((pwAll-padL-padR)/outW, (phAll-padT-padB)/outD);
   const pw = outW*sc, ph = outD*sc;
   const ox = px0 + padL + Math.max(0,(pwAll-padL-padR-pw)/2);
@@ -4086,23 +4092,47 @@ function sheetField(m){
     } else {
       s += dimV(Y(alongStart), Y(fOff+f.faceOuterLen), levelY(56), String(Math.round(f.faceOuterLen)), {size:8.4, ext1:levelY(22), ext2:levelY(22), color:'#2E6FA3', labelX:levelY(56)-4});
     }
-    /* 세로(깊이) — 바깥 끝 → 타공 줄 / 벽 안쪽면 → 타공 줄 */
+    /* 깊이 축 치수 — 타공면 벽 끝(바깥) → 타공 줄 / 벽 안쪽면(안쪽) → 타공 줄
+       타공점은 «면 방향 치수»와 «깊이 방향 치수»가 만나는 한 점이므로 두 축에
+       모두 바깥·안쪽 치수를 깐다. 한 축만 있으면 교차점을 도면에서 읽을 수 없다.
+       · 앞·뒤 면 → 면 방향이 가로, 깊이 축은 세로 : 도면 왼쪽에 세로 치수
+       · 좌·우 면 → 면 방향이 세로, 깊이 축은 가로 : 도면 위쪽에 가로 치수 */
     {
-      const xOut = ox - 18, xIn = ox - 34;
-      const yOut = D_(0), yIn = D_In(), yH = D_(depthHole);
-      let o = '';
-      o += L(xOut, yOut, xOut, yH, {stroke:C_OUT, sw:0.95}); o += cross(xOut, yOut, C_OUT, null) + cross(xOut, yH, C_OUT, null);
-      o += tag(xOut - 6.4, (yOut+yH)/2, '바깥 ' + fmt(Math.round(depthHole)), {size:7.8, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
-      o += L(xIn, yIn, xIn, yH, {stroke:C_IN, sw:1.1, dash:'6 3'}); o += cross(xIn, yIn, C_IN, '6 3') + cross(xIn, yH, C_IN, '6 3');
-      o += tag(xIn - 6.4, (yIn+yH)/2, '안쪽 ' + fmt(Math.round(depthHole - wallFin)), {size:7.8, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
-      s += o;
+      const perpRows = [
+        {c:C_OUT, dash:null,  from:0,       to:depthHole, txt:'바깥 ' + fmt(Math.round(depthHole)), lv:20},
+        {c:C_IN,  dash:'6 3', from:wallFin, to:depthHole, txt:'안쪽 ' + fmt(Math.round(depthHole - wallFin)), lv:36}
+      ];
+      perpRows.forEach(v=>{
+        const p1 = D_(v.from), p2 = D_(v.to);
+        if(Math.abs(p2 - p1) < 3) return;
+        if(horizFace){
+          const x = ox - v.lv;
+          s += L(x, p1, x, p2, {stroke:v.c, sw: v.dash?1.1:0.95, dash:v.dash});
+          s += cross(x, p1, v.c, v.dash) + cross(x, p2, v.c, v.dash);
+          if(v.from === 0) s += L(ox, p1, x, p1, {stroke:v.c, sw:0.4, dash:'2 2'});
+          s += tag(x - 6.4, (p1+p2)/2, v.txt, {size:7.8, fill:v.c, weight:800, bg:'#fff', bgop:.96, stroke:v.c, sw:0.45, mono:true, rot:-90});
+        } else {
+          const y = oy - v.lv;
+          s += L(p1, y, p2, y, {stroke:v.c, sw: v.dash?1.1:0.95, dash:v.dash});
+          s += cross(p1, y, v.c, v.dash) + cross(p2, y, v.c, v.dash);
+          if(v.from === 0) s += L(p1, oy, p1, y, {stroke:v.c, sw:0.4, dash:'2 2'});
+          s += tag((p1+p2)/2, y - 5.4, v.txt, {size:7.8, fill:v.c, weight:800, bg:'#fff', bgop:.96, stroke:v.c, sw:0.45, mono:true});
+        }
+      });
     }
-    /* 안내선 — 각 타공점에서 위 치수선까지 (값 ↔ 타공점 연결) */
+    /* 안내선 — 각 타공점에서 «두 축» 치수선까지 (값 ↔ 타공점 연결).
+       면 방향 치수선과 깊이 방향 치수선이 타공점 한 곳에서 만나도록 두 줄을 긋고,
+       그 교차점에 타공점 십자를 얹는다. */
     holes.forEach(al=>{
       const hx = horizFace ? X(al) : D_(depthHole);
       const hy = horizFace ? D_(depthHole) : Y(al);
-      if(horizFace) s += L(hx, hy, hx, levelY(42), {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
-      else s += L(hx, hy, levelY(42), hy, {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
+      if(horizFace){
+        s += L(hx, hy, hx, levelY(42), {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
+        s += L(hx, hy, ox - 40, hy, {stroke:C_GUIDE, sw:0.45, dash:'2 2'});
+      } else {
+        s += L(hx, hy, levelY(42), hy, {stroke:C_GUIDE, sw:0.5, dash:'2 2'});
+        s += L(hx, hy, hx, oy - 40, {stroke:C_GUIDE, sw:0.45, dash:'2 2'});
+      }
     });
     /* 타공점 십자 + 이름 */
     const marks = rail ? [['레일 시작'], ['레일 끝']] : [[], []];
