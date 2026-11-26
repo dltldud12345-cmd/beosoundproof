@@ -597,18 +597,6 @@
     </section>
 
     <section class="card">
-      <h2>외부 노출 면 <span style="font-size:10px;font-weight:700;color:#9AA4AC">몰딩 산출</span></h2>
-      <div class="field"><label>몰딩을 대는 면</label>
-        <div class="seg" id="outerFaces">
-          <button data-v="2" aria-pressed="true">2면 노출</button>
-          <button data-v="1" aria-pressed="false">1면 노출</button>
-          <button data-v="3" aria-pressed="false">3면 노출</button>
-        </div>
-      </div>
-      <p class="note-small">기본은 <b>2면 노출</b>(방 코너 배치 — 정면 + 1측면)입니다. <b>1면 노출</b>은 정면만 보이는 자리, <b>3면 노출</b>은 부스가 독립해 서는 자리입니다. 내부·외부 몰딩 수량과 <b>한경희마루 발주 문자</b>가 이 값에 맞춰 집계됩니다.</p>
-    </section>
-
-    <section class="card">
       <h2>산출 요약</h2>
       <div class="stats" id="stats"></div>
     </section>
@@ -627,6 +615,7 @@
             <div class="field"><label for="mod">모듈 <span class="hint">mm</span></label><input type="number" id="mod" value="600" min="300" max="1200" step="10"></div>
             <div class="field"><label for="joint">15T 천장 합판 여유 <span class="hint">mm</span></label><input type="number" id="joint" value="15" min="0" max="60" step="1"></div>
           </div>
+          <p class="note-small" id="jointNote">천장 길이 <b>2,400㎜ 이상</b>이면 판 사이 15T 합판이 2겹으로 들어가고 여유값이 자동으로 <b>30㎜</b>가 됩니다.</p>
           <div class="field"><label for="doorH">문 높이 <span class="hint">mm</span></label><input type="number" id="doorH" value="1800" min="1500" max="2100" step="10"></div>
           <div class="field"><label for="ceilDir">천장 결 방향</label>
             <select id="ceilDir">
@@ -777,7 +766,13 @@ function polyPerim(pts){
 
 function buildModel(inp){
   const W = +inp.W, D = +inp.D, H = +inp.H;
-  const MOD = +inp.mod, JOINT = +inp.joint;
+  const MOD = +inp.mod;
+  /* 천장 길이(가장 긴 변) 2,400㎜ 이상 — 판 사이에 15T 합판을 2겹(30㎜) 세우고
+     그만큼 천장판(마블폼·자투리판) 폭을 이음매마다 30㎜ 공제한다 (2026-11-26 대표 확정). */
+  const CEIL_LONG = Math.max(W, D);
+  const CEIL_2PLY = CEIL_LONG >= 2400 - 0.5;
+  const JOINT_IN = +inp.joint;
+  const JOINT = CEIL_2PLY ? Math.max(JOINT_IN, 30) : JOINT_IN;
   const LSPLIT = inp.lenSplit === 'max' ? 'max' : 'even';
   const dw = +inp.doorW, dh = +inp.doorH;
   const doorSide = inp.doorSide, doorAlign = inp.doorAlign;
@@ -1591,7 +1586,7 @@ function buildModel(inp){
   const mableCeilSheets = Math.ceil((W*D/1e6) * 2 * 1.1 / 0.55775);
   const mableFloorSheets = Math.ceil((W*D/1e6) * 1.0 / 0.55775);
   const artSheets = Math.ceil(artArea * 1.1 / (1.22*2.42));
-  const plySheets = Math.max(1, Math.round(perimSpan / 8000));
+  const plySheets = Math.max(1, Math.round(perimSpan / 8000)) * (CEIL_2PLY ? 2 : 1);   // 2,400 이상은 세움 띠 2겹
   const bom = [
     {mat:'15T 합판 — 바닥 (2겹)', spec:'1220×2440', amount: n(floorArea*2), unit:'㎡', boards: stockCount(cutCells('바닥 15T (2겹 교차)')), note:'1층·2층 교차 재단 · 강화마루 위'},
     {mat:'PB 95T — 벽판 (액자틀 날개)', spec:'95T 적층', amount: n(wallArea), unit:'㎡', boards: stockCount(cutCells('벽판 95T PB')), note:'15T 원판 + 95T 날개 · 18T×5 기준'},
@@ -1602,7 +1597,7 @@ function buildModel(inp){
     {mat:'9T 마감재 — 내부 (3면)', spec:'1220×2420', amount: n(artArea), unit:'㎡', boards: artSheets, note:'아트보드 '+(inp.bbColor||'연베이지')+' · 라인타공 '+(inp.slatColor||'내추럴 오크')+' 면 제외 · 후접 9㎜ 차감'},
     {mat:'마블폼 — 벽체 충전', spec:'45T · 575×970', amount: String(mableWallSheets), unit:'장', boards: null, note:'벽 '+(1+dblFaces.length/4).toFixed(2)+'겹 · 여유 10% 포함'},
     {mat:'마블폼 — 바닥 (60T)', spec:'60T · 575×970', amount: String(mableFloorSheets), unit:'장', boards: null, note:'바닥 1겹 · 모자라지 않게 올림'},
-    {mat:'15T 합판 (세움 띠)', spec:'1220×2440', amount: String(plySheets), unit:'장', boards: null, note:'천장 세움 띠 · 모서리'},
+    {mat:'15T 합판 (세움 띠)', spec:'1220×2440', amount: String(plySheets), unit:'장', boards: null, note:'천장 세움 띠 · 모서리' + (CEIL_2PLY ? ' · 2,400 이상 15T×2겹' : '')},
     {mat:'강화마루', spec: (inp.floorColor||'멜로우 오크')+' · BOX(약 2.0㎡)', amount: n(innerArea)+' ㎡', unit:'', boards: null, note: Math.ceil(innerArea/2.0)+' BOX'},
     {mat:'45T 몰딩', spec:'2.4m', amount: n((innerW+innerD)*2*2/1000), unit:'m', boards: null, note:'바닥+천장'},
     {mat:'시스템도어', spec: dw+'×'+dh, amount: doorCount+' 세트', unit:'', boards: null, note:'문 위판 '+dw+'×'+fillH+(doorCount>1? ' · 외벽·내벽 2짝':'')},
@@ -1620,7 +1615,7 @@ function buildModel(inp){
   ].map(o=>Object.assign(o,{lens: o.ceil? splitCeilLen(o.length) : splitLen(o.length, LSPLIT)}));
 
   return {
-    inp, W, D, H, MOD, JOINT, dw, dh, fillH, sides, opp, doorSide, doorAlign, usedAlign, doorHinge, sideName,
+    inp, W, D, H, MOD, JOINT, JOINT_IN, CEIL_2PLY, CEIL_LONG, dw, dh, fillH, sides, opp, doorSide, doorAlign, usedAlign, doorHinge, sideName,
     notch, steps, allSegs, innerInfo, doorShifted: (sides.find(x=>x.k===doorSide)||{}).k ? doorShifted(sides.find(x=>x.k===doorSide)) : false, dPad, segs: allSegs,
     grade, gradeName: gradeDef.name, gradeSub: gradeDef.sub, doorCount, dblFaces, dblArea,
     winSpec, winDef, winCount, winSide, winSideKey, winMoved, winDoorMoved, winTight, winDouble, projWin,
@@ -2678,6 +2673,7 @@ function ceilSplitPanel(m, x, y, w, h){
   const ox = x + padL, oy = y + padT;
   const pw = XW*sc, ph = YW*sc;
   const J = m.JOINT, pieces = m.ceil.pieces, nB = pieces.length;
+  const JT = m.CEIL_2PLY ? '15T×2' : '15T';        // 2,400 이상은 15T 합판 2겹
   const posOf = i => { let a=0; for(let k=0;k<i;k++) a += pieces[k].w + J; return a; };
   const lens = pieces[0] ? pieces[0].lens : [LEN];
   const multi = lens.length > 1;
@@ -2685,8 +2681,8 @@ function ceilSplitPanel(m, x, y, w, h){
   const WARN2 = '#B4622A', BAND = '#D99A4E';
 
   let s = T(x+2,y+8,'천장 마블폼 45T 분할',{size:8.6,weight:800});
-  s += T(x+2,y+17,'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 폭 합 '+SPAN+' · '+widths.map(v=>Math.round(v)).join(' · 15T · '), {size:5.9,fill:'#7B8389'});
-  s += T(x+2,y+26,'길이 '+LEN+(multi? ' → '+lens.join(' + ') : ' (분할 없음)')+(multi? ' · 열마다 [2000|나머지] ↔ [나머지|2000] 교차' : ''),
+  s += T(x+2,y+17,'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 폭 합 '+SPAN+' · '+widths.map(v=>Math.round(v)).join(' · '+JT+' · '), {size:5.9,fill:'#7B8389'});
+  s += T(x+2,y+26,'길이 '+LEN+(multi? ' → '+lens.join(' + ') : ' (분할 없음)')+(multi? ' · 열마다 [2000|나머지] ↔ [나머지|2000] 교차' : '')+((m.CEIL_2PLY)? ' · 2,400 이상 15T×2겹 · 이음매 30' : ''),
     {size:5.9,fill:multi? WARN2 : '#7B8389', weight:multi?700:400});
   s += R(x+2,y+32,7,4.4,{fill:BAND,stroke:'#8A5A20',sw:0.5});
   s += T(x+12,y+36,'천장 마블폼 2겹 · 아트보드 — 이음선 한가운데(반씩 대칭) · 매립등은 양쪽 절반 중앙에 일자', {size:5.4,fill:'#6B3E0E'});
@@ -2725,10 +2721,10 @@ function ceilSplitPanel(m, x, y, w, h){
     const c0 = (posOf(i) + pieces[i].w + J/2)*sc;
     if(along){
       s += R(ox, oy + c0 - bandW/2, pw, bandW, {fill:BAND, stroke:'#8A5A20', sw:0.5, op:0.97});
-      s += tag(ox + pw*0.5, oy + c0, '15T', {size:4.9, fill:'#5E360C', bg:'#FFF6E6', bgop:0.99, stroke:'#C08A4A', sw:0.35});
+      s += tag(ox + pw*0.5, oy + c0, JT, {size:4.9, fill:'#5E360C', bg:'#FFF6E6', bgop:0.99, stroke:'#C08A4A', sw:0.35});
     } else {
       s += R(ox + c0 - bandW/2, oy, bandW, ph, {fill:BAND, stroke:'#8A5A20', sw:0.5, op:0.97});
-      s += tag(ox + c0, oy + ph*0.52, '15T', {size:4.9, fill:'#5E360C', bg:'#FFF6E6', bgop:0.99, stroke:'#C08A4A', sw:0.35, rot:-90});
+      s += tag(ox + c0, oy + ph*0.52, JT, {size:4.9, fill:'#5E360C', bg:'#FFF6E6', bgop:0.99, stroke:'#C08A4A', sw:0.35, rot:-90});
     }
   }
   s += R(ox,oy,pw,ph,{fill:'none',stroke:INK,sw:1.3});
@@ -3657,7 +3653,7 @@ function sheetBom(m){
     ['백색 알판 9T ('+extListTxt(m.extFaces)+' '+m.extFaces.length+'면)',          (B('알판').boards||'')+'장'],
     ['9T 마감재 (내부)',      (B('마감재').boards||'')+'장'],
     ['마블폼 (벽체)',         (B('마블폼 — 벽체').amount||'')+'장'],
-    ['15T 합판 (세움 띠)',    (B('세움 띠').amount||'')+'장'],
+    ['15T 합판 (세움 띠)',    (B('세움 띠').amount||'')+'장' + (m.CEIL_2PLY? ' · 2겹' : '')],
     ['강화마루',              (B('마루').note||'')],
     ['45T 몰딩',              Math.ceil((m.innerW+m.innerD)*2*2/2400)+'개'],
     ['시스템도어',            m.doorCount+'세트'],
@@ -3686,6 +3682,7 @@ function sheetBom(m){
     '· 샷시·문 2mm 여유 — 문 개구부 700+2='+m.dw+(m.winBig? ' · 시창 아래·위판 400 (아래 800×400 2장 · 위 800×400 1장)' : ' · 시창은 상부 코스 100+800+100')+' — 재단표 반영.',
     '· 천장 아트보드 길이는 반씩 대칭 — 2475 → 1238 + 1237 · 4000 → 2000 + 2000 · 6000 → 2000+2000+2000.'
   ];
+  if(m.CEIL_2PLY) tnotes.push('· 천장 길이 2,400 이상 — 판 사이 15T 합판 2겹(30㎜) 세움 · 이음매 여유 30㎜(천장판 폭에서 이음매당 30 공제) 기준으로 산출했습니다.');
   if(m.notch.on) tnotes.unshift('· 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄 — 바닥·천장 판재에서 그 면적을 뺀 치수입니다. 단차 벽 판은 A-104 에 별도 행으로 있습니다.');
   s += T(M+10, ny, '※ 확인 사항', {size:8.6, weight:800, fill:WARN});
   tnotes.forEach((tx,i)=>{
@@ -4858,8 +4855,12 @@ function innerMoldAuto(inp){
 }
 
 function moldingCalc(m, inp){
-  const outer = String((inp && inp.outerFaces) || '2');
-  const exposed = outer === '1' ? 1 : (outer === '3' ? 3 : 2);
+  /* 외부 몰딩(백색 4전)을 대는 면 = 외부 마감 면(9T 알판) 그 자체.
+     별도 '외부 노출 면' 선택은 없어졌습니다 — 앞·뒤·좌·우 중 알판을 붙이는 면과
+     그 면들이 실제로 만나는 인접 모서리에서 몰딩 수량이 자동으로 나옵니다. */
+  const extFaces = normExtList(inp && inp.extFaces);
+  const isExt = k => extFaces.indexOf(k) >= 0;
+  const exposed = extFaces.length;
   const winOn = m.winCount > 0;
   const perim = 2*(m.W + m.D);
   const innerColor = String((inp && inp.moldColor) || '').trim() || innerMoldAuto(inp);
@@ -4874,16 +4875,19 @@ function moldingCalc(m, inp){
   const inner4 = innerHorizN + innerCornerN + 1;
   const inner8 = innerDoorSideN + innerDoorTopN;
   const innerTotal = inner4 + inner8;
-  /* 외부 (백색 4전) — 외부 높이 2280 기준 */
-  const cornerN = exposed === 1 ? 0 : (exposed === 3 ? 2 : 1);   // ㄱ자 노출 모서리
-  const endN = exposed === 3 ? 0 : 2;                // 2면: 정면 반대편 끝 + 측면 끝 / 1면: 정면 양쪽 끝
+  /* 외부 (백색 4전) — 외부 높이 2280 기준 · 마감 면(extFaces)과 자동 일치 */
+  /* 노출 면 모서리 4곳 중 두 면이 모두 마감되는 'ㄱ자'만 센다 (맞대기 4전 2개) */
+  const cornerN = [['front','left'],['front','right'],['back','left'],['back','right']]
+    .filter(c=> isExt(c[0]) && isExt(c[1])).length;
+  const vertN = exposed * 2;                         // 노출 면마다 세로 마감 2개 (ㄱ자는 맞대기)
+  const endN = Math.max(0, vertN - cornerN*2);       // ㄱ자로 만나지 않는 끝 세로
   const tbN = exposed * 2;                           // 노출 면 상·하단 가로
   const winN = winOn ? 4 : 0;                        // 시창 세로 2 + 위·아래 가로 2
   const outerTotal = cornerN*2 + endN + 2 + tbN + 1 + winN + 1;
   const doorTopW = Math.max(0, m.dw - MOLD_CUT);
   const winMoldW = winOn ? Math.max(0, m.needW - MOLD_CUT) : 0;
   return {
-    outer, exposed, innerTotal, innerColor, inner4, inner8, outerTotal, doorTopW, winMoldW, winOn,
+    extFaces, extTxt: extListTxt(extFaces), exposed, innerTotal, innerColor, inner4, inner8, outerTotal, doorTopW, winMoldW, winOn,
     inner4Lines: [
       '4면 상·하단 가로 ' + innerHoriz.toLocaleString('ko-KR') + ' ÷ ' + MOLD_LEN + ' → ' + innerHorizN + '개',
       '내부 모서리 세로 4개',
@@ -4900,8 +4904,8 @@ function moldingCalc(m, inp){
       '문 위 가로 1개 (' + doorTopW + ')'
     ],
     outerLines: [
-      cornerN ? '노출 모서리 ㄱ자 ' + cornerN + '곳 × 4전 2개 맞대기 = ' + (cornerN*2) + '개' : '노출 모서리 없음 (1면)',
-      '끝 세로 마감 ' + endN + '개',
+      cornerN ? '노출 모서리 ㄱ자 ' + cornerN + '곳 × 4전 2개 맞대기 = ' + (cornerN*2) + '개' : 'ㄱ자로 만나는 노출 모서리 없음',
+      '끝 세로 마감 ' + endN + '개 (노출 면 ' + exposed + '면 × 2)',
       '문 양옆 세로 2개',
       '노출 면 상·하단 가로 ' + tbN + '개',
       '문 위 가로 1개 (' + doorTopW + ')',
@@ -5018,7 +5022,7 @@ function orderCardHTML(m){
       </div>
 
       <div class="ord-block">
-        <h4>몰딩 산출 <em>기준 ${MOLD_LEN}mm · 개구부 가로 −${MOLD_CUT} · 외부 ${mld.exposed}면 노출</em></h4>
+        <h4>몰딩 산출 <em>기준 ${MOLD_LEN}mm · 개구부 가로 −${MOLD_CUT} · 외부 마감 ${mld.exposed}면 ${mld.extTxt}</em></h4>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
           <div>
             <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">내부 몰딩 4전 · ${esc(mld.innerColor)} · ${mld.inner4}개</p>
@@ -5293,9 +5297,7 @@ function readInputs(){
     cornerPos: state.cornerPos || 'none',
     cornerW: +$('#cornerW').value || 450,
     cornerD: +$('#cornerD').value || 680,
-    /* 외부 노출 면 — 몰딩·발주 문자 집계 기준 */
-    outerFaces: state.outerFaces || '2',
-    /* 외부 마감 면 — 9T 알판을 붙이는 면 (기본 2면 · 앞+좌) */
+    /* 외부 마감 면 — 9T 알판을 붙이는 면 (기본 2면 · 앞+좌). 외부 몰딩도 이 면을 그대로 따른다 */
     extFaces: normExtList(state.extFaces)
   };
 }
@@ -5338,7 +5340,15 @@ function syncExtUI(m){
   const txt = ex.length ? cur.length+'면 ('+extListTxt(cur)+') · 제외 '+extListTxt(ex) : '4면 전체 ('+extListTxt(cur)+')';
   note.innerHTML = '적용 <b>'+txt+'</b>'
     + (b ? '<br>외벽 알판 9T <b>'+b.amount+' ㎡</b> · 원판 <b>'+(b.boards!=null? b.boards+'장':'—')+'</b>' : '')
-    + '<br>보통 <b>2면</b>(방 구석 배치) · 많아도 <b>3면</b>입니다. 같은 면이 <b>A-101·A-104</b>에 표기되고, 외부 몰딩은 아래 <b>외부 노출 면</b>에서 따로 고릅니다.';
+    + '<br>보통 <b>2면</b>(방 구석 배치) · 많아도 <b>3면</b>입니다. 같은 면이 <b>A-101·A-104</b>에 표기되고, <b>외부 몰딩(백색 4전)도 이 면과 인접 모서리에 맞춰</b> 자동 산출됩니다.';
+}
+
+/* --- 15T 천장 합판 여유 — 2,400 이상은 자동 30㎜(2겹) --------------------- */
+function syncJointUI(m){
+  const el = $('#jointNote'); if(!el || !m) return;
+  el.innerHTML = m.CEIL_2PLY
+    ? '천장 길이 <b>2,400㎜ 이상</b> — 판 사이 <b>15T 합판 2겹(30㎜)</b>으로 자동 적용 중입니다. 천장판 폭에서도 이음매당 <b>30㎜</b> 공제됩니다.'
+    : '천장 길이 <b>2,400㎜ 이상</b>이면 판 사이 15T 합판이 2겹으로 들어가고 여유값이 자동으로 <b>30㎜</b>가 됩니다 (지금은 입력값 그대로).';
 }
 
 /* --- 시창 드래그 (A-101 평면도 · A-103 전개도) --------------------------- */
@@ -5432,6 +5442,7 @@ function render(){
   syncFieldUI(m);
   syncCornerUI(m);
   syncExtUI(m);
+  syncJointUI(m);
 
   // sheets
   SHEETS = sheetsFor(m);
@@ -5820,8 +5831,8 @@ function init(){
   });
   segInit('#doorHinge','doorHinge','right');
   segInit('#cornerPos','cornerPos','none');
-  segInit('#outerFaces','outerFaces','2');
-  /* 외부 마감 면 — 기본 2면(앞+좌). 프리셋과 면별 토글이 같은 state.extFaces 를 본다 */
+  /* 외부 마감 면 — 기본 2면(앞+좌). 프리셋과 면별 토글이 같은 state.extFaces 를 본다
+     (외부 몰딩·발주 문자도 이 면에서 자동 산출 — 별도 노출 면 선택 없음) */
   state.extFaces = EXT_DEFAULT.slice();
   (function(){
     const seg = $('#extFaces'), pre = $('#extPresets');
@@ -5988,8 +5999,7 @@ function init(){
   const qCp = q.get('cp') || src.cornerPos;
   if(['back-left','back-right','front-left','front-right'].indexOf(qCp) >= 0) setSeg('#cornerPos','cornerPos', qCp);
   else setSeg('#cornerPos','cornerPos', 'none');
-  setSeg('#outerFaces','outerFaces', (String(src.outerFaces||'2')==='1'?'1':(String(src.outerFaces||'2')==='3'?'3':'2')));
-  /* 외부 마감 면 — 링크(xf) → 저장값 → 기본 2면(앞+좌) */
+  /* 외부 마감 면 — 링크(xf) → 저장값 → 기본 2면(앞+좌). 외부 몰딩도 이 면을 따른다 */
   const qXf = q.get('xf');
   state.extFaces = normExtList(qXf !== null ? qXf : (src.extFaces || EXT_DEFAULT));
   const qCw = q.get('cw') || src.cornerW, qCd = q.get('cd') || src.cornerD;
