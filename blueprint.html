@@ -141,7 +141,10 @@
 
   @media (max-width:600px){
     .sheet svg{min-width:0}
-    .sheet-bar .hint{display:inline}
+    .sheet-bar{flex-wrap:wrap;gap:6px 8px;padding:7px 9px}
+    .sheet-bar .tagno{flex:1 1 100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+    .sheet-bar .hint{display:none}
+    .zoombox{margin-left:auto}
     .zoombox button{width:30px;height:28px;font-size:15px}
     .zoombox button[data-zoom="fit"]{font-size:11px;padding:0 8px}
     .zoombox .pct{min-width:42px;font-size:11px}
