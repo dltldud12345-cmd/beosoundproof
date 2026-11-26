@@ -4282,11 +4282,22 @@ function openContractModal(q){
       b.addEventListener("click", function(){ PS.grade = b.getAttribute("data-ps-grade"); PS.price = 0; PS.day = psGradeOf(PS.grade).days; psSave(); render(); });
     });
     Array.prototype.forEach.call(app.querySelectorAll("[data-ps-size]"), function(b){
-      b.addEventListener("click", function(){ PS.size = b.getAttribute("data-ps-size"); PS.price = 0; psSave(); render(); });
+      b.addEventListener("click", function(){
+        PS.size = b.getAttribute("data-ps-size"); PS.price = 0;
+        /* 규격 칩을 고르면 그 치수를 PS에도 옮겨 둔다 — '직접 입력'으로 바꿀 때 마지막 규격에서 시작 */
+        for (var i=0;i<PS_SIZES.length;i++){
+          if (PS_SIZES[i].k === PS.size && PS.size !== "custom"){ PS.w = PS_SIZES[i].w; PS.d = PS_SIZES[i].d; PS.h = PS_SIZES[i].h; }
+        }
+        psSave(); render();
+      });
     });
     ["#ps-w","#ps-d","#ps-h"].forEach(function(sel){
       var el = document.querySelector(sel); if (!el) return;
-      el.addEventListener("input", function(){ PS[sel.slice(3)] = Number(el.value) || 0; PS.price = 0; psSave(); psRefreshNumbers(); });
+      /* sel 은 "#ps-w" 형태 — 키는 4번째 글자부터(w/d/h). 이전 slice(3) 오타로 값이 PS에 반영되지 않았다 */
+      var key = sel.slice(4);
+      el.addEventListener("input", function(){ PS[key] = Number(el.value) || 0; PS.price = 0; psSave(); psRefreshNumbers(); });
+      /* 입력을 마치면 상단 규격 태그·산출가 기준까지 다시 그린다(입력 중 포커스는 유지) */
+      el.addEventListener("change", function(){ PS[key] = Number(el.value) || 0; PS.price = 0; psSave(); render(); });
     });
     Array.prototype.forEach.call(app.querySelectorAll("[data-ps-opt]"), function(b){
       b.addEventListener("click", function(){ var k = b.getAttribute("data-ps-opt"); PS[k] = !PS[k]; psSave(); render(); });

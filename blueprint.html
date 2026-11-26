@@ -125,6 +125,14 @@
   .sheet-bar .btn:hover{background:var(--accent-t);border-color:var(--accent);color:var(--accent-d)}
   .sheet-bar .tagno{font-variant-numeric:tabular-nums;color:var(--ink2);letter-spacing:.08em}
   .sheet svg{display:block;width:100%;height:auto;background:#fff}
+  /* 모바일 — 도면 한 장을 화면 폭에 맞춰 통째로 보여 준다(가로 잘림 없음) + 줌 인/아웃 */
+  .sheet{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+  .zoombox{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid #DED8CC;border-radius:8px;padding:2px;flex:none}
+  .zoombox button{appearance:none;border:0;background:transparent;color:#2E353B;font:inherit;font-size:13px;font-weight:800;
+    width:26px;height:24px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .zoombox button:hover{background:var(--accent-t);color:var(--accent-d)}
+  .zoombox button[data-zoom="fit"]{width:auto;padding:0 7px;font-size:10.5px;letter-spacing:.02em}
+  .zoombox .pct{min-width:38px;text-align:center;font-size:10.5px;font-weight:800;color:#6C6558;font-variant-numeric:tabular-nums}
   @media (max-width:640px){
     .sheet-bar .lbl{display:none}
   }
@@ -132,9 +140,11 @@
   .foot b{color:#3F3A31}
 
   @media (max-width:600px){
-    .sheet{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .sheet svg{min-width:780px}
+    .sheet svg{min-width:0}
     .sheet-bar .hint{display:inline}
+    .zoombox button{width:30px;height:28px;font-size:15px}
+    .zoombox button[data-zoom="fit"]{font-size:11px;padding:0 8px}
+    .zoombox .pct{min-width:42px;font-size:11px}
     .topbar{padding:8px 10px;gap:7px}
     .brand{gap:6px}
     .brand span{display:none}
@@ -149,6 +159,41 @@
   @media (max-width:400px){
     .btn{padding:6px 7px;font-size:10.5px}
   }
+  /* ---------- 자재 발주 · 출고 연동 ---------- */
+  .ord-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 10px rgba(20,23,26,.08);margin-top:18px}
+  .ord-head{display:flex;align-items:center;gap:10px;padding:11px 15px;background:var(--ink);color:#fff;flex-wrap:wrap}
+  .ord-head b{font-size:12.5px;letter-spacing:.01em}
+  .ord-head .hint{font-size:10.5px;color:#B9B2A6;font-weight:600}
+  .ord-head .spacer{flex:1}
+  .ord-body{padding:14px 15px 16px}
+  .ord-block + .ord-block{margin-top:16px;padding-top:16px;border-top:1px solid var(--line2)}
+  .ord-block > h4{margin:0 0 9px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-d);display:flex;align-items:center;gap:7px}
+  .ord-block > h4 em{font-style:normal;font-size:9.5px;letter-spacing:.02em;color:var(--muted);text-transform:none;font-weight:700}
+  .ord-badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:7px}
+  .ord-badge{background:#fff;border:1px solid var(--line2);border-radius:11px;padding:9px 11px}
+  .ord-badge b{display:block;font-size:19px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.2;color:var(--ink)}
+  .ord-badge span{display:block;margin-top:2px;font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.02em}
+  .ord-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .ord-tbl th{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;text-align:right;padding:0 4px 6px;border-bottom:1px solid var(--line2);white-space:nowrap}
+  .ord-tbl th:first-child{text-align:left}
+  .ord-tbl td{padding:7px 4px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  .ord-tbl td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ord-tbl td.nm{font-weight:700;color:var(--ink2);line-height:1.35}
+  .ord-tbl td.nm i{display:inline-block;font-style:normal;font-size:8.5px;font-weight:800;letter-spacing:.03em;border-radius:4px;padding:1px 4px;margin-right:5px;vertical-align:1px}
+  .ord-own-park{background:#EDE7DC;color:#6B5B3E}.ord-own-hkm{background:#E8F1EE;color:#1F7A69}.ord-own-bnb{background:#F3EAE2;color:#8A4B2A}
+  .ord-in{width:58px;border:1px solid var(--line);border-radius:7px;padding:4px 6px;font:inherit;font-size:12px;font-weight:800;
+    text-align:right;font-variant-numeric:tabular-nums;background:#fff;color:var(--ink)}
+  .ord-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-t)}
+  .ord-tbl td.rem{font-size:15px;font-weight:800;color:var(--ink)}
+  .ord-tbl td.rem.zero{color:#B4ADA4}
+  .ord-mini{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink2);font:inherit;font-size:10.5px;font-weight:800;
+    border-radius:7px;padding:5px 8px;cursor:pointer}
+  .ord-mini:hover{background:var(--accent-t);border-color:var(--accent);color:var(--accent-d)}
+  .ord-pre{margin:9px 0 0;padding:13px 14px;background:#FFFCEF;border:1px solid #EFE6C8;border-radius:11px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,"Noto Sans KR",monospace;font-size:11.5px;line-height:1.72;color:#3F3A31;white-space:pre-wrap;word-break:keep-all}
+  .ord-acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+  .ord-note{margin-top:9px;font-size:10.5px;line-height:1.65;color:var(--muted)}
+
   /* ---------- 비앤비 발주 카드 ---------- */
   .bnb-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 10px rgba(20,23,26,.08)}
   .bnb-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F7F4EE;border-bottom:1px solid var(--line2);flex-wrap:wrap}
@@ -199,7 +244,7 @@
   @page{size:A4 portrait;margin:8mm}
   @media print{
     html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .topbar,.panel,.foot,.sheet-bar,.bnb-card,.toast{display:none !important}
+    .topbar,.panel,.foot,.sheet-bar,.bnb-card,.ord-card,.toast{display:none !important}
     .layout{display:block;padding:0;gap:0;max-width:none}
     .sheets{display:block}
     .sheet-wrap{box-shadow:none;border-radius:0;margin:0;overflow:visible;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
@@ -516,6 +561,18 @@
       </div>
       <div class="field"><label for="bbAddr">현장 주소</label><input type="text" id="bbAddr" placeholder="예) 김포대로 709 페스트 블루 빌딩" autocomplete="off"></div>
       <p class="note-small">색상은 위 <b>마감 사양</b>에서 고른 값을 그대로 씁니다. 현장명은 <b>도면 정보</b>의 값을 쓰고, 미리보기는 도면 아래 <b>비앤비 아트보드 발주표</b> 카드에서 복사할 수 있습니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>외부 노출 면 <span style="font-size:10px;font-weight:700;color:#9AA4AC">몰딩 산출</span></h2>
+      <div class="field"><label>몰딩을 대는 면</label>
+        <div class="seg" id="outerFaces">
+          <button data-v="2" aria-pressed="true">2면 노출</button>
+          <button data-v="1" aria-pressed="false">1면 노출</button>
+          <button data-v="3" aria-pressed="false">3면 노출</button>
+        </div>
+      </div>
+      <p class="note-small">기본은 <b>2면 노출</b>(방 코너 배치 — 정면 + 1측면)입니다. <b>1면 노출</b>은 정면만 보이는 자리, <b>3면 노출</b>은 부스가 독립해 서는 자리입니다. 내부·외부 몰딩 수량과 <b>한경희마루 발주 문자</b>가 이 값에 맞춰 집계됩니다.</p>
     </section>
 
     <section class="card">
@@ -1429,9 +1486,9 @@ function buildModel(inp){
   const artFaces = ['front','back','left','right'].filter(k=>k!==lineFace);
   const artAdj = (lineFace==='front' || lineFace==='back') ? ['left','right'] : ['front','back'];
   const artArea = artFaces.reduce((t,k)=>{
-    const sd = sides.find(x=>x.k===k);
-    const len = Math.max(0, sd.len - CFG.FIN*2 - (artAdj.indexOf(k)>=0 ? 9 : 0));
-    return t + len*CFG.HEAD/1e6;
+    /* 면 길이 = 실제 내부 유효(2중 벽 내벽 110까지 뺀 값) — bnbOrder 발주 치수와 같은 기준 */
+    const len = Math.max(0, ((k==='front'||k==='back') ? clearW : clearD) - (artAdj.indexOf(k)>=0 ? 9 : 0));
+    return t + len*BNB.WALL_H/1e6;
   }, 0);
   const ceilArtArea = (W*D)/1e6;
   /* 마블폼·합판은 원판(600×2400)이 아니라 실제 발주 단위(575×970 장)로 센다 */
@@ -4335,6 +4392,9 @@ function bnbSplit(len, MOD){         // 600 모듈 + 자투리 (100㎜ 미만 �
 
 function bnbOrder(m, inp){
   const MOD = m.MOD || 600, T = BNB.T, WALL_H = BNB.WALL_H;
+  const MINP = 100;            // 아트보드 최소 제작 100㎜ — 이보다 작은 조각은 단독 발주 불가
+  const smallW = [];           // 100 미만이라 100으로 올려 발주한 조각(현장 재단)
+  const fixMin = w => { if(w > 0 && w < MINP){ smallW.push(w); return MINP; } return w; };
   const i = inp || {};
   const color = (i.bbColor || '연베이지').trim() || '연베이지';
   const flame = i.bbFlame === 'flame' ? '방염' : '비방염';
@@ -4366,7 +4426,10 @@ function bnbOrder(m, inp){
     ceilNote = cLong + ' × ' + cShort + ' — 폭 ' + cWidths.join(' + ');
   }
 
-  /* 2) 벽 3면 — 라인타공 면 제외, 앞→우→뒤→좌 순서 */
+  /* 2) 벽 3면 — 라인타공 면 제외, 앞→우→뒤→좌 순서
+     벽 한 면의 길이 = 그 면의 실제 내부 유효(m.clearW · m.clearD).
+     2중 벽(슈퍼싱글 플러스 정면 · 더블 4면)은 내벽 110까지 빠진 값이다.
+     예) 2200×2400 더블 → 앞·뒤 1760 · 좌·우 1960 (외벽 안쪽 기준 1980·2180 은 220 큼) */
   const ring = ['front','right','back','left'];
   const i0 = Math.max(0, ring.indexOf(m.lineFace));
   const faces = [1,2,3].map(k=> ring[(i0+k)%4]);
@@ -4375,37 +4438,49 @@ function bnbOrder(m, inp){
   faces.forEach(k=>{
     const isDoor = (k === m.doorSide);
     const isWin  = (m.winCount > 0 && k === m.winSideKey);
-    const L = (k==='front' || k==='back') ? m.innerW : m.innerD;
+    const L = (k==='front' || k==='back') ? m.clearW : m.clearD;
     const run = Math.max(0, L - (isDoor? m.dw:0) - (isWin? m.needW:0));
     let widths;
     if(isWin){
       const fL = Math.round(run/2), fR = run - fL;
       widths = bnbSplit(fL, MOD).concat(bnbSplit(fR, MOD));
     } else widths = bnbSplit(run, MOD);
+    widths = widths.map(fixMin);
     const items = widths.map(w=>({s: WALL_H+'*'+w, q:1}));
     items.forEach(it=> wallItems.push(it));
     faceItems.push({face:k, items});
-    if(isDoor) doorItem = {s: Math.round(m.dw - T) + '*' + Math.round(m.fillH - T), q:1};
+    if(isDoor) doorItem = {s: fixMin(Math.round(m.dw - T)) + '*' + fixMin(Math.round(m.fillH - T)), q: (m.doorCount || 1)};
     if(isWin){
-      const belowH = Math.max(0, Math.round(m.winBottomY - T));
-      const aboveH = Math.max(0, Math.round((WALL_H - belowH - m.winH)/10)*10);
+      /* 시창 위·아래 판 — 100 미만(예: 91)은 100으로 발주하고 현장에서 다듬는다 */
+      const belowH = m.winBottomY > T ? fixMin(Math.max(MINP, Math.round(m.winBottomY - T))) : 0;
+      const aboveRaw = Math.max(0, Math.round((WALL_H - belowH - m.winH)/10)*10);
+      const aboveH = aboveRaw > 0 ? fixMin(aboveRaw) : 0;
       const n = Math.max(1, Math.ceil(m.winW / MOD));
-      const pw = Math.round(m.winW / n);
-      if(belowH > 0) belowItems.push({s: m.winW + '*' + belowH, q: m.winCount});
+      const pw = fixMin(Math.round(m.winW / n));
+      if(belowH > 0) belowItems.push({s: fixMin(m.winW) + '*' + belowH, q: m.winCount});
       if(aboveH > 0) aboveItems.push({s: pw + '*' + aboveH, q: n*m.winCount});
       winInfo = {belowH, aboveH, n, pw};
     }
   });
-  /* 모서리 후접 — 라인타공 면에 인접한 2면이 각각 마지막 판 9T 차감 (반대 1면은 선접 그대로) */
+  /* 모서리 후접 — 라인타공 면에 인접한 2면이 각각 마지막 판 9T 차감 (반대 1면은 선접 그대로)
+     차감한 끝 판이 100 미만이 되면 단독 발주할 수 없으므로 직전 판에 합쳐 한 장으로 발주한다.
+     예) 600 + 90 → 681 (앞 판에 합침) */
   const adjFaces = (m.lineFace === 'front' || m.lineFace === 'back') ? ['left', 'right'] : ['front', 'back'];
   const joints = [];
   faceItems.forEach(fi=>{
     if(adjFaces.indexOf(fi.face) < 0 || !fi.items.length) return;
-    const last = fi.items[fi.items.length-1];
-    const w = +last.s.split('*')[1];
-    if(w > T + 20){
-      last.s = WALL_H + '*' + (w - T);
-      joints.push({side: m.sideName[fi.face], from: w, to: w - T});
+    const items = fi.items, li = items.length - 1;
+    const lastW = +items[li].s.split('*')[1];
+    if(!(lastW > T + 20)) return;
+    const cut = lastW - T;
+    if(cut < MINP && li > 0){
+      const prevW = +items[li-1].s.split('*')[1];
+      items[li-1].s = WALL_H + '*' + (prevW + cut);
+      items.splice(li, 1);
+      joints.push({side: m.sideName[fi.face], from: lastW, to: prevW + cut, merged: true, prev: prevW});
+    } else {
+      items[li].s = WALL_H + '*' + cut;
+      joints.push({side: m.sideName[fi.face], from: lastW, to: cut, merged: false});
     }
   });
   const jointFrom = joints.length ? joints : null;
@@ -4439,7 +4514,7 @@ function bnbOrder(m, inp){
   }));
 
   return {
-    text, groups, count, area, color, flame, jointFrom, winInfo, ceilNote,
+    text, groups, count, area, color, flame, jointFrom, winInfo, ceilNote, smallW,
     faces, faceNames: faces.map(k=> m.sideName[k])
   };
 }
@@ -4452,13 +4527,16 @@ function bnbCardHTML(m){
   if(m.lineFace === m.doorSide) warns.push('라인타공 면 = 문 면 — 발주에서 빠지는 면이라 문 위 판이 누락됩니다');
   if(m.winCount > 0 && m.lineFace === m.winSideKey) warns.push('라인타공 면에 시창이 있습니다 — 시창 위·아래 판도 발주에서 빠집니다');
   if(Math.round(m.H) !== 2280) warns.push('층고 '+m.H+' — 벽 아트보드 높이 '+BNB.WALL_H+'은 층고 2280 기준입니다');
+  if(o.smallW && o.smallW.length) warns.push('100㎜ 미만 조각 '+o.smallW.join(' · ')+' → 100으로 발주하고 현장 재단');
   const kv = [
     ['발주 면', o.faceNames.join(' · ') + ' + 천장'],
+    ['벽 길이', '앞·뒤 ' + m.clearW + ' · 좌·우 ' + m.clearD + ' (내부 유효 기준)'],
     ['원단', o.color + ' 아트보드 ' + o.flame],
     ['총 수량', o.count + ' 장 · ' + o.area.toFixed(2) + ' ㎡'],
     ['천장', o.ceilNote],
-    ['후접 −9T', o.jointFrom ? o.jointFrom.map(j=> j.side + ' ' + j.from + ' → ' + j.to).join(' · ') : '—']
+    ['후접 −9T', o.jointFrom ? o.jointFrom.map(j=> j.side + ' ' + j.from + ' → ' + j.to + (j.merged ? ' (앞 판에 합침)' : '')).join(' · ') : '—']
   ];
+  if(m.notch && m.notch.on) kv.push(['코너 기둥', m.notch.cw + '×' + m.notch.cd + ' 따냄 — 해당 면은 전길이 발주 · 현장 재단']);
   const winRule = o.winInfo
     ? ('시창 위·아래 — 아래 '+o.winInfo.belowH+'면치기 '+m.winW+'×'+o.winInfo.belowH+', 위 '+o.winInfo.aboveH+' 면치기 '+o.winInfo.pw+'×'+o.winInfo.aboveH+' '+o.winInfo.n+'개')
     : '시창 없음 — 시창 위·아래 판 없음';
@@ -4478,9 +4556,9 @@ function bnbCardHTML(m){
           <summary>산출 규칙</summary>
           <ol>
             <li>라인타공 <b>1면을 빼고 나머지 3면 + 천장</b>만 발주합니다.</li>
-            <li>벽 <b>${BNB.WALL_H}쪽 면치기</b> — 600 모듈 + 자투리 (100㎜ 미만 자투리는 앞 판에 합침).</li>
-            <li>라인타공이 우선 — <b>라인타공 면에 인접한 2면이 각각 후접 9T 차감</b> (490 → 481).</li>
-            <li>문 위 <b>${Math.round(m.fillH - BNB.T)}면치기</b> — ${Math.round(m.dw-BNB.T)} × ${Math.round(m.fillH-BNB.T)} (${m.dw} − 9).</li>
+            <li>벽 <b>${BNB.WALL_H}쪽 면치기</b> — 면 길이 = <b>내부 유효(앞·뒤 ${m.clearW} · 좌·우 ${m.clearD})</b> + 600 모듈·자투리 (100㎜ 미만 자투리는 앞 판에 합침).</li>
+            <li>라인타공이 우선 — <b>라인타공 면에 인접한 2면이 각각 후접 9T 차감</b> (490 → 481). 차감 뒤 <b>100㎜ 미만</b>이 되면 직전 판에 합쳐 한 장으로 발주 (600 + 90 → 681).</li>
+            <li>문 위 <b>${Math.round(m.fillH - BNB.T)}면치기</b> — ${Math.round(m.dw-BNB.T)} × ${Math.round(m.fillH-BNB.T)} (${m.dw} − 9) × ${m.doorCount || 1}${(m.doorCount||1)>1? ' (외벽·내벽 각 1짝)' : ''}.</li>
             <li>천장 — 내부 −${BNB.GAP} <b>${BNB.MAXL} 이하 한 장</b>, 넘으면 <b>반씩 대칭</b>으로 나눠 <b>양쪽 면치기</b>.</li>
             <li>${winRule}.</li>
           </ol>
@@ -4489,6 +4567,233 @@ function bnbCardHTML(m){
       </div>
     </div>
   </section>`;
+}
+
+/* =====================================================================
+   자재 발주 · 출고 연동
+   전체 수량 − 박사장님 1차 출고 = 나머지 발주 수량 (한경희마루 문자)
+   + 내부·외부 몰딩 산출 (외부 노출 면 · 시창 · 개구부 −15㎜)
+   ===================================================================== */
+const MOLD_LEN = 2440;      // 몰딩 기준 길이
+const MOLD_CUT = 15;        // 문·시창 가로 몰딩 공제 (세로 몰딩이 양옆을 덮음)
+
+function moldingCalc(m, inp){
+  const outer = String((inp && inp.outerFaces) || '2');
+  const exposed = outer === '1' ? 1 : (outer === '3' ? 3 : 2);
+  const winOn = m.winCount > 0;
+  const perim = 2*(m.W + m.D);
+  /* 내부 (아트보드 색) — 4전 : 상·하단 가로 + 내부 모서리 4곳 세로 + 여유 1 / 8전 : 문 양옆 세로 2 */
+  const innerHoriz = perim * 2;
+  const innerHorizN = Math.ceil(innerHoriz / MOLD_LEN);
+  const innerCornerN = 4;
+  const innerDoorSideN = 2;
+  const innerDoorTopN = 1;                          // 문 위 가로는 8전 1개 절단 또는 4전 자투리 활용
+  const innerTotal = innerHorizN + innerCornerN + innerDoorSideN + innerDoorTopN;
+  /* 외부 (백색 4전) — 외부 높이 2280 기준 */
+  const cornerN = exposed === 1 ? 0 : (exposed === 3 ? 2 : 1);   // ㄱ자 노출 모서리
+  const endN = exposed === 3 ? 0 : 2;                // 2면: 정면 반대편 끝 + 측면 끝 / 1면: 정면 양쪽 끝
+  const tbN = exposed * 2;                           // 노출 면 상·하단 가로
+  const winN = winOn ? 4 : 0;                        // 시창 세로 2 + 위·아래 가로 2
+  const outerTotal = cornerN*2 + endN + 2 + tbN + 1 + winN + 1;
+  const doorTopW = Math.max(0, m.dw - MOLD_CUT);
+  const winMoldW = winOn ? Math.max(0, m.needW - MOLD_CUT) : 0;
+  return {
+    outer, exposed, innerTotal, outerTotal, doorTopW, winMoldW, winOn,
+    innerLines: [
+      '상·하단 가로 ' + innerHoriz.toLocaleString('ko-KR') + ' ÷ ' + MOLD_LEN + ' → ' + innerHorizN + '개',
+      '내부 모서리 세로 4개 (4전)',
+      '문 양옆 세로 2개 (8전 · 여유 없음)',
+      '문 위 가로 1개 (' + doorTopW + ')'
+    ],
+    outerLines: [
+      cornerN ? '노출 모서리 ㄱ자 ' + cornerN + '곳 × 4전 2개 맞대기 = ' + (cornerN*2) + '개' : '노출 모서리 없음 (1면)',
+      '끝 세로 마감 ' + endN + '개',
+      '문 양옆 세로 2개',
+      '노출 면 상·하단 가로 ' + tbN + '개',
+      '문 위 가로 1개 (' + doorTopW + ')',
+      winOn ? '시창 세로 2 + 위·아래 가로 2 (가로 ' + winMoldW + ')' : '시창 없음',
+      '여유 1개'
+    ]
+  };
+}
+
+function orderItems(m, inp, bnb, mld){
+  const num = v => parseInt(String(v==null?'':v).replace(/[^0-9]/g,''), 10) || 0;
+  const bomOf = re => m.bom.find(x=> re.test(x.mat)) || {};
+  const boardsOf = re => { const b = bomOf(re); return b.boards != null ? b.boards : num(b.amount); };
+  const boxes = (()=>{ const b = bomOf(/^강화마루/); const mt = /(\d+)\s*BOX/.exec(b.note||''); return mt ? +mt[1] : Math.ceil(m.innerArea/2); })();
+  return [
+    {id:'pb_wall', owner:'park', name:'PB 95T 벽판 (1차 재단)', unit:'장', full: boardsOf(/PB 95T — 벽판/)},
+    {id:'pb_inner', owner:'park', name:'PB 95T 내벽 (2중)', unit:'장', full: boardsOf(/PB 95T — 내벽/)},
+    {id:'ply', owner:'park', name:'15T 합판 (바닥 2겹)', unit:'장', full: boardsOf(/15T 합판 — 바닥/)},
+    {id:'ext', owner:'park', name:'외부 알판 9T (백판)', unit:'장', full: boardsOf(/백색 알판/)},
+    {id:'maru', owner:'hkm', name:'강화마루', unit:'BOX', full: boxes},
+    {id:'mold_in', owner:'hkm', name:'내부 몰딩 (아트보드 색)', unit:'개', full: mld.innerTotal},
+    {id:'mold_out', owner:'hkm', name:'외부 몰딩 (백색 4전)', unit:'개', full: mld.outerTotal},
+    {id:'mable_ceil', owner:'hkm', name:'마블폼 45T 천장', unit:'장', full: num(bomOf(/마블폼 — 천장/).amount)},
+    {id:'mable_wall', owner:'hkm', name:'마블폼 45T 벽체', unit:'장', full: num(bomOf(/마블폼 — 벽체/).amount)},
+    {id:'mable_floor', owner:'hkm', name:'마블폼 60T 바닥', unit:'장', full: num(bomOf(/마블폼 — 바닥/).amount)},
+    {id:'door', owner:'hkm', name:'시스템도어', unit:'세트', full: m.doorCount},
+    {id:'win', owner:'hkm', name:'시창', unit:'개', full: m.winCount > 0 ? m.winCount : 0},
+    {id:'art', owner:'bnb', name:'아트보드 9T (비앤비)', unit:'장', full: bnb.count}
+  ];
+}
+
+/* 한경희마루 발주 문자 — 1차 출고를 빼고 남은(2차) 수량만 */
+function hkmText(m, items, s1, mld){
+  const rem = id => { const it = items.find(x=>x.id===id); if(!it) return 0; return Math.max(0, it.full - Math.min(it.full, Number(s1[id]) || 0)); };
+  const hinge = m.doorHinge === 'left' ? '좌경첩' : '우경첩';
+  const L = [];
+  L.push('[베오방음 자재 발주 · 한경희마루]');
+  L.push('현장: ' + (((m.inp && m.inp.site) || '').trim() || '현장명'));
+  L.push('문: ' + m.dw + ' ' + hinge + (m.doorCount > 1 ? ' (' + m.doorCount + '짝)' : ''));
+  const maru = rem('maru'); if(maru) L.push('강화마루: ' + ((m.inp && m.inp.floorColor) || '멜로우 오크') + ' ' + maru + 'BOX');
+  const mi = rem('mold_in'); if(mi) L.push('내부 몰딩(' + ((m.inp && m.inp.bbColor) || '연베이지') + ') 4전·8전: ' + mi + '개');
+  const mo = rem('mold_out'); if(mo) L.push('외부 몰딩(백색 4전): ' + mo + '개');
+  const mc = rem('mable_ceil'), mw = rem('mable_wall'), mf = rem('mable_floor');
+  if(mc || mw){
+    const bits = [];
+    if(mc) bits.push('천장 ' + mc + '장');
+    if(mw) bits.push('벽체 ' + mw + '장');
+    L.push('마블폼 45T: ' + bits.join(' · '));
+  }
+  if(mf) L.push('마블폼 60T: 바닥 ' + mf + '장');
+  const dr = rem('door'); if(dr) L.push('시스템도어: ' + m.dw + '×' + m.dh + ' ' + dr + '세트');
+  const wn = rem('win'); if(wn) L.push('시창: ' + m.winW + '×' + m.winH + ' ' + wn + '개');
+  const ex = rem('ext'); if(ex) L.push('외부 백판: ' + ex + '장');
+  L.push('라인타공: ' + ((m.inp && m.inp.slatColor) || '내추럴 오크') + ' · ' + (m.sideName[m.lineFace] || ''));
+  return L.join('\n');
+}
+
+function orderCardHTML(m){
+  const mld = moldingCalc(m, m.inp);
+  const bnb = bnbOrder(m, m.inp);
+  const items = orderItems(m, m.inp, bnb, mld);
+  const s1 = state.ship1 || {};
+  const remOf = it => Math.max(0, it.full - Math.min(it.full, Number(s1[it.id]) || 0));
+  const own = {park:['ord-own-park','박'], hkm:['ord-own-hkm','한'], bnb:['ord-own-bnb','비']};
+  const rows = items.map(it=>{
+    const rem = remOf(it);
+    return `<tr>
+      <td class="nm"><i class="${own[it.owner][0]}">${own[it.owner][1]}</i>${esc(it.name)}</td>
+      <td class="n">${it.full}<span style="font-size:10px;color:#9A948C"> ${esc(it.unit)}</span></td>
+      <td class="n"><input class="ord-in" data-ship1="${it.id}" inputmode="numeric" value="${Number(s1[it.id]) || 0}" aria-label="${esc(it.name)} 1차 출고"></td>
+      <td class="n rem${rem ? '' : ' zero'}" data-rem="${it.id}">${rem}</td>
+    </tr>`;
+  }).join('');
+  const badge = (label, val) => `<div class="ord-badge"><b>${val}</b><span>${label}</span></div>`;
+  return `<section class="ord-card" data-ord>
+    <div class="ord-head">
+      <b>자재 발주 · 출고 연동</b>
+      <span class="hint">전체 − 박사장님 1차 출고 = 나머지 발주</span>
+      <span class="spacer"></span>
+    </div>
+    <div class="ord-body">
+      <div class="ord-block">
+        <h4>박사장님 1차 출고 <em>재단 · PB · 합판 · 외부 알판</em></h4>
+        <div class="ord-badges">
+          ${badge('벽판 PB 95T', items[0].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
+          ${badge('내벽 PB 95T', items[1].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
+          ${badge('15T 합판', items[2].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
+          ${badge('외부 알판 9T', items[3].full + '<span style="font-size:11px;color:#9A948C">장</span>')}
+        </div>
+      </div>
+
+      <div class="ord-block">
+        <h4>전체 수량 · 1차 출고 · 나머지 <em>1차 출고칸에 박사장님이 보낸 수량을 적으면 나머지가 바로 나옵니다</em></h4>
+        <table class="ord-tbl">
+          <thead><tr><th>자재</th><th>전체</th><th>1차 출고</th><th>나머지</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="ord-acts">
+          <button type="button" class="ord-mini" data-ship1-fill="park">박사장님 1차 = 전체로 채우기</button>
+          <button type="button" class="ord-mini" data-ship1-clear="1">1차 출고 지우기</button>
+        </div>
+        <p class="ord-note">나머지 = max(0, 전체 − 1차 출고) · 박(박사장님) · 한(한경희마루) · 비(비앤비) 중 한·비 품목은 아래 발주 문자에 그대로 실립니다.</p>
+      </div>
+
+      <div class="ord-block">
+        <h4>몰딩 산출 <em>기준 ${MOLD_LEN}mm · 개구부 가로 −${MOLD_CUT} · 외부 ${mld.exposed}면 노출</em></h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+          <div>
+            <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">내부 몰딩 · ${esc((m.inp&&m.inp.bbColor)||'연베이지')} · 4전·8전 ${mld.innerTotal}개</p>
+            <p class="ord-note" style="margin:0">${mld.innerLines.map(x=>esc(x)).join('<br>')}</p>
+          </div>
+          <div>
+            <p class="ord-note" style="margin:0 0 4px;color:var(--ink2);font-weight:800">외부 몰딩 · 백색 4전 ${mld.outerTotal}개</p>
+            <p class="ord-note" style="margin:0">${mld.outerLines.map(x=>esc(x)).join('<br>')}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ord-block">
+        <h4>한경희마루 발주 문자 <em>나머지만 자동 반영 · 0인 품목은 빠집니다</em></h4>
+        <pre class="ord-pre" data-hkm-preview>${esc(hkmText(m, items, s1, mld))}</pre>
+        <div class="ord-acts">
+          <button class="btn sm accent" type="button" data-hkm-copy>\u{1F4CB} 한경희마루 발주 문자 복사</button>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function wireOrder(host, m){
+  const mld = moldingCalc(m, m.inp);
+  const bnb = bnbOrder(m, m.inp);
+  const items = orderItems(m, m.inp, bnb, mld);
+  state.ship1 = state.ship1 || {};
+  const pre = host.querySelector('[data-hkm-preview]');
+  const repaint = ()=>{
+    items.forEach(it=>{
+      const cell = host.querySelector('[data-rem="' + it.id + '"]');
+      const rem = Math.max(0, it.full - Math.min(it.full, Number(state.ship1[it.id]) || 0));
+      if(cell){ cell.textContent = rem; cell.classList.toggle('zero', !rem); }
+    });
+    if(pre) pre.textContent = hkmText(m, items, state.ship1, mld);
+  };
+  host.querySelectorAll('[data-ship1]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const it = items.find(x=>x.id === inp.dataset.ship1); if(!it) return;
+      const v = Math.max(0, Math.min(it.full, Number(String(inp.value).replace(/[^0-9]/g,'')) || 0));
+      state.ship1[it.id] = v;
+      repaint();
+    });
+    inp.addEventListener('change', ()=>{ inp.value = state.ship1[inp.dataset.ship1] || 0; });
+  });
+  const fill = host.querySelector('[data-ship1-fill]');
+  if(fill) fill.addEventListener('click', ()=>{
+    items.filter(x=>x.owner === fill.dataset.ship1Fill).forEach(it=>{
+      state.ship1[it.id] = it.full;
+      const inp = host.querySelector('[data-ship1="' + it.id + '"]');
+      if(inp) inp.value = it.full;
+    });
+    repaint();
+  });
+  const clr = host.querySelector('[data-ship1-clear]');
+  if(clr) clr.addEventListener('click', ()=>{
+    items.forEach(it=>{
+      state.ship1[it.id] = 0;
+      const inp = host.querySelector('[data-ship1="' + it.id + '"]');
+      if(inp) inp.value = 0;
+    });
+    repaint();
+  });
+  const copyBtn = host.querySelector('[data-hkm-copy]');
+  if(copyBtn) copyBtn.addEventListener('click', async ()=>{
+    const text = hkmText(m, items, state.ship1, mld);
+    let ok = false;
+    try{ await navigator.clipboard.writeText(text); ok = true; }catch(e){}
+    if(!ok){
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly','');
+        ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+        ok = document.execCommand('copy'); document.body.removeChild(ta);
+      }catch(e2){ ok = false; }
+    }
+    toast(ok ? '한경희마루 발주 문자를 복사했습니다' : '복사 실패 — 미리보기를 길게 눌러 직접 복사해 주세요');
+  });
 }
 
 let toastTimer = 0;
@@ -4676,7 +4981,9 @@ function readInputs(){
     /* 코너 기둥(따내기) */
     cornerPos: state.cornerPos || 'none',
     cornerW: +$('#cornerW').value || 450,
-    cornerD: +$('#cornerD').value || 680
+    cornerD: +$('#cornerD').value || 680,
+    /* 외부 노출 면 — 몰딩·발주 문자 집계 기준 */
+    outerFaces: state.outerFaces || '2'
   };
 }
 
@@ -4802,17 +5109,49 @@ function render(){
     <div class="sheet-wrap" data-sheet="${sh.id}">
       <div class="sheet-bar">
         <span class="tagno">${sh.label}</span>
-        <span class="lbl">· A4 1장 · 8㎜ 여백</span><span class="hint">· 좌우로 밀어 확대</span>
+        <span class="lbl">· A4 1장 · 8㎜ 여백</span><span class="hint">· ＋− 로 확대 · 끌어서 이동</span>
         <span class="spacer"></span>
+        <div class="zoombox">
+          <button type="button" data-zoom="out" aria-label="축소">−</button>
+          <span class="pct" data-zoom-pct>100%</span>
+          <button type="button" data-zoom="in" aria-label="확대">＋</button>
+          <button type="button" data-zoom="fit" aria-label="화면 폭에 맞추기">맞춤</button>
+        </div>
         <button class="btn sm ghost" data-png="${sh.id}">이미지</button>
       </div>
       <div class="sheet">${sh.fn(m)}</div>
-    </div>`).join('') + bnbCardHTML(m);
+    </div>`).join('') + bnbCardHTML(m) + orderCardHTML(m);
   host.querySelectorAll('[data-png]').forEach(b=>{
     b.addEventListener('click', ()=>exportSheet(b.dataset.png));
   });
+  /* 도면 줌 — 기본 100%(화면 폭에 맞춤) · 확대하면 좌우로 밀어서 본다 */
+  host.querySelectorAll('.sheet-wrap').forEach(w=>{
+    const box = w.querySelector('.sheet'), svg = box && box.querySelector('svg'), pct = w.querySelector('[data-zoom-pct]');
+    if(!box || !svg) return;
+    let z = 1;
+    const apply = ()=>{
+      svg.style.width = (z*100) + '%';
+      if(pct) pct.textContent = Math.round(z*100) + '%';
+      w.querySelectorAll('[data-zoom]').forEach(b=>{
+        if(b.dataset.zoom==='in') b.disabled = z >= 4;
+        if(b.dataset.zoom==='out') b.disabled = z <= 1;
+      });
+    };
+    w.querySelectorAll('[data-zoom]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const act = b.dataset.zoom;
+        if(act==='in') z = Math.min(4, Math.round((z + (z < 1.5 ? 0.25 : 0.5))*100)/100);
+        else if(act==='out') z = Math.max(1, Math.round((z - (z <= 1.5 ? 0.25 : 0.5))*100)/100);
+        else { z = 1; box.scrollLeft = 0; }
+        apply();
+      });
+    });
+    const p1 = w.querySelector('[data-zoom-pct]');
+    if(p1 && !w.dataset.zw){ w.dataset.zw = '1'; apply(); }
+  });
   const bnbBtn = host.querySelector('[data-bnb-copy]');
   if(bnbBtn) bnbBtn.addEventListener('click', copyBnb);
+  wireOrder(host, m);
   /* 시창 드래그 — 평면도·전개도 어느 쪽을 끌어도 같은 값으로 움직인다 */
   host.querySelectorAll('[data-drag]').forEach(el=>{
     el.addEventListener('pointerdown', onWinDragStart);
@@ -5144,6 +5483,7 @@ function init(){
   });
   segInit('#doorHinge','doorHinge','right');
   segInit('#cornerPos','cornerPos','none');
+  segInit('#outerFaces','outerFaces','2');
   segInit('#lineFace','lineFace','back');
   segInit('#lightMode','lightMode','cob', ()=>{ state.autoRail = false; });
   segInit('#ledTemp','ledTemp','4000');
@@ -5266,6 +5606,7 @@ function init(){
   const qCp = q.get('cp') || src.cornerPos;
   if(['back-left','back-right','front-left','front-right'].indexOf(qCp) >= 0) setSeg('#cornerPos','cornerPos', qCp);
   else setSeg('#cornerPos','cornerPos', 'none');
+  setSeg('#outerFaces','outerFaces', (String(src.outerFaces||'2')==='1'?'1':(String(src.outerFaces||'2')==='3'?'3':'2')));
   const qCw = q.get('cw') || src.cornerW, qCd = q.get('cd') || src.cornerD;
   if(qCw && $('#cornerW')) $('#cornerW').value = qCw;
   if(qCd && $('#cornerD')) $('#cornerD').value = qCd;

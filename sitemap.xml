@@ -45,4 +45,10 @@
       <image:title>베오방음 3D 견적 시뮬레이터</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://beosoundproof.com/privacy.html</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>
