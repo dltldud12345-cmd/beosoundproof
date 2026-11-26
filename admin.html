@@ -956,6 +956,7 @@
       <div class="calc-line"><span>공급가액</span><b id="calc-supply">—</b></div>
       <div class="calc-line"><span>부가세 (공급가액 × 10%)</span><b id="calc-vat">—</b></div>
       <div class="calc-line"><span>운송</span><b id="calc-ship">—</b></div>
+      <div class="calc-line"><span>매입가 · 마진</span><b id="calc-margin">—</b></div>
       <div class="calc-line"><span>계약금 50%</span><b id="calc-deposit">—</b></div>
     </div>
     <div class="calc-acts">
@@ -1570,8 +1571,11 @@
         listings: Array.isArray(r2.listings) ? r2.listings : [],
         inquiries: Array.isArray(r2.inquiries) ? r2.inquiries : []
       };
-      if (cb) return cb(true);
-      render();
+      /* 매입가·마진은 관리자 키 인증 뒤 Supabase price_admin RPC 로만 받는다 */
+      psCostLoad().then(function(){
+        if (cb) return cb(true);
+        render();
+      });
     }).catch(function(err){
       if (cb) return cb(false);
       app.innerHTML = '<div class="empty">불러오지 못했습니다: ' + esc(err.message) + '</div>';
@@ -3994,6 +3998,9 @@ function openContractModal(q){
      - 매입 원가·마진은 소스에 두지 않는다 (2단계에서 서버 RPC로 분리 예정)
      ============================================================ */
   var PS_KEY = "beo_ps";
+  /* 매입가·원가·마진 — 관리자 키 인증 뒤 Supabase price_admin RPC 로만 받는다.
+     공개 HTML/JS 소스에는 매입가 숫자를 두지 않는다 (#118). */
+  var PS_COST = null, PS_COST_ERR = false;
   var PS_GRADES = [
     { k: "value",    t: "슈퍼싱글",        s: "외벽 1중 · 방음도어 1짝",      badge: "주력",   wallMul: 1,    doors: 1 },
     { k: "standard", t: "슈퍼싱글 플러스",  s: "정면만 2중 · 방음도어 2짝",   badge: "",      wallMul: 1.25, doors: 2 },
@@ -4118,8 +4125,7 @@ function openContractModal(q){
              aFloor: base.aFloor, aWall: base.aWall, wallMul: base.wallMul, grade: g, dim: dim,
              band: base.band, bandDays: base.bandDays };
   }
-  function psRound(v){ return Math.round(v / 100000) * 100000; }   // 산출가는 10만 원 단위
-  /* 확정가 표에 있으면 그 금액, 없으면 기준 계수 산출가를 10만원 단위로 */
+  function psRound(v){ return Math.round(v / 100000) * 100000; }   // 산출가는 10만 원 단위  /* 확정가 표에 있으면 그 금액, 없으면 기준 계수 산출가를 10만원 단위로 */
   function psTablePrice(gKey, sizeKey, basisTotal){
     var table = PS_PRICE[gKey] || {};
     return table[sizeKey] ? table[sizeKey] : psRound(basisTotal);
@@ -4133,6 +4139,53 @@ function openContractModal(q){
     return { base: base, total: base + optP, optP: optP, basis: c };
   }
   function krwPS(v){ return Number(Math.round(v)).toLocaleString("ko-KR") + "원"; }
+  /* ---- 매입가 · 마진 (서버 원가) --------------------------------------
+     price_admin RPC 가 내려준 매입가 계수로만 계산한다. 인증 전에는 아무 값도 없다. */
+  function psCostLoad(){
+    PS_COST = null; PS_COST_ERR = false;
+    if (!state.adminKey) return Promise.resolve(null);
+    return rpc("price_admin", { p_key: state.adminKey }).then(function(res){
+      PS_COST = (res && res.ok && res.base) ? res : null;
+      PS_COST_ERR = !PS_COST;
+      return PS_COST;
+    }).catch(function(){ PS_COST = null; PS_COST_ERR = true; return null; });
+  }
+  function psCostBase(g, dim, shipKey, day){
+    if (!PS_COST) return null;
+    var b = PS_COST.base || {};
+    var aFloor = dim.w * dim.d / 1e6, aWall = 2 * (dim.w + dim.d) * dim.h / 1e6;
+    var rF = aFloor / 4, rW = aWall / 18.24;
+    var wMul = psWallMul(g, dim);
+    var matF = 0.35 * (b.PSB || 0) * rF;
+    var matW = 0.65 * (b.PSB || 0) * rW * wMul;
+    var work = (b.PSW || 0) * (0.35 * rF + 0.65 * rW * (1 + (wMul - 1) * 0.7));
+    var door = (b.PSD || 0) * g.doors;
+    var shipRow = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === shipKey) shipRow = s; });
+    var band = psBandOf(dim, day);
+    var dIn = (day === 0 || day === "0") ? 0 : Math.max(band.days, Number(day) || band.days);
+    var one = b.PSDY || 0;
+    var total = matF + matW + work + door + (b.PSP || 0) + (b.PSS || 0) + shipRow.add + one
+              + Math.max(0, dIn - 1) * one;
+    if (dIn === 0) total -= one;
+    return { total: total };
+  }
+  function psMarginInfo(){
+    if (!PS_COST) return null;
+    var g = psGradeOf(PS.grade), dim = psDims();
+    var cb = psCostBase(g, dim, PS.ship, PS.day);
+    if (!cb) return null;
+    var optCost = 0, rows = [];
+    PS_OPTS.forEach(function(o){
+      if (!PS[o.k] || !(o.price > 0)) return;
+      var c = (PS_COST.opt || {})[o.k] || 0;
+      optCost += c; rows.push({ t: o.t, price: o.price, cost: c });
+    });
+    var p = psPrice();
+    var cost = cb.total + optCost;
+    var margin = p.total - cost;
+    return { cost: cost, baseCost: cb.total, optCost: optCost, margin: margin,
+             rate: p.total ? margin / p.total : 0, rows: rows, total: p.total };
+  }
   function psQuoteInfo(){
     var p = psPrice();
     var supply = Math.round(p.total / 1.1);
@@ -4186,6 +4239,34 @@ function openContractModal(q){
     var dim = psDims(), g = psGradeOf(PS.grade);
     var map = { value: "single", standard: "plus", premium: "double" };
     return "blueprint.html?w=" + dim.w + "&d=" + dim.d + "&h=" + dim.h + "&gr=" + (map[PS.grade] || "single");
+  }
+  /* 매입가 · 마진 카드 — 서버 원가가 없으면 숫자를 만들지 않는다 */
+  function psCostCardHTML(){
+    var head = '<div class="ps-step"><span class="t">매입가 · 마진</span><span class="s">관리자 키 인증 후 서버(price_admin)에서만</span></div>';
+    var mi = psMarginInfo();
+    if (!mi){
+      return head + '<p class="ps-note">'
+        + (PS_COST_ERR ? '서버 원가를 받지 못했습니다 — 새로고침하거나 관리자 키를 다시 확인해 주세요.' : '원가를 불러오는 중…')
+        + '</p>';
+    }
+    var rows = mi.rows.map(function(r){
+      var mg = r.price - r.cost;
+      return '<div class="ps-line"><span>' + r.t + ' · 매입 ' + krwPS(r.cost) + '</span><b>' + krwPS(mg)
+        + ' <em style="font-style:normal;font-weight:600;opacity:.6">(' + (r.price ? Math.round(mg / r.price * 100) : 0) + '%)</em></b></div>';
+    }).join("");
+    return head
+      + '<div class="ps-kpis" style="margin:0">'
+      + '  <div class="ps-kpi"><span class="pslb">매입가 (부가세 포함)</span>'
+      + '    <span class="v" data-ps-cost="cost">' + krwPS(mi.cost) + '</span>'
+      + '    <span class="sub">기본 ' + krwPS(mi.baseCost) + (mi.optCost ? ' · 옵션 ' + krwPS(mi.optCost) : '') + '</span></div>'
+      + '  <div class="ps-kpi"><span class="pslb">마진</span>'
+      + '    <span class="v" data-ps-cost="margin">' + krwPS(mi.margin) + '</span>'
+      + '    <span class="sub">판매가 − 매입가</span></div>'
+      + '  <div class="ps-kpi"><span class="pslb">마진율</span>'
+      + '    <span class="v" data-ps-cost="rate">' + (mi.rate * 100).toFixed(1) + '%</span>'
+      + '    <span class="sub">부가세 포함 총액 기준</span></div>'
+      + '</div>'
+      + (rows ? '<details class="ps-detail" style="margin-top:10px"><summary><span>옵션별 매입가 · 마진</span><span>열기</span></summary>' + rows + '</details>' : '');
   }
   function renderPriceTab(){
     var m = psQuoteInfo(), g = psGradeOf(PS.grade), dim = psDims();
@@ -4244,6 +4325,9 @@ function openContractModal(q){
       + '      <span class="sub">잔금 ' + krwPS(m.p.total - m.deposit) + '</span>' 
       + '      <span class="sub">부가세 포함 총액 기준</span></div>' 
       + '  </div>'
+
+      /* 원가 · 마진 — 서버 RPC */
+      + '  <div class="ps-card">' + psCostCardHTML() + '</div>'
 
       /* 1 등급 */
       + '  <div class="ps-card"><div class="ps-step"><span class="n">1</span><span class="t">등급</span><span class="s">딱 누르면 등급이 바뀝니다</span></div>'
@@ -4372,6 +4456,14 @@ function openContractModal(q){
     var mv = app.querySelector(".ps-kpi.mine .v"); if (mv) mv.textContent = krwPS(m.deposit);
     var mss = app.querySelectorAll(".ps-kpi.mine .sub");
     if (mss[0]) mss[0].textContent = "잔금 " + krwPS(m.p.total - m.deposit);
+    /* 매입가 · 마진도 같이 (판매가를 손으로 고칠 때) */
+    var mi = psMarginInfo();
+    if (mi){
+      var setC = function(k, txt){ var el = app.querySelector('[data-ps-cost="' + k + '"]'); if (el) el.textContent = txt; };
+      setC("cost", krwPS(mi.cost));
+      setC("margin", krwPS(mi.margin));
+      setC("rate", (mi.rate * 100).toFixed(1) + "%");
+    }
   }
 
   psLoad();
@@ -4456,7 +4548,7 @@ function openContractModal(q){
     if (!c){
       put("calc-basis", "가로 · 세로를 입력해 주세요");
       put("calc-supply", "—"); put("calc-vat", "—"); put("calc-total", "—");
-      put("calc-ship", "—"); put("calc-deposit", "—");
+      put("calc-ship", "—"); put("calc-deposit", "—"); put("calc-margin", "—");
       if (pv) pv.textContent = "";
       return;
     }
@@ -4468,6 +4560,12 @@ function openContractModal(q){
     put("calc-vat", krw(c.vat));
     put("calc-ship", c.add ? "+" + krw(c.add) + " (" + st.t + ")" : "포함 (수도권)");
     put("calc-deposit", krw(c.deposit));
+    /* 매입가 · 마진 — 서버 원가가 있을 때만 */
+    var cdim = { w: dim.w, d: dim.d, h: CALC_H };
+    var ccost = psCostBase(c.grade, cdim, c.region, psAutoDay(cdim));
+    put("calc-margin", ccost
+      ? (krwPS(ccost.total) + " · " + (((c.total - ccost.total) / (c.total || 1)) * 100).toFixed(1) + "%")
+      : (PS_COST_ERR ? "서버 원가를 못 받았습니다" : "원가 불러오는 중…"));
     if (pv) pv.textContent = calcCustomerText(dim.w, dim.d);
     var sel = document.getElementById("calc-spec");
     if (sel && document.activeElement !== sel){
@@ -4635,7 +4733,7 @@ function openContractModal(q){
     b.addEventListener("click", function(){ state.nav = b.getAttribute("data-nav"); state.qStatus = "all"; render(); window.scrollTo(0, 0); });
   });
   document.getElementById("btn-refresh").addEventListener("click", function(){ toast("최신 화면 불러오는 중…"); location.replace(location.pathname + "?v=" + Date.now() + (location.hash || "")); });
-  document.getElementById("btn-logout").addEventListener("click", function(){ clearKey(); state.adminKey = ""; renderLogin(); });
+  document.getElementById("btn-logout").addEventListener("click", function(){ clearKey(); state.adminKey = ""; PS_COST = null; renderLogin(); });
 
   state.adminKey = loadSavedKey();
   if (!state.adminKey) renderLogin();
