@@ -4156,19 +4156,19 @@ function sheetField(m){
        레일·타공 줄과 겹친다. 중앙등은 정중앙이라 양쪽 값이 같다. */
     if(m.lineFace === 'back'){
       const y0 = Y(outD), yIn0 = Y(outD - fBmm);
-      s += L(cx - 29, y0, cx - 29, cy, {stroke:C_OUT, sw:0.85});
-      s += cross(cx - 29, y0, C_OUT, null);
-      s += tag(cx - 36, (y0+cy)/2, '바깥 ' + fmt(Math.round(outD - m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
-      s += L(cx + 26, yIn0, cx + 26, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
-      s += cross(cx + 26, yIn0, C_IN, '6 3');
-      s += tag(cx + 33, (yIn0+cy)/2, '안쪽 ' + fmt(Math.round((outD - fBmm) - m.ctrY)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
+      s += L(cx - 52, y0, cx - 52, cy, {stroke:C_OUT, sw:0.85});
+      s += cross(cx - 52, y0, C_OUT, null);
+      s += tag(cx - 59, (y0+cy)/2, '바깥 ' + fmt(Math.round(outD - m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
+      s += L(cx + 49, yIn0, cx + 49, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
+      s += cross(cx + 49, yIn0, C_IN, '6 3');
+      s += tag(cx + 56, (yIn0+cy)/2, '안쪽 ' + fmt(Math.round((outD - fBmm) - m.ctrY)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
     } else {
-      s += L(cx + 26, Y(fTmm), cx + 26, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
-      s += cross(cx + 26, Y(fTmm), C_IN, '6 3');
-      s += tag(cx + 33, (Y(fTmm)+cy)/2, '안쪽 ' + fmt(Math.round(m.ctrY - fTmm)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
-      s += L(cx - 29, Y(0), cx - 29, cy, {stroke:C_OUT, sw:0.85});
-      s += cross(cx - 29, Y(0), C_OUT, null);
-      s += tag(cx - 36, (Y(0)+cy)/2, '바깥 ' + fmt(Math.round(m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
+      s += L(cx + 49, Y(fTmm), cx + 49, cy, {stroke:C_IN, sw:1.0, dash:'6 3'});
+      s += cross(cx + 49, Y(fTmm), C_IN, '6 3');
+      s += tag(cx + 56, (Y(fTmm)+cy)/2, '안쪽 ' + fmt(Math.round(m.ctrY - fTmm)), {size:7.4, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true, rot:-90});
+      s += L(cx - 52, Y(0), cx - 52, cy, {stroke:C_OUT, sw:0.85});
+      s += cross(cx - 52, Y(0), C_OUT, null);
+      s += tag(cx - 59, (Y(0)+cy)/2, '바깥 ' + fmt(Math.round(m.ctrY)), {size:7.4, fill:C_OUT, weight:800, bg:'#fff', bgop:.96, stroke:C_OUT, sw:0.45, mono:true, rot:-90});
     }
     s += tag((X(fLmm)+cx)/2, cy+21, '안쪽 ' + fmt(Math.round(m.ctrX - fLmm)), {size:7.6, fill:C_IN, weight:800, bg:'#fff', bgop:.96, stroke:C_IN, sw:0.45, mono:true});
     }
