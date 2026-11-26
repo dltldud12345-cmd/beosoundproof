@@ -84,6 +84,7 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip{appearance:none;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink2);padding:6px 9px;border-radius:8px;cursor:pointer;transition:.14s;font-variant-numeric:tabular-nums}
   .chip:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-t)}
+  .chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-t);color:var(--accent-d);box-shadow:inset 0 0 0 1px var(--accent)}
   input[type=range]{width:100%;height:22px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
   input[type=range]:disabled{opacity:.45;cursor:default}
   .posbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;font-size:10.5px;color:var(--muted)}
@@ -572,6 +573,30 @@
     </section>
 
     <section class="card">
+      <h2>외부 마감 면 <span style="font-size:10px;font-weight:700;color:#2E9C86">9T 알판</span></h2>
+      <div class="field"><label>빠른 선택</label>
+        <div class="chips" id="extPresets">
+          <button class="chip" type="button" data-ex="front,left" aria-pressed="true">2면 · 앞+좌</button>
+          <button class="chip" type="button" data-ex="front,right" aria-pressed="false">2면 · 앞+우</button>
+          <button class="chip" type="button" data-ex="front,left,right" aria-pressed="false">3면 · 후면 제외</button>
+          <button class="chip" type="button" data-ex="front,back,right" aria-pressed="false">3면 · 좌측 제외</button>
+          <button class="chip" type="button" data-ex="front,back,left" aria-pressed="false">3면 · 우측 제외</button>
+          <button class="chip" type="button" data-ex="front,back,left,right" aria-pressed="false">4면 전체</button>
+          <button class="chip" type="button" data-ex="front" aria-pressed="false">1면 · 앞만</button>
+        </div>
+      </div>
+      <div class="field"><label>면별 선택 <span class="hint">켜고 끄기</span></label>
+        <div class="seg" id="extFaces">
+          <button type="button" data-v="front" aria-pressed="true">앞면</button>
+          <button type="button" data-v="back" aria-pressed="false">뒷면</button>
+          <button type="button" data-v="left" aria-pressed="true">좌측</button>
+          <button type="button" data-v="right" aria-pressed="false">우측</button>
+        </div>
+      </div>
+      <p class="note-small" id="extNote">—</p>
+    </section>
+
+    <section class="card">
       <h2>외부 노출 면 <span style="font-size:10px;font-weight:700;color:#9AA4AC">몰딩 산출</span></h2>
       <div class="field"><label>몰딩을 대는 면</label>
         <div class="seg" id="outerFaces">
@@ -604,7 +629,11 @@
           </div>
           <div class="field"><label for="doorH">문 높이 <span class="hint">mm</span></label><input type="number" id="doorH" value="1800" min="1500" max="2100" step="10"></div>
           <div class="field"><label for="ceilDir">천장 결 방향</label>
-            <select id="ceilDir"><option value="long">긴 변 방향</option><option value="short">짧은 변 방향</option></select>
+            <select id="ceilDir">
+              <option value="auto">자동 — 라인타공 면을 따라 (추천)</option>
+              <option value="long">긴 변 방향</option>
+              <option value="short">짧은 변 방향</option>
+            </select>
           </div>
           <div class="field"><label for="lenSplit">2400 초과 시 길이 분할</label>
             <select id="lenSplit">
@@ -612,7 +641,7 @@
               <option value="max">2400 최대 절단 · 3000 → 2400+600</option>
             </select>
           </div>
-          <p class="note-small">모든 판재는 <b>원판 600×2400</b> 기준입니다. 가로는 항상 <b>600 모듈 + 자투리</b>, 길이가 <b>2400㎜를 넘으면</b> 길이 방향을 나눠 재단·산출합니다. <b>천장은 마블폼 45T 2겹 + 천장 아트보드</b>이고, 길이가 <b>2000을 넘으면 정확히 반씩 대칭</b>(2475 → 1238 + 1237)으로 자릅니다 — 이음선이 한가운데로 오고 매립등도 양쪽 절반의 중앙에 일자로 놓입니다. 바닥은 <b>마블폼 60T 1겹 + 15T 합판 2겹 + 강화마루</b>입니다.</p>
+          <p class="note-small">모든 판재는 <b>원판 600×2400</b> 기준입니다. 가로는 항상 <b>600 모듈 + 자투리</b>, 길이가 <b>2400㎜를 넘으면</b> 길이 방향을 나눠 재단·산출합니다. <b>천장 결은 기본 '자동'</b> — 라인타공 면을 따라가는 방향으로 잡아 <b>매립등 2구가 한 천장판에서 한 번에 타공</b>되게 합니다(2000 초과는 예전처럼 반씩 대칭 분할). 긴 변·짧은 변으로 직접 바꿀 수 있습니다. <b>천장은 마블폼 45T 2겹 + 천장 아트보드</b>이고, 길이가 <b>2000을 넘으면 정확히 반씩 대칭</b>(2475 → 1238 + 1237)으로 자릅니다 — 이음선이 한가운데로 오고 매립등도 양쪽 절반의 중앙에 일자로 놓입니다. 바닥은 <b>마블폼 60T 1겹 + 15T 합판 2겹 + 강화마루</b>입니다.</p>
           <p class="note-small" style="margin-top:6px">이 <b>여유</b>는 <b>천장 판 사이에 15T 합판을 세워 박아</b> 천장이 처지지 않게 받치는 값입니다. 마지막 판을 <b>자투리 − (15T × 이음매 개소)</b>로 줄여 재단합니다.</p>
           <p style="margin:10px 0 0;font-size:10.5px;color:#7B8389;line-height:1.6">기본값은 제작팀 손도면 10장에서 확인한 값입니다. 현장에 따라 조정하세요.</p>
         </div>
@@ -681,6 +710,22 @@ function splitLen(L, mode){
   return out;
 }
 const splitModeName = m => (m==='max' ? '2400 최대 절단' : '균등 분할');
+
+/* =====================================================================
+   외부 마감 면(9T 알판) — 앞·뒤·좌·우 4면 중 실제로 알판을 붙이는 면
+   · 실제 현장은 보통 2면(방 구석 배치 — 앞+좌), 많아야 3면
+   · 기본값 2면 = 앞 + 좌 · 최소 1면 · 최대 4면
+   ===================================================================== */
+const EXT_ORDER = ['front','back','left','right'];
+const EXT_DEFAULT = ['front','left'];
+const EXT_SHORT = {front:'앞', back:'뒤', left:'좌', right:'우'};
+function normExtList(v){
+  const a = Array.isArray(v) ? v.map(String) : String(v==null? '' : v).split(',');
+  const out = EXT_ORDER.filter(k=> a.indexOf(k) >= 0);
+  return out.length ? out : EXT_DEFAULT.slice();
+}
+const extShortName = k => EXT_SHORT[k] || k;
+const extListTxt = (list) => list.map(extShortName).join('·');
 
 /* 천장 전용 분할 — 길이 2000 초과면 정확히 반씩 대칭 (2475 → 1238 + 1237)
    3000 → 2000 + 1000 · 2500 → 2000 + 500 · 4000 → 2000 + 2000 · 4400 → 2000 + 2000 + 400
@@ -816,6 +861,19 @@ function buildModel(inp){
   ];
   const opp = {front:'back',back:'front',left:'right',right:'left'}[doorSide];
   const sideName = {front:'앞면',back:'뒷면',left:'좌측면',right:'우측면'};
+
+  /* --- 외부 마감 면 (9T 알판) ------------------------------------------
+     실제 현장은 보통 2면 — 방 구석에 붙는 뒤·우는 벽에 닿아 알판을 대지 않는다.
+     선택한 면만 외벽 알판 재단·면적·장수에 들어가고, 제외한 면은 벽체까지만 세운다.
+     단차 벽(코너 기둥)은 붙어 있는 바깥 면을 따라간다.                             */
+  const extFaces = normExtList(inp.extFaces);
+  const extSet = k => extFaces.indexOf(k) >= 0;
+  const extExcl = EXT_ORDER.filter(k=> !extSet(k));
+  const extTxt = extExcl.length
+    ? extFaces.length + '면 (' + extListTxt(extFaces) + ') · 제외 ' + extListTxt(extExcl)
+    : '4면 전체 (' + extListTxt(extFaces) + ')';
+  const stepFaceOf = st => st.axis==='y' ? (st.bandSide==='right' ? 'right' : 'left')
+                                           : (st.bandSide==='top' ? 'back' : 'front');
 
   sides.forEach(s=>{
     /* 좌·우 벽(전길이 면)은 외경 끝에서 끝까지(D) 그대로 쓰고, 문 면·반대 면만
@@ -1159,8 +1217,18 @@ function buildModel(inp){
   const f1 = notch.on ? gridOf('x', L=>splitLen(L, LSPLIT)) : strips(W, D);   // 1층: 세로 결
   const f2 = notch.on ? gridOf('y', L=>splitLen(L, LSPLIT)) : strips(D, W);   // 2층: 가로 결 (교차)
 
-  /* --- 천장 마블폼 45T ------------------------------------------------------- */
-  const ceilAlongLong = inp.ceilDir !== 'short';
+  /* --- 천장 마블폼 45T -------------------------------------------------------
+     결 방향(=판 길이 방향)은 기본 '자동' — 라인타공 면과 나란한 쪽을 고른다.
+     매립등 2구가 한 천장판 안에서 한 번에 타공되도록 하는 현장 규칙이며,
+     길이가 2000을 넘으면 예전과 같이 반씩 대칭으로 나누고 결 방향만 따라간다. */
+  const faceAxisCeil = (lineFace==='front' || lineFace==='back') ? 'x' : 'y';
+  const axisOfCeilDir = v => ((v === 'long' ? Math.max(W,D) : Math.min(W,D)) === W) ? 'x' : 'y';
+  const ceilDirWanted = (inp.ceilDir === 'short' || inp.ceilDir === 'long') ? inp.ceilDir : 'auto';
+  const ceilDirEff = ceilDirWanted === 'auto'
+    ? (axisOfCeilDir('long') === faceAxisCeil ? 'long' : 'short')
+    : ceilDirWanted;
+  const ceilAuto = (ceilDirWanted === 'auto');
+  const ceilAlongLong = ceilDirEff !== 'short';
   const cLen  = ceilAlongLong ? Math.max(W,D) : Math.min(W,D);   // 재단 길이
   const cSpan = ceilAlongLong ? Math.min(W,D) : Math.max(W,D);   // 폭 합
   let cN = Math.floor(cSpan/MOD), cRest = cSpan - cN*MOD;
@@ -1331,10 +1399,14 @@ function buildModel(inp){
     };
   })();
 
-  /* --- 외벽 알판 ---------------------------------------------- */
+  /* --- 외벽 알판 (선택한 외부 마감 면만) --------------------------- */
   const extRows = [];
   allSegs.forEach(s=>{
     const label = s.name || sideName[s.k];
+    /* 단차 벽은 붙어 있는 바깥 면이 선택됐을 때만, 일반 면은 자기 면이 선택됐을 때만 */
+    if(s.k==='stepV' || s.k==='stepH'){
+      if(!extSet(stepFaceOf(s))) return;
+    } else if(!extSet(s.k)) return;
     s.pieces.forEach(p=>{
       if(p.kind==='mod' || p.kind==='resid') extRows.push({w:p.w, l:H, qty:1, note:label+' 알판'});
     });
@@ -1435,7 +1507,11 @@ function buildModel(inp){
   merge2(extRows.filter(r=>r.w>40)).forEach(p=>{
     splitLen(p.l, LSPLIT).forEach(seg=> add('외벽 알판', p.w, seg, p.qty, p.note));
   });
-  splitLen(H, LSPLIT).forEach(seg=> add('외벽 알판', 110, seg, 4, '모서리 마감 스트립'));
+  /* 모서리 마감 스트립 — 알판을 대는 면이 만나는(또는 끝나는) 모서리마다 1개
+     4면이면 4곳 · 2면(앞+좌)이면 앞-좌(맞대기) + 앞-우·뒤-좌(끝마감) = 3곳 · 1면이면 2곳 */
+  const extCornerN = [['front','left'],['front','right'],['back','left'],['back','right']]
+    .filter(c=> extSet(c[0]) || extSet(c[1])).length;
+  if(extCornerN > 0) splitLen(H, LSPLIT).forEach(seg=> add('외벽 알판', 110, seg, extCornerN, '모서리 마감 스트립 ' + extCornerN + '곳'));
 
   /* --- 재단표 행 합치기 (같은 규격은 수량 합산) ----------------------- */
   const cMap = new Map();
@@ -1487,7 +1563,9 @@ function buildModel(inp){
   const perimSpan = notch.on ? sum(allSegs.map(s=>s.span)) : sum(sides.map(s=>s.span));
   const floorArea = notch.on ? notch.area/1e6 : (W*D)/1e6;
   const wallArea = (perimSpan*CFG.HEAD)/1e6;
-  const extArea  = (sum(sides.map(s=>s.len))*H)/1e6;
+  /* 외부 마감 면적 — 알판을 대는 면의 외경 길이 합 × 층고 (제외한 면은 0) */
+  const extLen  = sum(sides.filter(s=>extSet(s.k)).map(s=>s.len));
+  const extArea  = (extLen*H)/1e6;
   const innerArea = (notch.on ? notch.innerArea : innerW*innerD)/1e6;
   /* 아트보드 — 라인타공 면은 발주에서 빼고 나머지 3면만.
      라인타공 면과 맞닿는 두 면은 후접(겹쳐 들어가는 쪽) 9㎜씩 차감한다. */
@@ -1515,7 +1593,7 @@ function buildModel(inp){
     {mat:'PB 95T — 내벽 (2중)', spec: gradeDef.name+' · '+dblFaces.map(k=>sideName[k]).join('·'), amount: n(dblArea), unit:'㎡', boards: stockCount(cutCells('내벽 95T PB (2중)')), note: dblFaces.length? '외벽 안쪽 내벽 층 · 액자틀 동일' : '해당 없음 (슈퍼싱글)'},
     {mat:'마블폼 — 천장 (45T 2겹)', spec:'45T · 575×970', amount: String(mableCeilSheets), unit:'장', boards: null, note:'천장 2겹 · 여유 10% 포함'},
     {mat:'천장 아트보드', spec:'1220×2420 · 반씩 대칭', amount: String(Math.ceil(((artShort*artLong)/1e6)*1.1/(1.22*2.42))), unit:'장', boards: null, note:'천장 먼저 시공 — 내부에서 가로·세로 각 '+BNB.GAP+'㎜ 작게 · 이음 한가운데'},
-    {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H, amount: n(extArea), unit:'㎡', boards: stockCount(cutCells('외벽 알판')), note:'외부 마감 9T'},
+    {mat:'백색 알판 — 외벽 마감 9T', spec:'높이 '+H+' · '+extTxt, amount: n(extArea), unit:'㎡', boards: stockCount(cutCells('외벽 알판')), note:'외부 마감 9T · '+extTxt},
     {mat:'9T 마감재 — 내부 (3면)', spec:'1220×2420', amount: n(artArea), unit:'㎡', boards: artSheets, note:'아트보드 '+(inp.bbColor||'연베이지')+' · 라인타공 '+(inp.slatColor||'내추럴 오크')+' 면 제외 · 후접 9㎜ 차감'},
     {mat:'마블폼 — 벽체 충전', spec:'45T · 575×970', amount: String(mableWallSheets), unit:'장', boards: null, note:'벽 '+(1+dblFaces.length/4).toFixed(2)+'겹 · 여유 10% 포함'},
     {mat:'마블폼 — 바닥 (60T)', spec:'60T · 575×970', amount: String(mableFloorSheets), unit:'장', boards: null, note:'바닥 1겹 · 모자라지 않게 올림'},
@@ -1549,7 +1627,9 @@ function buildModel(inp){
     ceilGrid,
     ceil:{pieces:ceilPieces, alongLong:ceilAlongLong, span:cSpan, len:cLen, spanAxis:ceilSpanAxis},
     cut: cutList, bom, boardTotal, stockCount,
-    perimSpan, floorArea, wallArea, extArea, innerW, innerD, innerArea,
+    perimSpan, floorArea, wallArea, extArea, extLen, extFaces, extExcl, extTxt, extCornerN,
+    ceilDirEff, ceilAuto,
+    innerW, innerD, innerArea,
     lineFace, lineLen, cobDia, cobInset, cobGap, cobPos, cobSegs,
     lineFin0, lineFin1, lineStart, clearW, clearD,
     finLeft, finRight, finBack, finFront, ctrX, ctrY,
@@ -1791,6 +1871,8 @@ function sheetPlan(m){
     + (m.notch.on ? ' · 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄' : '');
   let s = sheetHead('A-101','벽체 평면도', subPlan);
   s += pageNo('A-101',1,PAGE_TOTAL);
+  /* 지금 적용된 외부 마감 면 — 제목 줄 오른쪽에 그대로 적는다 */
+  s += T(SW-M-8, M+44, '외부 마감 '+m.extTxt, {size:7.4, fill:ACC, weight:800, anchor:'end'});
 
   /* 도면 영역 — 문이 있는 면은 바깥 여닫이 호(반지름 = 문 폭)만큼 자리를 비우고 축척을 역산 */
   const boxX0 = M+18, boxX1 = SW-M-10;
@@ -1895,6 +1977,15 @@ function sheetPlan(m){
   };
 
   s += drawBand('top', S('back')) + drawBand('bottom', S('front')) + drawBand('left', S('left')) + drawBand('right', S('right'));
+
+  /* ── 외부 마감 면 — 외곽선 바깥에 강조선을 띄운 면에만 9T 알판을 붙인다 ── */
+  (m.extFaces || []).forEach(k=>{
+    const o = 4.6;
+    if(k==='front')      s += L(ox, oy+ph+o, ox+pw, oy+ph+o, {stroke:ACC, sw:2.4});
+    else if(k==='back')  s += L(ox, oy-o, ox+pw, oy-o, {stroke:ACC, sw:2.4});
+    else if(k==='left')  s += L(ox-o, oy, ox-o, oy+ph, {stroke:ACC, sw:2.4});
+    else                 s += L(ox+pw+o, oy, ox+pw+o, oy+ph, {stroke:ACC, sw:2.4});
+  });
 
   /* ── 코너 기둥을 따낸 단차 벽 2면 — 외벽과 같은 600 모듈 + 끝 자투리 ── */
   (m.steps||[]).forEach(st=>{
@@ -2953,7 +3044,7 @@ function sheetFloorCeil(m){
       {title:'바닥 2층 (상판) · 코너 따냄', sub:'가로 결 · 1층과 교차 · 길이 '+m.W+' − 코너 '+m.notch.cw, fill:'#FBF8F2'});
     s += panelNotch(m, m.ceilGrid, m.ceil.spanAxis, {x:xL, y:356, w:boxW, h:300},
       {title:'천장 마블폼 45T 분할 · 코너 따냄',
-       sub:'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+' · 2겹 · 판 사이 15T 띠 · 2000 초과 반씩 대칭',
+       sub:'결 '+(m.ceil.alongLong?'긴 변':'짧은 변')+(m.ceilAuto? ' (라인타공 면 자동)':'')+' · 2겹 · 판 사이 15T 띠 · 2000 초과 반씩 대칭',
        note:'※ 코너 기둥 자리는 판을 깔지 않습니다 — 이음선 한가운데, 매립등 일자 배치', fill:'#FBFAF7'});
   } else {
   s += breakdown(m.W, m.D, m.floor.l1, 'v', {x:xL, y:M+78, w:boxW, h:262, title:'바닥 1층 (하판)', sub:'세로 결 · 폭 '+m.MOD+' 모듈 · 길이 '+m.D, hatch:'#fff'});
@@ -3452,13 +3543,15 @@ function sheetTables(m){
     CUT_GROUPS.forEach(([g,title])=>{
       const items = m.cut.filter(c=>c.group===g);
       if(!items.length) return;
+      /* 외벽 알판 카드는 지금 적용된 외부 마감 면을 제목에 같이 적는다 */
+      const ttl = (g==='외벽 알판' && m.extFaces) ? title + ' · ' + m.extFaces.length + '면 ' + extListTxt(m.extFaces) : title;
       const rows = items.map(it=>{
         const nt = lv.note ? wrapTokens(cutShortNote(it.note), colW-76, lv.note, 2) : [];
         const h  = lv.row + (nt.length > 1 ? lv.note*1.45 : 0);
         return {dim: fmt(it.w)+' × '+fmt(it.l), qty: it.qty, note: nt, h};
       });
       cards.push({
-        title, rows,
+        title: ttl, rows,
         h: lv.bar + lv.pad*2 + rows.reduce((a,r)=>a+r.h, 0),
         qty: items.reduce((a,c)=>a+c.qty, 0),
         area: items.reduce((a,c)=>a + c.w*c.l*c.qty/1e6, 0)
@@ -3556,7 +3649,7 @@ function sheetBom(m){
     ['마블폼 (바닥 60T)',     (B('마블폼 — 바닥').amount||'')+'장'],
     ['마블폼 (천장 45T×2)',   (B('마블폼 — 천장').amount||'')+'장'],
     ['천장 아트보드',          (B('천장 아트보드').amount||'')+'장'],
-    ['백색 알판 9T',          (B('알판').boards||'')+'장'],
+    ['백색 알판 9T ('+extListTxt(m.extFaces)+' '+m.extFaces.length+'면)',          (B('알판').boards||'')+'장'],
     ['9T 마감재 (내부)',      (B('마감재').boards||'')+'장'],
     ['마블폼 (벽체)',         (B('마블폼 — 벽체').amount||'')+'장'],
     ['15T 합판 (세움 띠)',    (B('세움 띠').amount||'')+'장'],
@@ -4500,6 +4593,15 @@ function bnbOrder(m, inp){
   if(doorItem) add(Math.round(m.fillH - T) + '면치기', [doorItem]);
 
   /* 3) 카톡 발주 양식 */
+  /* 조각 수량과 원판 장수를 나눠 센다 — 발주표의 숫자는 재단 조각 수(개)이고,
+     원판(1220×2420 = 2.95㎡)은 그보다 적다. 조각 수만큼 원판을 주문하는 실수를 막는다. */
+  let count = 0, area = 0;
+  groups.forEach(g=> g.rows.forEach(r=>{
+    const p = r.s.split('*').map(Number);
+    count += r.q; area += (p[0]*p[1]*r.q)/1e6;
+  }));
+  const BOARD_M2 = 1.22*2.42;
+  const boards = Math.max(1, Math.ceil(area*1.08/BOARD_M2));
   const site = (i.site || '').trim(), addr = (i.bbAddr || '').trim();
   const lines = [];
   lines.push(site || '현장명');
@@ -4514,17 +4616,13 @@ function bnbOrder(m, inp){
     g.rows.forEach(r=> lines.push(r.s + ' ' + r.q + '개'));
   });
   lines.push('');
+  lines.push('· 수량은 재단 조각 수(개) · 원판 1220×2420 약 ' + boards + '장');
+  lines.push('');
   lines.push('주문합니다.');
   const text = lines.join('\n');
 
-  let count = 0, area = 0;
-  groups.forEach(g=> g.rows.forEach(r=>{
-    const p = r.s.split('*').map(Number);
-    count += r.q; area += (p[0]*p[1]*r.q)/1e6;
-  }));
-
   return {
-    text, groups, count, area, color, flame, jointFrom, winInfo, ceilNote, smallW,
+    text, groups, count, area, boards, boardM2: BOARD_M2, color, flame, jointFrom, winInfo, ceilNote, smallW,
     faces, faceNames: faces.map(k=> m.sideName[k])
   };
 }
@@ -4542,7 +4640,8 @@ function bnbCardHTML(m){
     ['발주 면', o.faceNames.join(' · ') + ' + 천장'],
     ['벽 길이', '앞·뒤 ' + m.clearW + ' · 좌·우 ' + m.clearD + ' (내부 유효 기준)'],
     ['원단', o.color + ' 아트보드 ' + o.flame],
-    ['총 수량', o.count + ' 장 · ' + o.area.toFixed(2) + ' ㎡'],
+    ['총 수량', o.count + ' 개 (재단 조각) · ' + o.area.toFixed(2) + ' ㎡'],
+    ['원판 환산', '1220×2420 약 ' + o.boards + '장 · 조각 ' + o.count + '개'],
     ['천장', o.ceilNote],
     ['후접 −9T', o.jointFrom ? o.jointFrom.map(j=> j.side + ' ' + j.from + ' → ' + j.to + (j.merged ? ' (앞 판에 합침)' : '')).join(' · ') : '—']
   ];
@@ -4573,7 +4672,7 @@ function bnbCardHTML(m){
             <li>${winRule}.</li>
           </ol>
         </details>
-        <p class="note-small" style="margin-top:9px">실제 카톡 발주서 3건(IMG_1408 · 1409 · 1410)의 표기를 그대로 따릅니다. 복사 후 카톡에 붙여 넣고 현장명·주소만 확인하세요.</p>
+        <p class="note-small" style="margin-top:9px">표의 수량은 <b>재단 조각 수(개)</b>입니다. 원판(1220×2420)은 그보다 적으니 <b>원판 약 …장</b>을 따로 확인하세요 — 조각 수만큼 원판을 주문하면 2배로 옵니다. 실제 카톡 발주서 3건(IMG_1408 · 1409 · 1410)의 표기를 그대로 따릅니다. 복사 후 카톡에 붙여 넣고 현장명·주소만 확인하세요.</p>
       </div>
     </div>
   </section>`;
@@ -4677,7 +4776,7 @@ function orderItems(m, inp, bnb, mld){
     {id:'door', owner:'hkm', mode:'ship', name:'시스템도어', unit:'세트', full: m.doorCount},
     {id:'win', owner:'hkm', mode:'ship', name:'시창', unit:'개', full: m.winCount > 0 ? m.winCount : 0},
     /* 비앤비 — 별도 발주표에서 복사 (1차 출고 입력 없음) */
-    {id:'art', owner:'bnb', mode:'ref', name:'아트보드 9T (비앤비)', unit:'장', full: bnb.count}
+    {id:'art', owner:'bnb', mode:'ref', name:'아트보드 9T (비앤비)', unit:'개', full: bnb.count}
   ];
 }
 
@@ -5037,7 +5136,9 @@ function readInputs(){
     cornerW: +$('#cornerW').value || 450,
     cornerD: +$('#cornerD').value || 680,
     /* 외부 노출 면 — 몰딩·발주 문자 집계 기준 */
-    outerFaces: state.outerFaces || '2'
+    outerFaces: state.outerFaces || '2',
+    /* 외부 마감 면 — 9T 알판을 붙이는 면 (기본 2면 · 앞+좌) */
+    extFaces: normExtList(state.extFaces)
   };
 }
 
@@ -5062,6 +5163,24 @@ function syncWinUI(m){
   if(m.winMoved) warn.push(m.sideName[m.inp.winSide]+'에 '+fmt(m.needW)+' ㎜ 자리가 없어 '+m.sideName[m.winSideKey]+'으로 옮겼습니다.');
   if(m.winTight) warn.push('시창 '+fmt(m.needW)+' ㎜가 어느 면에도 들어가지 않습니다 — 부스를 넓히거나 규격·개수를 줄이세요.');
   $('#winWarn').innerHTML = warn.map(w=>'· '+w).join('<br>');
+}
+
+/* --- 외부 마감 면 UI (프리셋·면별 토글·요약) ---------------------------- */
+function syncExtUI(m){
+  const cur = normExtList(state.extFaces);
+  const seg = $('#extFaces'), pre = $('#extPresets'), note = $('#extNote');
+  if(seg) seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(cur.indexOf(b.dataset.v)>=0)));
+  if(pre) pre.querySelectorAll('.chip').forEach(b=>{
+    const v = normExtList(b.dataset.ex);
+    b.setAttribute('aria-pressed', String(v.length===cur.length && v.every((k,i)=>k===cur[i])));
+  });
+  if(!note) return;
+  const ex = EXT_ORDER.filter(k=> cur.indexOf(k)<0);
+  const b = m && m.bom ? m.bom.find(x=> /백색 알판/.test(x.mat)) : null;
+  const txt = ex.length ? cur.length+'면 ('+extListTxt(cur)+') · 제외 '+extListTxt(ex) : '4면 전체 ('+extListTxt(cur)+')';
+  note.innerHTML = '적용 <b>'+txt+'</b>'
+    + (b ? '<br>외벽 알판 9T <b>'+b.amount+' ㎡</b> · 원판 <b>'+(b.boards!=null? b.boards+'장':'—')+'</b>' : '')
+    + '<br>보통 <b>2면</b>(방 구석 배치) · 많아도 <b>3면</b>입니다. 같은 면이 <b>A-101·A-104</b>에 표기되고, 외부 몰딩은 아래 <b>외부 노출 면</b>에서 따로 고릅니다.';
 }
 
 /* --- 시창 드래그 (A-101 평면도 · A-103 전개도) --------------------------- */
@@ -5154,6 +5273,7 @@ function render(){
   syncCobUI(m);
   syncFieldUI(m);
   syncCornerUI(m);
+  syncExtUI(m);
 
   // sheets
   SHEETS = sheetsFor(m);
@@ -5285,6 +5405,11 @@ function syncURL(inp){
   if(inp.cornerPos && inp.cornerPos !== 'none'){
     q.set('cp', inp.cornerPos); q.set('cw', inp.cornerW); q.set('cd', inp.cornerD);
   }
+  /* 외부 마감 면 — 기본(앞+좌)과 다를 때만 */
+  const xf = normExtList(inp.extFaces).join(',');
+  if(xf !== EXT_DEFAULT.join(',')) q.set('xf', xf);
+  /* 천장 결 방향 — 자동이 아니면 직접 고른 값 */
+  if(inp.ceilDir && inp.ceilDir !== 'auto') q.set('ctd', inp.ceilDir);
   /* 방 배치 참고도 (선택) */
   if(inp.roomOn){
     q.set('ro','1'); q.set('rw',inp.roomW); q.set('rd',inp.roomD);
@@ -5538,6 +5663,26 @@ function init(){
   segInit('#doorHinge','doorHinge','right');
   segInit('#cornerPos','cornerPos','none');
   segInit('#outerFaces','outerFaces','2');
+  /* 외부 마감 면 — 기본 2면(앞+좌). 프리셋과 면별 토글이 같은 state.extFaces 를 본다 */
+  state.extFaces = EXT_DEFAULT.slice();
+  (function(){
+    const seg = $('#extFaces'), pre = $('#extPresets');
+    if(seg) seg.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const cur = normExtList(state.extFaces), k = b.dataset.v;
+        let next;
+        if(cur.indexOf(k) >= 0){
+          if(cur.length <= 1){ toast('외부 마감은 최소 1면은 남겨 둡니다'); return; }
+          next = cur.filter(x=> x !== k);
+        } else next = cur.concat(k);
+        state.extFaces = normExtList(next);
+        render();
+      });
+    });
+    if(pre) pre.querySelectorAll('.chip').forEach(b=>{
+      b.addEventListener('click', ()=>{ state.extFaces = normExtList(b.dataset.ex); render(); });
+    });
+  })();
   segInit('#lineFace','lineFace','back');
   segInit('#lightMode','lightMode','cob', ()=>{ state.autoRail = false; });
   segInit('#ledTemp','ledTemp','4000');
@@ -5642,6 +5787,9 @@ function init(){
   else if(src.winCenter !== undefined && src.winCenter !== null && src.winCenter !== '') state.winCenter = +src.winCenter;
   const qSplit = q.get('ls') || src.lenSplit;
   if(qSplit==='max' || qSplit==='even') $('#lenSplit').value = qSplit;
+  /* 천장 결 방향 — 기본 '자동'. 예전 저장값 'long' 은 옛 기본값이라 자동으로 본다 */
+  const qCtd = q.get('ctd') || ((src.ceilDir && src.ceilDir !== 'long') ? src.ceilDir : '');
+  if(qCtd==='auto' || qCtd==='long' || qCtd==='short') $('#ceilDir').value = qCtd;
   const qLf = q.get('lf') || src.lineFace;
   if(qLf==='back' || qLf==='left' || qLf==='right') setSeg('#lineFace','lineFace', qLf);
   const qLm = q.get('lm') || src.lightMode;
@@ -5683,6 +5831,9 @@ function init(){
   if(['back-left','back-right','front-left','front-right'].indexOf(qCp) >= 0) setSeg('#cornerPos','cornerPos', qCp);
   else setSeg('#cornerPos','cornerPos', 'none');
   setSeg('#outerFaces','outerFaces', (String(src.outerFaces||'2')==='1'?'1':(String(src.outerFaces||'2')==='3'?'3':'2')));
+  /* 외부 마감 면 — 링크(xf) → 저장값 → 기본 2면(앞+좌) */
+  const qXf = q.get('xf');
+  state.extFaces = normExtList(qXf !== null ? qXf : (src.extFaces || EXT_DEFAULT));
   const qCw = q.get('cw') || src.cornerW, qCd = q.get('cd') || src.cornerD;
   if(qCw && $('#cornerW')) $('#cornerW').value = qCw;
   if(qCd && $('#cornerD')) $('#cornerD').value = qCd;
