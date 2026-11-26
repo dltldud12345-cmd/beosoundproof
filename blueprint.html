@@ -3861,7 +3861,13 @@ function sheetField(m){
     const lb = innerRects.filter(o=>o.k===m.lineFace);
     const bb = lb.reduce((a,o)=> a ? {x:Math.min(a.x,o.rr.x), y:Math.min(a.y,o.rr.y),
         w:Math.max(a.x+a.w, o.rr.x+o.rr.w)-Math.min(a.x,o.rr.x), h:Math.max(a.y+a.h, o.rr.y+o.rr.h)-Math.min(a.y,o.rr.y)} : Object.assign({}, o.rr), null);
-    const b = bb || {x:ox+finL, y:oy+finT, w:iw, h:ih};
+    /* 1중(슈퍼싱글)은 안쪽 110 층이 없어 라인타공 면 조각이 비어 있다. 그때 이름표를
+       방 가운데에 띄우면 중앙등·이음선 이름표와 겹치므로, 그 벽의 110 띠 자체에 얹는다. */
+    const bandOf = k => k==='back'  ? {x:ox+finL,   y:oy,          w:iw,   h:finT}
+                     : k==='front' ? {x:ox+finL,   y:oy+ph-finB, w:iw,   h:finB}
+                     : k==='left'  ? {x:ox,        y:oy+finT,     w:finL, h:ih}
+                     :               {x:ox+pw-finR, y:oy+finT,    w:finR, h:ih};
+    const b = bb || bandOf(m.lineFace);
     lb.forEach(o=>{
       s += R(o.rr.x, o.rr.y, o.rr.w, o.rr.h, {fill:'#EFF7F5', stroke:'none'});
       s += R(o.rr.x, o.rr.y, o.rr.w, o.rr.h, {fill:'url(#hSlat)', stroke:ACC, sw:1.5});
