@@ -749,6 +749,12 @@
   }
   .chan a:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-tint)}
   .chan em{font-style:normal;font-size:12px;color:var(--muted)}
+  .shop-line{display:flex;align-items:center;justify-content:space-between;gap:4px 14px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);text-decoration:none}
+  .shop-line b{font-size:13.5px;font-weight:700;color:var(--ink);letter-spacing:.01em;transition:color .2s}
+  .shop-line .sd{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);transition:color .2s}
+  .shop-line .sd i{font-style:normal;transition:transform .2s}
+  .shop-line:hover b,.shop-line:hover .sd{color:var(--accent-dark)}
+  .shop-line:hover .sd i{transform:translateX(3px)}
   .move-box{margin-top:clamp(46px,6vw,72px);padding:clamp(28px,4vw,44px);background:var(--ink);color:#fff;border-radius:22px}
   .move-box .eyebrow{color:#8CDFCB}
   .move-box h3{margin-top:14px;font-size:clamp(22px,2.6vw,30px)}
@@ -773,6 +779,8 @@
   .foot-call{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
   .foot-call a{font-size:18px;font-weight:800;color:#fff;letter-spacing:.02em;font-variant-numeric:tabular-nums;transition:color .2s}
   .foot-call a:hover{color:#8CDFCB}
+  .foot-call.foot-shop{margin-top:2px}
+  .foot-call.foot-shop a{font-size:15px;font-weight:700;color:#DCE3E6}
   .copy{margin-top:24px;font-size:12px;color:#6C767C;line-height:1.7}
 
   /* ============ floating channels ============ */
@@ -2636,6 +2644,11 @@
             <a href="https://m.bunjang.co.kr/shops/10707079/products" target="_blank" rel="noopener">번개장터 <em>중고부스 →</em></a>
           </div>
 
+          <a class="shop-line" href="https://smartstore.naver.com/beosoundproof" target="_blank" rel="noopener">
+            <b>공식 네이버 스마트스토어</b>
+            <span class="sd">네이버페이 · 카드 예약결제 <i aria-hidden="true">→</i></span>
+          </a>
+
           <p class="fine">주문제작 상품이라 재단이 시작된 뒤에는 단순 변심에 의한 취소·환불이 어렵습니다. 재단 전 취소는 계약금 기준으로 안내드리고, 제품 하자는 확인 후 처리해 드립니다.</p>
         </div>
       </div>
@@ -2691,6 +2704,7 @@
     <div class="foot-info">
       <div class="foot-call"><b>전화 상담</b> <a href="tel:01030015906">010-3001-5906</a></div>
       <div class="foot-call"><b>카카오톡 채널</b> <a href="https://pf.kakao.com/_xgjLvX" target="_blank" rel="noopener">베오방음 채널 열기</a></div>
+      <div class="foot-call foot-shop"><b>네이버 스마트스토어</b> <a href="https://smartstore.naver.com/beosoundproof" target="_blank" rel="noopener">공식 스토어 열기</a></div>
       <div><b>상호</b> 베오방음 (BEO SOUNDPROOF) · <b>대표</b> 이시영 · <b>사업자등록번호</b> 412-29-01799</div>
       <div><b>주소</b> 경기 김포시 김포한강10로133번길 127, 530-AC06호 (구래동)</div>
       <div><b>이메일</b> danielee96@naver.com · <b>시공 지역</b> 수도권 전역 (지방 출장 가능)</div>
