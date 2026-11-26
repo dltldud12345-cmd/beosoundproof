@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- 공개 페이지 5개. admin.html · blueprint.html · relocation-admin.html · smartstore-preview.html 은
+       내부/비공개(noindex) 페이지라 sitemap·robots.txt 에서 모두 제외한다. -->
   <url>
     <loc>https://beosoundproof.com/</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -17,7 +19,7 @@
   </url>
   <url>
     <loc>https://beosoundproof.com/quote.html</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -27,7 +29,7 @@
   </url>
   <url>
     <loc>https://beosoundproof.com/relocation.html</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -37,7 +39,7 @@
   </url>
   <url>
     <loc>https://beosoundproof.com/configurator.html</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
