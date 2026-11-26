@@ -4070,7 +4070,7 @@ function openContractModal(q){
   }
   /* 산출가 — 확정가 표에 없는 규격의 '고객 안내가'를 만드는 판매가 계수.
      2000×2000 슈퍼싱글(3,600,000원 · 부가세 포함)을 기준점으로 면적·겹수에 비례해 확장한다.
-     등급·치수·운송·시공일을 인자로 받는다 — 🧮 표준 단가 계산기도 이 함수를 그대로 써서
+     등급·치수·운송을 인자로 받는다 — 시공일수(PS.day)는 고객가에 넣지 않는다 — 🧮 표준 단가 계산기도 이 함수를 그대로 써서
      스튜디오와 1원도 어긋나지 않게 한다.
      매입 단가·마진 계산은 이 파일에 두지 않는다 (공개 저장소 소스 노출 방지 · 서버 RPC 분리는 2단계). */
   var PSB = 1412532;      // 판·마감재 기준 계수 (㎡)
@@ -4083,22 +4083,20 @@ function openContractModal(q){
   /* 대형 부스 완만 누진 — 2026-11-26 대표 확정 (부가세 포함 판매 배수)
      · ~ 7.2㎡ 미만 : 1.353 (현행 유지)
      · 7.2㎡ ~ 9.0㎡ : 1.42
-     · 9.0㎡ 초과   : 2일 1.52 / 3일 1.62
+     · 9.0㎡ 초과   : 1.52 (2일 기준 고정)
+     고객 판매가는 **규격(면적)만**으로 정해진다 — 동행 1·2·3일이나 직접 시공을 눌러도 고객가는 그대로이고,
+     내부 인건비·마진·마진율만 움직인다 (2026-11-26 대표 지시).
      이 배수로 2400×2400 이 420 / 520 / 620만, 3000×3000 이 540 / 650 / 790만이 된다. */
-  var PS_BAND = { base: 1.353, mid: 1.42, big2: 1.52, big3: 1.62 };
-  function psBandOf(dim, day){
+  var PS_BAND = { base: 1.353, mid: 1.42, big2: 1.52 };
+  function psBandOf(dim){
     var a = (dim.w * dim.d) / 1e6;
-    if (a > 9.0){
-      var d = Number(day) || 0;
-      var big = d >= 3 ? 3 : 2;                       // 9.0㎡ 초과는 2일·3일 시공 구간
-      return { mul: big === 3 ? PS_BAND.big3 : PS_BAND.big2, days: big, a: a };
-    }
+    if (a > 9.0) return { mul: PS_BAND.big2, days: 2, a: a };   // 9.0㎡ 초과 = 2일 기준 배수로 고정
     if (a >= 7.2) return { mul: PS_BAND.mid,  days: 1, a: a };
     return { mul: PS_BAND.base, days: 1, a: a };
   }
-  /* 규격이 시공일을 정한다 — 9.0㎡ 이하는 1일, 초과는 2일(3일은 현장에서 선택) */
-  function psAutoDay(dim){ return psBandOf(dim, 0).days; }
-  function psBasePrice(g, dim, shipKey, day){
+  /* 규격의 기본 시공일수 — 9.0㎡ 이하는 1일, 초과는 2일. 규격·등급을 고를 때 초기값으로만 쓴다 */
+  function psAutoDay(dim){ return psBandOf(dim).days; }
+  function psBasePrice(g, dim, shipKey){
     var aFloor = dim.w * dim.d / 1e6, aWall = 2 * (dim.w + dim.d) * dim.h / 1e6;
     var rF = aFloor / 4, rW = aWall / 18.24;
     var wMul = psWallMul(g, dim);                       // 정면만 2중 = 1.25 · 4면 2중 = 2
@@ -4107,18 +4105,16 @@ function openContractModal(q){
     var work = PSW * (0.35 * rF + 0.65 * rW * (1 + (wMul - 1) * 0.7));
     var door = PSD * g.doors;
     var shipRow = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === shipKey) shipRow = s; });
-    var band = psBandOf(dim, day);
+    var band = psBandOf(dim);                           // 규격이 정한 배수·기준일수만 — PS.day 는 고객가에 영향 없음
     var mulK = band.mul / PS_BAND.base;                 // 현행 1.353 대비 배수
     var allIn = matF + matW + work + door + PSP + PSS + shipRow.add * PSSHIP + PSDY;   // 시공 1일 포함 기준가
-    var dIn = (day === 0 || day === "0") ? 0 : Math.max(band.days, Number(day) || band.days);
-    var total = allIn * mulK + Math.max(0, dIn - 1) * PSDY;
-    if (dIn === 0) total -= PSDY * mulK;                // 직접 시공 — 포함된 1일 인건비를 뺀다
+    var total = allIn * mulK + Math.max(0, band.days - 1) * PSDY;   // 9.0㎡ 초과는 2일 기준까지 포함해 고정
     return { total: total, aFloor: aFloor, aWall: aWall, wallMul: wMul, grade: g, dim: dim,
              band: band.mul, bandDays: band.days };
   }
   function psBasis(){
     var g = psGradeOf(PS.grade), dim = psDims();
-    var base = psBasePrice(g, dim, PS.ship, PS.day);
+    var base = psBasePrice(g, dim, PS.ship);
     var optBasis = 0, optPrice = 0;
     PS_OPTS.forEach(function(o){ if (PS[o.k]) { optBasis += (o.bp || 0); optPrice += o.price; } });
     return { total: base.total + optBasis, optBasis: optBasis, optPrice: optPrice,
@@ -4161,12 +4157,11 @@ function openContractModal(q){
     var work = (b.PSW || 0) * (0.35 * rF + 0.65 * rW * (1 + (wMul - 1) * 0.7));
     var door = (b.PSD || 0) * g.doors;
     var shipRow = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === shipKey) shipRow = s; });
-    var band = psBandOf(dim, day);
-    var dIn = (day === 0 || day === "0") ? 0 : Math.max(band.days, Number(day) || band.days);
+    /* 내부 인건비 — 선택한 시공일수(0=직접 시공·1·2·3일)를 제한 없이 그대로 반영한다.
+       고객 판매가는 psBasePrice 가 규격으로 따로 고정하므로 여기서는 인건비만 움직인다. */
+    var dIn = Math.max(0, Math.min(3, Number(day) || 0));
     var one = b.PSDY || 0;
-    var total = matF + matW + work + door + (b.PSP || 0) + (b.PSS || 0) + shipRow.add + one
-              + Math.max(0, dIn - 1) * one;
-    if (dIn === 0) total -= one;
+    var total = matF + matW + work + door + (b.PSP || 0) + (b.PSS || 0) + shipRow.add + one * dIn;
     return { total: total };
   }
   function psMarginInfo(){
@@ -4354,7 +4349,7 @@ function openContractModal(q){
           : '')
       + '    <div class="ps-step" style="margin-top:12px"><span class="t">운송</span><span class="s">거리별 차등</span></div>'
       + '    <div class="ps-chips">' + shipChips + '</div>'
-      + '    <div class="ps-step" style="margin-top:12px"><span class="t">현장 시공</span><span class="s">규격이 정합니다 · 9.0㎡ 초과는 2·3일</span></div>'
+      + '    <div class="ps-step" style="margin-top:12px"><span class="t">현장 시공</span><span class="s">고객가는 규격 고정 · 일수는 내부 인건비·마진에만</span></div>'
       + '    <div class="ps-chips">' + dayChips + '</div>'
       + '</div>'
 
@@ -4372,7 +4367,8 @@ function openContractModal(q){
 
       + '      <p class="ps-note">· 옵션 금액은 모두 <b>부가세 포함</b> 판매가입니다.<br>'
       + '      · 확정가 표에 없는 규격은 2000×2000 슈퍼싱글(360만 원)을 기준점으로 면적·겹수에 비례해 계산한 뒤 10만 원 단위로 올린 <b>산출가</b>입니다. 운송도 함께 반영됩니다.<br>'
-      + '      · 대형 부스는 면적 구간별 <b>완만 누진</b> — 7.2㎡ 미만 1.353배 · 7.2~9.0㎡ 1.42배 · 9.0㎡ 초과는 2일 1.52배 / 3일 1.62배. (2400×2400 420·520·620만 · 3000×3000 540·650·790만)<br>'
+      + '      · 대형 부스는 면적 구간별 <b>완만 누진</b> — 7.2㎡ 미만 1.353배 · 7.2~9.0㎡ 1.42배 · 9.0㎡ 초과는 1.52배(2일 기준) 고정. (2400×2400 420·520·620만 · 3000×3000 540·650·790만)<br>'
+      + '      · 현장 시공(직접 시공 / 동행 1·2·3일)은 <b>고객가를 바꾸지 않습니다</b> — 내부 인건비·마진·마진율에만 반영됩니다.<br>'
       + '      · 2중은 늘어나는 면만 반영합니다 — 슈퍼싱글 플러스는 정면 1면만 2중(1.25배), 더블은 4면 2중(2배).<br>'
       + '      · 실제 발주 전 재단표(도면 A-104)로 장수를 확인하세요.</p>'
       + '    </details>'
@@ -4399,8 +4395,9 @@ function openContractModal(q){
         for (var i=0;i<PS_SIZES.length;i++){
           if (PS_SIZES[i].k === PS.size && PS.size !== "custom"){ PS.w = PS_SIZES[i].w; PS.d = PS_SIZES[i].d; PS.h = PS_SIZES[i].h; }
         }
-        /* 규격이 바뀌면 시공일도 그 규격 기준으로 (9.0㎡ 초과만 2일) */
-        var nd = psAutoDay(psDims()); if (Number(PS.day) < nd) PS.day = nd;
+        /* 규격이 바뀌면 시공일은 그 규격의 기본값으로 (9.0㎡ 이하 1일 · 초과 2일)
+           기본값일 뿐 — 이후 직접 시공·동행 버튼은 제한 없이 자유롭게 바뀐다 (고객가는 그대로) */
+        PS.day = psAutoDay(psDims());
         psSave(); render();
       });
     });
@@ -4487,7 +4484,7 @@ function openContractModal(q){
     if (!w || !d) return null;
     var g = calcGrade();
     var dim = { w: w, d: d, h: CALC_H };
-    var basis = psBasePrice(g, dim, "metro", psAutoDay(dim));
+    var basis = psBasePrice(g, dim, "metro");
     var key = w + "x" + d;
     var fixed = !!(PS_PRICE[CALC.grade] && PS_PRICE[CALC.grade][key]);
     var base = psTablePrice(CALC.grade, key, basis.total);
