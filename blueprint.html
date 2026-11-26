@@ -177,9 +177,14 @@
   .ord-badge{background:#fff;border:1px solid var(--line2);border-radius:11px;padding:9px 11px}
   .ord-badge b{display:block;font-size:19px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.2;color:var(--ink)}
   .ord-badge span{display:block;margin-top:2px;font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.02em}
-  .ord-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .ord-tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+  .ord-tbl th:nth-child(2),.ord-tbl td:nth-child(2){width:84px}
+  .ord-tbl th:nth-child(3),.ord-tbl td:nth-child(3){width:136px}
+  .ord-tbl th:nth-child(4),.ord-tbl td:nth-child(4){width:84px}
   .ord-tbl th{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;text-align:right;padding:0 4px 6px;border-bottom:1px solid var(--line2);white-space:nowrap}
   .ord-tbl th:first-child{text-align:left}
+  .ord-tbl th:nth-child(3){text-align:center}
+  .ord-tbl td:nth-child(3){text-align:center}
   .ord-tbl td{padding:7px 4px;border-bottom:1px solid var(--line2);vertical-align:middle}
   .ord-tbl td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   .ord-tbl td.nm{font-weight:700;color:var(--ink2);line-height:1.35}
@@ -197,6 +202,51 @@
     font-family:ui-monospace,SFMono-Regular,Menlo,"Noto Sans KR",monospace;font-size:11.5px;line-height:1.72;color:#3F3A31;white-space:pre-wrap;word-break:keep-all}
   .ord-acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
   .ord-note{margin-top:9px;font-size:10.5px;line-height:1.65;color:var(--muted)}
+  /* 2차 마감재 기본 모드 전환 · 1차 출고 − / + 스텝 · 현장 저장 */
+  .ord-modebar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px 15px;background:#F7F4EE;border-bottom:1px solid var(--line2)}
+  .ord-modebar button{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink2);font:inherit;font-size:11px;font-weight:800;
+    border-radius:99px;padding:6px 11px;cursor:pointer;white-space:nowrap;touch-action:manipulation}
+  .ord-modebar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .ord-modebar button:active{transform:translateY(1px)}
+  .ord-mode-state{font-size:10.5px;font-weight:800;color:var(--muted);margin-left:auto}
+  .ord-ship{display:inline-flex;align-items:center;gap:3px}
+  .ord-step{appearance:none;flex:none;width:28px;height:30px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink2);
+    font:inherit;font-size:15px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation}
+  .ord-step:hover{background:var(--accent-t);border-color:var(--accent);color:var(--accent-d)}
+  .ord-step:active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ord-site{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .ord-site-lbl{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+  .ord-site-name{font-size:11.5px;font-weight:800;color:var(--ink2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ord-site-state{font-size:10.5px;font-weight:700;color:var(--accent-d)}
+  /* 발주 카드 모바일 — 390px에서도 가로 넘침 없이 − 입력 + 한 줄 (기본 규칙 뒤에 둬야 적용된다) */
+  @media (max-width:600px){
+    .ord-head{padding:9px 11px;gap:6px}
+    .ord-head .hint{font-size:9.5px}
+    .ord-modebar{padding:8px 11px;gap:5px}
+    .ord-modebar button{font-size:10.5px;padding:6px 9px}
+    .ord-mode-state{font-size:10px;width:100%;margin-left:0}
+    .ord-body{padding:12px 11px 14px}
+    .ord-block > h4{font-size:10.5px;flex-wrap:wrap;gap:5px}
+    .ord-badges{grid-template-columns:repeat(auto-fit,minmax(92px,1fr))}
+    .ord-tbl{font-size:11.5px}
+    .ord-tbl th{padding:0 3px 6px;font-size:9px}
+    .ord-tbl td{padding:6px 3px}
+    .ord-tbl td.nm{font-size:11.5px;word-break:keep-all}
+    .ord-tbl td.nm i{margin-right:4px}
+    .ord-tbl th:nth-child(2),.ord-tbl td:nth-child(2){width:52px}
+    .ord-tbl th:nth-child(3),.ord-tbl td:nth-child(3){width:102px}
+    .ord-tbl th:nth-child(4),.ord-tbl td:nth-child(4){width:42px}
+    .ord-in{width:36px;padding:4px 3px;font-size:12px}
+    .ord-step{width:27px;height:28px;font-size:14px}
+    .ord-tbl td.rem{font-size:14px}
+    .ord-site{gap:5px}
+    .ord-site-name{max-width:118px}
+  }
+  @media (max-width:400px){
+    .ord-in{width:32px}
+    .ord-step{width:25px;height:27px;font-size:13px}
+  }
 
   /* ---------- 비앤비 발주 카드 ---------- */
   .bnb-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 10px rgba(20,23,26,.08)}
@@ -4841,6 +4891,28 @@ function bnbCardHTML(m){
 const MOLD_LEN = 2440;      // 몰딩 기준 길이
 const MOLD_CUT = 15;        // 문·시창 가로 몰딩 공제 (세로 몰딩이 양옆을 덮음)
 
+/* 1차 출고 기본 패턴 — '2차 마감재 기본' 프리셋 (2026-11-26 대표님 지시)
+   1차 조립 자재(강화마루·마블폼 45T 천장/벽체·마블폼 60T 바닥·도어·시창)는 1차 출고 = 전체 → 나머지 0.
+   2차 마감재(내부 몰딩 4전/8전 · 외부 몰딩 = 백색 4전 + 시창 몰딩 · 외부 백판 9T)만 나머지로 남겨
+   발주 문자에 바로 뜽게 한다. 분류를 바꾸려면 이 목록에 id를 넣고 빼면 된다. */
+const SHIP_SECOND = ['ext', 'mold_in4', 'mold_in8', 'mold_out'];
+const shipStage = it => SHIP_SECOND.indexOf(it.id) >= 0 ? 'second' : 'first';
+
+/* state.ship1Mode · 'second'(2차 마감재 기본) | 'all'(전체 발주) | 'custom'(직접 조정)
+   프리셋 모드에서는 규격을 바꿀 때마다 전체 수량에 맞춰 다시 계산한다. */
+function syncShip1(items){
+  const mode = state.ship1Mode || 'second';
+  const prev = state.ship1 || {};
+  const v = {};
+  items.filter(it=> it.mode === 'ship').forEach(it=>{
+    if(mode === 'custom') v[it.id] = Math.max(0, Math.min(it.full, Number(prev[it.id]) || 0));
+    else if(mode === 'all') v[it.id] = 0;
+    else v[it.id] = shipStage(it) === 'second' ? 0 : it.full;
+  });
+  state.ship1 = v;
+  return v;
+}
+
 /* 내부 몰딩 색 — 라인타공 색에 맞춰 주문한다 (2026-11-26 대표님 기준)
    · 라인타공 화이트·화이트워시 → 백색 몰딩
    · 아트보드 차콜·블랙(어두운 톤) → 블랙 몰딩
@@ -4943,7 +5015,8 @@ function orderItems(m, inp, bnb, mld){
 }
 
 /* 한경희마루 발주 문자 — 1차 출고를 빼고 남은(2차) 수량만 */
-function hkmText(m, items, s1, mld){
+function hkmText(m, items, mld){
+  const s1 = state.ship1 || {};
   const rem = id => {
     const it = items.find(x=>x.id===id); if(!it) return 0;
     if(it.mode !== 'ship') return it.full;            // 박사장님 공장 재단 품목은 전체 수량 그대로
@@ -4979,17 +5052,18 @@ function orderCardHTML(m){
   const mld = moldingCalc(m, m.inp);
   const bnb = bnbOrder(m, m.inp);
   const items = orderItems(m, m.inp, bnb, mld);
-  const s1 = state.ship1 || {};
+  const s1 = syncShip1(items);
   const remOf = it => Math.max(0, it.full - Math.min(it.full, Number(s1[it.id]) || 0));
   const own = {park:['ord-own-park','박'], hkm:['ord-own-hkm','한'], bnb:['ord-own-bnb','비']};
   const refItems = items.filter(it=> it.mode === 'ref');
   const shipItems = items.filter(it=> it.mode === 'ship');
+  const mode = state.ship1Mode || 'second';
   const rows = shipItems.map(it=>{
     const rem = remOf(it);
     return `<tr>
       <td class="nm"><i class="${own[it.owner][0]}">${own[it.owner][1]}</i>${esc(it.name)}</td>
       <td class="n">${it.full}<span style="font-size:10px;color:#9A948C"> ${esc(it.unit)}</span></td>
-      <td class="n"><input class="ord-in" data-ship1="${it.id}" inputmode="numeric" value="${Number(s1[it.id]) || 0}" aria-label="${esc(it.name)} 1차 출고"></td>
+      <td class="n"><div class="ord-ship"><button type="button" class="ord-step" data-step="-1" data-shipid="${it.id}" aria-label="${esc(it.name)} 1차 출고 줄이기">−</button><input class="ord-in" data-ship1="${it.id}" inputmode="numeric" value="${Number(s1[it.id]) || 0}" aria-label="${esc(it.name)} 1차 출고"><button type="button" class="ord-step" data-step="1" data-shipid="${it.id}" aria-label="${esc(it.name)} 1차 출고 늘리기">+</button></div></td>
       <td class="n rem${rem ? '' : ' zero'}" data-rem="${it.id}">${rem}</td>
     </tr>`;
   }).join('');
@@ -5002,6 +5076,11 @@ function orderCardHTML(m){
       <span class="hint">한경희마루 발주 자재만 1차 출고 → 나머지</span>
       <span class="spacer"></span>
     </div>
+    <div class="ord-modebar" role="group" aria-label="발주 기준 전환">
+      <button type="button" data-ord-mode="second" aria-pressed="${mode === 'second'}">2차 마감재 기본</button>
+      <button type="button" data-ord-mode="all" aria-pressed="${mode === 'all'}">1차 초기화(전체 발주)</button>
+      <span class="ord-mode-state" data-ord-mode-state>${ordModeState()}</span>
+    </div>
     <div class="ord-body">
       <div class="ord-block">
         <h4>박사장님 공장 재단 <em>공장에서 알아서 재단·출고 — 입력칸 없이 참고 수량만</em></h4>
@@ -5010,15 +5089,21 @@ function orderCardHTML(m){
       </div>
 
       <div class="ord-block">
-        <h4>한경희마루 발주 · 1차 출고 → 나머지 <em>1차 출고칸에 먼저 온 수량을 적으면 나머지가 바로 나옵니다</em></h4>
+        <h4>한경희마루 발주 · 1차 출고 → 나머지 <em>− / + 로 1차 출고를 바꾸면 나머지·발주 문자가 바로 갱신됩니다</em></h4>
         <table class="ord-tbl">
           <thead><tr><th>자재</th><th>전체</th><th>1차 출고</th><th>나머지</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
-        <div class="ord-acts">
-          <button type="button" class="ord-mini" data-ship1-clear="1">1차 출고 지우기</button>
+        <p class="ord-note" data-ord-mode-note>${ordModeNote()}</p>
+        <div class="ord-acts ord-site">
+          <span class="ord-site-lbl">현장 저장</span>
+          <span class="ord-site-name" data-site-name>${esc((m.inp && m.inp.site || '').trim() || '현장명 미입력')}</span>
+          <button type="button" class="ord-mini" data-site-save="1">저장</button>
+          <button type="button" class="ord-mini" data-site-load="1">불러오기</button>
+          <button type="button" class="ord-mini" data-site-del="1">삭제</button>
+          <span class="ord-site-state" data-site-state>${esc(siteStateText(m))}</span>
         </div>
-        <p class="ord-note">나머지 = max(0, 전체 − 1차 출고) · 이 표의 품목만 아래 한경희마루 발주 문자에 나머지 수량으로 실립니다 (0인 품목은 빠집니다).</p>
+        <p class="ord-note">나머지 = max(0, 전체 − 1차 출고) · 이 표의 품목만 아래 한경희마루 발주 문자에 나머지 수량으로 실립니다 (0인 품목은 빠집니다). 현장 저장은 이 기기 브라우저(localStorage)에 현장명으로 보관합니다.</p>
       </div>
 
       <div class="ord-block">
@@ -5042,7 +5127,7 @@ function orderCardHTML(m){
 
       <div class="ord-block">
         <h4>한경희마루 발주 문자 <em>나머지만 자동 반영 · 0인 품목은 빠집니다</em></h4>
-        <pre class="ord-pre" data-hkm-preview>${esc(hkmText(m, items, s1, mld))}</pre>
+        <pre class="ord-pre" data-hkm-preview>${esc(hkmText(m, items, mld))}</pre>
         <div class="ord-acts">
           <button class="btn sm accent" type="button" data-hkm-copy>\u{1F4CB} 한경희마루 발주 문자 복사</button>
         </div>
@@ -5051,50 +5136,129 @@ function orderCardHTML(m){
   </section>`;
 }
 
+/* ---------- 현장별 1차 출고 저장(localStorage) ---------- */
+const SITE_STORE = 'beo-ship1-sites';
+function sitesAll(){
+  try{ const d = JSON.parse(localStorage.getItem(SITE_STORE) || '{}'); return (d && typeof d === 'object') ? d : {}; }catch(e){ return {}; }
+}
+function sitesPut(name, rec){
+  const all = sitesAll(); all[name] = rec;
+  try{ localStorage.setItem(SITE_STORE, JSON.stringify(all)); return true; }catch(e){ return false; }
+}
+function sitesDrop(name){
+  const all = sitesAll(); delete all[name];
+  try{ localStorage.setItem(SITE_STORE, JSON.stringify(all)); }catch(e){}
+}
+function siteNameOf(m){ return String((m && m.inp && m.inp.site) || '').trim(); }
+function siteStateText(m){
+  const name = siteNameOf(m);
+  if(!name) return '현장명을 입력하면 저장할 수 있습니다';
+  const rec = sitesAll()[name];
+  if(!rec) return '';
+  const d = rec.at ? new Date(rec.at) : null;
+  const when = d ? (d.getMonth()+1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') : '';
+  return '저장돼 있음' + (when ? ' · ' + when : '');
+}
+function ordModeState(){
+  const mode = state.ship1Mode || 'second';
+  return mode === 'second' ? '지금: 2차 마감재 기본' : (mode === 'all' ? '지금: 전체 발주' : '지금: 직접 조정');
+}
+function ordModeNote(){
+  const mode = state.ship1Mode || 'second';
+  if(mode === 'all') return '<b>전체 발주</b> — 1차 출고를 모두 0으로 두어 전체 수량이 그대로 한경희마루 발주 문자에 실립니다.';
+  if(mode === 'second') return '<b>2차 마감재 기본</b> — 강화마루·마블폼 45T·60T·도어·시창은 <b>1차 출고 = 전체</b>로 차 있고, <b>내부 몰딩 4전·8전 · 외부 몰딩(백색 4전·시창 몰딩) · 외부 백판 9T</b>만 2차로 남아 발주 문자에 실립니다.';
+  return '<b>직접 조정</b> — − / + 또는 숫자로 1차 출고를 바꾼 상태입니다. [2차 마감재 기본]을 누르면 기본값으로 돌아갑니다.';
+}
+
 function wireOrder(host, m){
   const mld = moldingCalc(m, m.inp);
   const bnb = bnbOrder(m, m.inp);
   const items = orderItems(m, m.inp, bnb, mld);
-  state.ship1 = state.ship1 || {};
+  const ships = items.filter(it=> it.mode === 'ship');
+  syncShip1(items);
   const pre = host.querySelector('[data-hkm-preview]');
   const repaint = ()=>{
-    items.forEach(it=>{
+    ships.forEach(it=>{
       const cell = host.querySelector('[data-rem="' + it.id + '"]');
       const rem = Math.max(0, it.full - Math.min(it.full, Number(state.ship1[it.id]) || 0));
       if(cell){ cell.textContent = rem; cell.classList.toggle('zero', !rem); }
+      const inp = host.querySelector('[data-ship1="' + it.id + '"]');
+      if(inp && document.activeElement !== inp) inp.value = Number(state.ship1[it.id]) || 0;
     });
-    if(pre) pre.textContent = hkmText(m, items, state.ship1, mld);
+    if(pre) pre.textContent = hkmText(m, items, mld);
+    host.querySelectorAll('[data-ord-mode]').forEach(b=> b.setAttribute('aria-pressed', String(b.dataset.ordMode === (state.ship1Mode || 'second'))));
+    const ms = host.querySelector('[data-ord-mode-state]'); if(ms) ms.textContent = ordModeState();
+    const mn = host.querySelector('[data-ord-mode-note]'); if(mn) mn.innerHTML = ordModeNote();
+    const st = host.querySelector('[data-site-state]'); if(st) st.textContent = siteStateText(m);
   };
+  /* 1차 출고 숫자를 바꿀 때는 '직접 조정'으로 전환 — 프리셋이 덮어쓰지 않게 */
+  const setShip1 = (id, val)=>{
+    const it = ships.find(x=> x.id === id); if(!it) return;
+    state.ship1Mode = 'custom';
+    state.ship1 = Object.assign({}, state.ship1);
+    state.ship1[id] = Math.max(0, Math.min(it.full, Number(val) || 0));
+    repaint();
+  };
+  host.querySelectorAll('[data-step]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.shipid;
+      setShip1(id, (Number(state.ship1[id]) || 0) + (Number(btn.dataset.step) || 0));
+    });
+  });
   host.querySelectorAll('[data-ship1]').forEach(inp=>{
     inp.addEventListener('input', ()=>{
-      const it = items.find(x=>x.id === inp.dataset.ship1); if(!it) return;
-      const v = Math.max(0, Math.min(it.full, Number(String(inp.value).replace(/[^0-9]/g,'')) || 0));
-      state.ship1[it.id] = v;
+      const it = ships.find(x=>x.id === inp.dataset.ship1); if(!it) return;
+      setShip1(it.id, Number(String(inp.value).replace(/[^0-9]/g,'')) || 0);
+    });
+    inp.addEventListener('change', ()=>{ inp.value = Number(state.ship1[inp.dataset.ship1]) || 0; });
+  });
+  /* 원클릭 전환 — [2차 마감재 기본] / [1차 초기화(전체 발주)] */
+  host.querySelectorAll('[data-ord-mode]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.ship1Mode = btn.dataset.ordMode === 'all' ? 'all' : 'second';
+      state.ship1 = {};
+      syncShip1(items);
       repaint();
+      toast(state.ship1Mode === 'all' ? '전체 발주로 바꿨습니다 (1차 출고 0)' : '2차 마감재 기본으로 돌아왔습니다');
     });
-    inp.addEventListener('change', ()=>{ inp.value = state.ship1[inp.dataset.ship1] || 0; });
   });
-  const fill = host.querySelector('[data-ship1-fill]');
-  if(fill) fill.addEventListener('click', ()=>{
-    items.filter(x=>x.mode === 'ship').forEach(it=>{
-      state.ship1[it.id] = it.full;
-      const inp = host.querySelector('[data-ship1="' + it.id + '"]');
-      if(inp) inp.value = it.full;
-    });
+  /* 현장별 저장·불러오기·삭제 */
+  const saveBtn = host.querySelector('[data-site-save]');
+  if(saveBtn) saveBtn.addEventListener('click', ()=>{
+    const name = siteNameOf(m);
+    if(!name){ toast('도면 정보의 현장명을 먼저 입력해 주세요'); return; }
+    const rec = { name: name, ship1: Object.assign({}, state.ship1), at: new Date().toISOString() };
+    if(!sitesPut(name, rec)){ toast('저장하지 못했습니다 — 브라우저 저장 공간을 확인해 주세요'); return; }
     repaint();
+    toast('이 현장의 1차 출고를 저장했습니다');
   });
-  const clr = host.querySelector('[data-ship1-clear]');
-  if(clr) clr.addEventListener('click', ()=>{
-    items.filter(x=>x.mode === 'ship').forEach(it=>{
-      state.ship1[it.id] = 0;
-      const inp = host.querySelector('[data-ship1="' + it.id + '"]');
-      if(inp) inp.value = 0;
+  const loadBtn = host.querySelector('[data-site-load]');
+  if(loadBtn) loadBtn.addEventListener('click', ()=>{
+    const name = siteNameOf(m);
+    if(!name){ toast('도면 정보의 현장명을 먼저 입력해 주세요'); return; }
+    const rec = sitesAll()[name];
+    if(!rec || !rec.ship1){ toast('이 현장에 저장된 1차 출고가 없습니다'); return; }
+    state.ship1Mode = 'custom';
+    const v = {};
+    ships.forEach(it=>{
+      const raw = Number(rec.ship1[it.id]) || 0;
+      v[it.id] = Math.max(0, Math.min(it.full, raw));
     });
+    state.ship1 = v;
     repaint();
+    toast('이 현장의 1차 출고를 불러왔습니다');
+  });
+  const delBtn = host.querySelector('[data-site-del]');
+  if(delBtn) delBtn.addEventListener('click', ()=>{
+    const name = siteNameOf(m);
+    if(!name || !sitesAll()[name]){ toast('이 현장에 저장된 값이 없습니다'); return; }
+    sitesDrop(name);
+    repaint();
+    toast('이 현장의 저장을 삭제했습니다');
   });
   const copyBtn = host.querySelector('[data-hkm-copy]');
   if(copyBtn) copyBtn.addEventListener('click', async ()=>{
-    const text = hkmText(m, items, state.ship1, mld);
+    const text = hkmText(m, items, mld);
     let ok = false;
     try{ await navigator.clipboard.writeText(text); ok = true; }catch(e){}
     if(!ok){
@@ -5233,6 +5397,8 @@ function holeRSafe(m){ return Math.max(0, (m.cobDia||55)/2) + 12; }
    8. 렌더링 · 상태
    ===================================================================== */
 const state = {};
+state.ship1Mode = 'second';   // 기본 = 2차 마감재 기본 프리셋 (2026-11-26 대표님 지시)
+state.ship1 = {};
 let PAGE_TOTAL = 5;
 function sheetsFor(m){
   const list = [
