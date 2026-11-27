@@ -644,6 +644,10 @@
   .ps-custom{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
   .ps-custom label{display:grid;gap:4px;font-size:10.5px;font-weight:800;color:var(--muted)}
   .ps-custom input{border:1px solid var(--line);border-radius:9px;padding:8px 9px;font:inherit;font-size:13px;font-weight:700;text-align:right;background:#fff}
+  .ps-region{display:grid;grid-template-columns:1fr 200px;gap:6px;margin-top:8px}
+  .ps-region input{border:1px solid var(--line);border-radius:9px;padding:8px 9px;font:inherit;font-size:13px;font-weight:700;background:#fff;width:100%}
+  .ps-region label{display:grid;gap:4px;font-size:10.5px;font-weight:800;color:var(--muted)}
+  @media (max-width:560px){ .ps-region{grid-template-columns:1fr} }
 
   /* 옵션 10종 — 2열 콤팩트 타일 (한 카드 2줄: 이름 / 판매 금액) */
   .ps-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -946,10 +950,15 @@
     <div class="calc-region">
       <span class="calc-region-lb">운송 지역</span>
       <button type="button" class="pay-chip on" data-calc-region="metro">수도권 +0</button>
-      <button type="button" class="pay-chip" data-calc-region="near">충북·천안·강원 +20만</button>
-      <button type="button" class="pay-chip" data-calc-region="mid">충남·전북·경북 +30만</button>
-      <button type="button" class="pay-chip" data-calc-region="far">전남·경남·제주 +40만</button>
+      <button type="button" class="pay-chip" data-calc-region="near">천안·춘천·충북 +20만</button>
+      <button type="button" class="pay-chip" data-calc-region="mid">강릉·충남·전북·경북 +30만</button>
+      <button type="button" class="pay-chip" data-calc-region="far">전남·경남·부산 +40만</button>
     </div>
+    <div class="calc-region" style="margin-top:6px">
+      <input id="calc-region-q" class="sedit-in" list="ps-region-list" autocomplete="off" placeholder="지역 입력 (예: 강릉, 춘천, 천안)" style="flex:1;min-width:160px">
+      <input id="calc-ship-ovr" class="sedit-in" type="number" min="0" step="10000" placeholder="운송비 직접 입력 (원)" style="width:170px">
+    </div>
+    <p class="calc-msg" id="calc-region-msg"></p>
     <div class="calc-out">
       <div class="calc-basis" id="calc-basis">—</div>
       <div class="calc-line tot"><span>총액 (부가세 포함)</span><b id="calc-total">—</b></div>
@@ -989,6 +998,8 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<datalist id="ps-region-list"></datalist>
 
 <script>
 (function(){
@@ -4044,41 +4055,177 @@ function openContractModal(q){
   var PS_PRICE = {
     value:    { "1500x1800": 3400000, "2000x2000": 3600000 },
     standard: { "2000x2000": 4800000 },
-    premium:  { "2200x2400": 7500000, "2400x3000": 8500000 }
+    /* 2026-11-28 2차 (대표 확정): 더블 2400×2400 780만 · 3000×3000 900만 추가.
+       표에 없는 규격은 psFloorPrice 가 같은 등급 확정가를 면적 순으로 훑어 하한을 잡는다 → 큰 규격이 더 싸지는 역전 없음. */
+    premium:  { "2200x2400": 7500000, "2400x2400": 7800000, "2400x3000": 8500000, "3000x3000": 9000000 }
   };
   /* 옵션 — 금액은 모두 **부가세 포함(고객 안내가 기준)**입니다. price = 부가세 포함 판매가.
      bp = 산출가 계산에 쓰는 기준 계수(판매가 기준). 옵션별 매입 단가·마진은 이 파일에 두지 않습니다. */
   var PS_OPTS = [
-    { k: "win600",   ic: "🪟", t: "시창 600×800",        s: "600×800 · 하부 1000 코스",        price: 200000, bp: 189420 },
-    { k: "win800",   ic: "🪟", t: "시창 800×800",        s: "검사창 · 아래 400 + 위 400",       price: 250000, bp: 243540 },
-    { k: "win1200",  ic: "🪟", t: "시창 1200×800",       s: "600×2열 · 아래·위 400",           price: 320000, bp: 297660 },
-    { k: "dblwin",   ic: "🖼", t: "이중창 1200×800",      s: "통합이중창 224N2SL · 이중 유리",   price: 390000, bp: 378840 },
-    { k: "casement", ic: "🪟", t: "캐스먼트창 600×600",   s: "600×600 · 개폐형",               price: 300000, bp: 270600 },
-    { k: "project",  ic: "🪟", t: "프로젝트창 (천장)",   s: "천장 개폐형 프로젝트창",          price: 360000, bp: 338250 },
-    { k: "flame",    ic: "🔥", t: "방염 아트보드",        s: "비방염 → 방염 업그레이드",        price: 190000, bp: 98498.4, diff: true },
+    { k: "win600",   ic: "🪟", t: "시창 600×800",        s: "600×800 · 하부 1000 코스",        price: 240000, bp: 189420 },
+    { k: "win800",   ic: "🪟", t: "시창 800×800",        s: "검사창 · 아래 400 + 위 400",       price: 280000, bp: 243540 },
+    { k: "win1200",  ic: "🪟", t: "시창 1200×800",       s: "600×2열 · 아래·위 400",           price: 350000, bp: 297660 },
+    { k: "dblwin",   ic: "🖼", t: "이중창 1200×800",      s: "통합이중창 224N2SL · 이중 유리",   price: 450000, bp: 378840 },
+    { k: "casement", ic: "🪟", t: "캐스먼트창 600×600",   s: "600×600 · 개폐형",               price: 380000, bp: 270600 },
+    { k: "project",  ic: "🪟", t: "프로젝트창 (천장)",   s: "천장 개폐형 프로젝트창",          price: 430000, bp: 338250 },
+    { k: "flame",    ic: "🔥", t: "방염 아트보드",        s: "비방염 → 방염 업그레이드",        price: 220000, bp: 98498.4, diff: true },
     { k: "door",     ic: "🚪", t: "방음도어 추가 1짝",   s: "5+5 방음도어",                    price: 900000, bp: 633204 },
     { k: "aircon",   ic: "❄", t: "에어컨 타공·매설",     s: "협력업체 단독 진행 · 200후반~ 별도 협의", price: 0, bp: 0, sep: true },
-    { k: "slat",     ic: "▤", t: "라인타공 추가 1면",    s: "라인타공판 3장 교체 (기본 1면 외)",   price: 120000, bp: 81180 }
+    { k: "slat",     ic: "▤", t: "라인타공 추가 1면",    s: "라인타공판 3장 교체 (기본 1면 외)",   price: 170000, bp: 81180 }
   ];
+  /* 운송 4구간 — 김포(구래동) 출발 편도 km 기준 (2026-11-28 2차 확정) */
   var PS_SHIP = [
-    { k: "metro", t: "수도권",            add: 0 },
-    { k: "near",  t: "충북·천안·강원",     add: 200000 },
-    { k: "mid",   t: "충남·전북·경북",     add: 300000 },
-    { k: "far",   t: "전남·경남",          add: 400000 }
+    { k: "metro", d: "~60km",    t: "수도권",              add: 0 },
+    { k: "near",  d: "60~130km", t: "천안·춘천·충북",       add: 200000 },
+    { k: "mid",   d: "130~220km", t: "강릉·충남·전북·경북",  add: 300000 },
+    { k: "far",   d: "220km~",   t: "전남·경남·부산",       add: 400000 }
+  ];
+  /* 전국 주요 시·군·구 → 운송 구간. 같은 이름이 둘 이상이면(고성 등) 긴 이름이 이긴다:
+     "강원 고성"·"경남 고성"처럼 적으면 정확히 잡히고, 그냥 "고성"이면 두 곳을 안내만 한다. */
+  var PS_REGIONS = [
+    /* 수도권 (~60km) */
+    { n: "서울", k: "metro" }, { n: "종로", k: "metro" }, { n: "중구", k: "metro" }, { n: "용산", k: "metro" },
+    { n: "성동", k: "metro" }, { n: "광진", k: "metro" }, { n: "동대문", k: "metro" }, { n: "중랑", k: "metro" },
+    { n: "성북", k: "metro" }, { n: "강북", k: "metro" }, { n: "도봉", k: "metro" }, { n: "노원", k: "metro" },
+    { n: "은평", k: "metro" }, { n: "서대문", k: "metro" }, { n: "마포", k: "metro" }, { n: "양천", k: "metro" },
+    { n: "강서", k: "metro" }, { n: "구로", k: "metro" }, { n: "금천", k: "metro" }, { n: "영등포", k: "metro" },
+    { n: "동작", k: "metro" }, { n: "관악", k: "metro" }, { n: "서초", k: "metro" }, { n: "강남", k: "metro" },
+    { n: "송파", k: "metro" }, { n: "강동", k: "metro" },
+    { n: "인천", k: "metro" }, { n: "계양", k: "metro" }, { n: "부평", k: "metro" }, { n: "연수", k: "metro" },
+    { n: "남동", k: "metro" }, { n: "미추홀", k: "metro" }, { n: "강화", k: "metro" }, { n: "옹진", k: "metro" },
+    { n: "경기", k: "metro" }, { n: "김포", k: "metro" }, { n: "부천", k: "metro" }, { n: "고양", k: "metro" },
+    { n: "일산", k: "metro" }, { n: "파주", k: "metro" }, { n: "수원", k: "metro" }, { n: "성남", k: "metro" },
+    { n: "분당", k: "metro" }, { n: "판교", k: "metro" }, { n: "안양", k: "metro" }, { n: "안산", k: "metro" },
+    { n: "시흥", k: "metro" }, { n: "광명", k: "metro" }, { n: "군포", k: "metro" }, { n: "과천", k: "metro" },
+    { n: "구리", k: "metro" }, { n: "남양주", k: "metro" }, { n: "의정부", k: "metro" }, { n: "용인", k: "metro" },
+    { n: "수지", k: "metro" }, { n: "화성", k: "metro" }, { n: "평택", k: "metro" }, { n: "오산", k: "metro" },
+    { n: "이천", k: "metro" }, { n: "안성", k: "metro" }, { n: "포천", k: "metro" }, { n: "양주", k: "metro" },
+    { n: "동두천", k: "metro" }, { n: "여주", k: "metro" }, { n: "연천", k: "metro" }, { n: "가평", k: "metro" },
+    { n: "양평", k: "metro" }, { n: "하남", k: "metro" }, { n: "광주시", k: "metro" },
+    /* 근거리 (60~130km) */
+    { n: "충북", k: "near" }, { n: "청주", k: "near" }, { n: "충주", k: "near" }, { n: "제천", k: "near" },
+    { n: "음성", k: "near" }, { n: "진천", k: "near" }, { n: "괴산", k: "near" }, { n: "증평", k: "near" },
+    { n: "단양", k: "near" }, { n: "보은", k: "near" }, { n: "옥천", k: "near" }, { n: "영동", k: "near" },
+    { n: "천안", k: "near" }, { n: "아산", k: "near" },
+    { n: "강원", k: "near" }, { n: "춘천", k: "near" }, { n: "원주", k: "near" }, { n: "홍천", k: "near" },
+    { n: "횡성", k: "near" }, { n: "화천", k: "near" }, { n: "양구", k: "near" }, { n: "인제", k: "near" },
+    { n: "철원", k: "near" },
+    /* 중거리 (130~220km) */
+    { n: "충남", k: "mid" }, { n: "대전", k: "mid" }, { n: "세종", k: "mid" }, { n: "공주", k: "mid" },
+    { n: "논산", k: "mid" }, { n: "계룡", k: "mid" }, { n: "당진", k: "mid" }, { n: "서산", k: "mid" },
+    { n: "보령", k: "mid" }, { n: "홍성", k: "mid" }, { n: "예산", k: "mid" }, { n: "부여", k: "mid" },
+    { n: "서천", k: "mid" }, { n: "청양", k: "mid" }, { n: "태안", k: "mid" }, { n: "금산", k: "mid" },
+    { n: "전북", k: "mid" }, { n: "전주", k: "mid" }, { n: "익산", k: "mid" }, { n: "군산", k: "mid" },
+    { n: "정읍", k: "mid" }, { n: "남원", k: "mid" }, { n: "김제", k: "mid" }, { n: "완주", k: "mid" },
+    { n: "무주", k: "mid" }, { n: "진안", k: "mid" }, { n: "장수", k: "mid" }, { n: "임실", k: "mid" },
+    { n: "순창", k: "mid" }, { n: "고창", k: "mid" }, { n: "부안", k: "mid" },
+    { n: "경북", k: "mid" }, { n: "포항", k: "mid" }, { n: "구미", k: "mid" }, { n: "안동", k: "mid" },
+    { n: "경주", k: "mid" }, { n: "김천", k: "mid" }, { n: "영주", k: "mid" }, { n: "상주", k: "mid" },
+    { n: "영천", k: "mid" }, { n: "경산", k: "mid" }, { n: "문경", k: "mid" }, { n: "의성", k: "mid" },
+    { n: "청송", k: "mid" }, { n: "영양", k: "mid" }, { n: "영덕", k: "mid" }, { n: "청도", k: "mid" },
+    { n: "고령", k: "mid" }, { n: "성주", k: "mid" }, { n: "칠곡", k: "mid" }, { n: "예천", k: "mid" },
+    { n: "봉화", k: "mid" }, { n: "울진", k: "mid" }, { n: "울릉", k: "mid" },
+    { n: "강릉", k: "mid" }, { n: "속초", k: "mid" }, { n: "동해", k: "mid" }, { n: "삼척", k: "mid" },
+    { n: "태백", k: "mid" }, { n: "정선", k: "mid" }, { n: "평창", k: "mid" }, { n: "영월", k: "mid" },
+    { n: "강원고성", k: "mid" },
+    /* 원거리 (220km~) */
+    { n: "전남", k: "far" }, { n: "광주", k: "far" }, { n: "대구", k: "far" }, { n: "목포", k: "far" }, { n: "여수", k: "far" },
+    { n: "순천", k: "far" }, { n: "나주", k: "far" }, { n: "광양", k: "far" }, { n: "담양", k: "far" },
+    { n: "곡성", k: "far" }, { n: "구례", k: "far" }, { n: "고흥", k: "far" }, { n: "보성", k: "far" },
+    { n: "화순", k: "far" }, { n: "장흥", k: "far" }, { n: "강진", k: "far" }, { n: "해남", k: "far" },
+    { n: "영암", k: "far" }, { n: "무안", k: "far" }, { n: "함평", k: "far" }, { n: "영광", k: "far" },
+    { n: "장성", k: "far" }, { n: "완도", k: "far" }, { n: "진도", k: "far" }, { n: "신안", k: "far" },
+    { n: "경남", k: "far" }, { n: "부산", k: "far" }, { n: "울산", k: "far" }, { n: "창원", k: "far" },
+    { n: "김해", k: "far" }, { n: "진주", k: "far" }, { n: "양산", k: "far" }, { n: "거제", k: "far" },
+    { n: "통영", k: "far" }, { n: "사천", k: "far" }, { n: "밀양", k: "far" }, { n: "함안", k: "far" },
+    { n: "거창", k: "far" }, { n: "합천", k: "far" }, { n: "창녕", k: "far" }, { n: "남해", k: "far" },
+    { n: "하동", k: "far" }, { n: "산청", k: "far" }, { n: "함양", k: "far" }, { n: "의령", k: "far" },
+    { n: "경남고성", k: "far" }, { n: "고성", k: "mid" }, { n: "고성", k: "far" },
+    { n: "제주", k: "far" }, { n: "서귀포", k: "far" }
   ];
   var PS = { grade: "value", size: "2000x2000", w: 2000, d: 2000, h: 2280,
-             ship: "metro", day: 1, price: 0 };
+             ship: "metro", shipOv: null, regionQ: "", day: 1, price: 0 };
+  var PS_REGION_MSG = "";
   PS_OPTS.forEach(function(o){ PS[o.k] = false; });
   function psLoad(){
     try{
       var s = JSON.parse(localStorage.getItem(PS_KEY) || "null");
       if (s && typeof s === "object") { for (var k in PS) if (s[k] !== undefined) PS[k] = s[k]; }
       if (PS.size === "1800x1500") PS.size = "1500x1800";   // 최소 규격 키 변경 전 저장값 호환
+      /* 운송비 직접 입력(원) — 비어 있으면 null = 구간 금액 사용 */
+      if (PS.shipOv !== null && PS.shipOv !== undefined && PS.shipOv !== "") PS.shipOv = Math.max(0, Number(PS.shipOv) || 0);
+      else PS.shipOv = null;
+      if (!PS_REGION_STEP_K[PS.ship]) PS.ship = "metro";
       /* 시공일은 정수(0·1·2·3)만 — 예전 1.5일 저장값은 1일로 되돌린다 */
       if ([0,1,2,3].indexOf(Number(PS.day)) < 0) PS.day = 1;
     }catch(e){}
   }
   function psSave(){ try{ localStorage.setItem(PS_KEY, JSON.stringify(PS)); }catch(e){} }
+  var PS_REGION_STEP_K = { metro: 1, near: 1, mid: 1, far: 1 };
+  /* 도·광역시 이름 — 시·군 이름이 같이 적혀 있으면 시·군 쪽을 따른다("충남 천안" → 천안 근거리) */
+  var PS_PROV = { 서울:1, 경기:1, 인천:1, 강원:1, 충북:1, 충남:1, 전북:1, 전남:1, 경북:1, 경남:1,
+                  제주:1, 부산:1, 대구:1, 광주:1, 대전:1, 울산:1, 세종:1 };
+  /* 지역 이름 → 운송 구간. 긴 이름·시·군 이름이 이기고(광주시 vs 광주), 구간이 갈리면 안내만 한다(고성). */
+  function psRegionFind(q){
+    var norm = function(s){ return String(s || "").replace(/[\s\-\.,()]/g, ""); };
+    var t = norm(q);
+    if (!t) return { k: "", msg: "" };
+    var hits = [];
+    PS_REGIONS.forEach(function(x){
+      var n = norm(x.n);
+      if (n && t.indexOf(n) !== -1) hits.push(x);
+    });
+    if (!hits.length) return { k: "", msg: "‘" + q + "’ 지역을 찾지 못했습니다 — 시·군 이름으로 적거나 운송비를 직접 입력하세요." };
+    var city = hits.filter(function(x){ return !PS_PROV[norm(x.n)]; });
+    var pool = city.length ? city : hits;
+    var best = 0;
+    pool.forEach(function(x){ best = Math.max(best, norm(x.n).length); });
+    hits = pool.filter(function(x){ return norm(x.n).length === best; });
+    var ks = hits.map(function(x){ return x.k; }).filter(function(k, i, arr){ return arr.indexOf(k) === i; });
+    if (ks.length > 1){
+      var tail = t.indexOf("고성") !== -1 ? " (예: 강원 고성 / 경남 고성)" : "";
+      return { k: "", amb: true, msg: "이 이름은 두 곳 이상이라 임의로 고르지 않았습니다 — 도·시 이름을 함께 적어 주세요" + tail + "." };
+    }
+    var row = null; PS_SHIP.forEach(function(s){ if (s.k === ks[0]) row = s; });
+    var note = (norm(q).indexOf("제주") !== -1 || norm(q).indexOf("서귀포") !== -1)
+      ? " · 제주는 도선·항공 조건이 달라 별도 협의가 필요합니다(구간표는 +40만 기준)." : "";
+    return { k: ks[0], row: row, msg: "‘" + q + "’ → " + row.d + " " + row.t + " (" + (row.add ? "+" + Math.round(row.add / 10000) + "만" : "+0") + ")" + note };
+  }
+  function psShipRow(k){
+    var row = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === (k || PS.ship)) row = s; }); return row;
+  }
+  /* 운송 추가금 — 구간 금액이 기본, 직접 입력(PS.shipOv)이 있으면 그 금액이 이긴다 */
+  function psShipAdd(){
+    if (PS.shipOv !== null && PS.shipOv !== undefined && PS.shipOv !== "") return Math.max(0, Number(PS.shipOv) || 0);
+    return psShipRow().add;
+  }
+  function psRegionMsgLine(){
+    var row = psShipRow();
+    var out = "운송 구간: " + row.d + " " + row.t + " · " + (row.add ? "+" + Math.round(row.add / 10000) + "만" : "+0");
+    if (PS.shipOv !== null && PS.shipOv !== "") out += " · 직접 입력 " + krwPS(Number(PS.shipOv)) + " 적용 중";
+    return out + (PS_REGION_MSG ? " · " + PS_REGION_MSG : "");
+  }
+  function psRegionApply(q){
+    PS.regionQ = q || "";
+    var r = psRegionFind(q);
+    PS_REGION_MSG = r.msg || "";
+    if (r.k){
+      PS.ship = r.k; PS.shipOv = null;
+      var ov = document.getElementById("ps-ship-ovr"); if (ov) ov.value = "";
+    }
+    Array.prototype.forEach.call(app.querySelectorAll("[data-ps-ship]"), function(b){
+      b.setAttribute("aria-pressed", b.getAttribute("data-ps-ship") === PS.ship ? "true" : "false");
+    });
+    var msg = document.getElementById("ps-region-msg"); if (msg) msg.textContent = psRegionMsgLine();
+    psSave(); psRefreshNumbers();
+  }
+  function psRegionDatalist(){
+    var dl = document.getElementById("ps-region-list");
+    if (!dl) return;
+    var seen = {};
+    dl.innerHTML = PS_REGIONS.filter(function(x){ if (seen[x.n]) return false; seen[x.n] = 1; return true; })
+      .map(function(x){ return '<option value="' + esc(x.n) + '"></option>'; }).join("");
+  }
   function psGradeOf(k){ for (var i=0;i<PS_GRADES.length;i++) if (PS_GRADES[i].k===k) return PS_GRADES[i]; return PS_GRADES[0]; }
   function psDims(){
     if (PS.size === "custom") return { w: Math.max(800, Number(PS.w)||2000), d: Math.max(800, Number(PS.d)||2000), h: Math.max(1900, Number(PS.h)||2280) };
@@ -4094,9 +4241,9 @@ function openContractModal(q){
   var PSW = 568936.5;     // 재단·제작 공임 기준 계수
   var PSD = 633204;       // 방음도어 1짝
   var PSP = 175890;       // 합판·부자재
-  var PSS = 270600;       // 운송 기본 (수도권)
+  var PSS = 270600;       // 운송 기본 (수도권 · 내부 계수)
   var PSDY = 541200;      // 현장 시공 1일
-  var PSSHIP = 1.353;     // 판매 배수 기준값 (매입 계수 × 1.353 = 판매 계수)
+  /* 운송 추가금은 psShipAdd() / calcShipAdd() 가 고객 총액 맨 마지막에 더한다 — 기본가에 배수로 섞지 않는다 */
   /* 대형 부스 완만 누진 — 2026-11-26 대표 확정 (부가세 포함 판매 배수)
      · ~ 7.2㎡ 미만 : 1.353 (현행 유지)
      · 7.2㎡ ~ 9.0㎡ : 1.42
@@ -4113,7 +4260,7 @@ function openContractModal(q){
   }
   /* 규격의 기본 시공일수 — 9.0㎡ 이하는 1일, 초과는 2일. 규격·등급을 고를 때 초기값으로만 쓴다 */
   function psAutoDay(dim){ return psBandOf(dim).days; }
-  function psBasePrice(g, dim, shipKey){
+  function psBasePrice(g, dim){
     var aFloor = dim.w * dim.d / 1e6, aWall = 2 * (dim.w + dim.d) * dim.h / 1e6;
     var rF = aFloor / 4, rW = aWall / 18.24;
     var wMul = psWallMul(g, dim);                       // 정면만 2중 = 1.25 · 4면 2중 = 2
@@ -4121,35 +4268,61 @@ function openContractModal(q){
     var matW = 0.65 * PSB * rW * wMul;
     var work = PSW * (0.35 * rF + 0.65 * rW * (1 + (wMul - 1) * 0.7));
     var door = PSD * g.doors;
-    var shipRow = PS_SHIP[0]; PS_SHIP.forEach(function(s){ if (s.k === shipKey) shipRow = s; });
+    /* 운송비는 여기서 더하지 않는다 — 부스 순수 기본가(수도권 기준)만 계산하고,
+       psPrice()·calcPrice() 가 맨 마지막에 구간 추가금(psShipAdd / calcShipAdd)을 더한다.
+       (이전에는 여기서 배수로 넣어서 확정가 규격은 운송비가 고객 총액에 아예 안 붙었다 — 2차 수정) */
     var band = psBandOf(dim);                           // 규격이 정한 배수·기준일수만 — PS.day 는 고객가에 영향 없음
     var mulK = band.mul / PS_BAND.base;                 // 현행 1.353 대비 배수
-    var allIn = matF + matW + work + door + PSP + PSS + shipRow.add * PSSHIP + PSDY;   // 시공 1일 포함 기준가
-    var total = allIn * mulK + Math.max(0, band.days - 1) * PSDY;   // 9.0㎡ 초과는 2일 기준까지 포함해 고정
+    var allIn = matF + matW + work + door + PSP + PSS + PSDY;   // 시공 1일 포함 기준가 (수도권·운송 별도)
+    var total = allIn * mulK + Math.max(0, band.days - 1) * PSDY;   // 9.0㎡ 초과는 2일 기준까지 포함
     return { total: total, aFloor: aFloor, aWall: aWall, wallMul: wMul, grade: g, dim: dim,
              band: band.mul, bandDays: band.days };
   }
   function psBasis(){
     var g = psGradeOf(PS.grade), dim = psDims();
-    var base = psBasePrice(g, dim, PS.ship);
+    var base = psBasePrice(g, dim);
     var optBasis = 0, optPrice = 0;
     PS_OPTS.forEach(function(o){ if (PS[o.k]) { optBasis += (o.bp || 0); optPrice += o.price; } });
     return { total: base.total + optBasis, optBasis: optBasis, optPrice: optPrice,
              aFloor: base.aFloor, aWall: base.aWall, wallMul: base.wallMul, grade: g, dim: dim,
              band: base.band, bandDays: base.bandDays };
   }
-  function psRound(v){ return Math.round(v / 100000) * 100000; }   // 산출가는 10만 원 단위  /* 확정가 표에 있으면 그 금액, 없으면 기준 계수 산출가를 10만원 단위로 */
-  function psTablePrice(gKey, sizeKey, basisTotal){
+  function psRound(v){ return Math.round(v / 100000) * 100000; }   // 산출가는 10만 원 단위
+  /* 더블(premium) 단조 하한 — 확정가(면적 순)를 훑어, 이 규격 면적 이하 확정가 중 가장 비싼 금액을 하한으로 쓴다.
+     표에 없는 2400×2400·3000×3000 같은 규격이 작은 확정가보다 싸지는 역전을 막고,
+     인접 확정가 사이에서도 금액이 뒤로 가지 않게 한다. (2026-11-28 2차) */
+  function psFloorPrice(gKey, dim, price){
+    if (gKey !== "premium" || !dim) return price;
+    var a = (dim.w * dim.d) / 1e6, floor = 0;
+    var t = PS_PRICE.premium || {};
+    for (var k in t){
+      var p = String(k).split("x"), kw = Number(p[0]), kd = Number(p[1]);
+      if (!kw || !kd) continue;
+      if ((kw * kd) / 1e6 <= a + 1e-9) floor = Math.max(floor, t[k]);
+    }
+    return Math.max(price, floor);
+  }
+  /* 더블(premium) 산출가는 면적만으로 정한다 — 같은 면적인데 모양이 길쭉하다고 금액이 달라지거나,
+     면적이 큰 쪽이 오히려 싸지는 일이 없게(면적 ↑ → 금액 ↑). 확정가가 있으면 그 금액이 우선. */
+  function psAreaBasis(dim){
+    var s = Math.sqrt(dim.w * dim.d);
+    return psBasePrice(psGradeOf("premium"), { w: s, d: s, h: dim.h }).total;
+  }
+  function psTablePrice(gKey, sizeKey, basisTotal, dim){
     var table = PS_PRICE[gKey] || {};
-    return table[sizeKey] ? table[sizeKey] : psRound(basisTotal);
+    var d = dim || psDims();
+    var price = table[sizeKey] ? table[sizeKey] : psRound(gKey === "premium" ? psAreaBasis(d) : basisTotal);
+    return psFloorPrice(gKey, d, price);
   }
   function psPrice(){
     var c = psBasis();
     var base;
     if (PS.price > 0) base = PS.price;
-    else base = psTablePrice(PS.grade, PS.size, c.total);
-    var optP = c.optPrice;
-    return { base: base, total: base + optP, optP: optP, basis: c };
+    /* 직접 입력해도 치수가 표준 규격과 같으면 확정가를 쓴다(계산기와 같은 금액) */
+    else base = psTablePrice(PS.grade, PS.size === "custom" ? (c.dim.w + "x" + c.dim.d) : PS.size, c.total, c.dim);
+    var optP = c.optPrice, shipAdd = psShipAdd();
+    /* 확정가든 산출가든 운송 추가금은 맨 마지막에 합산 — 고객 총액에 반드시 붙는다 */
+    return { base: base, total: base + optP + shipAdd, optP: optP, shipAdd: shipAdd, basis: c };
   }
   function krwPS(v){ return Number(Math.round(v)).toLocaleString("ko-KR") + "원"; }
   /* ---- 매입가 · 마진 (서버 원가) --------------------------------------
@@ -4304,7 +4477,7 @@ function openContractModal(q){
     }).join("");
     var shipChips = PS_SHIP.map(function(s){
       return '<button type="button" class="ps-chip" data-ps-ship="' + s.k + '" aria-pressed="' + (PS.ship === s.k ? "true" : "false") + '">'
-        + s.t + '<small>' + (s.add ? "+" + Math.round(s.add / 10000) + "만" : "0") + '</small></button>';
+        + s.t + '<small>' + s.d + ' · ' + (s.add ? "+" + Math.round(s.add / 10000) + "만" : "+0") + '</small></button>';
     }).join("");
     var dayChips = [0,1,2,3].map(function(d){
       return '<button type="button" class="ps-chip" data-ps-day="' + d + '" aria-pressed="' + (Number(PS.day) === d ? "true" : "false") + '">'
@@ -4364,8 +4537,13 @@ function openContractModal(q){
       + (PS.aircon
           ? '    <div class="ps-opt-sep"><span>❄</span><span>에어컨 타공·매설은 협력업체 단독 진행(200만원 후반~)으로 견적 합계에 넣지 않습니다. 견적 문구에는 <b>“에어컨: 협력업체 별도 협의”</b>로만 안내됩니다.</span></div>'
           : '')
-      + '    <div class="ps-step" style="margin-top:12px"><span class="t">운송</span><span class="s">거리별 차등</span></div>'
+      + '    <div class="ps-step" style="margin-top:12px"><span class="t">운송</span><span class="s">김포(구래동) 출발 편도 km · 4구간</span></div>'
       + '    <div class="ps-chips">' + shipChips + '</div>'
+      + '    <div class="ps-region">'
+      + '      <input id="ps-region-q" type="search" list="ps-region-list" autocomplete="off" placeholder="지역 입력 (예: 강릉, 춘천, 천안)" value="' + esc(PS.regionQ || "") + '">'
+      + '      <label>운송비 직접 입력 (원)<input id="ps-ship-ovr" type="number" min="0" step="10000" placeholder="예: 250000" value="' + (PS.shipOv === null || PS.shipOv === undefined ? "" : esc(PS.shipOv)) + '"></label>'
+      + '    </div>'
+      + '    <p class="ps-note" id="ps-region-msg">' + esc(psRegionMsgLine()) + '</p>'
       + '    <div class="ps-step" style="margin-top:12px"><span class="t">현장 시공</span><span class="s">고객가는 규격 고정 · 일수는 내부 인건비·마진에만</span></div>'
       + '    <div class="ps-chips">' + dayChips + '</div>'
       + '</div>'
@@ -4373,18 +4551,20 @@ function openContractModal(q){
       /* 판매가 조정 + 내역 */
       + '  <div class="ps-card">'
       + '    <div class="ps-step"><span class="t">판매가</span><span class="s">부가세 포함 · 손으로 조정할 수 있습니다</span></div>'
-      + '    <div class="ps-price"><label>고객 안내가</label>'
+      + '    <div class="ps-price"><label>고객 안내가 <em style="font-style:normal;font-weight:700;opacity:.6">(부스 기준 · 운송 별도)</em></label>'
       + '      <input id="ps-price" type="number" step="10000" value="' + m.p.base + '">'
       + '      <button type="button" class="ps-mini" data-ps-px="-100000">−10만</button>'
       + '      <button type="button" class="ps-mini" data-ps-px="100000">+10만</button>'
       + '      <button type="button" class="ps-mini" data-ps-px="reset">확정가로</button></div>'
       + '    <details class="ps-detail" style="margin-top:10px"><summary><span>산출가 기준</span><span>열기</span></summary>'
       + (m.p.optP ? '<div class="ps-line"><span>옵션 판매가 (VAT 포함)</span><b>' + krwPS(m.p.optP) + '</b></div>' : '')
+      + '      <div class="ps-line"><span>운송 추가금 (' + esc(PS.shipOv !== null && PS.shipOv !== "" ? "직접 입력" : psShipRow().d + " " + psShipRow().t) + ')</span><b>' + (m.p.shipAdd ? "+" + krwPS(m.p.shipAdd) : "0원 (수도권 포함)") + '</b></div>'
       + '      <div class="ps-line sum"><span>옵션 포함 총액</span><b>' + krwPS(m.p.total) + '</b></div>'
 
       + '      <p class="ps-note">· 옵션 금액은 모두 <b>부가세 포함</b> 판매가입니다.<br>'
-      + '      · 확정가 표에 없는 규격은 2000×2000 슈퍼싱글(360만 원)을 기준점으로 면적·겹수에 비례해 계산한 뒤 10만 원 단위로 올린 <b>산출가</b>입니다. 운송도 함께 반영됩니다.<br>'
-      + '      · 대형 부스는 면적 구간별 <b>완만 누진</b> — 7.2㎡ 미만 1.353배 · 7.2~9.0㎡ 1.42배 · 9.0㎡ 초과는 1.52배(2일 기준) 고정. (2400×2400 420·520·620만 · 3000×3000 540·650·790만)<br>'
+      + '      · 확정가 표에 없는 규격은 2000×2000 슈퍼싱글(360만 원)을 기준점으로 면적·겹수에 비례해 계산한 뒤 10만 원 단위로 올린 <b>산출가</b>입니다. 운송 추가금은 확정가·산출가 어느 쪽이든 맨 마지막에 더해집니다.<br>'
+      + '      · 더블은 2400×2400 780만 · 3000×3000 900만 확정가를 추가했고, 표에 없는 규격도 그 면적 이하 확정가보다 싸지지 않게(역전 없이) 잡습니다.<br>'
+      + '      · 대형 부스는 면적 구간별 <b>완만 누진</b> — 7.2㎡ 미만 1.353배 · 7.2~9.0㎡ 1.42배 · 9.0㎡ 초과는 1.52배(2일 기준) 고정.<br>'
       + '      · 현장 시공(직접 시공 / 동행 1·2·3일)은 <b>고객가를 바꾸지 않습니다</b> — 내부 인건비·마진·마진율에만 반영됩니다.<br>'
       + '      · 2중은 늘어나는 면만 반영합니다 — 슈퍼싱글 플러스는 정면 1면만 2중(1.25배), 더블은 4면 2중(2배).<br>'
       + '      · 실제 발주 전 재단표(도면 A-104)로 장수를 확인하세요.</p>'
@@ -4430,8 +4610,23 @@ function openContractModal(q){
       b.addEventListener("click", function(){ var k = b.getAttribute("data-ps-opt"); PS[k] = !PS[k]; psSave(); render(); });
     });
     Array.prototype.forEach.call(app.querySelectorAll("[data-ps-ship]"), function(b){
-      b.addEventListener("click", function(){ PS.ship = b.getAttribute("data-ps-ship"); psSave(); render(); });
+      b.addEventListener("click", function(){ PS.ship = b.getAttribute("data-ps-ship"); PS.shipOv = null; PS.regionQ = ""; PS_REGION_MSG = ""; psSave(); render(); });
     });
+    var rq = document.getElementById("ps-region-q");
+    if (rq){
+      rq.addEventListener("input", function(){ psRegionApply(rq.value); });
+      rq.addEventListener("change", function(){ psRegionApply(rq.value); render(); });
+    }
+    var ov = document.getElementById("ps-ship-ovr");
+    if (ov){
+      var setOv = function(v){
+        PS.shipOv = (v === "" || v === null || v === undefined) ? null : Math.max(0, Number(v) || 0);
+        psSave(); psRefreshNumbers();
+        var msg = document.getElementById("ps-region-msg"); if (msg) msg.textContent = psRegionMsgLine();
+      };
+      ov.addEventListener("input", function(){ setOv(ov.value); });
+      ov.addEventListener("change", function(){ setOv(ov.value); render(); });
+    }
     Array.prototype.forEach.call(app.querySelectorAll("[data-ps-day]"), function(b){
       b.addEventListener("click", function(){ PS.day = Number(b.getAttribute("data-ps-day")); psSave(); render(); });
     });
@@ -4481,6 +4676,7 @@ function openContractModal(q){
   }
 
   psLoad();
+  psRegionDatalist();
 
   /* ============================================================
      🧮 표준 단가 계산기 (신규설치 · 숨고 응대용)
@@ -4489,22 +4685,26 @@ function openContractModal(q){
      - 고객전용 견적 복사 : 사이즈·등급만 물어본 고객에게 바로 붙여넣는 기본부스 견적
      ============================================================ */
   var CALC_H = 2280;                                   // 층고 기준 (단가 스튜디오와 동일)
-  var CALC = { region: "metro", targetId: "", w: 2000, d: 2000, grade: "value" };
+  var CALC = { region: "metro", ovr: null, regionQ: "", targetId: "", w: 2000, d: 2000, grade: "value" };
   function calcRegionStep(k){
     for (var i=0;i<REGION_STEPS.length;i++) if (REGION_STEPS[i].k === k) return REGION_STEPS[i];
     return REGION_STEPS[0];
   }
-  function calcShipAdd(){ return calcRegionStep(CALC.region).add; }
+  /* 운송 추가금 — 스튜디오와 같은 규칙: 구간 금액, 직접 입력이 있으면 그 금액 */
+  function calcShipAdd(){
+    if (CALC.ovr !== null && CALC.ovr !== undefined && CALC.ovr !== "") return Math.max(0, Number(CALC.ovr) || 0);
+    return calcRegionStep(CALC.region).add;
+  }
   function calcGrade(){ return psGradeOf(CALC.grade); }
   /* 확정가·산출가는 모두 수도권 기준 — 지역은 운송 차액을 따로 더한다 */
   function calcPrice(w, d){
     if (!w || !d) return null;
     var g = calcGrade();
     var dim = { w: w, d: d, h: CALC_H };
-    var basis = psBasePrice(g, dim, "metro");
+    var basis = psBasePrice(g, dim);
     var key = w + "x" + d;
     var fixed = !!(PS_PRICE[CALC.grade] && PS_PRICE[CALC.grade][key]);
-    var base = psTablePrice(CALC.grade, key, basis.total);
+    var base = psTablePrice(CALC.grade, key, basis.total, dim);
     var add = calcShipAdd();
     var total = base + add;
     var supply = Math.round(total / 1.1), vat = total - supply;
@@ -4541,7 +4741,7 @@ function openContractModal(q){
     out.push("");
     out.push("· 규격: " + calcWon(w) + " × " + calcWon(d) + " · " + g.t);
     out.push("· 기본 포함: 방음도어 " + g.doors + "짝 · 아트보드 3면 · 라인타공 1면 · 강화마루 · LED 조명");
-    out.push("· 총액: " + krw(c.total) + " (부가세 포함" + (c.add ? " · " + st.t + " 운송 포함)" : ")"));
+    out.push("· 총액: " + krw(c.total) + " (부가세 포함" + (c.add ? " · " + (CALC.ovr !== null && CALC.ovr !== "" ? "운송" : st.t + " 운송") + " 포함)" : ")"));
     out.push("· 계약금 50%: " + krw(c.deposit));
     out.push("");
     out.push("3D로 미리 보기 — https://beosoundproof.com/configurator.html?sim=1&w=" + w + "&d=" + d);
@@ -4572,7 +4772,9 @@ function openContractModal(q){
     put("calc-total", krw(c.total));
     put("calc-supply", krw(c.supply));
     put("calc-vat", krw(c.vat));
-    put("calc-ship", c.add ? "+" + krw(c.add) + " (" + st.t + ")" : "포함 (수도권)");
+    put("calc-ship", c.add
+      ? "+" + krw(c.add) + " (" + (CALC.ovr !== null && CALC.ovr !== "" ? "직접 입력" : st.d + " " + st.t) + ")"
+      : (CALC.ovr !== null && CALC.ovr !== "" ? "+0 (직접 입력)" : "포함 (수도권)"));
     put("calc-deposit", krw(c.deposit));
     /* 매입가 · 마진 — 서버 원가가 있을 때만 */
     var cdim = { w: dim.w, d: dim.d, h: CALC_H };
@@ -4591,12 +4793,32 @@ function openContractModal(q){
   function calcRegionSet(k){
     if (!k) return;
     CALC.region = calcRegionStep(k).k;
+    CALC.ovr = null;
+    var ov = document.getElementById("calc-ship-ovr"); if (ov) ov.value = "";
     Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
       b.classList.toggle("on", b.getAttribute("data-calc-region") === CALC.region);
     });
   }
+  function calcRegionApply(q){
+    CALC.regionQ = q;
+    var r = psRegionFind(q);
+    var msg = document.getElementById("calc-region-msg");
+    if (r.k){
+      CALC.region = r.k; CALC.ovr = null;
+      var ov = document.getElementById("calc-ship-ovr"); if (ov) ov.value = "";
+    }
+    Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
+      b.classList.toggle("on", b.getAttribute("data-calc-region") === CALC.region);
+    });
+    if (msg) msg.textContent = r.msg || "";
+    calcPaint();
+  }
   function openCalc(id){
     CALC.targetId = id || "";
+    /* 지역 검색·직접 입력칸도 현재 계산기 상태와 맞춘다 */
+    var rqEl = document.getElementById("calc-region-q"); if (rqEl) rqEl.value = CALC.regionQ || "";
+    var ovEl = document.getElementById("calc-ship-ovr"); if (ovEl) ovEl.value = (CALC.ovr === null || CALC.ovr === undefined ? "" : CALC.ovr);
+    var rmsg = document.getElementById("calc-region-msg"); if (rmsg) rmsg.textContent = "";
     var q = id ? quoteById(id) : null;
     var applyBtn = document.getElementById("calc-apply");
     var target = document.getElementById("calc-target");
@@ -4653,21 +4875,20 @@ function openContractModal(q){
     }
     return null;
   }
-  var REGION_METRO = ["서울","경기","인천","김포","부천","고양","파주","수원","성남","안양","안산","시흥","광명","군포","과천","구리","남양주","의정부","용인","화성","평택","오산","이천","안성","포천","양주","동두천","여주","연천","가평","양평","하남","광주시","강화","옹진","일산","분당","수지","판교"];
-  /* 운송비 거리 4단 — 수도권 0 / 근거리(충북·천안·강원) +20만 / 중거리(충남·전북·경북) +30만 / 원거리(전남·경남·제주) +40만 */
-  var REGION_STEPS = [
-    { k: "metro", t: "수도권",            add: 0 },
-    { k: "near",  t: "충북·천안·강원",     add: 200000 },
-    { k: "mid",   t: "충남·전북·경북",     add: 300000 },
-    { k: "far",   t: "전남·경남·제주",     add: 400000 }
-  ];
-  var REGION_NEAR = ["충북","청주","충주","제천","음성","진천","천안","아산","강원","춘천","원주","강릉","속초","동해","삼척","횡성","홍천"];
-  var REGION_MID  = ["충남","대전","세종","공주","논산","당진","서산","보령","전북","전주","익산","군산","정읍","남원","경북","대구","포항","구미","안동","경주","김천","영주","상주"];
-  var REGION_FAR  = ["전남","광주","목포","여수","순천","나주","경남","부산","울산","창원","김해","진주","양산","거제","통영","사천","제주","서귀포"];
+  var REGION_METRO = PS_REGIONS.filter(function(x){ return x.k === "metro"; }).map(function(x){ return x.n; });
+  /* 운송비 거리 4단 — 수도권 0 / 근거리(천안·춘천·충북) +20만 / 중거리(강릉·충남·전북·경북) +30만 / 원거리(전남·경남·부산) +40만 */
+  /* 운송 4단 — PS_SHIP과 같은 라벨·금액을 쓴다(스튜디오와 한 벌) */
+  var REGION_STEPS = PS_SHIP.map(function(s){ return { k: s.k, t: s.t, d: s.d, add: s.add }; });
+  var REGION_NEAR = PS_REGIONS.filter(function(x){ return x.k === "near"; }).map(function(x){ return x.n; });
+  var REGION_MID  = PS_REGIONS.filter(function(x){ return x.k === "mid"; }).map(function(x){ return x.n; });
+  var REGION_FAR  = PS_REGIONS.filter(function(x){ return x.k === "far"; }).map(function(x){ return x.n; });
   var REGION_LOCAL = REGION_NEAR.concat(REGION_MID, REGION_FAR);
   function calcRegionOf(txt){
+    var r = psRegionFind(txt);
+    if (r.k) return r.k;
+    if (r.amb) return "";   // 두 곳이 되는 이름(고성 등)은 붙여넣기 해석에서도 임의로 고르지 않는다
     var t = String(txt || "");
-    var has = function(list){ return list.some(function(k){ return t.indexOf(k) !== -1; }); };
+    var has = function(list){ return list.some(function(k){ return k && t.indexOf(k) !== -1; }); };
     if (has(REGION_FAR))  return "far";
     if (has(REGION_MID))  return "mid";
     if (has(REGION_NEAR)) return "near";
@@ -4694,9 +4915,19 @@ function openContractModal(q){
   Array.prototype.forEach.call(document.querySelectorAll("[data-calc-region]"), function(b){
     b.addEventListener("click", function(){
       calcRegionSet(b.getAttribute("data-calc-region"));
+      var msg = document.getElementById("calc-region-msg"); if (msg) msg.textContent = "";
       calcPaint();
     });
   });
+  var calcRq = document.getElementById("calc-region-q");
+  if (calcRq) calcRq.addEventListener("input", function(){ calcRegionApply(calcRq.value); });
+  var calcOv = document.getElementById("calc-ship-ovr");
+  if (calcOv){
+    calcOv.addEventListener("input", function(){
+      CALC.ovr = (calcOv.value === "") ? null : Math.max(0, Number(calcOv.value) || 0);
+      calcPaint();
+    });
+  }
   document.getElementById("calc-copy-customer").addEventListener("click", function(){
     var dim = calcRead();
     var txt = calcCustomerText(dim.w, dim.d);
