@@ -312,11 +312,7 @@
   .mold-kind.out{background:#F3EAE2;color:#8A4B2A}
   .mold-tbl td.len{text-align:right;font-variant-numeric:tabular-nums;font-weight:800;white-space:nowrap;color:var(--ink)}
   .mold-tbl td.len s{display:block;text-decoration:none;margin-top:1px;font-size:10px;font-weight:800;color:var(--warn)}
-  .mold-tbl td.qty{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2);white-space:nowrap}
-  .mold-tbl td.tag{text-align:right;white-space:nowrap}
-  .mold-tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.02em;border-radius:5px;padding:2px 6px;white-space:nowrap}
-  .mold-tag.pre{background:#E8F1EE;color:#1F7A69}
-  .mold-tag.site{background:#FDF1E7;color:#A4551E}
+  .mold-tbl td.qty{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2);white-space:nowrap;font-weight:700}
   .mold-grp td{background:#F7F4EE;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#6B5B3E;padding:7px 6px;border-bottom:1px solid var(--line2)}
   .mold-grp.site td{background:#FBF3EA;color:#8A4517}
   .mold-warn{margin:10px 0 0;padding:8px 11px;border-radius:9px;background:#FDF1E7;border:1px solid #EFD3BC;font-size:10.5px;font-weight:700;color:#8A4517;line-height:1.6}
@@ -327,13 +323,11 @@
     .mold-body{padding:10px 10px 13px}
     .mold-tbl{font-size:11px}
     .mold-tbl th{padding:0 3px 5px;font-size:9px}
-    .mold-tbl th:nth-child(2),.mold-tbl td.len{width:56px}
-    .mold-tbl th:nth-child(3),.mold-tbl td.qty{width:26px}
-    .mold-tbl th:nth-child(4),.mold-tbl td.tag{width:52px}
+    .mold-tbl th:nth-child(2),.mold-tbl td.len{width:60px}
+    .mold-tbl th:nth-child(3),.mold-tbl td.qty{width:28px}
     .mold-tbl td{padding:6px 3px}
     .mold-tbl td.lbl em{font-size:9.5px}
     .mold-kind{font-size:8px;padding:1px 3px;margin-right:3px}
-    .mold-tag{font-size:9px;padding:2px 4px}
   }
 
   /* ---------- 비앤비 발주 카드 ---------- */
@@ -5233,25 +5227,26 @@ function moldCutPlan(m, inp, mld){
 
   /* 1) 라인타공 면 상·하단 — 선접 */
   const lineLen = faceIn(lineK);
-  push({kind:'in4', role:'pre', label:nm(lineK) + ' 상단', len:lineLen,
+  push({kind:'in4', role:'pre', face:lineK, pos:'상단', label:nm(lineK) + ' 상단', len:lineLen,
         note:'선접 · 라인타공 면 상단 — 양옆 후접(9T)이 끝을 덮음'});
   if(doorK !== lineK){
-    push({kind:'in4', role:'pre', label:nm(lineK) + ' 하단', len:lineLen,
+    push({kind:'in4', role:'pre', face:lineK, pos:'하단', label:nm(lineK) + ' 하단', len:lineLen,
           note:'선접 · 라인타공 면 하단'});
     /* 2) 문 면 상단 — 선접 (라인타공 면과 같은 면이면 위에서 이미 셌다) */
-    push({kind:'in4', role:'pre', label:nm(doorK) + ' 상단', len:faceLenD,
+    push({kind:'in4', role:'pre', face:doorK, pos:'상단', label:nm(doorK) + ' 상단', len:faceLenD,
           note:'선접 · 문 위는 상단 몰딩이 그대로 지나감'});
   }
 
   /* 3) 문 면 하단 좌·우 — 선접 (8전이 튀어나온 부분부터 모서리까지) */
   if(segL > 0 && segR > 0 && segL === segR){
-    push({kind:'in4', role:'pre', label:nm(doorK) + ' 하단 좌·우', len:segL, qty:2,
+    push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'8전 바깥 → 모서리',
+          label:nm(doorK) + ' 하단 좌·우', len:segL, qty:2,
           note:'선접 · 문 좌·우 8전 바깥 → 모서리 (문 턱 구간 제외)'});
   } else {
-    if(segL > 0) push({kind:'in4', role:'pre', label:nm(doorK) + ' 하단 좌', len:segL,
-          note:'선접 · 8전 바깥 → 모서리'});
-    if(segR > 0) push({kind:'in4', role:'pre', label:nm(doorK) + ' 하단 우', len:segR,
-          note:'선접 · 8전 바깥 → 모서리'});
+    if(segL > 0) push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'8전 바깥 → 모서리',
+          label:nm(doorK) + ' 하단 좌', len:segL, note:'선접 · 8전 바깥 → 모서리'});
+    if(segR > 0) push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'8전 바깥 → 모서리',
+          label:nm(doorK) + ' 하단 우', len:segR, note:'선접 · 8전 바깥 → 모서리'});
   }
 
   /* 4) 문 양옆 노출 PB 8전 — 선접 */
@@ -5265,28 +5260,28 @@ function moldCutPlan(m, inp, mld){
 
   /* 6) 시창 테두리 — 창틀 규격 고정 */
   if(mld.winOn){
-    push({kind:'in4', role:'pre', label:'시창 양옆 세로', len:mld.winVLen, qty:2,
+    push({kind:'in4', role:'pre', label:'시창 양옆 세로', len:mld.winVLen, qty:2, noteShort:'창틀 고정',
           note:'선재단 · 창틀 고정 (총고 ' + m.H + ' 기준) · 마루 위 시공 시 -8㎜(' + fmt(mld.winVLen) + '→' + fmt(mld.winVLen - 8) + ') 현장 확인'});
-    push({kind:'in4', role:'pre', label:'시창 위·아래 가로', len:mld.winHLen, qty:2,
+    push({kind:'in4', role:'pre', label:'시창 위·아래 가로', len:mld.winHLen, qty:2, noteShort:'개구부 −15',
           note:'선재단 · 개구부 ' + (m.needW || m.winW) + ' − 15'});
   }
 
   /* 7) 외부 몰딩 (백색 4전) — 전부 선재단 */
   if(mld.exposed){
-    push({kind:'out', role:'pre', label:'코너 세로', len:m.H, qty:mld.exposed*2,
+    push({kind:'out', role:'pre', label:'코너 세로', len:m.H, qty:mld.exposed*2, noteShort:'4전 2개 맞대기',
           note:'외곽 모서리 · 4전 2개 맞대기'});
     (mld.extFaces || []).forEach(k=>{
       const s = sideOf(k);
       const L = Math.round(s ? s.len : axisLen(k));
-      push({kind:'out', role:'pre', label:nm(k) + ' 상·하단', len:L, qty:2,
+      push({kind:'out', role:'pre', face:k, pos:'상·하단', label:nm(k) + ' 상·하단', len:L, qty:2,
             note:'외곽 길이 그대로 (모서리 9T 겹침)'});
     });
     push({kind:'out', role:'pre', label:'문 양옆 세로', len:m.dh, qty:2*doorMul, note:'외곽 기준'});
-    push({kind:'out', role:'pre', label:'문 위 가로', len:mld.doorTopW, qty:1*doorMul,
+    push({kind:'out', role:'pre', label:'문 위 가로', len:mld.doorTopW, qty:1*doorMul, noteShort:'문 폭 −15',
           note:'문 폭 ' + m.dw + ' − 15'});
     if(mld.winOn){
-      push({kind:'out', role:'pre', label:'시창 세로', len:mld.winVLen, qty:2, note:'창틀 고정'});
-      push({kind:'out', role:'pre', label:'시창 위·아래 가로', len:mld.winHLen, qty:2, note:'개구부 − 15'});
+      push({kind:'out', role:'pre', label:'시창 세로', len:mld.winVLen, qty:2, noteShort:'창틀 고정', note:'창틀 고정'});
+      push({kind:'out', role:'pre', label:'시창 위·아래 가로', len:mld.winHLen, qty:2, noteShort:'개구부 −15', note:'개구부 − 15'});
     }
   }
 
@@ -5295,22 +5290,22 @@ function moldCutPlan(m, inp, mld){
   lateFaces.forEach(k=>{
     const adj = (isX(k) ? ['left','right'] : ['back','front']).filter(x => welded.indexOf(x) >= 0).length;
     const L = Math.max(0, faceIn(k) - MOLD_T * adj);
-    push({kind:'in4', role:'site', label:nm(k) + ' 상·하단', len:L, qty:2,
+    push({kind:'in4', role:'site', face:k, pos:'상·하단', label:nm(k) + ' 상·하단', len:L, qty:2,
           note:'후접 · 선접 붙인 뒤 그 사이를 레이저 실측' + (adj === 2 ? ' (양 끝 9T씩 덮임)' : '')});
   });
   if(m.notch && m.notch.on){
     (m.steps || []).forEach(st=>{
       const L = Math.max(0, Math.round(st.span) - MOLD_T*2);
-      push({kind:'in4', role:'site', label:(st.name || '단차 벽') + ' 상·하단', len:L, qty:2,
+      push({kind:'in4', role:'site', label:(st.name || '단차 벽') + ' 상·하단', len:L, qty:2, noteShort:'단차 벽 실측',
             note:'후접 · 단차 벽 (실측)'});
     });
   }
 
   /* 9) 문 위·아래 노출 PB 4전 — 후접 (2개씩 = PB 깊이를 두 줄로 덮음) */
   const doorHead = Math.max(0, Math.round(m.dw - MOLD_T*2));
-  push({kind:'in4', role:'site', label:'문 위 노출 PB', len:doorHead, qty:2*doorMul,
+  push({kind:'in4', role:'site', cls:'pb', pb:'위', noteShort:'PB 두 줄로 덮음', label:'문 위 노출 PB', len:doorHead, qty:2*doorMul,
         note:'후접 · 문 좌·우 8전 사이 · 드러난 PB ' + reveal + '㎜를 4전 두 줄로'});
-  push({kind:'in4', role:'site', label:'문 아래 노출 PB', len:doorHead, qty:2*doorMul,
+  push({kind:'in4', role:'site', cls:'pb', pb:'아래', noteShort:'PB 두 줄로 덮음', label:'문 아래 노출 PB', len:doorHead, qty:2*doorMul,
         note:'후접 · 문 좌·우 8전 사이 · 드러난 PB ' + reveal + '㎜를 4전 두 줄로'});
 
   /* --- 요약 ------------------------------------------------------------- */
@@ -5328,8 +5323,9 @@ function moldCutPlan(m, inp, mld){
   };
   const barsOf = k => packBars(rows.filter(r=> r.kind === k).flatMap(r=> Array(r.qty).fill(r.len)));
   const over = rows.filter(r=> r.len > MOLD_LEN);
+  const merged = moldMergeRows(rows, nm);
   return {
-    rows, ix, iy, ih, lineK, doorK, welded, lateFaces, faceLenD, segL, segR, reveal,
+    rows: merged, rawRows: rows, ix, iy, ih, lineK, doorK, welded, lateFaces, faceLenD, segL, segR, reveal,
     winOn: !!mld.winOn, winVLen: mld.winVLen, winHLen: mld.winHLen,
     preN: piecesOf('pre'), siteN: piecesOf('site'),
     bars: {in4: barsOf('in4'), in8: barsOf('in8'), out: barsOf('out')},
@@ -5337,10 +5333,80 @@ function moldCutPlan(m, inp, mld){
   };
 }
 
+/* 같은 규격·같은 구분·같은 길이(mm)끼리 한 줄로 묶기 (2026-11-27 대표님 지시)
+   "뒷면 하단 상단, 이런 식으로 묶어서 3개 이렇게 자르라지 — 한 줄씩 쭉 가면 너무 복잡"
+   ▸ 병합 단위 = 규격(4전·8전·외부) + 구분(선재단·현장+1) + 길이(mm) + 종류
+   ▸ 면 상·하단은 면별 개수로 표기 — `상·하단 (뒷면2·앞면1)`,
+     모든 면이 상·하단이고 개수가 같으면 `좌·우측면 상·하단`처럼 면 이름을 줄인다. */
+function moldFaceCombo(names){
+  if(!names.length) return '';
+  if(names.length === 1) return names[0];
+  const first = names[0];
+  let suf = '';
+  for(let i = 1; i < first.length; i++){
+    const cand = first.slice(-i);
+    if(names.every(n=> n.length > i && n.slice(-i) === cand)) suf = cand; else break;
+  }
+  if(suf) return names.map(n=> n.slice(0, n.length - suf.length)).join('·') + suf;
+  return names.join('·');
+}
+function moldMergeRows(rows, nm){
+  const groups = new Map();
+  rows.forEach(r=>{
+    const cls = r.cls || (r.face ? 'face' : 'label:' + r.label);
+    const key = [r.kind, r.role, r.len, cls].join('|');
+    let g = groups.get(key); if(!g){ g = []; groups.set(key, g); }
+    g.push(r);
+  });
+  const out = [];
+  groups.forEach(list=>{
+    const first = list[0];
+    if(list.length === 1 && !first.pb){ out.push(first); return; }
+    const qty = list.reduce((a,r)=> a + r.qty, 0);
+    let label = first.label;
+    if(first.pb){
+      const up = list.some(r=> r.pb === '위'), dn = list.some(r=> r.pb === '아래');
+      label = '문 ' + (up && dn ? '위·아래' : (up ? '위' : '아래')) + ' 노출 PB';
+    } else if(first.cls === 'seg'){
+      label = nm(first.face) + ' 하단 좌·우';
+    } else if(first.face){
+      const per = new Map();
+      list.forEach(r=>{
+        const e = per.get(r.face) || {qty:0, top:false, bot:false};
+        e.qty += r.qty;
+        if(r.pos === '상·하단'){ e.top = true; e.bot = true; }
+        else if(r.pos === '상단'){ e.top = true; } else { e.bot = true; }
+        per.set(r.face, e);
+      });
+      const faces = [...per.keys()];
+      const full = faces.every(f=>{ const e = per.get(f); return e.top && e.bot; });
+      const same = new Set(faces.map(f=> per.get(f).qty)).size === 1;
+      const anyTop = faces.some(f=> per.get(f).top), anyBot = faces.some(f=> per.get(f).bot);
+      const part = (anyTop && anyBot) ? '상·하단' : (anyTop ? '상단' : '하단');
+      if(faces.length === 1){
+        label = nm(faces[0]) + ' ' + part;
+      } else if(faces.length === 4 && full){
+        label = '4면 ' + part;
+      } else if(full && same){
+        label = moldFaceCombo(faces.map(f=> nm(f))) + ' ' + part;
+      } else {
+        label = part + ' (' + faces.map(f=> nm(f) + per.get(f).qty).join('·') + ')';
+      }
+    }
+    const notes = list.map(r=> r.note).filter(Boolean);
+    out.push(Object.assign({}, first, {
+      qty, label,
+      noteShort: first.noteShort || '',
+      note: notes.length ? (list.length > 1 ? notes.join(' / ') : notes[0]) : ''
+    }));
+  });
+  return out;
+}
+
 /* 재단표 문자 — 현장에서 카톡/메모로 바로 쓰는 형식 */
 function moldPlanText(m, plan){
   const fmt = n => Number(n).toLocaleString('ko-KR');
-  const kindTxt = k => k === 'in4' ? '내부 4전' : (k === 'in8' ? '내부 8전' : '외부 4전');
+  const kindTxt = k => k === 'in4' ? '4전' : (k === 'in8' ? '8전' : '외부');
   const L = [];
   L.push('[몰딩 재단표 · ' + m.W + '×' + m.D + ' · 층고 ' + m.H + ']');
   L.push('문 ' + m.dw + ' · ' + (m.sideName[m.doorSide] || '') + ' · 라인타공 ' + (m.sideName[m.lineFace] || '')
@@ -5355,11 +5421,12 @@ function moldPlanText(m, plan){
       : '■ 현장 실측 +1mm (레이저로 재고 1mm 길게)');
     rs.forEach(r=>{
       const len = fmt(r.len) + (role === 'site' ? ' (+1 → ' + fmt(r.len + MOLD_ADD) + ')' : '');
-      L.push('· ' + kindTxt(r.kind) + ' ' + len + ' × ' + r.qty + ' — ' + r.label);
+      L.push('· ' + kindTxt(r.kind) + ' ' + r.label + ' — ' + len + ' × ' + r.qty);
     });
   });
   L.push('');
-  L.push('원장 2,440 참고 — 내부 4전 ' + plan.bars.in4 + '본 · 8전 ' + plan.bars.in8 + '본 · 외부 ' + plan.bars.out + '본');
+  L.push('※ 같은 규격·같은 길이는 묶어서 한 줄 · 선접 상·하단은 양옆 후접(9T)이 덮음 · 세로 몰딩 마루 위 시공 시 -8㎜');
+  L.push('원장 2,440 참고 — 4전 ' + plan.bars.in4 + '본 · 8전 ' + plan.bars.in8 + '본 · 외부 ' + plan.bars.out + '본');
   return L.join('\n');
 }
 
@@ -5370,7 +5437,7 @@ function moldCutCardHTML(m, inp){
   let body = '', last = '';
   plan.rows.forEach(r=>{
     if(r.role !== last){
-      body += '<tr class="mold-grp ' + r.role + '"><td colspan="4">'
+      body += '<tr class="mold-grp ' + r.role + '"><td colspan="3">'
         + (r.role === 'pre'
             ? '선재단 — 도면 치수 그대로 미리 재단 (' + plan.preN + '개)'
             : '현장 실측 + 1㎜ — 선접을 붙인 뒤 레이저로 재고 1㎜ 길게 (' + plan.siteN + '개)')
@@ -5378,12 +5445,12 @@ function moldCutCardHTML(m, inp){
       last = r.role;
     }
     body += '<tr>'
-      + '<td class="lbl"><i class="mold-kind ' + r.kind + '">' + kindShort(r.kind) + '</i>' + esc(r.label)
-      + (r.note ? '<em>' + esc(r.note) + '</em>' : '') + '</td>'
+      + '<td class="lbl"' + (r.note ? ' title="' + esc(r.note) + '"' : '') + '>'
+      + '<i class="mold-kind ' + r.kind + '">' + kindShort(r.kind) + '</i>' + esc(r.label)
+      + (r.noteShort ? '<em>' + esc(r.noteShort) + '</em>' : '') + '</td>'
       + '<td class="len">' + fmt(r.len)
       + (r.role === 'site' ? '<s>+1 → ' + fmt(r.len + MOLD_ADD) + '</s>' : '') + '</td>'
       + '<td class="qty">' + r.qty + '</td>'
-      + '<td class="tag"><span class="mold-tag ' + r.role + '">' + (r.role === 'pre' ? '선재단' : '현장+1') + '</span></td>'
       + '</tr>';
   });
   const overWarn = plan.over.length
@@ -5409,15 +5476,14 @@ function moldCutCardHTML(m, inp){
     </div>
     <div class="mold-body">
       <table class="mold-tbl">
-        <thead><tr><th>위치 · 기준</th><th>길이(㎜)</th><th>수</th><th>구분</th></tr></thead>
+        <thead><tr><th>위치 · 기준</th><th>길이(㎜)</th><th>수</th></tr></thead>
         <tbody>${body}</tbody>
       </table>
       ${overWarn}${notchWarn}
-      <p class="ord-note"><b>왜 나누나</b> — 벽체를 세울 때 1~2㎝ 오차가 나서 전부 미리 재단하면 후접에서 틈이 벌어집니다.
-      선접은 양옆 후접(9T)이 덮어 줘서 조금 짧아도 가려지지만, 후접은 선접을 붙인 뒤 레이저로 재고
-      <b>+1㎜ 길게</b> 잘라 휘면서 빡빡하게 들어가게 합니다. 길이는 외경에서 벽체(110 · 2중 220)와 양쪽 9T 마감재를 뺀
-      <b>최종 실내 내경</b> 기준이고, 문 위·아래는 안쪽으로 드러난 PB ${plan.reveal}㎜를 4전 두 줄로 덮습니다.
-      수량은 위 발주표(원장 2,440 기준 · 여유 포함)와 별개로 <b>재단 1개씩</b> 센 값입니다.</p>
+      <p class="ord-note"><b>왜 나누나</b> — 선접은 양옆 후접(9T)이 덮어 조금 짧아도 가려지고, 후접은 선접을 붙인 뒤
+      레이저로 재고 <b>+1㎜</b> 길게 잘라 빡빡하게 넣습니다. 길이는 <b>최종 실내 내경</b> 기준이며,
+      문 위·아래는 드러난 PB ${plan.reveal}㎜를 4전 두 줄로 덮습니다. 세로 몰딩(코너·문 양옆·시창)은 마루 위 시공 시
+      마루 두께 <b>-8㎜</b> 확인 · 수량은 위 발주표와 별개로 <b>재단 1개씩</b> 센 값입니다.</p>
     </div>
   </section>`;
 }
