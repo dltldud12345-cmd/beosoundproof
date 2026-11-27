@@ -1416,8 +1416,14 @@ function buildModel(inp){
   const cSpan = ceilAlongLong ? Math.min(W,D) : Math.max(W,D);   // 폭 합
   let cN = Math.floor(cSpan/MOD), cRest = cSpan - cN*MOD;
   const cWidths = [];
-  if(cRest >= 120){ for(let i=0;i<cN;i++) cWidths.push(MOD); cWidths.push(cRest - JOINT*cN); }
-  else { for(let i=0;i<Math.max(1,cN-1);i++) cWidths.push(MOD); cWidths.push(MOD - JOINT*Math.max(1,cN-1)); }
+  /* 자투리는 기본적으로 생략하지 않고 자투리 판으로 산출한다 (2026-11-27 대표 확정).
+     120 미만 자투리도 판으로 내고, 이음 공제(JOINT×앞 판 수) 뒤 자투리 판 폭이
+     30 미만(음수·0 포함)일 때만 600 판 하나를 줄여 마지막 판에 합친다 — 합판 대체는 하지 않는다.
+     총폭 = 판 폭 합 + JOINT×(판수-1) 은 항상 cSpan 과 정확히 같고 넘지 않는다. */
+  const cRestW = cRest - JOINT*cN;          // 자투리 판 폭 (이음 공제 후)
+  if(cN === 0){ cWidths.push(cSpan); }                                                     // 600 미만 폭은 한 장
+  else if(cRestW >= 30){ for(let i=0;i<cN;i++) cWidths.push(MOD); cWidths.push(cRestW); }   // 자투리 판
+  else { for(let i=0;i<cN-1;i++) cWidths.push(MOD); cWidths.push(MOD + cRest - JOINT*(cN-1)); }  // 600 한 장 줄여 합침
   const ceilLens = splitCeilLen(cLen);
   /* 600 열마다 [2000 | 나머지] ↔ [나머지 | 2000] 로 순서를 바꿔 이음선이 일자로 겹치지 않게 한다 */
   /* 코너 기둥을 따낸 천장 — 600 열마다 실제로 덮이는 구간만 45T 2겹으로 재단 */
