@@ -373,7 +373,7 @@
         <ul>
           <li>세로 2구 콘센트 · 강화마루</li>
           <li>3면 아트보드 · 1면 라인타공</li>
-          <li>COB 매립등 2구 · 중앙 LED등 (가로·세로 2,400mm 이상은 레일등)</li>
+          <li>COB 매립등 2구 · 중앙 LED등 (라인타공 면 내부 2,100mm 이상은 레일등)</li>
           <li>시스템도어 (문틈 현장 마감·상부 트랜섬 포함)</li>
         </ul>
         <span class="nt">아래에서 고르시는 것은 이 6가지 위에 얹히는 마감·옵션입니다.</span>
@@ -693,7 +693,7 @@
 2. 문 경첩: 우경첩(기본) / 좌경첩 / 현장 상담
 3. 아트보드 3면(5색): 연베이지 / 화이트 / 라이트그레이 / 차콜 / 블랙 / 상담 후 결정
 4. 라인타공 1면(RG-LT3203 8종): 001 내추럴 오크 / 002 미디엄 월넛 / 003 화이트 / 004 화이트워시 / 005 메이플 / 006 티크 / 007 애쉬 오크 / 008 다크 월넛 / 상담 후 결정
-5. 조명: COB 매립등 2구·주백색 4000K(기본) / 레일등(가로·세로 2,400mm 이상은 레일등) / 상담 후 결정
+5. 조명: COB 매립등 2구·주백색 4000K(기본) / 레일등(라인타공 면 내부 2,100mm 이상은 레일등) / 상담 후 결정
 6. 중앙 LED 등: 주백색(4000K) / 주광색(6500K) / 상담 후 결정
 7. 창문(복수): 벽면 시창(600×800·기본 추천) / 벽면 시창(800×800) / 벽면 시창(1,200×800) / 이중창(1,200×800) / 캐스먼트창(600×600)
 8. 추가 옵션(복수): 천장 프로젝트창(시스템에어컨 연동) / 에어컨 라인 벽체 매설 / 방염 자재 적용(학원·관공서·상업시설용)
@@ -914,8 +914,9 @@
     });
   });
 
-  /* ---------- 조명 규칙: 매립등은 주백색 4000K 고정 · 가로·세로 2,400mm 이상은 레일등 필수 ---------- */
-  var RAIL_MIN_MM = 2400;
+  /* ---------- 조명 규칙: 매립등은 주백색 4000K 고정 · 라인타공 면 내부 2,100mm 이상은 레일등 필수 ---------- */
+  var LIGHT_RAIL_MIN_MM = 2100;
+  var FIN_MM = 110;
   var LIGHT_COB = "COB 매립등 2구 (주백색 4000K)";
   var LIGHT_RAIL = "레일등";
   var lightAuto = true;   // 규격 때문에 자동으로 정해진 선택인지(사용자가 직접 누르면 false)
@@ -936,11 +937,23 @@
     }
     return {w: s.w, d: s.d};
   }
+  /* 라인타공 면(기본 뒷면) 내부 유효 길이 — 양 끝 벽 두께를 뺀다.
+     싱글·플러스는 110+110, 더블은 외벽 110 + 내벽 110 = 220씩.
+     맞춤 규격은 등급을 알 수 없어 더블(양 끝 220)로 보수적으로 본다 —
+     내부가 2,100mm 안 되는 부스에 레일등을 강제하지 않기 위해서입니다.
+     blueprint.html 의 finOf · configurator.js 의 slatLineLen 과 같은 기준입니다. */
+  function lineLenOf(dim){
+    if (!dim) return 0;
+    var spec = checkedValue("spec");
+    var fin = (spec === "ss" || spec === "ssp") ? FIN_MM : 220;   /* 단품 표준만 110, 더블·맞춤은 220 */
+    return Math.max(0, dim.w - fin*2);
+  }
   function syncLightRule(){
     var inp = lightInputs();
     if (!inp.cob || !inp.rail) return;
     var dim = selectedDims();
-    var needRail = !!(dim && (dim.w >= RAIL_MIN_MM || dim.d >= RAIL_MIN_MM));
+    var lineLen = lineLenOf(dim);
+    var needRail = lineLen >= LIGHT_RAIL_MIN_MM;
     var lbl = inp.cob.closest("label");
     if (needRail){
       inp.cob.disabled = true;
@@ -953,7 +966,7 @@
     }
     var rule = $("light-rule");
     if (rule) rule.innerHTML = needRail
-      ? "가로·세로 <b>2,400mm 이상</b> 규격은 천장 트랙을 따라 길게 배치하는 <b>레일등</b>으로 시공합니다. COB 매립등은 이 규격에서 선택할 수 없습니다."
+      ? "라인타공 면 내부 <b>" + lineLen.toLocaleString("ko-KR") + "mm(2,100mm 이상)</b> 규격은 천장 트랙을 따라 길게 배치하는 <b>레일등</b>으로 시공합니다. COB 매립등은 이 규격에서 선택할 수 없습니다."
       : "매립등은 <b>주백색(4000K)</b> 2구로 시공합니다. 원하시면 <b>레일등</b>으로 바꾸실 수 있습니다.";
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="light"]'), function(r){

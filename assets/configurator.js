@@ -65,7 +65,7 @@ const SLAT = [
   { v:'ash',      label:'애쉬 오크',   hex:'#B5A896', grain:'#7C6E5B', code:'007' },
   { v:'dark',     label:'다크 월넛',   hex:'#5B483A', grain:'#2E2018', code:'008' }
 ];
-/* 매립등은 주백색 4000K 고정 · 레일등은 2,400mm 이상 규격의 기본값 */
+/* 매립등은 주백색 4000K 고정 · 레일등은 라인타공 면 내부 2,100mm 이상의 기본값 */
 const LIGHT = [
   { v:'cob4000', label:'COB 매립등 4000K', sub:'2구 · 주백색', temp:4000 },
   { v:'rail',    label:'레일등',           sub:'대형 공간',   temp:4000 }
@@ -134,12 +134,38 @@ const state = {
 };
 
 /* ---- 조명 규칙 ----
-   매립등은 주백색 4000K 고정. 가로(W)·세로(D) 중 한 변이라도 2,400mm 이상이면
-   레일등이 필수(자동 선택)이고, 그 미만은 COB 매립등 2구가 기본(레일등 선택 가능). */
-const RAIL_MIN_MM = 2400;
+   매립등은 주백색 4000K 고정. '라인타공 면 내부 유효 길이' 2,100mm 이상이면 레일등이
+   필수(자동 선택)이고, 그 미만은 COB 매립등 2구가 기본(레일등 선택 가능).
+   2026-11-28 대표님 확정 — blueprint.html 과 같은 기준(finOf · 양 끝 벽 두께)을 씁니다. */
+const LIGHT_RAIL_MIN_MM = 2100;
+const FIN_MM = 110;          // 외벽 액자틀 두께 (blueprint CFG.FIN)
 let lightAuto = true;   // 지금 조명 선택이 규격 때문에 자동으로 정해진 것인지(사용자가 누르면 false)
-function railRequired(){ return state.w >= RAIL_MIN_MM || state.d >= RAIL_MIN_MM; }
+
+/* 등급별 2중 벽면 — blueprint GRADE_DEF.faces 와 같다 (플러스는 정면만) */
+function dblFace(k){
+  if (state.model === 'db') return true;
+  if (state.model === 'ssp') return k === 'front';
+  return false;
+}
+/* 라인타공 면의 내부 유효 길이(mm) — 그 면 양 끝의 벽 두께를 뺀다.
+   뒷면은 좌·우 끝, 좌/우측면은 앞·뒤 끝이 벽이 된다 (blueprint lineEnds 와 동일). */
+function slatLineLen(){
+  const face = state.slatPos || 'back';
+  const outer = (face === 'back') ? state.w : state.d;
+  const ends = (face === 'back') ? ['left', 'right'] : ['back', 'front'];
+  const fin = k => FIN_MM * (dblFace(k) ? 2 : 1);
+  return Math.max(300, outer - fin(ends[0]) - fin(ends[1]));
+}
+function railRequired(){ return slatLineLen() >= LIGHT_RAIL_MIN_MM; }
 function defaultLight(){ return railRequired() ? 'rail' : 'cob4000'; }
+/* 레일 길이 — blueprint 와 같이 내부 길이로 1m / 1.5m / 2m 를 자동 추천하고,
+   내부보다 길면 줄인다. 스팟 헤드는 레일 500mm 당 1개(1m 2개 · 1.5m 3개 · 2m 4개). */
+function railLenMM(){
+  const len = slatLineLen();
+  const want = len >= 2700 ? 2000 : (len >= LIGHT_RAIL_MIN_MM ? 1500 : 1000);
+  return Math.max(400, Math.min(want, len - 80));
+}
+function railHeadCount(lenMM){ return Math.max(2, Math.round(lenMM / 500)); }
 function enforceLightRule(){
   if (railRequired()){
     if (state.light !== 'rail'){ state.light = 'rail'; lightAuto = true; }
@@ -246,7 +272,7 @@ function applySpec(sp){ assignSpec(sp); syncUI(); rebuild(); }
 /* 관리자·설계도에서 넘긴 쿼리 파라미터로 시작 상태를 맞춘다 */
 function applyQueryParams(){
   const q = new URLSearchParams(location.search);
-  if (!q.has('w') && !q.has('ws') && !q.has('bb') && !q.has('sl')) return;
+  if (!q.has('w') && !q.has('ws') && !q.has('bb') && !q.has('sl') && !q.has('lm')) return;
   const byLabel = (arr, v) => (arr.find(x => x.label === v) || {}).v;
   const w = +q.get('w') || state.w, d = +q.get('d') || state.d;
   assignSpec({
@@ -255,7 +281,7 @@ function applyQueryParams(){
     ab: byLabel(ARTBOARD, q.get('bb')) || state.artboard,
     sl: byLabel(SLAT, q.get('sl')) || state.slat,
     sp: q.get('lf') || state.slatPos,
-    light: q.get('lm') === 'rail' ? 'rail' : 'cob4000',
+    light: (q.get('lm') === 'rail' || q.get('lm') === 'cob') ? (q.get('lm') === 'rail' ? 'rail' : 'cob4000') : state.light,
     lt: q.get('lt') === '6500' ? '6500' : '4000',
     fl: byLabel(FLOOR, q.get('fl')) || state.floor,
     door: DOORS.some(x => x.v === q.get('da')) ? q.get('da') : state.door,
@@ -264,6 +290,8 @@ function applyQueryParams(){
     wp: WALLS3.some(x => x.v === q.get('wn')) ? q.get('wn') : 'left',
     pr: q.get('pj') === 'in' ? 'in' : 'none'
   });
+  /* 조명 방식이 파라미터로 명시되면 그 값을 그대로 존중 — 자동 규칙이 처음부터 덮지 않게 */
+  if (q.get('lm') === 'rail' || q.get('lm') === 'cob') lightAuto = false;
 }
 
 /* ============================ [3] UI ============================ */
@@ -376,7 +404,7 @@ function buildPanel(){
           ${LEDTEMP.map(t => `<button type="button" data-group="ledTemp" data-value="${t.v}" aria-pressed="false">${t.label}</button>`).join('')}
         </div>
       </div>
-      <p class="note" id="lightNote">COB 매립등 2구를 주백색 4000K로 시공합니다. 가로·세로 2,400mm 이상은 레일등이 기본입니다.</p>
+      <p class="note" id="lightNote">COB 매립등 2구를 주백색 4000K로 시공합니다. 라인타공 면 내부 2,100mm 이상은 레일등이 기본입니다.</p>
     </section>
 
     <section class="sec">
@@ -626,7 +654,7 @@ function specRows(){
   rows.push({ k:'몰딩', v:mold.label, chg:false, chip:mold.hex, sub:'아트보드 색 연동 자동' });
   const slatPosLabel = state.slatPos === 'left' ? '좌측' : (state.slatPos === 'right' ? '우측' : '후면');
   rows.push({ k:'라인타공', v:`${s.label} · ${slatPosLabel}` + (s.code ? ` (${s.code})` : ''), chg:(state.slat !== DEFAULTS.slat || (state.slatPos && state.slatPos !== 'back')), chip:s.hex, sub:'1면' });
-  rows.push({ k:'조명', v:(state.light === 'rail' ? '레일등' : 'COB 매립등 2구 · 주백색 4000K'), chg:state.light !== defaultLight(), chip:'', sub:(state.light === 'rail' ? (railRequired() ? '2,400mm 이상 필수' : '천장 트랙') : '') });
+  rows.push({ k:'조명', v:(state.light === 'rail' ? '레일등' : 'COB 매립등 2구 · 주백색 4000K'), chg:state.light !== defaultLight(), chip:'', sub:(state.light === 'rail' ? (railRequired() ? '내부 '+fmt(slatLineLen())+'mm · 자동 레일' : '천장 트랙') : '') });
   rows.push({ k:'중앙등', v:pick(LEDTEMP, state.ledTemp).label, chg:state.ledTemp !== DEFAULTS.ledTemp, chip:pick(LEDTEMP, state.ledTemp).hex, sub:'천장 원형' });
   rows.push({ k:'바닥', v:f.label, chg:state.floor !== DEFAULTS.floor, chip:f.hex, sub:'강화마루' });
   rows.push({ k:'문', v:`${d.label} · ${state.hinge === 'right' ? '우경첩' : '좌경첩'}`, chg:(state.door !== DEFAULTS.door || state.hinge !== 'right'), chip:'', sub:'시스템도어' });
@@ -662,7 +690,7 @@ function totalPrice(){
 
 /* ---- UI 동기화 ---- */
 function syncUI(){
-  /* 규격이 2,400mm 이상이면 레일등 필수 */
+  /* 라인타공 면 내부 2,100mm 이상이면 레일등 필수 */
   enforceLightRule();
   syncPhotoOutHinge();
 
@@ -687,7 +715,7 @@ function syncUI(){
     b.setAttribute('aria-disabled', lock ? 'true' : 'false');
   });
   if ($('#lightNote')) $('#lightNote').textContent = lockRail
-    ? '가로·세로 2,400mm 이상 규격은 레일등(천장 트랙)으로 시공합니다. COB 매립등은 이 규격에서 선택할 수 없습니다.'
+    ? '라인타공 면 내부 ' + fmt(slatLineLen()) + 'mm(2,100mm 이상)은 레일등(천장 트랙)으로 시공합니다. COB 매립등은 이 규격에서 선택할 수 없습니다.'
     : (state.light === 'rail'
         ? '레일등을 선택하셨습니다. COB 매립등 2구(주백색 4000K)로 바꾸실 수 있습니다.'
         : 'COB 매립등 2구를 주백색 4000K로 시공합니다. 원하시면 레일등으로 바꾸실 수 있습니다.');
@@ -2159,7 +2187,8 @@ function lightLayout(slatName){
   group.rotation.y = d.rotY;
   group.updateMatrixWorld(true);
   if (state.light === 'rail'){
-    const railLen = Math.max(1.15, w - 0.34);
+    /* 레일 길이는 도면(blueprint)과 같은 값 — 내부 길이로 1m/1.5m/2m 자동, 내부보다 길면 축소 */
+    const railLen = railLenMM() / 1000;
     return { mode:'rail', group, w, railLen, zRail: 0.46, cobHoles: [], cobs: [] };
   }
   const n = w > 2.3 ? 3 : 2;
@@ -2226,11 +2255,11 @@ function buildLights(plan){
       group.add(cap);
     });
 
-    /* 레일등 헤드: 일반 부스는 실사와 같은 3구, 2.8m급 대형 부스만 4구로 배치합니다 */
-    const longSide = Math.max(state.w, state.d) / 1000;
-    const nHead = longSide >= 2.8 ? 4 : 3;
+    /* 레일등 헤드: 레일 500mm 당 1개 — 1m 2개 · 1.5m 3개 · 2m 4개
+       (2026-11-28 대표님 확정 — 도면 스팟 헤드 개수와 같게) */
+    const nHead = railHeadCount(Math.round(railLen * 1000));
     for (let i = 0; i < nHead; i++){
-      const x = (i / (nHead - 1) - 0.5) * (railLen - 0.28);
+      const x = ((i + 0.5) / nHead - 0.5) * (railLen - 0.14);
       const head = new THREE.Group();
       head.position.set(x, H - 0.062, zRail);
       head.rotation.x = 0.34;   // 헤드를 타공판 벽 쪽으로 기울입니다
