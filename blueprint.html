@@ -377,16 +377,67 @@
   .room-adv .no{color:var(--warn);font-weight:700}
   .room-adv .ok{color:#1B7A5F;font-weight:700}
 
+  /* ---------- 참고 정보 접기 (부스·판 개수·발주표는 도면 아래로) ---------- */
+  .ref-sum{margin-bottom:12px}
+  .ref-group{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(20,23,26,.04)}
+  .ref-group + .ref-group{margin-top:10px}
+  .ref-toggle{display:flex;align-items:center;gap:9px;width:100%;padding:12px 14px;border:0;background:var(--paper);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+  .ref-toggle:hover{background:#FBFAF7}
+  .ref-toggle b{font-size:12.5px;font-weight:800;letter-spacing:-.01em}
+  .ref-toggle .sub{font-size:10.5px;font-weight:700;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ref-toggle .spacer{flex:1}
+  .ref-toggle .caret{flex:none;font-size:11px;color:var(--muted);transition:.18s}
+  .ref-group.closed .ref-toggle .caret{transform:rotate(-90deg)}
+  .ref-group.closed .ref-body{display:none}
+  .ref-body{padding:0 12px 12px}
+  .ref-body > .sheet-wrap{margin:0}
+  @media (max-width:600px){ .ref-toggle{flex-wrap:wrap;padding:11px 12px} .ref-toggle .sub{flex:1 1 100%;white-space:normal} }
+
+  /* ---------- 도면 밖 시공 규칙 · 산출 근거 (이미지·PDF·인쇄로 나가지 않는다) ---------- */
+  .rules-card{border:1px dashed #D6CFC0;border-radius:12px;background:#FAF7F0;overflow:hidden}
+  .rules-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:12px 15px;background:#F4EFE4;border-bottom:1px solid #E6DECD}
+  .rules-head b{font-size:12.5px;font-weight:800;color:#6B5B3E;letter-spacing:.01em}
+  .rules-head span{font-size:10.5px;font-weight:700;color:#8A8377}
+  .rules-body{padding:4px 15px 12px}
+  .rules-sec{padding:10px 0;border-bottom:1px solid #EAE3D4}
+  .rules-sec:last-child{border-bottom:0}
+  .rules-sec h4{margin:0 0 6px;font-size:11px;font-weight:800;letter-spacing:.04em;color:#6B5B3E}
+  .rules-sec ul{margin:0;padding-left:16px}
+  .rules-sec li{margin:0 0 5px;font-size:11.5px;line-height:1.62;color:#3B4248}
+  .rules-sec li:last-child{margin-bottom:0}
+
+  /* ---------- 상세 설정 접기 (폭 1080 이하 — 첫 화면에서 도면이 바로 보이게) ---------- */
+  .panel-toggle{display:none}
+  @media (max-width:1080px){
+    .panel-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:11px 13px;border:1px solid var(--line);
+      border-radius:var(--r);background:var(--paper);font:inherit;font-size:13px;font-weight:800;color:var(--ink);
+      text-align:left;cursor:pointer;box-shadow:0 1px 2px rgba(20,23,26,.04)}
+    .panel-toggle .ico{font-size:12px;color:var(--accent-d)}
+    .panel-toggle .sum{flex:1;min-width:0;font-size:11px;font-weight:700;color:var(--muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .panel-toggle .caret{flex:none;font-size:11px;color:var(--muted);transition:.18s}
+    .panel.fold .panel-toggle .caret{transform:rotate(-90deg)}
+    .panel.fold > section{display:none !important}
+    .panel.fold{gap:0}
+  }
+
   /* ---------- print ---------- */
   @page{size:A4 portrait;margin:8mm}
   @media print{
     html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .topbar,.panel,.foot,.sheet-bar,.bnb-card,.ord-card,.mold-card,.toast,.sum-card,.sec-head,.ref-band{display:none !important}
+    .topbar,.panel,.foot,.sheet-bar,.bnb-card,.ord-card,.mold-card,.toast,.sum-card,.sec-head,.ref-band,.rules-card,.ref-toggle,.panel-toggle{display:none !important}
+    /* 참고 정보를 접어 두었어도 도면은 전부 인쇄한다 */
+    .ref-group{border:0;border-radius:0;box-shadow:none;background:transparent}
+    .ref-group.closed .ref-body{display:block !important}
+    .ref-body{padding:0}
     .layout{display:block;padding:0;gap:0;max-width:none}
     .sheets{display:block}
     .pair-grid{display:block;gap:0}
     .sheet-wrap{box-shadow:none;border-radius:0;margin:0;overflow:visible;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
     .sheet-wrap:last-child{break-after:auto;page-break-after:auto}
+    .sheet-wrap.last-sheet{break-after:auto !important;page-break-after:auto !important}
+    .ref-group:last-child{margin:0}
+    .ref-group:not(:has(.sheet-wrap)){display:none !important}
+    .ref-sum{display:none !important}
     /* A4 8mm 여백 안에 도면 한 장이 잘림 없이 들어가도록 폭 기준으로 맞춘다 */
     .sheet{overflow:visible !important}
     .sheet svg{display:block;width:194mm;height:auto;max-width:100%;min-width:0 !important;text-rendering:geometricPrecision}
@@ -449,10 +500,16 @@
 </header>
 
 <div class="layout">
-  <aside class="panel">
+  <aside class="panel" id="panel">
+    <button type="button" class="panel-toggle" id="panelToggle" aria-expanded="false" aria-controls="panel">
+      <span class="ico">⚙</span><span>상세 설정</span>
+      <span class="sum" id="panelSum">—</span>
+      <span class="caret">▾</span>
+    </button>
     <section class="card">
       <h2>도면 정보</h2>
       <div class="field"><label for="site">현장명</label><input type="text" id="site" placeholder="예) 파주 ○○학원 3층" autocomplete="off"></div>
+      <div class="field"><label for="customer">고객명 <span class="hint">도면 표제란 · 선택</span></label><input type="text" id="customer" placeholder="예) 김○○ 원장" autocomplete="off"></div>
       <div class="row2 date-row">
         <div class="field"><label for="date">시공일</label><input type="date" id="date"></div>
         <div class="field"><label for="dwgNo">도면 번호</label><input type="text" id="dwgNo" value="BP-01" autocomplete="off"></div>
@@ -1874,6 +1931,10 @@ function merge2(list){
 const INK='#14171A', LINE='#2B3238', SOFT='#7E878E', DIMC='#2E6FA3',
       ACC='#2E9C86', WARN='#B4622A', PAPER='#FFFFFF', CREAM='#F4F0E7';
 
+/* 표제란 로고 — 이미지·PDF로 내보낼 때 외부 파일을 읽지 못하므로(캔버스 오염) data URI 로 박아 둔다.
+   원본 assets/logo-horizontal.png 에서 여백만 잘라 640px 로 줄인 사본. */
+const LOGO_TITLE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoAAAACcCAMAAADYmOrYAAAAwFBMVEUAAABOFw/49/d4XVtoIR+ylpWtp6eJZ2TIrax4dXWwmZjh1tamamncsLCObGh4UEqxl5THsrJOGxHIs7JXHhrZzMz+fn5vQzr/AABtQzyQbGh4T0jdyMd+PX1vayaqoHCegXydgXvg26yegnz//wBvRTzQwb6qIyP//3/ZwL47BgA+BgB5PEAA///RwL49AgB2PUJ///+q///PusXUvcAAAH8AAP8Af39VqqqZM2aBP0SqVQCqVaqjfYGjfoCq/6pcW4+jAAAAQHRSTlMA/Q36CPcK7vYDnVkLFaRhW59fX5ySAvIBnWOg8AQEEWCRDswBW18EAv9c/PIBl4yLAgMgYAIBAgMF/wMDS8gDVO6HoAAAIJ9JREFUeNrtnQmfq6iywEmJKCrGxGxterrPNtud5d777tvX7/+tHqBGQHFPOsmx5jdnM20E/hZVRVEg9D0LRYl39M5BCuJvETxjG3mjEsfxdsFPRSNPaJF74Q8+rXJxtokcHvJ8jSQoKBu5yxsJy8jfh/yCwFld5BiL4Ymejz+yUsRLYG7+ABEWUSzkLWJk4bu3YPR5pUscPl33UYiNRnpkxjaSpjc2IgtcjWNBCDppAO5W5uCE8NidB7W/q1q+0PVsJkXPsPwKFqafsh/XQrI0zPHGC4N2x+PyoiJTOaxWZ/T24O2LNLhOCLyGRs4zuXP4wmRn3t+LsxDQE1oz07VDmuaObkRL7WDOwavdXJgzEnFh5IYvFjfGSgOPKq2uzcGzNFI0LIxr2rX0d7gx85Qu3QTFAEH+euZWeMEgSp25x4bW33wc3YK/jDfF8c5ZIidBrFxLvNkB5LdP41WbnBP+qcUhKeUNJdUc8ansF8AIsjnHJiqUDiHcLko+JWGIC6V05SAjhbU6CX4CzSw0lOBkAPktQ2/VJU66hHyUPtP7JoN8guCKkKhK8EVTHQO/QmhV+JKcvaNmE72sc61Lp5mt+M3uXVI92MIlqhryDRtKcKoNyJ8nO656SAyLJVhXgGXYrxxXBFuly8ZjIq1Mm1XkiSAjpmPHG6ronWVEa/MhIKsSjCe8ZdK0A2/VTzyY1J/PIxhltc4Jir7h/XlUxmbkK8t/DFrVwjEm44yiCEWx53nbbZaEgkPaD0D9zSDqFBBMApDoc0aH0IXAYoqqdZpzcROVUNlIAAVXnzuH5YWMmIcxWmvuZdT0hFD3dbH5hDMBSBsii8L78Xae19QD5Hsk8EDrBhPYdIQWqx0HIO/iZNXTKMJD9U1o3GNtCVXC2ToFy2ecB0Coz7+7gDveXDfz/wkNdsfaLPw9eyIXDA8iKaRZA6oABmOCV1ED3TbPkAz0DN/Q2ZzLAVscFfUlcGrfMg+Ab4YxI9w5A9HMM16Y709YthYGkzlL6ph4cwFI+xvl+ejDoHs7v/Uz7ClWjdkrAagZzMK3ki/gO+WCxC8y5An6dMCuNwkTxv8DoXpZXeSF4iIB/jcCN9HF1fL70ZNZVnDpPC0aMReA3L48rgbI5yE6kHefa854YH+S3bUBfNNe4lj4RNAUjYqfanmzyeTPDfToS8MoJKbZBYoSrC58nQfAeghOZN7FQYQxjjbxzplIIAJmhpFt+GD6cmUAdQUYcIv2ZNHbgeqHwJVUIIRSit/qApD/f/nUPPYoGH3SYSTHUL2kWHk1t7MAyGjNKYy1VQ8g2UttFh7o6YCquc92ANG1AdTCWbF9OOmccceWfnGlhK5FUvFLUPxl43puMMf6NEXsa+75/7hNwgaN4dgDAVh5M+cBECEdLyfPOsYyRZO+U9n1xHAkCAwgEMQ9lEd8+VAANSuT9QvWcLfpOsYXeI6Qff5bXQLXcdwg/7MbeI43B4BGHOqYmMNV8whw1d8YzQxghALNQ/0sFzyoyY8RhnSGTgUY/eUeANRm4KzVt4jQp6pXwislxuQAegqAnqvw5+UAevMCiIw8ZifVbwq1FYlI0YAzA0h1p1AEWSg0xkj0KN3gcCPs7gHASJ2BgbZ11TfV3MYtXwikQ2CIBnT3NwDQ0HBeR0z2yK4J4FkPkNg0G3+CQIvlDQ1N3AWAHKS2breOUzDVCLTkEjUAmN4AQMuSmuakJM2DPTOAugfstOV+8Ik40Twj/JAABloIpl1pV0uIbpsGDDsECuu9H4Dh9QH8Izh2aUAO3PYWAGItKtYRcMVacAzQ6REBrIKSf+n87I+93GBv9Z+tYdPf+QhnYuP2D/cCoLmi8bVRZ98CwJNmASYddp3uPWUDo7N3pwG7AVz3AjDKYnNv2K4QR03C6NaArncjAPk91NjstvFD20aXc14AtZj3SydRkfrxoWv0/QDcafaoDcD1HBpw3WVEKGmWXzu+kHl6mLS8QxR7rS+4BqC3j70LgJ53TQ3I3S+FmS4AvasBqO3rfO92bImqAsmwOXjXK5/5pReAaDyA6wFOSNxLA1KKsT6nBfgHjAvHWb2wrpk4OoAbBcBAYHc1ABHQ8A4A1H7Q6RFs1dYRkmGRGAV1zy6rXgDisQBSNamrvcFAFfOk6wv1dI6gMPdAhlBpi+b+OADRPQB4UjunTy6/FhuLRwPYNxl+fgD/D4XHnl2lmSdJV68yNesxUPwNoPpLC+MB3DwdgFoQpk/iL5yUF303hAKMXu4BQK70jv10vr4i2h1zUgOqKoDoD6z0mbmCNARAT/7DUwFIlJv1iyxjpZsHeSG4lpY6F4DAyIA0OS2UFDeu+jR+sBNAfNo2A6inhMf6IvoQAHO3+KkAVEt79Nv+pa4cfzyAQC4k4p77lim8r9RQkqW3iB5175F7oS7y6QAibXG/0wbc1AF0rgEgrO4LwB0M1ZnOBwIonMyCPUiTNF9sOPV7EDVikkFT1QfxL5n2KPiP7p5JrQDq1iQdqAE97woA8n64MwD/ih4JwKLhyZrTdFwdefPjrN/jUJxq3yISsrCy/4tEuLZSkKD3Hj3zzzYAuT+tDjZuBdALTAAd5yoAfs8a0LFLPwC3223mmklrzvuhX2BSz8+O8/7CueStjI+WlPRWsQGohVt3HU6I490IwEEakPH/TjKwFCk7LB7VBozBLudeAFp2zveahE/1DPBA2RgHWeaYt+0ZU2gBMLY0qwFA5wMA/EJrG6IwbM1nLt7Pa3nBrJ8X/DJdA+56RQuHA7hKe7U9aqhLdJQ70z05oZuKtXcyqhVAqr+2dwdg86r4X5QuEBtS5PPyP7lXiwN2x5W1/Sq7Ye2tAHxh1JK6GbGXKQBm/cKDpFbTrr1CVt8ObdGA2V0DmEFYm4pCUAO30jra8f80K2nelZDP/QAcWQZJA7BXNswIAH/sGZ8mfWqzlSWP+/dnC4DruwZw1WGO22SOtWBv0Frwm7JPwggozA7gFo3QgD2fqHcliBgGdGevKXiL7hDAkTJDNoya+h91q0B1VWn1PiQbRkXrSgD+tup/RABBkPTYjJ8M4Q/1ckIyrZcfHUA8EUCqarSXzt3XE/IBqTIG19KAX4clKEJHjcpjAMPK4FgB/FnZkfVFu+VjA7ieDOBJq7vamRGN1QDG50HJMNGsAH5KGiQdliErYsuJ3RSURWOG7fyzAqiMj6NPGwMA9J4RwNqekKjVYlSDyUcQ9bo+CMB5CmXIgsRZ7BihF/63r4lZJn0KgD8oJmCmH+PSH8B87/DTAajviuOzqn3N6Rd9P/PAahXzAhgROmz/bQuCIri13rpfZT7sV3e7zg9+HFEQywagsurldeYD3iOATrEy5MVbLt6cABrV+ziBtqSSd31f8NCSZTMDOFu9tMY0FzzuSAALgKoPzPA9AnjsSE53gL+j5YuptGYOAKlefV9URmjq/Mhcnx9aC/1eAZT9x6LqgXDExpaBsWVEXyaZ3xPTbLEDWG1Kuj6AXWvB1ZKDWC53ZwWwdtxXXKsN84usDaPb64Nrw2gAUrt8BIDDiT2IR61lwdb3hBxE1xFlqbBWitAKYC7JnQCIowjnignPrAFFl+iuoBNAwfobpfgtX4A2DxV6H0qArgHtMheAJ/Gu0oi/SgeYsbgfPWBVW2ovqgKgqLRaLN1XE4fX8MraAPS8skCbd1ca8AoAIkrq9QETLVbFgnOtPuDQbtAAjOwyE4C1scZziDJnRxFp04DlB/8nrmouNhk3jQDm9Ek7rGLweQFsrJC62sUBVyARXgdnpxavjYe3t+lgz37rPGMA5E2Kz3EcJDh6ZzBjYWUA/Dne5T3irM6ZdmZA5csFQRDH552yEdBtPmuqKR9Q1XvVX58YwGYC2xZIR+xJGwMgHgugloJ8dLzjbrd72XEiJ8rL7mi8jMd175Wa33+PWS3IUNQHDN0CQBO/CsFnBpDfhvSvkn8MUHS6AYBZLSreG8BIP4nht9UVJWt4vv8t1mayTI2aiVeXocZtmZuLBqzzVxDoPjOAIhjTd8vGcdwJkkYh1h5CkNXG6sxdhN3qVuK12YBSmJpiHUDTWnDx68Zt4q8k8JkBlMdH9s1PGiUEbUYPbG2Aj+1JKjDo2JOJ4jQBGFHpUf1QesLKCUP61gfQaLPwVxL4GABuxj0hxX1S5Lx07JmtgwEk8GYD8DevE0Dntw8FUN+YjjWV7ClnHugAuiVmdSkvPQCAydgYreimz8cu/MbenSI2ZFi5oXlo8YI7cmcBAud+AMyPFVd9uKgRwBb+ChXoPgKAE0IMQuV8sk1e+ZFqE0K6WN1U2SVp61JXj90okDgfaQP+UDOB08ZUcnCHiR/CvQM4pZh2fiZIujZOLXW8bb4QPaHtil02+i6KIdqjlfBTfLwBgFkvANF/qFGApvd470vAbJo9zC/vW042eQIALyoO1CN+t+W607Qbl352DD1K+0Ydi/24lzqHRGfQi7frmUU9arMNQEpZ6+495ueHIVkbVByXxAZlYc63FnwzAEVfYP2MafF4ZPJyapnOf0ajTztzqnzUPo9D8qlYFsl14m1y9YMm2wA06orRWpAqn2FtSW5QqECuIuH2AL7cFkDZIeu2JYmRs3AmNMZ4/i5JE/2TseujieeWvgBqwXGG/k17VX5hhY0HB7BZMKUROJMX8kAArq91Up99JQ1jIgNpJMJKzGLbMCP0nsxx9LEaUAsDGKs8tFSAG2uAncCmIBAOC4Bj2ywypDqVFjFNxLccnUqFBB+bDTgOwJNajmqneVF8/Pzi1Eyrj0vQpvjMPAe28jFVClQ26vbvUQPmCfIAlIp0kvjzJinSPslJyd1mNwWwv9HVCqB5BIVy1wjS0sBDdgCLI125lpwJQG+ZgmtTb+41aFUhnGOenRhdvJDzhG84DZTorZi/6WQAqbLS5BjHTPmX6RXsYawyFAgUZgZwd36pi5Ic8J0AKE7kTJtjd2fB4AESuR4Pt52B59KA6tb8FWuagf2Wc8Cradr9B5obwC75CACzj9CALfvExTHaOK/bNGmKJ0MkipJ45zm73TkgPRzvOoBquSlVA64Y/6tSiapga9OyzEFQUBqK3wGAxF7V+FqCjeOu6ghODT9EEE9Y8eixDbBdA2qVWXVNlxRo7VtCLKz0Qvz9zQE8fwcA4h75ghlMiYFhtQ7OCOn2vds1IIBaJlWTIsLikpb2wQXAzSzLcUMAVJv+pAD2O8fm66QQBExMT+iyRIgBYIQCfae3WgBbE7cXgPuLpUhuDCB5egBxz4O8vsLopVDtrISrAFjTgNym7TfIBYE+uyGACH0dZX08qQas8+foKqMpm3OgxFcFUC0ee0mW4NNr2sRgImfeKM0Xqj8IwL794cEbPDeA1PAOji8JK/3D5GxmP72N/RrvqgCqB3KV6WKy35RjDaqE2oorAehQAOexAS8JmnHrYje1G+u3AfA41/K39cv0YqXHwNi5uNbGLh1YtO9COSXTVKDTv8t2igYkDRtU4iKjm4imQFAC6PYDcB4nRHnertvBxwLoXBtAjFT+znLZ44C+yZBfPkSxVpVmfFYBaEeAxD3S/c6tu6RU+VkNnapbBkh917WyqU8sPkYlgFEvAOcJw7DLaYXDtnlPAPDUP4arTcFw6qqDcUJEpq6M6hk9ACOKLhh+xpteGC4bqQLzepSeqtm7RUmkd7uaocWZoSX+aBy0jC9xwLBPHJB/6p9mee8LaLhZfRg5XNkQAMvDbqKI5a08neznFRH4qdJKoqa8RU7l2WraKA/tiKPGH2l4HVQCHc0mHoag2nvHEEcduX4UJ73TIrXzl9YqYtQIcTqA9SqptEw2fYU2AEtM2TzZCGWUaODKptqFySWBvhtAioatYoUDtjkB0DTJsiSVHurA3qF/V+ukW3VXrDpFo00C/K/bIbatFrrZ8lm27aOZ7mVUBNKIGn4UNf3ni3VnfSL490u4ep5khEucfGBgaySAmBsajudtt2vOSYjfGIN2qQB0Wj8Xpdm2Cpc4LyMS32N1w3lkMQkUNdlrS5Kt98YD2Db18yvMCF3wL2MUESZ+iLXxJ6RXNkw3paMtk6sDCLi2DCDLgLWILWpvi+1XXT+oVjNoaLWMcKbmMsHoaWc9GsB2xUt+N7qh6gUtx8Jr8OLJoHzAeXIRFA14CwCjnoU35pBhThVDaQUgs5rDWr0rOjowqfbDQACPdtsfIG2I8HhZynD4z9nfHL2yCbVrtxYvRMmIvm5M4joA4snLAANk4AE2uGekzWudxK4S31QNO8eqebwBa8zNR7GUm+K4CrTvCSm2jYyNg340gLer1sMHdlCgNO5V+Agr8ejPoxMUBwKo7U61Wp7xX3ft8rdYWYNrwgfKXXE+WPRblRD9wQrwETTgQC+1ejV+bHm53xV0zqMBZCg8jgVwQlpuFX3UNCCOTBVo1W9lFNC/9qrAlQCkQM431IAjAWwjl6CfGjfqjw3/DwbQsX5p1LHZ+GfMvPYpGHHvt3RDGtd5qm3BAOgRAZSdfyslODBK0hfAsDFDfKAqUlJWBgLojf7SA2oEECNc1fWgZW2YZhUIUChAOP1yPwBeerBfILpeKuU6MtRCGw7geA2oJh4OBNAdPWRWAHfV7kxuGm4KFdcQxSoVoB9+uALUNGD5+P00IM0ZPFcMes45CN6uWKtiIIBZK4DpDBpQPbZtlQ4CMJ4ZQFEuTNkefHrLo9GN235Zvgripx9tABoAKi9Ir2yYU77tO9/pFSfRdV6noQXMq3S5bcuJMj9rLEzQgEPyHFUA0dxTMELa/nRCCzOwrphJPj/7Kfpw/Sd6wVUWroYBiIq939VeVxwRPPsDDvz4tpeSUc92D8YnpaoFKYYBuB4df2sGMOLmqFYggRThaN8MY3HlX+g/hu4BwLiWoDYsH5DSSKKn1f35MCFaGh21I6Gs2E04KQ5rJmf3baq349PMANJDbFTo4ARKV0OEWhQucV6Zbc4luIkKpqYwhiek0rtoi+mXtuTbR/BJTVk43BzA43j7qxFAKoxfzzizoaiT6otMxXcCwAgRpxlL07DtKOdbCkU/1ioWaAASdEKPJY6aZkC7P/UCU95fdxyAToi+zAegWA+JzRpFksBcCW6qZFnxDz53f++EP/7877UwwkMDSCFbdVp3Wk5nNmE1VAMQ006XfqtEN7/NAmDJVbCqAygRDLnH6/tu8lMYhmni8z8K/O6mIl2VGXeEpin4CAgeCsAD+qKsojRrJe0wu+OU4kS4mkAqGPpowB0aXaNdBbCo/l9kaNUBlH+HcOMLeRW/BHvhMZL7GdRLJCtGTQA6jwagXjVKFE2Jah/QtvXEMCEdBKu19ntsStoNwrUbQD3X0msaLGAyTMGicF8eCcvuaVK7FLuulIUKoPd4AFKmpzJwBCsVJ5M/Em1HxZQGUrQefyJIMh3AlZ7q29wWACXeQgjc14CWOZXKQKhno+0eDD8kdr191sa5MMAviyp6HsUkBTgJQPFkbCKAoiQCiYK4S1sAHChhlM5UEHrWuAVw2o7H46cq5KsCeL51RfFZrArPUDVG5YBVp9LoK+8Dj0Y2E83oVACLf2PeY05XFxUNRgRpV/mR7w/XHlovXOV8FUfKbGOvrVDTCFHzsT4EwEN0oDTCecGOBwUQStNckV1lxP/L47Uo6q2X6MSEdG0P1ODiHOOyQZsC0ZGctB5VA1L+EtFGx+QBneAyunnsx99UA0OvA3LN3S6tAOabA7yOUz8faPyCx/VBSo3QPTV6bLqBiyfU6fWme8HKWjBv8O4BDXaLEfV+MQGjR20C6sqWjecoj8/n8Muq+VAZGQ22AIiy5wGwsmwAHR60DYSisG3r3pnMsxx1CeRnt2qZLR0rfR4AL9ly8Z0eYtVXUq9ZCx4FfvNYt/9VmCsi8WGgBqRzAsjliQDkE4vYgPoCDw2gCCBBUN++d74clTTPbHEWXXW79DobgOA9D4DPInmuElkH52JP9zlIcstr/hfrZuurlj0hFFyjUGBxYv3DGvFiJn54BEnDIGA6616cfNvo7bb3WDQgIHjQMOCzC42UrXWYRo8+SFYbsPZmBOcHt+EXeSgAa7XAvNXSW4t8lAaEE8i010UWuR6Amd3vjSDxzotbvMhVAWw9+jaesuV+kUV6ABhbp2CZ1LlowEWuC6AHdt8/WS0acJEriLqnr60K8XkBcJHrAIjVklzN20ry4sELgIvML9EpsB7TVUEq98UsAC5yBQDVjc9O41EgrDiQcQFwkdmF6MneXv00KIjKA0GDBcBFZufPOKHABfRzdEmuhkgc9ljuE1gAXGRW94OKtIpNfWsLQkipZwyBt1oAXOQ60rQJKk4u5TaAJcrm5wXARWaUA1kHO8sGu9VuF8e73U7fBoMXABeZ0fsNvIFCl3zAReabfBGEA2VJkV5kkUWeRweSgbLov0UWWWSRRRZZZJFFFllkEVpKQ0X/A1Wk6WfJF0Z61suCA2NADpay7Yw0fH/1xfL3Q+3Z8rspfzQfvKkCfHnxcLC21+Yt0i/sC6FWn7S5M7o6cZEKp6FRgPz3XhU7Lom69Q8T4/dZhbU8HCH2rgB7e5tPvS8unpZQBxqKEZPH1jHzvCZA/J+/iEviIkDDoTsQ7vfinKdudESlkv1mHzbUK6EI/sEvsXqBKsJ1JiOM5A/JmPo1IK4BHOAPxIRqBe1YCfl50nQGxjfRKtlgqD24uFF5pf6i8AdkP+XtbTp0XHbGvt4ZogX2TlzwQ6+vvjg8jMtGL5LN0P5yyffdVwOdU3HOnTxpETq/JhSfFP8xfRCAoVTe368dWEv8X8VBjvyL5UP6r0xRlvmzpeKQqY28WNVDYygsH/xVPJymzdRW8QZH6pVQuVJrEyna64tbmjOt6Ay3qTO4ESAaV/Si6y+LYXXNFO5dVywUbnjXqgTKtUZxsqI41S4w+04g5W7y8xf9rrqBGPFhSPPjQo0hoCjwxfmhwAk1jingXy9O0pMqhz/dPtSUXCiPGeWqT7YgDLXjI8RFXz63aBRGTa1KOU/qAfbyRvxFkz/F3zfdEiS8vb/uUX68JDNmaHEYtHxRRGcwrRXiroF8FvmFC4ANkvqu5C51/T+NaZAJJSP70ffNV1sMbfHzkoMWIZDKDx84gUy7Dcn5FcX0OG2heXKP1BlSklfzG4j/ykGSo713a1/pFk8nXxNjVoyKVqVShWrg+u6+uLLX9DG3E8Q/yWfY+BsDowNvxZ9g7Qz+FuR/2PCOXgCsuaAcQCZPr+PDrQHIbRc+RLI/DxsdwEic8w7C4uaWmKurzqYv8f09ZbJqIlHnLyIUn5x6+bdsXN90IASA+WmOKf8D0T1nXxz1nYqznfauqZLEMwnnmvFB93XTggARrWKAmVChf1d0IAgA+f3yrmDmi5KbegJFndtIdKHsHtLQGQQ4gLn1B260AFj3QQWAwm6vAXjINSCgNOT2kTEF+36QdzRBQYFJK4AbFAnyuAZUAURiWpKRDSbmZ6OwLZRWk3hIfb8XIA6gvM7Zs2hA4b0cQDBFNGVGCuMRXN2wgFwDMtkVryqAB/HZTeGcyG/VJ2jXD/IOIAJ4+KYpeaEBAX3jyJNFA9oAFBGJVOiKOoD8UhAYbiGTU1tORASv4gc7AMwPijc9ED6Ru25uM3Fl6HIrcBCASJpxrAVAPju65ZtiAgisEUDCwUvE4zJV4Ydu6SQJVe3qP1apPcK1sdEZOYCM7P3FCbYCKKYW4a7pXVRoQM5BYkyx8ocKK+m/xWxMWudggn6SDqIZ6SGFNim54EqGDtKAXC9xw7EVQOQa+jkHkE/PHCo31d2u3Abkt+VdoYa2i5m8UHKJnDLMziimg8R19d4ihQ248Rf8rAAGAe8kf2/4aAJA1xWXTAAj0c8FgESQk7YbgcJKF05ranqPTEz7tDTzXWOMOjWgYMgXNmALgL6hkgoNKO2C3IzVABTtFW+CFmohGoAb/Y5FZ5BLZ7waP8s7cL/fLzGYVgCLSByqASjDWAki2pKC7PPCnZAvfdoZjBZjK2IjqjLSAWTDARSaiU/CXQCCCaC72WwCoeaMewozWADoEz0mqUInteHeCqD8swlgHgJdAGyfgkUgUDPX8ymYz181DfiuacCkawrmo3YQSyG+YXRN1oDcAxEf6ZyCawC6RbS5Fi6XYRhODGjrtroGDIS3RJSLhgZsmIJBzAELgC1OyCXqRmo2IAZuxrMQ6mYPyxXAq+unnYd9y7OIhL4CYtiAtADw3TVB7wSQSG/I37u41Qlp8IJzs/DQAGB+z412cnphA7IyrOJSrTPCi6ctSdU7o/CCZQsWAO1hmBM9vBqarNCA/A1PENbMHtULJhxcF2i7F8yNPzhQZMyHMkhSeMGR8IKNQ+sVAJNfGwGESED96ka2MIzyoLoNSFHtnSnDMFR6tTqAYRn8g+qp1CD1pTNem73gAzEDWYvoAPLB5ACyBg0oo18hZ/NkxAGL0FevQPRefJiRxJyD9xxeGUXOQ4KoeQqOIGnWgGL0hXFJmgEEdgp9vVElgKwpo6AAUE7b6itVxAEP+UtTW0BBZcBcqkddeVZxwIW+ZgBJHgdk9SkYWB4HJASjgCuZk+qFSMuRieWJ0OeuRQeAbiADbxwybT4kIvjzp/itYYEhD3hAxK9i/mygrfbyZ/NDYTnIZQgDQGCcsQ2R6Va+ocwQExdT0mAyABMAMkYl+MxcCXGFocyf/k9zSTeioUDsS9kZ+ptCiIwDfllQs0nuhCARQk0NkKBYNRVrVLoGLBZxc12YdvAntFRYftZY4grL27yKMKThhfOfyz1z5tasTJChbRnisWjAwrMCMw/0ssLd5KrvhY7kc0GIjJC5srpsKsBDe2dc1oIXacIvCETsSwYCUzVOzCek8pKIjLlmNozQCZv9XhrdHVnRJxFy24RysQ8OUI8CydtsaisFwDWmzy/uN0aMXD6bHwQi80ROwuajBTKAKYJLGz1Vh5QN3tTzElkgfyzJ44EbLa2Foi/8UTbyUeoxJ4osncGfJb+pkeu2yKWD9q+/+v7r62sQ7GsJV6+v8pL4zTdNaP6XcPNrnh7X1bUHJJK9ZKQRzGMkmcxh8mVOlnnCJFAOmrxYe7a9fDZp7jM+CTN90PMnztukvx0kbxW/WKc9fJU5hBuZleC/poYvwTXta55FWJu+xYOKVvxqXhQxrPzrxgL4/+Fh5ayFe1U3AAAAAElFTkSuQmCC';
+
 function A(o){
   return Object.entries(o).filter(([k,v])=>v!==undefined&&v!==null&&v!==''&&v!==false)
     .map(([k,v])=>`${k}="${v}"`).join(' ');
@@ -1976,35 +2037,52 @@ function sheetShell(body){
   </svg>`;
 }
 
+/* ---------- 표제란 (TITLE BLOCK) ----------
+   도면 하단 한 줄 — 프로젝트 · 고객명 · 규격 · 도면명 · 축척 · 시공일 + 베오방음 로고.
+   고객에게 이미지로 보낼 때 이 표제란은 그대로 남는다(도면의 얼굴).
+   시공 규칙·산출 근거는 표제란과 별개로 도면 밖(화면 하단)에만 둔다. */
+const TBO = { h:104, burg:'#7A2418', cream:'#FCFAF6', cell:'#E4DCCF', lbl:'#8A7A6D', sub:'#6B5A4E', taupe:'#A08D80' };
+const TB_ID = {'A-101':'plan','A-102':'flr','A-103':'ele','A-104':'tbl','A-104B':'bom','A-105':'fld','A-106':'room'};
 function titleBlock(m,{no,title,scale}){
-  const w=252, h=104, x=SW-M-w, y=SH-M-h;
-  const site = m.inp.site || '현장 미지정';
-  let s='';
-  s += R(x,y,w,h,{fill:'#fff',stroke:INK,sw:1.1});
-  s += R(x,y,w,22,{fill:INK,stroke:INK,sw:1.1});
-  s += T(x+8,y+15,'BEO SOUNDPROOF',{size:9.6,weight:800,fill:'#fff',ls:'0.08em'});
-  s += T(x+w-8,y+15,'제작 도면',{size:8,weight:600,fill:ACC,anchor:'end',ls:'0.06em'});
-  // rows
-  s += L(x,y+40,x+w,y+40,{stroke:SOFT,sw:0.5});
-  s += L(x,y+58,x+w,y+58,{stroke:SOFT,sw:0.5});
-  s += L(x+96,y+40,x+96,y+81,{stroke:SOFT,sw:0.5});
-  s += L(x,y+81,x+w,y+81,{stroke:SOFT,sw:0.5});
-  s += T(x+7,y+31,'PROJECT / 현장',{size:5.6,fill:SOFT,ls:'0.06em'});
-  s += T(x+7,y+37.6,(site.length>22? site.slice(0,22)+'…':site),{size:7.4,weight:700});
-  s += T(x+7,y+48,'규격 (외경)',{size:5.4,fill:SOFT});
-  s += T(x+7,y+55,m.W+' × '+m.D+' × '+m.H,{size:7.6,weight:700,mono:true});
-  s += T(x+103,y+48,'층고 / 벽체',{size:5.4,fill:SOFT});
+  const x = M, y = SH-M-TBO.h, w = SW-2*M, h = TBO.h;
+  const x1 = x+180, x2 = x+344, x3 = x+488, x4 = x+664;      /* 칸 경계 */
+  const site = String(m.inp.site||'').trim();
+  const cust = String(m.inp.customer||'').trim();
+  const date = String(m.inp.date||'').replace(/-/g,'.') || '—';
   const wallSpec = !(m.dblFaces && m.dblFaces.length) ? '110'
     : (m.grade==='double' ? '220 (4면)' : '220 (앞면)');
-  s += T(x+103,y+55,m.H+' / '+wallSpec,{size:7.2,weight:700,mono:true});
-  s += T(x+7,y+69,'도면',{size:5.4,fill:SOFT});
-  s += T(x+7,y+76.5,no+'  '+title,{size:7.2,weight:700});
-  s += T(x+103,y+69,'축척',{size:5.4,fill:SOFT});
-  s += T(x+103,y+76.5,scale,{size:7.4,weight:700,mono:true});
-  s += T(x+7,y+91,'시공일',{size:5.4,fill:SOFT});
-  s += T(x+7,y+98,m.inp.date||'—',{size:7,weight:600,mono:true});
-  s += T(x+103,y+91,'발행',{size:5.4,fill:SOFT});
-  s += T(x+103,y+98,'베오방음 제작팀',{size:7,weight:600});
+  const cutTxt = (s,max)=> (s.length>max? s.slice(0,max)+'…' : s);
+  const seq = sheetSeq(TB_ID[no]||'');
+  let s = '';
+  s += R(x,y,w,h,{fill:TBO.cream, stroke:TBO.cell, sw:1.0});
+  s += R(x,y,w,3.4,{fill:TBO.burg, stroke:'none', sw:0});          /* 버건디 머리띠 */
+  /* ── 왼쪽 — 로고 */
+  s += `<image href="${LOGO_TITLE}" x="${n(x+12)}" y="${n(y+15)}" width="148" height="36.2" preserveAspectRatio="xMinYMid meet"/>`;
+  s += T(x+13, y+71, '방음부스 제작 · 이전설치', {size:10.5, fill:TBO.sub, weight:700, ls:'0.01em'});
+  s += T(x+13, y+88, 'beosoundproof.com', {size:9.5, fill:TBO.taupe, weight:600, ls:'0.03em'});
+  /* 칸 구분선 */
+  [x1,x2,x3,x4].forEach(cx=> s += L(cx, y+3.4, cx, y+h, {stroke:TBO.cell, sw:0.8}));
+  s += L(x1, y+52, x+w, y+52, {stroke:TBO.cell, sw:0.8});
+  /* ── 칸 1 — 프로젝트 · 고객명 */
+  s += T(x1+12, y+20, 'PROJECT · 현장', {size:10.5, fill:TBO.lbl, weight:800, ls:'0.09em'});
+  s += T(x1+12, y+39, site? cutTxt(site,17) : '—', {size:13, weight:800});
+  s += T(x1+12, y+68, 'CLIENT · 고객명', {size:10.5, fill:TBO.lbl, weight:800, ls:'0.09em'});
+  s += T(x1+12, y+88, cust? cutTxt(cust,15) : '—', {size:13, weight:800});
+  /* ── 칸 2 — 규격 · 층고/벽체 */
+  s += T(x2+12, y+20, 'SIZE · 규격 (외경 ㎜)', {size:10.5, fill:TBO.lbl, weight:800, ls:'0.09em'});
+  s += T(x2+12, y+39, fmt(m.W)+' × '+fmt(m.D), {size:13, weight:800, mono:true});
+  s += T(x2+12, y+68, '층고 · 벽체', {size:10.5, fill:TBO.lbl, weight:800, ls:'0.09em'});
+  s += T(x2+12, y+88, fmt(m.H)+' / '+wallSpec, {size:13, weight:800, mono:true});
+  /* ── 칸 3 — 도면명 · 축척 */
+  s += T(x3+12, y+20, 'DRAWING · 도면', {size:10.5, fill:TBO.lbl, weight:800, ls:'0.09em'});
+  s += T(x3+12, y+39, no+'  '+title, {size:12.5, weight:800});
+  s += T(x3+12, y+68, 'SCALE · 축척', {size:10.5, fill:TBO.lbl, weight:800, ls:'0.09em'});
+  s += T(x3+12, y+88, scale, {size:13, weight:800, mono:true});
+  /* ── 칸 4 — 시공일 · 도면 번호 */
+  s += T(x4+11, y+20, 'DATE · 시공일', {size:9.6, fill:TBO.lbl, weight:800, ls:'0.07em'});
+  s += T(x4+11, y+39, date, {size:11.5, weight:800, mono:true});
+  s += T(x4+11, y+68, 'SHEET', {size:9.6, fill:TBO.lbl, weight:800, ls:'0.07em'});
+  s += T(x4+11, y+88, seq+' / '+(PAGE_TOTAL||1), {size:11.5, weight:800, mono:true});
   return s;
 }
 
@@ -2686,7 +2764,7 @@ function sheetPlan(m){
   s += dimH(x110, x110+w110, oy-21, corner2? '110+110' : String(CFG.FIN), {size: corner2?8.2:9, labelY:oy-24.5});
 
   /* 범례 */
-  const ly = 872, lw = SW-2*M-24;
+  const ly = 872, lw = 430;
   const items = [
     ['hWall','110㎜ 벽체 액자틀 · 15T 원판 + 95T 날개 (45T 마블 2겹)'],
     ['hSlat','라인타공 1면 ('+m.sideName[m.lineFace]+') · 라인타공 마감 · 발주표에서 제외'],
@@ -2719,7 +2797,7 @@ function sheetPlan(m){
     }
     s += T(M+44, yy+7.6, it[1], {size:7.4});
   });
-  s += T(M+300, ly+14, 'NOTE', {size:7, weight:800, fill:SOFT, ls:'0.12em'});
+  /* NOTE · 시공 규칙 — 도면 이미지·PDF로 새지 않게 도면 밖(화면 하단 규칙 카드)으로 옮겼다 */
   const longSide = m.sides.find(sd=>sd.span===sd.len);
   const sumOf = sd => segsOf(sd).map(it=>Math.round(it.w)).join(' + ');
   const notes = [
@@ -2763,25 +2841,10 @@ function sheetPlan(m){
     notes.push('· 코너 기둥 '+m.notch.cw+' × '+m.notch.cd+' 따냄 ('+pn+') — 그쪽 외벽 '+m.notch.cw
       + ' / '+m.notch.cd+' 만큼 줄고 단차 벽 2면이 붙습니다. 바닥·천장·재단표에서도 이 면적을 뺐습니다.');
   }
-  /* NOTE — 칸 폭을 넘으면 단어 단위로 줄바꿈해 도면 밖으로 넘치지 않게 */
-  {
-    const nx0 = M+300, nMaxW = SW-M-8-nx0, nFS = 6.9;
-    const lines = [];
-    notes.forEach(tx=>{
-      const words = String(tx).split(' ');
-      let cur = '';
-      words.forEach(w=>{
-        const tryIt = cur ? cur+' '+w : w;
-        if(tagWidth(tryIt, nFS) > nMaxW && cur){ lines.push(cur); cur = '   '+w; }
-        else cur = tryIt;
-      });
-      if(cur) lines.push(cur);
-    });
-    lines.slice(0,12).forEach((tx,i)=> s += T(nx0, ly+22+i*9.9, tx, {size:nFS, fill:'#414A51'}));
-  }
+  putRules('plan','A-101 벽체 평면도 — NOTE', notes);
 
   s += titleBlock(m,{no:'A-101',title:'평면도',scale:'1 : '+Math.round(3.7795/sc)});
-  s += scaleBar(M+24, 1002, sc);
+  s += scaleBar(M+24, 990, sc);
   return sheetShell(s);
 }
 
@@ -3290,7 +3353,7 @@ function sheetFloorCeil(m){
   s += cobCeilPanel(m, xR, cobY, boxW, cobH);
   const cobBottom = cobY + cobH;
 
-  /* 계산 근거 박스 */
+  /* 계산 근거 · 원판 기준 — 도면 이미지로 새지 않게 도면 밖(화면 하단 규칙 카드)으로 옮겼다 */
   const calc = [];
   const multi = m.lenSplits.filter(o=>o.lens.length>1);
   const multiFloor = multi.filter(o=>!o.ceil);
@@ -3307,27 +3370,17 @@ function sheetFloorCeil(m){
   calc.push('· 시공 순서 : 바닥 1층 깔기 → 2층 교차 → 벽체 → 천장 마블폼 45T');
 
   const ny = Math.max(676, tblBottom + 16, cobBottom + 12);
-  const calcH = 17 + calc.length*11 + 3;
-  s += R(M+8, ny, SW-2*M-16, calcH, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
-  s += T(M+16, ny+13, '산출 근거 (CALCULATION)', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
-  calc.forEach((tx,i)=> s += T(M+16, ny+27+i*11, tx, {size:6.4, fill: i===0&&multi.length? WARN : INK}));
-
-  /* 원판 600×2400 기준 박스 */
-  const sy2 = ny + calcH + 10;
   const B = k => { const b = m.bom.find(x=>x.mat.indexOf(k)>=0) || {}; return b.boards==null? '-':b.boards+'장'; };
   const stock = [
-    '· 원판 규격 600 × 2400 · 가로는 항상 600 모듈, 2400 이하 1장 = 1원판',
-    '· 길이 → '+m.lenSplits.map(o=>o.label+' '+o.length+(o.lens.length>1? ' → '+o.lens.join(' + ') : ' (분할 없음)')).join('  |  '),
-    '· 원판 환산 : 바닥 '+B('바닥')+' · 벽판 '+B('벽판')+' · 천장 '+B('천장')+' · 알판 '+B('알판')+' (합계 '+m.boardTotal+'장, 폭별 1열 재단 기준)'
+    '원판 규격 600 × 2400 · 가로는 항상 600 모듈, 2400 이하 1장 = 1원판',
+    '길이 → '+m.lenSplits.map(o=>o.label+' '+o.length+(o.lens.length>1? ' → '+o.lens.join(' + ') : ' (분할 없음)')).join('  |  '),
+    '원판 환산 : 바닥 '+B('바닥')+' · 벽판 '+B('벽판')+' · 천장 '+B('천장')+' · 알판 '+B('알판')+' (합계 '+m.boardTotal+'장, 폭별 1열 재단 기준)'
   ];
-  const stockH = 17 + stock.length*11 + 2;
-  s += R(M+8, sy2, SW-2*M-16, stockH, {fill:'#F3F8F6', stroke:'#C7DED7', sw:0.8});
-  s += T(M+16, sy2+13, '원판 기준 (STOCK 600 × 2400)', {size:6, weight:800, fill:'#1F7A69', ls:'0.1em'});
-  stock.forEach((tx,i)=> s += T(M+16, sy2+27+i*11, tx, {size:6.4, fill:'#2E353B'}));
+  putRules('flr','A-102 바닥·천장 분할도 — 산출 근거 · 원판 기준', calc.concat(stock));
 
   /* COB 타공 가이드 — 외부(천장 바깥 끝) · 내부(벽 안쪽면) 두 기준 */
   const gbH = 74;
-  const gbY = Math.min(sy2 + stockH + 10, 998 - gbH);
+  const gbY = Math.min(ny, 998 - gbH);
   const gbX = M+8, gbW = SW-2*M-16;
   const f = m.field;
   const wallTxtF = (f && f.wallLayers > 1) ? '220' : '110';
@@ -3559,8 +3612,7 @@ function sheetElevation(m){
   s += dimH(sx0, sx0+totalT*pxPerMm, sy0+sech+40, String(totalT), {size:8.2});
   s += T(sx0-6, sy0+sech/2, '외부', {size:6, anchor:'end', fill:SOFT});
   s += T(sx0+totalT*pxPerMm+8, sy0+sech/2, '내부', {size:6, fill:SOFT});
-  s += T(sx0, sy0-6, '평면도·전개도 벽체 110㎜ = 액자틀 기준 (외부 9T 알판·내부 9T 마감재는 마감층)', {size:5.6, fill:'#7B8389'});
-  s += T(sx0, sy0+sech+52, '· 95T 날개는 액자틀 사방 테두리, 안쪽에 45T 마블 2겹 충전 (5T 여유). 외벽 알판 9T · 내부 마감재 9T.', {size:5.6, fill:'#7B8389'});
+  s += T(sx0, sy0-6, '평면도·전개도 벽체 110㎜ = 액자틀 기준', {size:5.6, fill:'#7B8389'});
 
   /* ---------- 문 면 상세 입면 ---------- */
   const dside = m.sides.find(v=>v.k===m.doorSide);
@@ -3589,8 +3641,10 @@ function sheetElevation(m){
     s += dimV(ddy+m.H*dsc-m.dh*dsc-m.fillH*dsc, ddy+m.H*dsc-m.dh*dsc, xR2, m.fillH, {size:7.4, labelX: rightHalf? xR2-3 : xR2-3});
   }
 
-  /* ---------- 시공 메모 ---------- */
+  /* ---------- 시공 메모 — 도면 이미지로 새지 않게 도면 밖(화면 하단 규칙 카드)으로 옮겼다 */
   const memo = [
+    '외벽 알판 9T · 내부 마감재 9T는 마감층 — 벽체 110은 액자틀 기준입니다.',
+    '95T 날개는 액자틀 사방 테두리, 안쪽에 45T 마블 2겹 충전 (5T 여유).',
     '· 벽판 95T PB는 1000×600 2단(1000+1000=2000)으로 세우고, 상단 '+(m.H-CFG.HEAD)+'은 상부 밴드로 마감.',
     '· 좌·우 벽은 외경 끝~끝 전길이로 세우고, 문 면은 좌·우 벽 안쪽(내폭 −220)에 끼워 시공.',
     '· 문 개구부 '+m.dw+'×'+m.dh+' + 상단 채움 '+m.dw+'×'+m.fillH+' — 문 상단 2000 레벨 · 바깥 열림(외여닫이).'
@@ -3609,11 +3663,8 @@ function sheetElevation(m){
   } else if(m.grade === 'double'){
     memo.push('· 등급 더블 — 4면에 내벽 110을 한 겹 더 세움(부스 안에 부스, 합 220). 문은 외벽·내벽 각 1짝, 안쪽 문은 부스 안쪽으로 열림.');
   }
-  memo.push('· 접합부 실링 · 내부 1면 라인타공 · 마루 '+CFG.MARU+' · 몰딩 45T · 경첩 '+hingeName(m.doorHinge)+'.');
-  const ny = 1000, memoW = SW-3*M-252-6, memoH = 20 + memo.length*11;
-  s += R(M+16, ny, memoW, memoH, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
-  s += T(M+24, ny+14, '시공 메모', {size:6, weight:800, fill:SOFT, ls:'0.1em'});
-  memo.forEach((tx,ix)=> s += T(M+24, ny+26+ix*11, tx, {size:6.2, fill:'#3B4248'}));
+  memo.push('접합부 실링 · 내부 1면 라인타공 · 마루 '+CFG.MARU+' · 몰딩 45T · 경첩 '+hingeName(m.doorHinge)+'.');
+  putRules('ele','A-103 벽체 전개도 · 단면 — 시공 메모', memo);
 
   s += titleBlock(m,{no:'A-103',title:'전개도·단면',scale:'1 : '+Math.round(3.7795/sc)});
   return sheetShell(s);
@@ -3884,8 +3935,7 @@ function sheetBom(m){
     s += T(cx+half-26, cyy, c[1], {size:10, weight:800, mono:true, anchor:'end', fill:INK});
   });
 
-  /* ---------- 확인 사항 ---------- */
-  let ny = cy0 + chkH + 20;
+  /* ---------- 확인 사항 — 도면 이미지로 새지 않게 도면 밖(화면 하단 규칙 카드)으로 옮겼다 ---------- */
   const tnotes = [
     '· 재단 치수는 제작팀 손도면(1500×1800 · 2000×2000 등)에서 확인한 600 모듈·자투리·조인트 여유 규칙으로 산출했습니다.',
     '· 원판은 600×2400 — 길이 2400 이하 1장 = 1원판. 초과 시 천장은 반씩 대칭, 바닥·알판은 '+splitModeName(m.lenSplit)+' 후 각 장 1원판으로 환산했습니다.',
@@ -3895,10 +3945,7 @@ function sheetBom(m){
   ];
   if(m.CEIL_2PLY) tnotes.push('· 천장 길이 2,400 이상 — 판 사이 15T 합판 2겹(30㎜) 세움 · 이음매 여유 30㎜(천장판 폭에서 이음매당 30 공제) 기준으로 산출했습니다.');
   if(m.notch.on) tnotes.unshift('· 코너 기둥 '+m.notch.cw+'×'+m.notch.cd+' 따냄 — 바닥·천장 판재에서 그 면적을 뺀 치수입니다. 단차 벽 판은 A-104 에 별도 행으로 있습니다.');
-  s += T(M+10, ny, '※ 확인 사항', {size:8.6, weight:800, fill:WARN});
-  tnotes.forEach((tx,i)=>{
-    wrapTokens(tx, tw-14, 8.4, 2).forEach((ln,k)=> s += T(M+10, ny + 15 + i*24 + k*11, ln, {size:8.4, fill:'#4F585F'}));
-  });
+  putRules('bom','A-104B 자재 산출표 — 확인 사항', tnotes);
 
   s += titleBlock(m,{no:'A-104B',title:'자재 산출표',scale:'N.T.S'});
   return sheetShell(s);
@@ -4509,11 +4556,9 @@ function sheetField(m){
     s += T(cx0+10, ly, '※ 이음선 위에는 타공하지 않습니다', {size:7.6, weight:800, fill:'#A8261A'});
   }
 
-  /* ---------- 아래 두 박스: 타공 순서 / 값 정리 ---------- */
-  const bx0 = M+8, by0 = py0+phAll+10, bh2 = 190;
-  const bwL = 372, bwR = SW-2*M-16-bwL-12;
-  s += R(bx0, by0, bwL, bh2, {fill:'#FBFAF7', stroke:'#DDD6C8', sw:0.8});
-  s += T(bx0+12, by0+17, '현장 타공 순서 (줄자 · 연필)', {size:7.8, weight:800, fill:SOFT, ls:'0.06em'});
+  /* ---------- 아래 박스: 값 정리 (타공 순서는 도면 밖 규칙 카드로) ---------- */
+  const bx0 = M+8, by0 = py0+phAll+10, bh2 = 176;
+  const bwAll = SW-2*M-16;
   const steps = rail ? [
     '1. 줄자를 라인타공 면 벽 바깥 맨 끝에 걸고, 그 벽에서 '+fmt(f.railDepth)+' 들어온 선을 천장에 수평으로 긋는다.',
     '2. 같은 선 위에서 같은 쪽 끝에서 '+fmt(f.railStart)+' 지점부터 레일 '+fmt(f.railLen)+' 길이를 표시한다.',
@@ -4528,17 +4573,17 @@ function sheetField(m){
     '5. 타공 깊이는 9T 아트보드 + 45T 마블폼 2장 관통 — 배선 후 커버 설치.'
   ];
   if(splitOn) steps.push('6. 천장판 이음선(파란 일점쇄선) 위에는 타공하지 않습니다 — 판 기준값은 판마다 자기 이음선에서 잰 거리.');
-  steps.forEach((tx,i)=> s += T(bx0+12, by0+34+i*16.2, tx, {size:7.3, fill:'#2E353B'}));
+  putRules('fld','A-105 현장 타공 가이드 — 타공 순서 (줄자 · 연필)', steps);
   const cf = m.cobFit;
   const fitTxt = rail ? '레일등 모드 — 2구 한 판 수용 판정은 COB 모드에서 표시'
     : (cf && cf.ok ? '✓ COB 2구 단일 600판 내 타공 가능 — '+cf.grainTxt+' · 판 폭 '+cf.stripA+'~'+cf.stripB+', 길이 '+cf.pieceA+'~'+cf.pieceB
-      : '⚠ '+(cf && cf.parallel ? '판 이음매가 타공 자리(±'+Math.round(m.cobDia/2+12)+')에 걸립니다 — 3단계에서 점을 이음매 반대쪽으로 옮기세요'
+      : '⚠ '+(cf && cf.parallel ? '판 이음매가 타공 자리(±'+Math.round(m.cobDia/2+12)+')에 걸립니다 — 점을 이음매 반대쪽으로 옮기세요'
         : '천장 결이 라인타공 면과 수직 — 2구가 서로 다른 600판에 걸립니다 (좌측 패널에서 결 방향 전환 권장)'));
-  s += T(bx0+12, by0+bh2-12, fitTxt, {size:7.2, weight:800, fill: (cf && cf.ok) || rail ? '#1B7A5F' : '#A8551F'});
 
-  /* 오른쪽 — 값 정리표 */
-  s += R(bx0+bwL+12, by0, bwR, bh2, {fill:'#F3F8F6', stroke:'#C7DED7', sw:0.8});
-  s += T(bx0+bwL+22, by0+17, '값 정리 — 외부 / 내부', {size:7.8, weight:800, fill:'#1F7A69', ls:'0.04em'});
+  /* 값 정리표 — 한 박스에 두 열 */
+  s += R(bx0, by0, bwAll, bh2, {fill:'#F3F8F6', stroke:'#C7DED7', sw:0.8});
+  s += T(bx0+12, by0+17, '값 정리 — 외부 / 내부', {size:7.8, weight:800, fill:'#1F7A69', ls:'0.04em'});
+  s += T(bx0+bwAll-12, by0+17, fitTxt, {size:7.2, weight:800, anchor:'end', fill: (cf && cf.ok) || rail ? '#1B7A5F' : '#A8551F'});
   const rows = rail ? [
     ['타공면', m.sideName[m.lineFace]+' · 외경 '+fmt(f.faceOuterLen)],
     ['타공면 벽 끝 → 레일', fmt(f.railDepth)+' ㎜ ('+wallTxt+' + 400)'],
@@ -4561,11 +4606,13 @@ function sheetField(m){
     ? fmt(m.railInset)+' / '+fmt(m.railGap)+'~'+fmt(m.railGap+m.railLen)
     : fmt(m.cobInset)+' / '+fmt(m.cobPos[0])+' · '+fmt(m.cobPos[1])]);
   rows.forEach((r,i)=>{
-    const yy = by0+34+i*(rows.length>8? 12.6 : 15);
-    s += T(bx0+bwL+22, yy, r[0], {size:7.2, fill:'#5C666D', weight:700});
-    s += T(bx0+bwL+22+132, yy, r[1], {size:8, weight:800, fill:INK, mono:true});
+    const col = i < Math.ceil(rows.length/2) ? 0 : 1;
+    const row = col ? i - Math.ceil(rows.length/2) : i;
+    const cx = bx0 + 14 + col*((bwAll-16)/2), yy = by0+42+row*19;
+    s += T(cx, yy, r[0], {size:7.4, fill:'#5C666D', weight:700});
+    s += T(cx+152, yy, r[1], {size:8.2, weight:800, fill:INK, mono:true});
   });
-  s += T(bx0+bwL+22, by0+bh2-14, '외부 = 바깥 맨 끝 / 내부 = 벽 안쪽면 (차이 = 벽 '+wallTxt+')', {size:6.6, fill:'#7B8389'});
+  s += T(bx0+14, by0+bh2-12, '외부 = 바깥 맨 끝 / 내부 = 벽 안쪽면 (차이 = 벽 '+wallTxt+')', {size:7, fill:'#7B8389'});
 
   s += titleBlock(m,{no:'A-105',title:'현장 타공 가이드',scale:'N.T.S'});
   return sheetShell(s);
@@ -5955,26 +6002,28 @@ let PAGE_TOTAL = 5;
 function sheetsFor(m){
   const list = [
     {id:'plan', label:'A-101 벽체 평면도', fn:sheetPlan},
-    {id:'flr',  label:'A-102 바닥·천장 분할도', fn:sheetFloorCeil},
     {id:'ele',  label:'A-103 벽체 전개도·단면', fn:sheetElevation},
+    {id:'flr',  label:'A-102 바닥·천장 분할도', fn:sheetFloorCeil},
+    {id:'fld',  label:'A-105 현장 타공 가이드', fn:sheetField},
     {id:'tbl',  label:'A-104 재단 치수표', fn:sheetTables},
-    {id:'bom',  label:'A-104B 자재 산출표·발주', fn:sheetBom},
-    {id:'fld',  label:'A-105 현장 타공 가이드', fn:sheetField}
+    {id:'bom',  label:'A-104B 자재 산출표·발주', fn:sheetBom}
   ];
   if(m && m.room && m.room.on) list.push({id:'room', label:'A-106 방 배치 참고도', fn:sheetRoomLayout});
   return list;
 }
 let SHEETS = sheetsFor(null);
-/* 화면·PDF 순서 — 실무 순서(2026-11-26 대표님 지시)
-   ① 아트보드 도면(A-103) ② 현장 타공 가이드(A-105) ③ 평면·분할·재단 ④ 참고용 자재표(A-104B) 맨 밑.
+/* 화면·이미지·PDF·A4 순서 — 2026-11-27 대표님 지시
+   ① 기본 도면(A-101 평면 → A-103 전개도 → A-102 분할) ② 현장 타공 가이드(A-105)
+   ③ 참고 정보(재단표 A-104 · 자재표 A-104B · 방 배치 A-106 · 발주표) — 밑에서 펼쳐서 본다.
    도면 오른쪽 위 'SHEET n / N' 도 이 순서를 그대로 따른다. */
-const SHEET_SEQ = ['ele','fld','plan','flr','tbl','room','bom'];
+const SHEET_SEQ = ['plan','ele','flr','fld','tbl','room','bom'];
 let SHEET_ORDER = SHEET_SEQ;   // 그 화면에 실제로 그려지는 순서(방 배치도 끄면 뒤 번호가 당겨진다)
 function sheetSeq(id){ const i = SHEET_ORDER.indexOf(id); return i < 0 ? 0 : i + 1; }
 
 function readInputs(){
   return {
     site: $('#site').value.trim(),
+    customer: ($('#customer') ? $('#customer').value.trim() : ''),
     date: $('#date').value,
     dwgNo: $('#dwgNo').value.trim() || 'BP-01',
     W: +$('#W').value || 1500,
@@ -6185,6 +6234,49 @@ function summaryHTML(m){
   </section>`;
 }
 
+/* ---------- 참고 정보 접기 · 도면 밖 시공 규칙 ---------- */
+/* 접었/펼쳤 상태는 render 마다 다시 그려도 유지한다 */
+const ACC_OPEN = {};
+/* 같은 입력값으로 다시 그리지 않는다 — 글자를 치고 버튼을 누를 때 blur 의 change 가
+   도면 영역을 통째로 갈아 끼워 그 첫 클릭이 사라지는 것을 막는다. */
+let LAST_INPUT_KEY = null;
+function inputKey(){
+  const parts = [];
+  document.querySelectorAll('#panel input,#panel select').forEach(el=> parts.push(el.value));
+  document.querySelectorAll('#panel [aria-pressed]').forEach(el=> parts.push(el.getAttribute('aria-pressed')));
+  parts.push(String(state.winCenter), String(state.extFaces), String(state.moldManual));
+  return parts.join('\u0001');
+}
+function accHTML(id, title, sub, inner){
+  const open = !!ACC_OPEN[id];
+  return `<section class="ref-group${open? '':' closed'}" data-acc="${id}">
+      <button type="button" class="ref-toggle" aria-expanded="${open? 'true':'false'}">
+        <b>${esc(title)}</b>${sub? `<span class="sub">${esc(sub)}</span>` : ''}
+        <span class="spacer"></span><span class="caret">▾</span>
+      </button>
+      <div class="ref-body">${inner}</div>
+    </section>`;
+}
+/* 도면 안에 있던 시공 규칙·산출 근거 — 도면 이미지·PDF·인쇄로 나가지 않게 화면 하단에만 적는다 */
+const SHEET_RULES = {};
+function putRules(id, title, lines){
+  SHEET_RULES[id] = {title:title, lines:(lines||[]).filter(t=> !!String(t||'').trim()).map(t=>String(t).replace(/^·\s*/,''))};
+}
+function rulesHTML(){
+  const ids = ['plan','ele','flr','fld','bom'].filter(id=> SHEET_RULES[id] && SHEET_RULES[id].lines.length);
+  if(!ids.length) return '';
+  return `<section class="rules-card" data-rules>
+      <div class="rules-head"><b>시공 규칙 · 산출 근거</b>
+        <span>내부 참고용 — 도면 이미지 · PDF · A4 인쇄에는 들어가지 않습니다</span></div>
+      <div class="rules-body">${ids.map(id=>{
+        const r = SHEET_RULES[id];
+        return `<div class="rules-sec"><h4>${esc(r.title)}</h4><ul>`
+          + r.lines.map(t=>`<li>${esc(t)}</li>`).join('')
+          + `</ul></div>`;
+      }).join('')}</div>
+    </section>`;
+}
+
 function render(){
   /* 2,400㎜ 이상 규격은 레일등 자동 (quote·configurator 와 같은 규칙) */
   const bigNow = ((+$('#W').value || 0) >= 2400) || ((+$('#D').value || 0) >= 2400);
@@ -6214,29 +6306,33 @@ function render(){
   syncExtUI(m);
   syncJointUI(m);
 
-  // sheets — 실무 순서로 조립 (2026-11-26 대표님 지시)
+  // sheets — 도면 먼저 → 타공 가이드 → 참고 정보 밑으로 (2026-11-27 대표님 지시)
   SHEETS = sheetsFor(m);
   PAGE_TOTAL = SHEETS.length;
-  SHEET_ORDER = ['ele','fld','plan','flr','tbl'].concat((m.room && m.room.on) ? ['room'] : []).concat(['bom']);
+  SHEET_ORDER = SHEETS.map(sh=> sh.id);
+  for(const k in SHEET_RULES) delete SHEET_RULES[k];
   const byId = id => SHEETS.find(sh=> sh.id === id);
+  const wrapSheet = id => byId(id) ? sheetWrapHTML(byId(id), m) : '';
   const host = $('#sheets');
   host.innerHTML =
-      summaryHTML(m)
-    + secHead('1','아트보드 도면 · 발주표','도면과 발주표를 바로 옆에서 대조')
-    + `<div class="pair-grid">${byId('ele')? sheetWrapHTML(byId('ele'), m) : ''}${bnbCardHTML(m)}</div>`
+      secHead('1','설계 도면','A-101 평면도 · A-103 전개도 · A-102 바닥·천장 — 시공에 바로 쓰는 순서')
+    + ['plan','ele','flr'].map(id=> wrapSheet(id)).join('')
     + secHead('2','현장 타공 가이드','외부 · 내부 같이 — 줄자 위치 그대로')
-    + (byId('fld')? sheetWrapHTML(byId('fld'), m) : '')
-    + secHead('3','한경희마루 발주','1차 출고 → 나머지 · 발주 문자까지')
-    + orderCardHTML(m,'hkm')
-    + moldCutCardHTML(m, m.inp)
-    + secHead('4','실무 확인 도면','평면 · 분할 · 재단 치수')
-    + ['plan','flr','tbl','room'].map(id=> byId(id)? sheetWrapHTML(byId(id), m) : '').join('')
-    + `<div class="ref-band"><b>참고용</b><span>박사장님 공장 재단(PB 95T · 바닥 15T)과 A-104B 자재 산출표 — 발주 때 바로 쓰지 않고 수량 확인용으로만 봅니다</span></div>`
-    + orderCardHTML(m,'park')
-    + (byId('bom')? sheetWrapHTML(byId('bom'), m) : '');
-  host.querySelectorAll('[data-png]').forEach(b=>{
-    b.addEventListener('click', ()=>exportSheet(b.dataset.png));
-  });
+    + wrapSheet('fld')
+    + secHead('3','부스 정보 · 판 · 발주','필요할 때 펼쳐서 확인 — 도면부터 보고 나중에 넘겨 찾는 정보')
+    + `<div class="ref-sum">${summaryHTML(m)}</div>`
+    + accHTML('cut','판 개수 · 재단 치수표','A-104 · 판 종류별 치수와 수량', wrapSheet('tbl'))
+    + accHTML('bom','자재 산출표 · 발주 체크리스트','A-104B · 원판 환산 · 발주 준비', wrapSheet('bom'))
+    + (byId('room')? accHTML('room','방 배치 참고도','A-106 · 방 안에 들어가는지 확인용', wrapSheet('room')) : '')
+    + accHTML('bnb','비앤비 아트보드 발주표','라인타공 1면 제외 · 3면 + 천장 · 카톡 발주 양식', bnbCardHTML(m))
+    + accHTML('hkm','한경희마루 발주 · 몰딩 재단표','1차 출고 → 나머지 · 발주 문자 · 선접/후접 재단', orderCardHTML(m,'hkm') + moldCutCardHTML(m, m.inp))
+    + accHTML('park','박사장님 공장 재단 · 참고 수량','PB 95T · 바닥 15T — 발주 없이 수량만 확인', orderCardHTML(m,'park'))
+    + rulesHTML();
+  /* 접기·이미지 버튼은 #sheets 에 한 번만 위임한다 — 입력창에서 손을 띄우면(blur) render 가 다시 돌아
+     버튼이 갈아 끼워지므로, 버튼마다 달면 첫 클릭이 사라진다. */
+  /* 인쇄에서 빈 마지막 페이지가 남지 않게 — 마지막 도면만 page-break 를 끊는다 */
+  const lastWraps = host.querySelectorAll('.sheet-wrap');
+  if(lastWraps.length) lastWraps[lastWraps.length-1].classList.add('last-sheet');
   /* 도면 줌 — 기본 100%(화면 폭에 맞춤) · 확대하면 좌우로 밀어서 본다 */
   host.querySelectorAll('.sheet-wrap').forEach(w=>{
     const box = w.querySelector('.sheet'), svg = box && box.querySelector('svg'), pct = w.querySelector('[data-zoom-pct]');
@@ -6288,9 +6384,14 @@ function render(){
   // verify
   $('#verify').innerHTML = verifyHTML(m);
 
+  /* 모바일 상세 설정 버튼 — 지금 규격을 한 줄로 보여 준다 */
+  const pSum = $('#panelSum');
+  if(pSum) pSum.textContent = m.W+'×'+m.D+'×'+m.H+' · '+m.gradeName+' · 문 '+m.sideName[m.doorSide];
+
   // persist
   try{ localStorage.setItem('beo-blueprint', JSON.stringify(inp)); }catch(e){}
   syncURL(inp);
+  LAST_INPUT_KEY = inputKey();
 }
 
 function verifyHTML(m){
@@ -6652,10 +6753,12 @@ function init(){
     render();
   });
 
-  ['#site','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
+  ['#site','#customer','#date','#dwgNo','#W','#D','#H','#doorW','#doorH','#winCount','#winSide','#mod','#joint','#ceilDir','#lenSplit',
    '#cobDia','#cobInset','#railSpec','#bbColor','#bbAddr','#slatColor','#floorColor','#moldColor',
    '#roomW','#roomD','#roomDoorW','#boothClear','#boothAnchor','#cornerW','#cornerD']
-    .forEach(s=>{ const el=$(s); if(!el) return; el.addEventListener('input', render); el.addEventListener('change', render); });
+    .forEach(s=>{ const el=$(s); if(!el) return;
+      const re = ()=>{ if(inputKey() !== LAST_INPUT_KEY) render(); };
+      el.addEventListener('input', re); el.addEventListener('change', re); });
 
   /* 내부 몰딩 색 — 아트보드·라인타공 조합에 맞춰 자동 지정, 직접 고치면 그 색으로 쓴다 */
   const moldEl = $('#moldColor');
@@ -6679,6 +6782,37 @@ function init(){
 
   $('#btnPrint').addEventListener('click', exportPdf);
   $('#btnPngAll').addEventListener('click', exportAll);
+
+  /* #sheets 안 버튼은 위임으로 처리 — render 가 내용을 갈아 끼워도 한 번에 살아 있다 */
+  $('#sheets').addEventListener('click', e=>{
+    const png = e.target.closest('[data-png]');
+    if(png){ exportSheet(png.dataset.png); return; }
+    const tg = e.target.closest('.ref-group > .ref-toggle');
+    if(tg){
+      const g = tg.parentElement, id = g.dataset.acc;
+      const closed = !g.classList.contains('closed');
+      g.classList.toggle('closed', closed);
+      tg.setAttribute('aria-expanded', String(!closed));
+      ACC_OPEN[id] = !closed;
+    }
+  });
+
+  /* 폭 1080 이하(폰·태블릿) — 상세 설정은 접어 두고 도면부터 보여 준다 */
+  (function(){
+    const pToggle = $('#panelToggle'), panelEl = $('#panel');
+    if(!pToggle || !panelEl) return;
+    const narrow = window.matchMedia('(max-width:1080px)');
+    const syncFold = ()=>{
+      panelEl.classList.toggle('fold', narrow.matches);
+      pToggle.setAttribute('aria-expanded', String(!narrow.matches));
+    };
+    syncFold();
+    pToggle.addEventListener('click', ()=>{
+      const folded = panelEl.classList.toggle('fold');
+      pToggle.setAttribute('aria-expanded', String(!folded));
+    });
+    if(narrow.addEventListener) narrow.addEventListener('change', syncFold);
+  })();
 
   // URL / 저장값 복원
   const q = new URLSearchParams(location.search);
@@ -6705,6 +6839,7 @@ function init(){
   const qGrade = pickV(q.get('gr') || src.grade, ['single','plus','double']);
   if(qGrade) setSeg('#grade','grade', qGrade);
   if(src.W) $('#W').value = src.W;
+  if(src.customer && $('#customer')) $('#customer').value = src.customer;
   if(src.D) $('#D').value = src.D;
   if(src.H) $('#H').value = src.H;
   if(src.doorSide){
