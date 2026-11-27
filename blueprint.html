@@ -939,7 +939,7 @@ function buildModel(inp){
   /* --- 시창 규격 : 없음 / 600×800(기본) / 800×800(검사시창) / 1200×800 ---
      800·1200 은 아래 400 · 시창 · 위 400 · 상단 밴드 400 으로 쌓고,
      600×800 은 상부 1000 코스 안에 100 + 800 + 100 으로 넣는다.
-     800×800 은 창 폭을 더 쪼개지 않는다 — 아래 800×400 2장 · 위 800×400 1장으로 재단. */
+     800×800 은 창 폭을 더 쪼개지 않는다 — 아래 800×400 1장 · 위 800×400 1장 · 상단 밴드 800×400 1장으로 재단. */
   const WIN_SPEC = {
     none:       {w:0,    h:0, cols:[]},
     '600x800':  {w:600,  h:800, cols:[600]},
@@ -1403,8 +1403,12 @@ function buildModel(inp){
   const faceAxisCeil = (lineFace==='front' || lineFace==='back') ? 'x' : 'y';
   const axisOfCeilDir = v => ((v === 'long' ? Math.max(W,D) : Math.min(W,D)) === W) ? 'x' : 'y';
   const ceilDirWanted = (inp.ceilDir === 'short' || inp.ceilDir === 'long') ? inp.ceilDir : 'auto';
+  /* 결은 라인타공 면 방향(매립등 2구가 한 판에) — 단 그 길이가 2,000을 넘으면 이음이 생기므로 짧은 변 방향 */
+  const faceLenCeil = (faceAxisCeil === 'x') ? W : D;
+  const shortAxisCeil = (Math.min(W,D) === W) ? 'x' : 'y';
+  const autoAxisCeil = (faceLenCeil <= 2000) ? faceAxisCeil : shortAxisCeil;
   const ceilDirEff = ceilDirWanted === 'auto'
-    ? (axisOfCeilDir('long') === faceAxisCeil ? 'long' : 'short')
+    ? (axisOfCeilDir('long') === autoAxisCeil ? 'long' : 'short')
     : ceilDirWanted;
   const ceilAuto = (ceilDirWanted === 'auto');
   const ceilAlongLong = ceilDirEff !== 'short';
@@ -1470,7 +1474,7 @@ function buildModel(inp){
     const ok = samePanel && !hitLen.length && !hitSpan.length;
     /* 결 방향을 타공 면과 나란히 만드는 천장 결 설정 — 적용했을 때의 축으로 고른다 */
     const axisIf = v => ((v === 'long' ? Math.max(W,D) : Math.min(W,D)) === W) ? 'x' : 'y';
-    const wantCeilDir = (axisIf('long') === faceAxis) ? 'long' : (axisIf('short') === faceAxis ? 'short' : (ceilAlongLong ? 'long':'short'));
+    const wantCeilDir = (axisIf('long') === autoAxisCeil) ? 'long' : (axisIf('short') === autoAxisCeil ? 'short' : (ceilAlongLong ? 'long':'short'));
     const curDirVal = ceilAlongLong ? 'long' : 'short';
     const square = (W === D);   /* 정사각 천장은 결이 가로로 고정 — 전환해도 바뀌지 않는다 */
     /* 2구 사이에 끼는 판 이음매 */
@@ -1664,16 +1668,15 @@ function buildModel(inp){
                 + (winTight? ' · 자리 부족 현장 확인' : '')
                 + (winDouble? ' · 이중창 돌출' : '');
     add('문·개구부', winW, winH, winCount, '시창 개구부 '+winW+'×'+winH+' · 유리 5mm'+wnote);
-    /* 시창 열 적층 — 800×800 은 창 아래 800×400 2장 + 창 위 800×400 1장(창 폭 그대로 한 장씩),
+    /* 시창 열 적층 — 800×800 은 400 + 800(창) + 400 + 400 = 2,000 이라 판은 3장(창 폭 그대로 한 장씩),
        1200 은 600 폭 열 2개로 나눠 아래·위 400 판을 재단한다. */
-    const win800 = (winSpec === '800x800');
     winCols.forEach(cw=>{
       winStack.forEach(st=>{
         if(st.kind==='win' || st.h <= 10) return;
         const below = (st.kind === 'below');
-        const qty = below ? winCount * (win800 ? 2 : 1) : winCount;   // 800 시창 아래는 2장
+        const qty = winCount;                                         // 아래 칸도 400 한 장
         const tail = st.kind==='above' && winBig ? ' · 위판 400' : (below && winBig ? ' · 아래 400' : '');
-        add('벽판 95T PB', cw, st.h, qty, st.note+' '+cw+'×'+st.h+tail+(below && win800 ? ' · 2장' : '')+' · '+sideName[winSideKey], 'win-'+st.kind);
+        add('벽판 95T PB', cw, st.h, qty, st.note+' '+cw+'×'+st.h+tail+' · '+sideName[winSideKey], 'win-'+st.kind);
       });
     });
   }
