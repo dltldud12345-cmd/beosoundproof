@@ -5356,7 +5356,9 @@ function moldingCalc(m, inp){
        - 라인타공 면 상·하단 (선접) — 양옆 후접(9T)이 덮어 조금 짧아도 가려짐
        - 반대쪽(문 면) 상단 (선접)
        - 문 양옆 노출 PB 세로 8전 (선접)
-       - 문 면 하단 좌·우 (선접) — 8전이 튀어나온 부분부터 모서리까지
+       - 문 면 하단 좌·우 (선접) — 문 끝(8전 자리 포함)부터 모서리까지
+           · 2026-11-29 대표님 지시 — 하단은 8전(80)을 빼지 않고 문 끝에서 마감면까지 잰다
+             (외경 2,000×2,000 · 문 702 좌측 현장 실측 1,067 → 도면 1,069 · 문 여유 2㎜ 차)
        - 내부 세로(코너 기둥 4전) — 벽 높이 그대로
        - 시창 테두리 — 창틀 규격 고정
    · 현장 실측 +1mm = 선접을 붙인 뒤 레이저로 재고 1㎜ 길게 빡빡하게 재단
@@ -5364,6 +5366,8 @@ function moldingCalc(m, inp){
        - 문 위·아래 노출 PB 4전 2개씩 (후접)
        - 문 위 세로 4전 · 문 위 가운데 가로 4전 (후접 · 2026-11-27 대표님 지시)
            · 세로 = 내부 마감 높이 − 문 높이 − 정면 상단 4전(40)   (1,980 · 문 1,800 → 140)
+             (2026-11-29 대표님 확인 — 현장 실측이 보통 151㎜(140 + 틈새 11)라 40 공제는 그대로 둔다.
+              하단 좌·우만 8전 공제를 뺐다)
            · 가로 = 문 폭 − 4전(40) − 세로 4전 두께(9)              (문 702 → 653 · 700 → 651)
 
    ※ 이 재단표는 **내부 마감(4전·8전)만** 적는다 — 2026-11-27 대표님 지시
@@ -5428,8 +5432,11 @@ function moldCutPlan(m, inp, mld){
   const a0 = interiorStart(doorK);
   const faceLenD = faceIn(doorK);
   const doorLlocal = d0 - a0;
-  const segL = Math.max(0, Math.round(doorLlocal - MOLD_W8));
-  const segR = Math.max(0, Math.round(faceLenD - (doorLlocal + m.dw + MOLD_W8)));
+  /* 2026-11-29 대표님 지시 — 하단 좌·우는 8전(80)을 빼지 않는다.
+     문 끝(개구부)에서 그 면 마감면(모서리)까지 그대로 잰다.
+     외경 2,000×2,000 · 문 702 좌측 → 오른쪽 1,069 (현장 실측 1,067 · 문 여유 2㎜). */
+  const segL = Math.max(0, Math.round(doorLlocal));
+  const segR = Math.max(0, Math.round(faceLenD - (doorLlocal + m.dw)));
   const doorMul = (m.doorCount > 1 ? 2 : 1);          // 도어 2짝(더블)은 안쪽 문 몫까지
   const reveal = Math.max(0, finOf(doorK) + MOLD_T - MOLD_DOOR_T);   // 안쪽에서 보이는 PB 깊이
   const welded = (doorK === lineK) ? [lineK] : [lineK, doorK];       // 선접으로 먼저 가는 면
@@ -5446,16 +5453,16 @@ function moldCutPlan(m, inp, mld){
           note:'선접 · 문 위는 상단 몰딩이 그대로 지나감'});
   }
 
-  /* 3) 문 면 하단 좌·우 — 선접 (8전이 튀어나온 부분부터 모서리까지) */
+  /* 3) 문 면 하단 좌·우 — 선접 (문 끝부터 모서리까지 · 8전 자리 포함) */
   if(segL > 0 && segR > 0 && segL === segR){
-    push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'8전 바깥 → 모서리',
+    push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'문 끝 → 모서리',
           label:nm(doorK) + ' 하단 좌·우', len:segL, qty:2,
-          note:'선접 · 문 좌·우 8전 바깥 → 모서리 (문 턱 구간 제외)'});
+          note:'선접 · 문 좌·우 끝 → 모서리 (8전 자리 포함 · 8전 공제 없음)'});
   } else {
-    if(segL > 0) push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'8전 바깥 → 모서리',
-          label:nm(doorK) + ' 하단 좌', len:segL, note:'선접 · 8전 바깥 → 모서리'});
-    if(segR > 0) push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'8전 바깥 → 모서리',
-          label:nm(doorK) + ' 하단 우', len:segR, note:'선접 · 8전 바깥 → 모서리'});
+    if(segL > 0) push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'문 끝 → 모서리',
+          label:nm(doorK) + ' 하단 좌', len:segL, note:'선접 · 문 끝 → 모서리 (8전 자리 포함)'});
+    if(segR > 0) push({kind:'in4', role:'pre', face:doorK, pos:'하단', cls:'seg', noteShort:'문 끝 → 모서리',
+          label:nm(doorK) + ' 하단 우', len:segR, note:'선접 · 문 끝 → 모서리 (8전 자리 포함)'});
   }
 
   /* 4) 문 양옆 노출 PB 8전 — 선접 */
@@ -5507,6 +5514,8 @@ function moldCutPlan(m, inp, mld){
      · 가로 : 문 우측 8전 옆 ㄱ자 4전 기둥 ↔ 위 세로 4전 사이
               = 문 폭 − 4전(40) − 세로 4전 두께(9)
      둘 다 이미 붙은 몰딩 사이를 재고 끼우는 후접이라 현장 실측 +1㎜로 센다. */
+  /* 2026-11-29 대표님 확인 — 문 위 세로는 정면 상단 4전(40) 공제를 그대로 둔다.
+     현장 실측이 보통 151㎜(140 + 틈새 11)로 나오기 때문 (하단 좌·우만 8전 공제를 뺐다). */
   const doorUpV = Math.max(0, Math.round((ih - m.dh) - MOLD_W4));
   const doorUpH = Math.max(0, Math.round(m.dw - MOLD_W4 - MOLD_T));
   if(doorUpV > 0) push({kind:'in4', role:'site', label:'문 위 세로', noteShort:'문 위 4전 ↔ 상단 4전', len:doorUpV, qty:doorMul,
@@ -5631,7 +5640,7 @@ function moldPlanText(m, plan){
     });
   });
   L.push('');
-  L.push('※ 문 위 = 튀어나온 4전 끝 ↔ 상단 4전 세로(마감 높이 − 문 높이 − 40) · ㄱ자 기둥 ↔ 그 세로 가운데 가로(문 폭 − 40 − 9)');
+  L.push('※ 문 면 하단 좌·우 = 문 끝 ↔ 모서리(8전 공제 없음) · 문 위 = 튀어나온 4전 끝 ↔ 상단 4전 세로(마감 높이 − 문 높이 − 40) · ㄱ자 기둥 ↔ 그 세로 가운데 가로(문 폭 − 40 − 9)');
   L.push('※ 같은 규격·같은 길이는 묶어서 한 줄 · 선접 상·하단은 양옆 후접(9T)이 덮음 · 세로 몰딩 마루 위 시공 시 -8㎜');
   L.push('원장 2,440 참고 (내부 마감) — 4전 ' + plan.bars.in4 + '본 · 8전 ' + plan.bars.in8 + '본');
   return L.join('\n');
