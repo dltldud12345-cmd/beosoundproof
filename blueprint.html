@@ -5236,7 +5236,7 @@ function bnbCardHTML(m){
    ===================================================================== */
 const MOLD_LEN = 2440;      // 몰딩 기준 길이
 const MOLD_CUT = 15;        // 문·시창 가로 몰딩 공제 (세로 몰딩이 양옆을 덮음)
-const MOLD_WIN_V_STD = 1913; // 시창 양옆 세로 몰딩 길이 — 총고 2280 기준 (2026-11-26 대표님 확정)
+const MOLD_WIN_V_STD = BNB.WALL_H; // 시창 양옆 세로 몰딩 — 코너 기둥과 같은 벽 높이 1,980 (2026-11-29 대표님 지시로 11-26 값 1913 정정)
 
 /* 1차 출고 기본 패턴 — '2차 마감재 기본' 프리셋 (2026-11-26 대표님 지시)
    1차 조립 자재(강화마루·마블폼 45T 천장/벽체·마블폼 60T 바닥·도어·시창)는 1차 출고 = 전체 → 나머지 0.
@@ -5293,8 +5293,10 @@ function moldingCalc(m, inp){
   const innerDoorSideN = 2;
   const innerDoorTopN = 1;                          // 문 위 가로는 8전 1개 절단 또는 4전 자투리 활용
   /* 시창 테두리 — 문과 같은 방식으로 4전을 두르고, 원장(2440) 본수까지 같이 늘린다.
-     (2026-11-26 대표님 지시 — "시창 양옆으로 1913, 위아래로 785 … 4전짜리가 더 추가돼야") */
-  const winVLen = Math.round(MOLD_WIN_V_STD + ((+m.H || 2280) - 2280));   // 2280 총고 → 1913
+     세로는 문 옆 8전이 아니라 코너 기둥 세로와 같은 벽 높이(1,980)를 그대로 쓴다.
+     (2026-11-29 대표님 지시 — "시창 양옆 세로는 왜 아직 1913이야 그것도 기둥인데" → 11-26 값 1913 → 1,980)
+     (2026-11-26 대표님 지시 — "시창 양옆으로 1913, 위아래로 785 … 4전짜리가 더 추가돼야" · 세로 값만 11-29 정정) */
+  const winVLen = MOLD_WIN_V_STD;                                         // 1,980 — 코너 기둥 세로와 동일 (층고 무관 벽 높이)
   const winHLen = winOn ? Math.max(0, m.needW - MOLD_CUT) : 0;            // 800 시창 → 785
   const winVStock = winOn ? Math.ceil((winVLen*2) / MOLD_LEN) : 0;        // 세로 2본 — 보통 2개
   const winHStock = winOn ? Math.ceil((winHLen*2) / MOLD_LEN) : 0;        // 가로 2본 — 785×2 → 1개
@@ -5477,7 +5479,7 @@ function moldCutPlan(m, inp, mld){
   /* 6) 시창 테두리 — 창틀 규격 고정 */
   if(mld.winOn){
     push({kind:'in4', role:'pre', label:'시창 양옆 세로', len:mld.winVLen, qty:2, noteShort:'창틀 고정',
-          note:'선재단 · 창틀 고정 (총고 ' + m.H + ' 기준) · 마루 위 시공 시 -8㎜(' + fmt(mld.winVLen) + '→' + fmt(mld.winVLen - 8) + ') 현장 확인'});
+          note:'선재단 · 창틀 고정 · 벽 높이 ' + fmt(ih) + ' 그대로 (코너 기둥과 동일) · 마루 위 시공 시 -8㎜(' + fmt(mld.winVLen) + '→' + fmt(mld.winVLen - 8) + ') 현장 확인'});
     push({kind:'in4', role:'pre', label:'시창 위·아래 가로', len:mld.winHLen, qty:2, noteShort:'개구부 −15',
           note:'선재단 · 개구부 ' + (m.needW || m.winW) + ' − 15'});
   }
