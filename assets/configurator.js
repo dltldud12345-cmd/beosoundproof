@@ -133,6 +133,23 @@ const state = {
   view:'photo'
 };
 
+/* ---- 최소 제작 규격 ----
+   한 변은 1,500mm 이상, 두 변 중 긴 변은 1,800mm 이상이어야 한다(최소 1,500×1,800).
+   한 변을 1,500으로 내리면 다른 변은 자동으로 1,800으로 올려, 짧은 변만 남는 조합이
+   선택·복사되지 않게 한다. */
+const MIN_SIDE_MM = 1500;
+const MIN_LONG_MM = 1800;
+function fitDims(w, d, moved){
+  let a = Math.max(MIN_SIDE_MM, +w || MIN_SIDE_MM);
+  let b = Math.max(MIN_SIDE_MM, +d || MIN_SIDE_MM);
+  if (Math.max(a, b) < MIN_LONG_MM){
+    if (moved === 'w') b = MIN_LONG_MM;        // 가로를 내렸으면 세로를 올린다
+    else if (moved === 'd') a = MIN_LONG_MM;   // 세로를 내렸으면 가로를 올린다
+    else b = MIN_LONG_MM;                      // 저장값·링크로 들어온 경우는 세로를 기준으로
+  }
+  return { w: a, d: b };
+}
+
 /* ---- 조명 규칙 ----
    매립등은 주백색 4000K 고정. '라인타공 면 내부 유효 길이' 2,100mm 이상이면 레일등이
    필수(자동 선택)이고, 그 미만은 COB 매립등 2구가 기본(레일등 선택 가능).
@@ -203,8 +220,9 @@ function specSummary(sp){
   if (!sp) return '';
   const a = pick(ARTBOARD, sp.ab), s = pick(SLAT, sp.sl), f = pick(FLOOR, sp.fl);
   const d = DOORS.find(x => x.v === sp.door) || DOORS[0];
+  const fit = fitDims(sp.w, sp.d, 'none');
   return [
-    `${fmt(sp.w)}×${fmt(sp.d)}`,
+    `${fmt(fit.w)}×${fmt(fit.d)}`,
     `아트보드 ${a.label}`,
     `타공 ${s.label}·${WALL_LABEL[sp.sp] || '후면'}`,
     sp.light === 'rail' ? '레일등' : 'COB 2구',
@@ -246,11 +264,13 @@ function writeSlots(a){
   try { localStorage.setItem(SLOT_KEY, JSON.stringify(a.slice(0, 3))); } catch (e){}
 }
 function assignSpec(sp){
-  const m = MODELS.find(x => x.id === sp.model && x.w === +sp.w && x.d === +sp.d);
+  const fit = fitDims(sp.w || state.w, sp.d || state.d, 'none');
+  const w = fit.w, d = fit.d;
+  const m = MODELS.find(x => x.id === sp.model && x.w === w && x.d === d);
   if (m){ state.model = m.id; state.w = m.w; state.d = m.d; }
   else {
-    state.model = MODELS.find(x => x.w === +sp.w && x.d === +sp.d)?.id || 'custom';
-    state.w = +sp.w || state.w; state.d = +sp.d || state.d;
+    state.model = MODELS.find(x => x.w === w && x.d === d)?.id || 'custom';
+    state.w = w; state.d = d;
   }
   if (ARTBOARD.some(x => x.v === sp.ab)) state.artboard = sp.ab;
   if (SLAT.some(x => x.v === sp.sl)) state.slat = sp.sl;
@@ -369,7 +389,7 @@ function buildPanel(){
           <span class="vl"><b id="vlD">${fmt(state.d)}</b><span> mm</span></span>
         </div>
       </div>
-      <p class="note">표준 예시입니다. 실제로는 방 치수에 맞춰 재단하고, 최소 제작 규격(1,500×1,800)보다 작게는 만들지 않습니다.</p>
+      <p class="note">표준 예시입니다. 실제로는 방 치수에 맞춰 재단하고, 최소 제작 규격(1,500×1,800)보다 작게는 만들지 않습니다. 한 변을 1,500mm로 내리면 다른 변은 1,800mm 이상으로 자동 조정됩니다.</p>
     </section>
 
     <section class="sec">
@@ -563,8 +583,16 @@ function onPanelClick(e){
   rebuild();
 }
 
-function onSlide(){
-  const w = +$('#slW').value, d = +$('#slD').value;
+function onSlide(e){
+  const moved = (e && e.target && e.target.id === 'slD') ? 'd' : 'w';
+  const raw = { w: +$('#slW').value, d: +$('#slD').value };
+  const fit = fitDims(raw.w, raw.d, moved);
+  if (fit.w !== raw.w || fit.d !== raw.d){
+    $('#slW').value = fit.w; $('#slD').value = fit.d;
+    const side = fit.w !== raw.w ? '가로' : '세로';
+    showToast(`${side}를 ${fmt(fit.w !== raw.w ? fit.w : fit.d)}mm로 맞췄습니다. 최소 규격은 가로 1,500 × 세로 1,800입니다.`);
+  }
+  const w = fit.w, d = fit.d;
   const match = MODELS.find(m => m.w === w && m.d === d);
   state.model = match ? match.id : 'custom';
   state.w = w; state.d = d;
